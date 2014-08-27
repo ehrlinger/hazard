@@ -1,0 +1,1094 @@
+From cvsrehb Thu Dec  1 13:12:40 1994
+Received: by UABCVSR.cvsr.uab.edu (AIX 3.2/UCB 5.64/4.03)
+          id AA30228; Thu, 1 Dec 1994 13:12:39 -0600
+Date: Thu, 1 Dec 94 13:12:39 -0600
+From: cvsrehb
+Message-ID: <9412011912.AA30228@UABCVSR.cvsr.uab.edu>
+To: cvsrehb
+Subject: 27641.uabcvsr
+
+1                                                          The SAS System                           13:11 Thursday, December 1, 1994
+
+NOTE: Copyright(c) 1989 by SAS Institute Inc., Cary, NC USA. 
+NOTE: SAS (r) Proprietary Software Release 6.09  TS027
+      Licensed to UNIVERSITY OF ALABAMA AT BIRMINGHAM, Site 0001676011.
+
+NOTE: Running on IBM Model RS/6000 Serial Number 000002582E00.
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: AUTOEXEC processing beginning; file is /apps/sasnew/sas609/autoexec.sas.
+
+
+NOTE: AUTOEXEC processing completed.
+
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * /programs/hazard/examples/hz.te123.OMC                                       ;
+4          *                                                                              ;
+5          * Hazard function for repeated thromboembolic events.                          ;
+6          *______________________________________________________________________________;
+7          *                                                                              ;
+8            OPTIONS PAGESIZE=100 LINESIZE=132;
+9            TITLE1 "Primary Isolated Mitral Commissurotomy";
+10           TITLE2 "Thromboembolic Events (Repeated Events Analysis)";
+11           DATA PRIMISOL;
+12         *******************************************************************************;
+13         * Bring in data                                                                ;
+14           FILENAME INOMC '/programs/hazard/examples/data/omc';
+
+NOTE: The data set WORK.PRIMISOL has 1 observations and 0 variables.
+
+15           DATA PRIMISOL; INFILE INOMC MISSOVER;
+16           INPUT STUDY $ 1-10 TE1 12 TE2 14 TE3 16 TE1DJUL 18-25 TE2DJUL 27-33 TE3DJUL
+17                 35-41 AVP_RP1 $ 43 AVP_RP2 $ 45 AVP_RP3 $ 47 MVP_RP1 $ 49 MVP_RP2 $ 51
+18                 MVP_RP3 $ 53 TVP_RP1 $ 55 TVP_RP2 $ 57 TVP_RP3 $ 59 RP1DJUL 61-67
+19                 RP2DJUL 69-75 RP3DJUL 77-83 REOP1DAT $ 85-92 REOP2DAT $ 94-101 REOP3DAT
+20                 $ 103-110 INT_DEAD 111-120 5 OPDJUL 122-128 DEAD 130 FUPDJUL 132-138
+21                 TE1GRADE 140 TE2GRADE 142 TE3GRADE 144;
+22         
+23           LABEL
+24                 STUDY    = 'Study number'
+25                 TE1      = 'First TE'
+26                 TE2      = 'Second TE'
+27                 TE3      = 'Third TE'
+28                 TE1DJUL  = 'First TE Julian date'
+29                 TE2DJUL  = 'Second TE Julian date'
+30                 TE3DJUL  = 'Third TE Julian date'
+31                 AVP_RP1  = 'Aortc Replacement'
+32                 AVP_RP2  = 'Aortc Replacement'
+33                 AVP_RP3  = 'Aortc Replacement'
+34                 MVP_RP1  = 'Mitral Replacement'
+35                 MVP_RP2  = 'Mitral Replacement'
+36                 MVP_RP3  = 'Mitral Replacement'
+37                 TVP_RP1  = 'Tricuspid Replacement'
+38                 TVP_RP2  = 'Tricuspid Replacement'
+39                 TVP_RP3  = 'Tricuspid Replacement'
+40                 RP1DJUL  = 'First reop Julian date'
+41                 RP2DJUL  = 'Second reop Julian date'
+42                 RP3DJUL  = 'Thrid reop Julian date'
+43                 DEAD     = 'Death'
+44                 INT_DEAD = 'Followup interval (months) after repair'
+45                 FUPDJUL  = 'Followup Julian date'
+46           ;
+47         *******************************************************************************;
+48         * Censor all patients at valve replacement                                     ;
+49           IF TE1=1 AND TE1DJUL=. THEN DELETE;
+50           IF TE1=. THEN TE1=0; IF TE2=. THEN TE2=0; IF TE3=. THEN TE3=0;
+51           IF AVP_RP3='R' OR MVP_RP3='R' OR TVP_RP3='R' THEN DO;
+52             REPL=1; REPLDJUL=RP3DJUL; REPLDATE=REOP3DAT; END;
+53           IF AVP_RP2='R' OR MVP_RP2='R' OR TVP_RP2='R' THEN DO;
+54             REPL=1; REPLDJUL=RP2DJUL; REPLDATE=REOP2DAT; END;
+55           IF AVP_RP1='R' OR MVP_RP1='R' OR TVP_RP1='R' THEN DO;
+56             REPL=1; REPLDJUL=RP1DJUL; REPLDATE=REOP1DAT; END;
+57           IF REPL=. THEN REPL=0;
+58           IF REPL=0 THEN REPLDJUL=FUPDJUL;
+59         
+60           IF REPL=1 THEN DO ;
+61             IF TE1=1 THEN DO; IF TE1DJUL GE REPLDJUL THEN TE1=0; END;
+62             IF TE2=1 THEN DO; IF TE2DJUL GE REPLDJUL THEN TE2=0; END;
+63             IF TE3=1 THEN DO; IF TE3DJUL GE REPLDJUL THEN TE3=0; END;
+64           END;
+65         *******************************************************************************;
+66         * Prepare a separate observation for each intra-embolic interval               ;
+67         * General interval with be that to replacement                                 ;
+68           INT_REPL=INT_DEAD;
+69           IF REPL=1 THEN INT_REPL=(REPLDJUL-OPDJUL)*12/365.2425;
+70         *                                                                              ;
+71         * Output an observation from the time of last TE until INT_REPL                ;
+72         * This entails setting CENSORED to 1, the interval to INT_REPL, the event      ;
+73         * indicator to 0, and the stating time to that of the preceding event or       ;
+74         * operaition (if no event):                                                    ;
+75         *                                                                              ;
+2                                                          The SAS System                           13:11 Thursday, December 1, 1994
+
+76           CENSORED=1; INT_TE=INT_REPL; TE=0; STARTTME=0; NOPREVTE=0;
+77           IF TE1=1 THEN DO; STARTTME=12*(TE1DJUL-OPDJUL)/365.2425; NOPREVTE=1; END;
+78               /* 2 patients had embolic events in the hospital */
+79             IF STUDY='039' THEN STARTTME=(3/24)*12/365.2425;
+80             IF STUDY='096' THEN STARTTME=(2/24)*12/365.2425;
+81               /* 1 patient died on same day as te */
+82             IF STUDY='173' THEN DO; STARTTME=0; TE=1; END;
+83           IF TE2=1 THEN DO; STARTTME=12*(TE2DJUL-OPDJUL)/365.2425; NOPREVTE=2; END;
+84           IF TE3=1 THEN DO; STARTTME=12*(TE3DJUL-OPDJUL)/365.2425; NOPREVTE=3; END;
+85           OUTPUT;
+86         *                                                                              ;
+87         * Now calculate a inter-event segement for each TE, and output as a separate   ;
+88         * observation with starting time the time from t=0 of the immediately prior    ;
+89         * event (or ; * the operation) and the ending time the time from t=0 of the    ;
+90         * next event or censoring.                                                     ;
+91         *                                                                              ;
+92         * First event:                                                                 ;
+93           IF TE1=1 AND STUDY NE '173' THEN DO;
+94             STARTTME=0; INT_TE=12*(TE1DJUL-OPDJUL)/365.2425;
+95             /* 2 patients had embolic events in the hospital */
+96             IF STUDY='039' THEN INT_TE=(3/24)*12/365.2425;
+97             IF STUDY='096' THEN INT_TE=(2/24)*12/365.2425;
+98             CENSORED=0; TE=1; NOPREVTE=0;
+99             OUTPUT;
+100          END;
+101        *                                                                              ;
+102        * Second event:                                                                ;
+103          IF TE2=1 THEN DO;
+104            STARTTME=12*(TE1DJUL-OPDJUL)/365.2425;
+105            IF STUDY='039' THEN STARTTME=(3/24)*12/365.2425;
+106            IF STUDY='096' THEN STARTTME=(2/24)*12/365.2425;
+107            INT_TE=12*(TE2DJUL-OPDJUL)/365.2425;
+108            CENSORED=0; TE=1; NOPREVTE=1;
+109            OUTPUT;
+110          END;
+111        *                                                                              ;
+112        * Third event:                                                                 ;
+113          IF TE3=1 THEN DO;
+114            STARTTME=12*(TE2DJUL-OPDJUL)/365.2425;
+115            INT_TE=12*(TE3DJUL-OPDJUL)/365.2425;
+116            CENSORED=0; TE=1; NOPREVTE=2;
+117            OUTPUT;
+118          END;
+119          KEEP STUDY TE1 TE2 TE3 INT_TE STARTTME CENSORED TE NOPREVTE;
+120        *******************************************************************************;
+121        * Estimate parameters of the distribution of the event                         ;
+122          %HAZARD(
+123          PROC HAZARD DATA=PRIMISOL CONSERVE P OUTHAZ=OUTEST
+124               STEEPEST QUASI CONDITION=14;
+125               LCENSOR STARTTME;
+126               TIME INT_TE;
+127               RCENSOR CENSORED;
+128               EVENT TE;
+129               PARMS MUE=0.0174 THALF=0.06 NU=-1.74 M=0 FIXM
+130                     MUL=0.000209 TAU=1 FIXTAU ALPHA=1 FIXALPHA GAMMA=1 FIXGAMMA
+131                     ETA=1.32 WEIBULL;
+132          );
+
+NOTE: The infile INOMC is:
+      File Name=/programs/hazard/examples/data/omc,
+      Owner Name=cvsrehb,Group Name=cvsrgrp,
+      Access Permission=rw-rw----,
+      File Size (bytes)=49155
+
+NOTE: 339 records were read from the infile INOMC.
+      The minimum record length was 144.
+      The maximum record length was 144.
+NOTE: The data set WORK.PRIMISOL has 382 observations and 9 variables.
+
+
+Note: Procedure HAZARD (C-Version 4.0.27)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: Procedure HAZARD completed successfully.
+
+NOTE: The data set WORK.OUTEST has 17 observations and 14 variables.
+
+133        *******************************************************************************;
+134        * Bring in Nelson life table method for repeating, morbid events               ;
+135          FILENAME NELSONL '/programs/hazard/examples/macros/nelsonl';
+136          OPTIONS NOSOURCE; %INC NELSONL; OPTIONS SOURCE;
+254        *______________________________________________________________________________;
+255        *                                                                              ;
+256        * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+257        *                                                                              ;
+258        *   INTERVAL = Time variable                     INTERVAL                      ;
+259        *   EVENT    = Event (0/1) indicator             EVENT                         ;
+260        *   CENSORED = Censorer (0/1) indicator          CENSORED                      ;
+261        *   STRATIFY = Stratification variable           'ALL'                         ;
+262        *   CLEVEL   = Confidence coefficient            0.68268948 (1 sd)             ;
+263        *   IN       = Input data set name                                             ;
+264        *   OUT      = Output data set name              EVENT                         ;
+265        *   CUMDIST  = Cumulative hazard function        CUMDIST                       ;
+266        *   WEIGHT   = Severity level of event           1                             ;
+267        *                                                                              ;
+3                                                          The SAS System                           13:11 Thursday, December 1, 1994
+
+268        *______________________________________________________________________________;
+269        *                                                                              ;
+270          %NELSONL(INTERVAL=INT_TE, EVENT=TE, CENSORED=CENSORED, IN=PRIMISOL,
+271                   OUT=NELOUT, CUMDIST=CUMDIST);
+
+NOTE: The data set WORK.PRIMISOL has 382 observations and 16 variables.
+
+
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      271:139   
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+
+
+NOTE: The data set WORK.DATA1 has 375 observations and 9 variables.
+
+
+NOTE: The data set WORK.M1 has 1 observations and 4 variables.
+
+
+NOTE: The data set WORK.NELOUT has 375 observations and 30 variables.
+
+
+NOTE: The data set WORK.NELOUT has 375 observations and 19 variables.
+
+272          DATA PRINT; SET NELOUT; IF TE>0;
+
+NOTE: The data set WORK.PRINT has 43 observations and 19 variables.
+
+273          PROC PRINT; VAR INT_TE TE CENSORED WEIGHT NRISK NUMRISK CUMDIST
+274                          SE_CEF CLL_CEF CLU_CEF;
+275        *******************************************************************************;
+276        * Calculate parametric estimates of survivorship and hazard functions          ;
+277          %HAZPRED(
+278          PROC HAZPRED DATA=NELOUT INHAZ=OUTEST OUT=PREDICT; TIME INT_TE;);
+
+NOTE: The PROCEDURE PRINT printed page 3.
+
+
+Note: Procedure HAZPRED (C-Version 4.0.0)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+
+NOTE: The data set WORK.PREDICT has 375 observations and 31 variables.
+
+279          DATA PREDICT; SET PREDICT;
+280          _CUMHAZ=-LOG(_SURVIV); _CLLCUMH=-LOG(_CLUSURV); _CLUCUMH=-LOG(_CLLSURV);
+281          D_CUMHAZ=CUMDIST-_CUMHAZ;
+282        *******************************************************************************;
+283        * Plot various survival functions                                              ;
+
+NOTE: The data set WORK.PREDICT has 375 observations and 35 variables.
+
+284          PROC PLOT;
+285               PLOT CUMDIST*INT_TE='*' CLL_CEF*INT_TE='-' CLU_CEF*INT_TE='-'
+286                    _CUMHAZ*INT_TE='P' _CLLCUMH*INT_TE='.' _CLUCUMH*INT_TE='.'
+287                    /OVERLAY;
+288               PLOT D_CUMHAZ*INT_TE='*';
+289        *______________________________________________________________________________;
+290        *                                                                              ;
+291        * Now, a completely different estimate:  Modulated Renewal Process             ;
+292        * This requires the reentry of patients exactly as above, except that each     ;
+293        * patient now reenters at a new time zero.                                     ;
+294        *______________________________________________________________________________;
+295        *                                                                              ;
+
+NOTE: The PROCEDURE PLOT printed pages 4-5.
+
+296          DATA PRIMISOL; SET PRIMISOL;
+297          INT_TE=INT_TE - STARTTME;
+298          NOTE2=NOPREVTE*NOPREVTE;
+299          NOTEE=EXP(NOPREVTE);
+300        *******************************************************************************;
+301        * Estimate parameters of the distribution of the event                         ;
+302          %HAZARD(
+303          PROC HAZARD DATA=PRIMISOL OUTHAZ=OUTEST CONDITION=14 P CONSERVE;
+304               TIME INT_TE;
+305               EVENT TE;
+306               PARMS MUE=0.01505178 THALF=0.05289487 NU=-1.737965 M=0 FIXM
+307                     MUL=0.0009220701 TAU=1 FIXTAU ALPHA=1 FIXALPHA GAMMA=1 FIXGAMMA
+308                     ETA=1 FIXETA WEIBULL;
+309               LATE NOPREVTE=2.653528, NOTEE=-0.3680751;
+310          );
+
+NOTE: The data set WORK.PRIMISOL has 382 observations and 18 variables.
+
+
+Note: Procedure HAZARD (C-Version 4.0.27)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+4                                                          The SAS System                           13:11 Thursday, December 1, 1994
+
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: The data set WORK.OUTEST has 23 observations and 20 variables.
+
+311        *******************************************************************************;
+312        * Plot various survival functions                                              ;
+313          FILENAME INMACRO '/programs/hazard/examples/macros/kaplan';
+314          OPTIONS NOSOURCE; %INC INMACRO; OPTIONS SOURCE;
+504          DATA PRIMISOL; SET PRIMISOL;
+505          %KAPLAN(IN=PRIMISOL, OUT=PLOUT, INTERVAL=INT_TE, EVENT=TE,
+506                  STRATIFY=NOPREVTE, OEVENT=0, NOPRINT=1);
+
+NOTE: The data set WORK.PRIMISOL has 382 observations and 18 variables.
+
+
+NOTE: The data set WORK._REFINE_ has 382 observations and 18 variables.
+
+
+NOTE: The data set WORK._REFINE_ has 382 observations and 9 variables.
+
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      2571:195   
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+
+NOTE: The data set WORK.S1 has 4 observations and 8 variables.
+
+
+NOTE: The data set WORK.S1 has 4 observations and 9 variables.
+
+
+NOTE: The data set WORK.NSET has 4 observations and 2 variables.
+
+NOTE: The data set WORK.BASIC1 has 375 observations and 7 variables.
+
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+
+
+NOTE: The data set WORK.BASIC has 375 observations and 8 variables.
+
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      506:207   
+NOTE: The data set WORK.KAPLAN has 375 observations and 28 variables.
+
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+
+
+NOTE: The data set WORK.PLOUT has 375 observations and 29 variables.
+
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+
+
+NOTE: The data set WORK.PLOUT has 375 observations and 15 variables.
+
+507          DATA PLOUT; SET PLOUT;
+508          NOTEE=EXP(NOPREVTE);
+509          %HAZPRED( PROC HAZPRED DATA=PLOUT INHAZ=OUTEST OUT=PREDICT; TIME INT_TE; );
+
+NOTE: The data set WORK.PLOUT has 375 observations and 16 variables.
+
+
+Note: Procedure HAZPRED (C-Version 4.0.0)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+
+NOTE: The data set WORK.PREDICT has 375 observations and 28 variables.
+
+510          PROC PLOT; PLOT _SURVIV*INT_TE='*' CUM_SURV*INT_TE='+'
+511                    (_CLLSURV _CLUSURV)*INT_TE='.'
+512                    (CL_LOWER CL_UPPER)*INT_TE='-'
+513                    /OVERLAY VAXIS=0 TO 1 BY 0.1;
+514        *******************************************************************************;
+NOTE: The PROCEDURE PLOT printed page 9.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+                                               Primary Isolated Mitral Commissurotomy           13:11 Thursday, December 1, 1994   1
+                                          Thromboembolic Events (Repeated Events Analysis)
+
+                          T H R E E   P H A S E   P A R A M E T R I C   H A Z A R D   P R O C E D U R E
+
+    Initial Summary:
+    ================
+
+      There are   382 observations available for analysis with:
+                             44 events
+                            339 Right Censored Observations
+                             43 Left Censored Observations
+                            383 Total Subjects
+
+                                                         Variable        Min            Max
+                                    -----------------------------------------------------------
+                                    Time:                INT_TE      0.002737907       248.3829
+                                    Event:               TE                    0              1
+                                    Left Censored:       STARTTME    0.002737907       220.8834
+                                    Right Censored:      CENSORED              0              1
+                                    -----------------------------------------------------------
+
+
+
+
+
+
+    Model Specifications:
+    =====================
+
+                                       Initial Parameter Values
+                                       ------------------------                                                    Starting
+          Phase        Parameter       Specified        Used       |  Theta                          Estimated?    Value
+          -------------------------------------------------------------------------------------------------------------------
+          Early:       DELTA                    0             0    |  E1                             No
+                       THALF                 0.06          0.06    |  E2 = Ln(Thalf)                 Yes             -2.81341
+                        (RHO                          0.1135311)   |
+                       NU                   -1.74         -1.74    |  E3 = Ln(|Nu|)                  Yes            0.5538851
+                       M                        0             0    |  E4                             No
+                       MUE                 0.0174    0.01739169 *  |  E0 = Ln(muE)                   Yes             -4.05176
+                       ------------------------------------------------------------------------------------------------------
+          Late:        TAU                      1             1    |  L1                             No
+                       GAMMA                    1             1    |  L2                             No
+                       ALPHA                    1             1    |  L3                             No
+                       ETA                   1.32          1.32    |  L4 = Ln(Eta)                   Yes            0.2776317
+                       MUL               0.000209  0.0002089001 *  |  L0 = Ln(muL)                   Yes #           -8.47365
+          -------------------------------------------------------------------------------------------------------------------
+    # This MU parameter is estimated in closed form.
+    * The value used is different from the value specified.
+
+    Based on the values used, the following flags and equations have been set:
+          *-------------------------------------------------*
+          |  Early:                                         |
+          |        Delta = 0                Yes             |
+          |        M*Nu = |1|               No              |
+          |        M=0, Nu<0, Exponential equations 21 - 23 |
+          |  Late: Gamma*Eta = 2            No              |
+          |        Gamma*Eta/Alpha = 2      No              |
+          |        Weibull                  Yes             |
+          |        Alpha>0, Generic equations 26 - 27       |
+          *-------------------------------------------------*
+
+
+    Computational Methods:
+    ======================
+
+      Optimization: Quasi-Newton method using numeric derivatives
+                    initiated using the method of steepest descent
+
+      Conservation of events: Invoked at each iteration
+      If only one scaling parameter, estimation is in closed form.
+
+
+    Results:
+    ========
+
+    Iteration   Log Likelihood      E2            E3            L4            E0            L0      
+    -----------------------------------------------------------------------------------------------------------------------------
+        0           -322.359         -2.81341     0.5538851     0.2776317      -4.05176      -8.47365
+        1           -322.359         -2.81782     0.5536161     0.2776482      -4.05281       -8.4736
+        2           -322.357         -2.85652      0.551254     0.2777904      -4.05934      -8.47353
+        3           -322.357         -2.85773     0.5511821     0.2777931      -4.05779      -8.47379
+        4           -322.357         -2.85937     0.5510882     0.2777943      -4.05415      -8.47435
+
+
+        Optimization terminated after    4 iterations and    31 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     3.221373
+        Number of events conserved =           44
+
+        Log likelihood =     -322.357
+                                               Primary Isolated Mitral Commissurotomy           13:11 Thursday, December 1, 1994   2
+                                          Thromboembolic Events (Repeated Events Analysis)
+
+
+
+    Final Results:
+    ==============
+
+
+                                                  Parameter Estimate Summary
+
+                         Phase      Parameter    Estimate       Std error             Z          Prob>|Z|
+                         -------------------------------------------------------------------------------------
+                         Early:     E2              -2.85937      0.8616384         -3.319          0.0009
+                                    E3             0.5510882      0.3265156          1.688          0.0915
+                                    E0              -4.05415      0.4163986         -9.736          <.0001
+                                    --------------------------------------------------------------------------
+                         Late:      L4             0.2777943      0.1473428          1.885          0.0594
+                                    L0              -8.47435      0.9773755         -8.671          <.0001
+                         -------------------------------------------------------------------------------------
+
+
+                                                  Estimates for Model Parameters
+
+                                          Phase       Parameter     Fixed?     Estimate
+                                          ------------------------------------------------
+                                          Early:      DELTA         Yes                  0
+                                                      THALF         No          0.05730461
+                                                       (RHO                       0.108238)
+                                                      NU            No            -1.73514
+                                                      M             Yes                  0
+                                                      MUE                       0.01735015
+                                                      ------------------------------------
+                                          Late:       TAU           Yes                  1
+                                                      GAMMA         Yes                  1
+                                                      ALPHA         Yes                  1
+                                                      ETA           No            1.320215
+                                                      MUL                      0.000208754
+                                          ------------------------------------------------
+
+
+                                                Asymptotic Variance-Covariance Matrix
+
+                       E2            E3            E0            L4            L0      
+    -----------------------------------------------------------------------------------------------------------------------------
+    Early:   
+
+       E2              0.7424208     -0.144162    0.01051525   0.008071102    -0.0542438
+
+       E3              -0.144162     0.1066125  0.0002832023  -0.000356512   0.002315198
+
+       E0             0.01051525  0.0002832023     0.1733878   0.002672101    -0.0179795
+
+       --------------------------------------------------------------------------------------------------------------------------
+    Late:    
+
+       L4            0.008071102  -0.000356512   0.002672101     0.0217099     -0.142012
+
+       L0             -0.0542438   0.002315198    -0.0179795     -0.142012     0.9552628
+
+    -----------------------------------------------------------------------------------------------------------------------------
+
+
+                                                     Asymptotic Correlation Matrix
+
+                       E2            E3            E0            L4            L0      
+    -----------------------------------------------------------------------------------------------------------------------------
+    Early:   
+
+       E2                      1     -0.512414    0.02930794    0.06357389    -0.0644115
+
+       E3              -0.512414             1   0.002082973   -0.00741039   0.007254754
+
+       E0             0.02930794   0.002082973             1    0.04355266    -0.0441782
+
+       --------------------------------------------------------------------------------------------------------------------------
+    Late:    
+
+       L4             0.06357389   -0.00741039    0.04355266             1      -0.98613
+
+       L0             -0.0644115   0.007254754    -0.0441782      -0.98613             1
+
+    -----------------------------------------------------------------------------------------------------------------------------
+                                               Primary Isolated Mitral Commissurotomy           13:11 Thursday, December 1, 1994   3
+                                          Thromboembolic Events (Repeated Events Analysis)
+
+            OBS     INT_TE    TE    CENSORED    WEIGHT    NRISK    NUMRISK    CUMDIST     SE_CEF     CLL_CEF    CLU_CEF
+
+              1      0.003     1        0          1       339       339      0.00295    0.002950    0.00091    0.00480
+              2      0.004     1        0          1       339       339      0.00590    0.004172    0.00255    0.00911
+              3      0.033     1        0          1       339       339      0.00885    0.005109    0.00448    0.01310
+              4      0.099     1        0          1       338       338      0.01181    0.005904    0.00659    0.01694
+              5      0.230     1        0          1       338       338      0.01477    0.006604    0.00880    0.02066
+              6      0.690     1        0          1       337       337      0.01773    0.007240    0.01109    0.02431
+              7      8.772     2        0          2       329       329      0.02381    0.008406    0.01594    0.03163
+              8     16.559     1        0          1       323       323      0.02691    0.008960    0.01846    0.03531
+              9     18.760     1        0          1       321       321      0.03002    0.009488    0.02103    0.03898
+             10     19.417     1        0          1       321       321      0.03314    0.009988    0.02363    0.04261
+             11     29.799     1        0          1       307       307      0.03640    0.010506    0.02635    0.04640
+             12     34.958     1        0          1       303       303      0.03970    0.011012    0.02913    0.05022
+             13     45.175     1        0          1       283       283      0.04323    0.011561    0.03211    0.05432
+             14     46.818     1        0          1       281       281      0.04679    0.012092    0.03513    0.05842
+             15     48.297     1        0          1       280       280      0.05036    0.012605    0.03818    0.06251
+             16     50.235     1        0          1       276       276      0.05398    0.013111    0.04129    0.06665
+             17     50.334     1        0          1       276       276      0.05761    0.013598    0.04442    0.07077
+             18     53.093     1        0          1       269       269      0.06132    0.014092    0.04764    0.07499
+             19     53.718     1        0          1       269       269      0.06504    0.014569    0.05087    0.07919
+             20     53.882     1        0          1       269       269      0.06876    0.015031    0.05412    0.08337
+             21     55.229     1        0          1       266       266      0.07252    0.015490    0.05742    0.08760
+             22     58.383     1        0          1       262       262      0.07634    0.015948    0.06077    0.09188
+             23     63.541     1        0          1       253       253      0.08029    0.016421    0.06424    0.09631
+             24     68.207     1        0          1       245       245      0.08437    0.016909    0.06784    0.10088
+             25     75.533     1        0          1       233       233      0.08866    0.017426    0.07161    0.10570
+             26     81.119     1        0          1       223       223      0.09315    0.017967    0.07555    0.11072
+             27     84.141     1        0          1       222       222      0.09765    0.018498    0.07952    0.11576
+             28     87.131     1        0          1       217       217      0.10226    0.019036    0.08359    0.12091
+             29     88.511     1        0          1       216       216      0.10689    0.019564    0.08769    0.12607
+             30     93.012     1        0          1       207       207      0.11172    0.020118    0.09196    0.13146
+             31    112.331     1        0          1       165       165      0.11778    0.020879    0.09727    0.13828
+             32    116.208     1        0          1       157       157      0.12415    0.021676    0.10284    0.14544
+             33    117.883     1        1          1       150       151      0.13077    0.022498    0.10864    0.15288
+             34    122.253     1        0          1       143       143      0.13777    0.023364    0.11478    0.16074
+             35    132.438     1        0          1       129       129      0.14552    0.024339    0.12156    0.16946
+             36    141.079     1        0          1       111       111      0.15453    0.025500    0.12941    0.17962
+             37    151.067     1        0          1        92        92      0.16540    0.026940    0.13886    0.19192
+             38    160.200     1        0          1        73        73      0.17909    0.028805    0.15071    0.20746
+             39    162.205     1        0          1        69        69      0.19359    0.030754    0.16327    0.22389
+             40    163.190     1        0          1        68        68      0.20829    0.032693    0.17605    0.24051
+             41    186.287     1        0          1        42        42      0.23210    0.036010    0.19658    0.26761
+             42    203.043     1        0          1        29        29      0.26659    0.040900    0.22623    0.30692
+             43    220.883     1        0          1        11        11      0.35749    0.054285    0.30391    0.41105
+                                               Primary Isolated Mitral Commissurotomy           13:11 Thursday, December 1, 1994   4
+                                          Thromboembolic Events (Repeated Events Analysis)
+
+                                           Plot of CUMDIST*INT_TE.   Symbol used is '*'.
+                                           Plot of CLL_CEF*INT_TE.   Symbol used is '-'.
+                                           Plot of CLU_CEF*INT_TE.   Symbol used is '-'.
+                                           Plot of _CUMHAZ*INT_TE.   Symbol used is 'P'.
+                                           Plot of _CLLCUMH*INT_TE.  Symbol used is '.'.
+                                           Plot of _CLUCUMH*INT_TE.  Symbol used is '.'.
+
+CUMDIST |
+        |
+    2.8 +
+        |          .. ....................................................................................... ......... .. . .. ..  ... . .          .. ....................................................................................... ......... .. . .. ..  ... . .
+        |
+        |
+        |
+    2.6 +
+        |
+        |
+        |
+        |
+    2.4 +
+        |
+        |
+        |
+        |
+    2.2 +
+        |
+        |
+        |
+        |
+    2.0 +
+        |
+        |
+        |
+        |
+    1.8 +
+        |
+        |
+        |
+        |
+    1.6 +
+        |
+        |
+        |
+        |
+    1.4 +
+        |
+        |
+        |
+        |
+    1.2 +
+        |
+        |
+        |
+        |
+    1.0 +
+        |
+        |
+        |
+        |
+    0.8 +
+        |
+        |
+        |
+        |
+    0.6 +
+        |
+        |
+        |
+        |
+    0.4 +                                                                                                                    -
+        |                                                                                                           ** **  *** * *
+        |                                                                                                                    -                                                                                                           -                                                                                                                           PPP P P
+        |                                                                                                  *** ** *                                                                                                   -                                                                                                               PP P PP PP
+        |                                                                                          * *******                                                                                                           -                                                                                        -                                                                                                  PP PPPPPPPPP
+    0.2 +                                                                               ************                                                                                                   -                                                                                   -   -                                                                                     PPPPPPPPPPPPPP
+        |                                                                 ***************                                                                                       --                                                                  -- -    -   -                                                                       PPPPPPPPPPPPPP
+        |                                           **********************                                                                  -- -    -   -    -                                           -  -  -- -  -        -                                                       PPPPPPPPPPPPPPPP
+        |                          ******************                                      - -  -  -  -- -  -        -                                 ------ -                                     PPPPPPPPPPPPPPPPPP
+        |     **********************                   -    -  -    ------          -   -   --    -  -    -             PPPPPPPPPPPPPPPPPPPPPPPPP
+    0.0 + ** **          -   -   -          -          PP P
+        |
+        --+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0          25          50          75          100         125         150         175         200         225         250
+
+                                                                   INT_TE
+
+NOTE: 664 obs had missing values.  1072 obs hidden.                                                                                 
+                                               Primary Isolated Mitral Commissurotomy           13:11 Thursday, December 1, 1994   5
+                                          Thromboembolic Events (Repeated Events Analysis)
+
+                                           Plot of D_CUMHAZ*INT_TE.  Symbol used is '*'.
+
+D_CUMHAZ |
+         |
+    0.08 +                                                                                                          *
+         |
+         |                                                                                                           *
+         |
+         |
+         |
+         |                                                                                                             *
+    0.07 +
+         |                                                                                                              *
+         |
+         |
+         |
+         |
+         |
+    0.06 +
+         |
+         |
+         |                                                                                                                 *
+         |                                                                                                                  *
+         |
+         |
+    0.05 +                                                                                                                   *
+         |
+         |
+         |
+         |                                                                                                                     *
+         |
+         |
+    0.04 +
+         |                                                                                                                       *
+         |                                                                                                                       *
+         |
+         |
+         |
+         |
+    0.03 +
+         |
+         |
+         |
+         |
+         |
+         |
+    0.02 +
+         |
+         |                                                                              *                  *
+         |                                                                              **                  *
+         |                            *                                                  *
+         |                           ** **                                                                   *
+         |                          ****** *        ** *                                  *                  *
+    0.01 +                          *   * * *        * *                                   *                 *
+         |                                * * *     * * *                                  *
+         |                          *        * * ***  *  *                                  *      *
+         |         *                         ***** *     *                                                     *
+         |          *              *          * *   *    **                                          *          *
+         |*   *    * *            **             *        *                             *            *
+         |*    ** *  **            *                       *         *                       *                  *
+    0.00 +**    *      *** *      *                        *       * *                        *
+         |   *   *     *  *      *                          *      *  *                               *
+         |   **         *   *     *                         *       * *                        *       *          *
+         |                 * *  ***                          *    * *  *  *                     *      *          *
+         |                   ** *                            ** * *  *    *                     *                 *
+         |                    ***                             * **         *  *                 *       *
+         |                     *                                 *      *  *  *    *   *
+   -0.01 +                                                     * *       *  *  *   *   **        *
+         |                                                      *        *     **       *         *      *
+         |                                                                   *      *             *
+         |                                                                   *  *   *              *      *
+         |                                                                    *  *   *             *       *
+         |                                                                       **  *
+         |                                                                        *   *
+   -0.02 +                                                                            *
+         |                                                                             *
+         |
+         |
+         |
+         |
+         |
+   -0.03 +
+         |
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0          25          50          75          100         125         150         175         200         225         250
+
+                                                                    INT_TE
+
+NOTE: 168 obs hidden.
+                                               Primary Isolated Mitral Commissurotomy           13:11 Thursday, December 1, 1994   6
+                                          Thromboembolic Events (Repeated Events Analysis)
+
+                          T H R E E   P H A S E   P A R A M E T R I C   H A Z A R D   P R O C E D U R E
+
+    Initial Summary:
+    ================
+
+      There are   382 observations available for analysis with:
+                             44 events
+                            338 Right Censored Observations
+                            382 Total Subjects
+
+                                                         Variable        Min            Max
+                                    -----------------------------------------------------------
+                                    Time:                INT_TE      0.002737907       247.6273
+                                    Event:               TE                    0              1
+                                    -----------------------------------------------------------
+
+   *------*
+   | Note |
+   *------*
+
+      in  338 observation(s) RCENSOR has been changed from 0 to 1
+
+
+
+
+    Concomitant Information:
+    ========================
+
+
+                              Phase     Variable           Mean          Min           Max
+                              -----------------------------------------------------------------
+                              Late:     NOPREVTE         0.1518325             0             3
+                                        NOTEE             1.432127             1      20.08554
+                              -----------------------------------------------------------------
+
+
+    Model Specifications:
+    =====================
+
+                                       Initial Parameter Values
+                                       ------------------------                                                    Starting
+          Phase        Parameter       Specified        Used       |  Theta                          Estimated?    Value
+          -------------------------------------------------------------------------------------------------------------------
+          Early:       DELTA                    0             0    |  E1                             No
+                       THALF           0.05289487    0.05289487    |  E2 = Ln(Thalf)                 Yes             -2.93945
+                        (RHO                          0.1000123)   |
+                       NU                -1.73796      -1.73796    |  E3 = Ln(|Nu|)                  Yes            0.5527149
+                       M                        0             0    |  E4                             No
+                       MUE             0.01505178    0.01680915 *  |  E0 = Ln(muE)                   Yes             -4.08583
+                       ------------------------------------------------------------------------------------------------------
+          Late:        TAU                      1             1    |  L1                             No
+                       GAMMA                    1             1    |  L2                             No
+                       ALPHA                    1             1    |  L3                             No
+                       ETA                      1             1    |  L4                             No
+                       MUL           0.0009220701   0.001029726 *  |  L0 = Ln(muL)                   Yes #           -6.87846
+          -------------------------------------------------------------------------------------------------------------------
+    # This MU parameter is estimated in closed form.
+    * The value used is different from the value specified.
+
+    Based on the values used, the following flags and equations have been set:
+          *-------------------------------------------------*
+          |  Early:                                         |
+          |        Delta = 0                Yes             |
+          |        M*Nu = |1|               No              |
+          |        M=0, Nu<0, Exponential equations 21 - 23 |
+          |  Late: Gamma*Eta = 2            No              |
+          |        Gamma*Eta/Alpha = 2      No              |
+          |        Weibull                  Yes             |
+          |        Alpha>0, Generic equations 26 - 27       |
+          *-------------------------------------------------*
+
+
+    Computational Methods:
+    ======================
+
+      Optimization: Newton method using numeric derivatives
+                    initiated using an initial hessian matrix
+
+      Conservation of events: Invoked at each iteration
+      If only one scaling parameter, estimation is in closed form.
+
+
+    Results:
+    ========
+                                               Primary Isolated Mitral Commissurotomy           13:11 Thursday, December 1, 1994   7
+                                          Thromboembolic Events (Repeated Events Analysis)
+
+    Iteration   Log Likelihood      E2            E3            E0            L0            NOPREVTE      NOTEE   
+    -----------------------------------------------------------------------------------------------------------------------------
+        0           -310.208         -2.93945     0.5527149      -4.08583      -6.87845      2.653528     -0.368075
+        1           -310.163         -2.95777     0.5521411      -4.19493      -6.85634      2.644451     -0.368789
+        2           -310.163         -2.96058     0.5519821      -4.20442      -6.85488      2.644275     -0.368791
+
+
+        Optimization terminated after    2 iterations and    59 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     2.094265
+        Number of events conserved =           44
+
+        Log likelihood =     -310.163
+
+
+
+    Final Results:
+    ==============
+
+
+                                                  Parameter Estimate Summary
+
+                         Phase      Parameter    Estimate       Std error             Z          Prob>|Z|
+                         -------------------------------------------------------------------------------------
+                         Early:     E2              -2.96058      0.9145797         -3.237          0.0012
+                                    E3             0.5519821      0.3296901          1.674          0.0941
+                                    E0              -4.20442      0.4363932         -9.634          <.0001
+                                    --------------------------------------------------------------------------
+                         Late:      L0              -6.85488      0.2493732        -27.488          <.0001
+                                    NOPREVTE        2.644275        0.60559          4.366          <.0001
+                                    NOTEE          -0.368791      0.1960159         -1.881          0.0599
+                         -------------------------------------------------------------------------------------
+
+
+                                                  Estimates for Model Parameters
+
+                                          Phase       Parameter     Fixed?     Estimate
+                                          ------------------------------------------------
+                                          Early:      DELTA         Yes                  0
+                                                      THALF         No          0.05178881
+                                                       (RHO                     0.09787528)
+                                                      NU            No            -1.73669
+                                                      M             Yes                  0
+                                                      MUE                       0.01492943
+                                                      ------------------------------------
+                                          Late:       TAU           Yes                  1
+                                                      GAMMA         Yes                  1
+                                                      ALPHA         Yes                  1
+                                                      ETA           Yes                  1
+                                                      MUL                      0.001054302
+                                          ------------------------------------------------
+
+
+                                                Asymptotic Variance-Covariance Matrix
+
+                       E2            E3            E0            L0            NOPREVTE      NOTEE   
+    -----------------------------------------------------------------------------------------------------------------------------
+    Early:   
+
+       E2               0.836456      -0.12967    0.03696869  -0.000366734    0.02946184    -0.0085706
+
+       E3               -0.12967     0.1086956   0.002797437    -0.0023256    -0.0092154   0.002994249
+
+       E0             0.03696869   0.002797437      0.190439   -0.00149609   0.005249557   -0.00125948
+
+       --------------------------------------------------------------------------------------------------------------------------
+    Late:    
+
+       L0           -0.000366734    -0.0023256   -0.00149609    0.06218701    0.06005116    -0.0311748
+
+       NOPREVTE       0.02946184    -0.0092154   0.005249557    0.06005116     0.3667392     -0.107105
+
+       NOTEE          -0.0085706   0.002994249   -0.00125948    -0.0311748     -0.107105    0.03842224
+
+    -----------------------------------------------------------------------------------------------------------------------------
+
+
+                                                     Asymptotic Correlation Matrix
+
+                       E2            E3            E0            L0            NOPREVTE      NOTEE   
+    -----------------------------------------------------------------------------------------------------------------------------
+    Early:   
+
+       E2                      1     -0.430044    0.09262634   -0.00160798    0.05319364    -0.0478078
+
+       E3              -0.430044             1    0.01944359    -0.0282865    -0.0461562    0.04633302
+
+       E0             0.09262634    0.01944359             1    -0.0137477    0.01986397    -0.0147238
+
+       --------------------------------------------------------------------------------------------------------------------------
+    Late:    
+
+       L0            -0.00160798    -0.0282865    -0.0137477             1     0.3976426     -0.637768
+                                               Primary Isolated Mitral Commissurotomy           13:11 Thursday, December 1, 1994   8
+                                          Thromboembolic Events (Repeated Events Analysis)
+
+       NOPREVTE       0.05319364    -0.0461562    0.01986397     0.3976426             1     -0.902272
+
+       NOTEE          -0.0478078    0.04633302    -0.0147238     -0.637768     -0.902272             1
+
+    -----------------------------------------------------------------------------------------------------------------------------
+                                               Primary Isolated Mitral Commissurotomy           13:11 Thursday, December 1, 1994   9
+                                          Thromboembolic Events (Repeated Events Analysis)
+
+                                           Plot of _SURVIV*INT_TE.   Symbol used is '*'.
+                                           Plot of CUM_SURV*INT_TE.  Symbol used is '+'.
+                                           Plot of _CLLSURV*INT_TE.  Symbol used is '.'.
+                                           Plot of _CLUSURV*INT_TE.  Symbol used is '.'.
+                                           Plot of CL_LOWER*INT_TE.  Symbol used is '-'.
+                                           Plot of CL_UPPER*INT_TE.  Symbol used is '-'.
+
+_SURVIV |
+        |
+    1.0 + *          ++++                          +          .          .          ----                          -          ----                          -
+        | **          ++ ++          .          .. ....                       .          -          -- ------
+        |  * *********              ++++++          .. ....           ..    .........          -- --                  --------------
+        |  **        **********                + +++++++++++++++           ..    .......           ...            ....... ..              ------                                - --
+        |  * *                *** *****                                + ++             .          .........            .                       ...........                   --------------           --      -                -------
+        |   *                         **********                                    +++++           . .                  . ......                .                             ...........                                - --                                           ----------
+        |   *   *                              **********                                        +++++++++++++           .                            ........                                                         ...........                                    -----                    --  -       -                   ----------------------
+        |                                               **********                   +                                +++++++++++++            .                                  ........                  ...                                              ............                                        ----------                                                                          ---------
+    0.9 +         *                                              **********                                                                +++++++++++++++++++                .                                      ........                    ..                                                        ...........                                                  -----                                                                                   ------ ----------
+        |          **                   *                                 **********                                                                                   ++++++            .                                                  .......                                                                                          ..........                - -                                    -------------------
+        |           *                                                               ***** ***                                                                                        + ++++++++++                                                                      .........                        .                                                                            ...... .. .                                                                          ---------                                 -- -   -                                                          - ------ -- -- -
+        |            *                                                                       ******* *           ++       ++  +       +                  ..                                                          .........                                                                                                                . . .. ..                                                                                   ------
+        |                                                                                             ***** ** **                                                                                                   + ++++++ ++ ++ +                    .                                                                 ... ....                                                                                                                           ...   .
+        |               *                                                                                       * * ** **                    ..                                                                        ...... .                                                                                        - ----------                                                                                                                    -- --  ---   -
+        |                                                                                                                  ***   *                                                                                                      ..... ..                                .                   -            -                           -
+        |                                 ++ +   +                                                                                                               .. . ..                                 .                                                                                                   - ------ -- -- -
+    0.8 +                        .                                                                                              ..  ...                      .           .
+        |                                                                                                                                 .                                    .
+        |                       *                    --  -       -
+        |                        *                                                                                                                    ++ ++  +++   +                                        .                                             -
+        |                         *
+        |                           *                                        +                                             .
+        |                                               .
+        |                                .
+    0.7 +             *                 *                                 .                                 -- -   -                                               -             -
+        |                                  .
+        |                                .           --
+        |                                    *                                             +                                    .                                                                                                                    -- --  ---   -                      -         -                      -
+        |                                      *
+        |            +                                                             .                                                               -
+        |                                        .                                                               .
+        |                                                                   .                                        -
+    0.6 +
+        |                                               +             +                                             .
+        |                      .                        .
+        |                                                                             .                                                                   -         -     - -            -    -
+        |                                                    *
+        |                                                      *                                                                                   .                                             -
+        |                       *                                                                                     .
+        |                                                          *
+    0.5 +                                                               +
+        |
+        |                                        .                                                       .                                          .
+        |                                                                    *                                                             .                                               -             -
+        |                                                               .                                                                                                       .
+        |
+        |                                                                          * *                      +         +                      +           +         +     + +            +    +                                                                   .
+        |            -
+    0.4 +
+        |
+        |                                                               -
+        |                                                                                         *                                .                                            .
+        |
+        |                                                                                              *
+        |                                                                                   . .
+        |
+    0.3 +
+        |                                                                   -         -     - -            -    -
+        |                                              *
+        |                                                                                                  .
+        |                                                                                                       .
+        |
+        |                      -         -                      -
+        |
+    0.2 +
+        |
+        |
+        |
+        |
+        |                                                       .
+        |
+        |
+    0.1 +
+        |
+        |
+        |
+        |
+        |
+        |
+        |
+    0.0 +
+        |
+        --+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0          25          50          75          100         125         150         175         200         225         250
+
+                                                                   INT_TE
+
+NOTE: 1381 obs hidden.                                                                                                              
+

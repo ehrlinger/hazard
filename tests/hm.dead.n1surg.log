@@ -1,0 +1,309 @@
+1                                                          The SAS System                         14:21 Wednesday, December 13, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.07 seconds
+      cpu time            0.07 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1          ____________________________________________________________________________;           ____________________________________________________________________________           ____________________________________________________________________________           ____________________________________________________________________________
+           180           180           180
+
+ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+2          *                                                                              ;
+3          * !HZTESTS/hm.dead.n1surg.sas
+4          *______________________________________________________________________________;
+5          *                                                                              ;
+6          * Carcinoma of the Esophagus
+7          * N1 Burden
+8          * CCF, 1983 to 7/2000, n=606
+9          * Surgery only group, with N1
+10         *
+11         * Multivariable analysis of death
+12         *______________________________________________________________________________;
+13         *                                                                              ;
+14           options pagesize=107 linesize=132 nofmterr;
+15           libname library V6 '!HZTESTS/datasets';
+NOTE: Libref LIBRARY was successfully assigned as follows: 
+      Engine:        V6 
+      Physical Name: /home/jehrling/development/hazard-4.1/tests/datasets
+16           libname est V6 '!HZTESTS/estimates';
+NOTE: Libref EST was successfully assigned as follows: 
+      Engine:        V6 
+      Physical Name: /home/jehrling/development/hazard-4.1/tests/estimates
+17           data n1burden; set library.ddw;
+18           title1 "Carcinoma of the Esophagus";
+19           title2 "N1 Burden in Surgery Only pN1 Subgroup";
+20           title3 "(CCF; 1985 to 2000; n=606)";
+21           title4 "Multivariable Analysis of Death";
+22         *______________________________________________________________________________;
+23         *                                                                              ;
+24         * Bring in variables                                                           ;
+25         *______________________________________________________________________________;
+26         *                                                                              ;
+27           filename vars '!HZTESTS/datasets/vars.sas';
+28           %inc vars; %vars(missing=1); run;
+
+NOTE: SAS set option OBS=0 and will continue to check statements. This may cause NOTE: No observations in data set.
+NOTE: The data set WORK.N1BURDEN has 0 observations and 58 variables.
+NOTE: DATA statement used:
+      real time           0.06 seconds
+      cpu time            0.07 seconds
+      
+
+
+NOTE: Character values have been converted to numeric values at the places given by: (Line):(Column).
+      500:222   500:232   500:242   500:14    500:33    500:52    500:80    500:90    500:100   500:114   500:125   500:136
+NOTE: The data set WORK.N1BURDEN has 0 observations and 170 variables.
+WARNING: Data set WORK.N1BURDEN was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.11 seconds
+      cpu time            0.12 seconds
+      
+
+ERROR: Variable BLACK not found.ERROR: Variable BLACK not found.ERROR: Variable BLACK not found.
+ERROR: Variable WHITE not found.ERROR: Variable WHITE not found.ERROR: Variable WHITE not found.
+ERROR: Variable PRIOR not found.ERROR: Variable PRIOR not found.ERROR: Variable PRIOR not found.
+ERROR: Variable PRIOREG not found.ERROR: Variable PRIOREG not found.ERROR: Variable PRIOREG not found.
+ERROR: Variable LN_POS not found.ERROR: Variable LN_POS not found.ERROR: Variable LN_POS not found.
+ERROR: Variable IN_POS not found.ERROR: Variable IN_POS not found.ERROR: Variable IN_POS not found.
+ERROR: Variable IN2_POS not found.ERROR: Variable IN2_POS not found.ERROR: Variable IN2_POS not found.
+ERROR: Variable LN_NPOS not found.ERROR: Variable LN_NPOS not found.ERROR: Variable LN_NPOS not found.
+ERROR: Variable IN_NPOS not found.ERROR: Variable IN_NPOS not found.ERROR: Variable IN_NPOS not found.
+ERROR: Variable IN2NPOS not found.ERROR: Variable IN2NPOS not found.ERROR: Variable IN2NPOS not found.
+ERROR: Variable CASTAGE not found.ERROR: Variable CASTAGE not found.ERROR: Variable CASTAGE not found.
+ERROR: Variable ST0 not found.ERROR: Variable ST0 not found.ERROR: Variable ST0 not found.
+ERROR: Variable ST1 not found.ERROR: Variable ST1 not found.ERROR: Variable ST1 not found.
+ERROR: Variable ST2A not found.ERROR: Variable ST2A not found.ERROR: Variable ST2A not found.
+ERROR: Variable ST2B not found.ERROR: Variable ST2B not found.ERROR: Variable ST2B not found.
+ERROR: Variable ST3 not found.ERROR: Variable ST3 not found.ERROR: Variable ST3 not found.
+ERROR: Variable ST4A not found.ERROR: Variable ST4A not found.ERROR: Variable ST4A not found.
+ERROR: Variable ST4B not found.ERROR: Variable ST4B not found.ERROR: Variable ST4B not found.
+ERROR: Variable LN_STAGE not found.ERROR: Variable LN_STAGE not found.ERROR: Variable LN_STAGE not found.
+ERROR: Variable IN_STAGE not found.ERROR: Variable IN_STAGE not found.ERROR: Variable IN_STAGE not found.
+
+2                                                          The SAS System                         14:21 Wednesday, December 13, 2000
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.N1BURDEN may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set WORK.N1BURDEN was not replaced because this step was stopped.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: The data set WORK.N1BURDEN has 0 observations and 119 variables.
+WARNING: Data set WORK.N1BURDEN was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+501          data n1burden; set n1burden; if surgonly and pn1;
+502        *______________________________________________________________________________;
+503        *                                                                              ;
+504        *  M U L T I V A R I A B L E   H A Z A R D   F U N C T I O N   A N A L Y S I S
+505        *______________________________________________________________________________;
+506        *                                                                              ;
+507          %hazard(
+508           proc hazard data=n1burden nocov nocor condition=14 mi=200;
+509                event dead;
+510                time iv_dead;
+511                parms mue=2.853738 thalf=3.028267 nu=1 fixnu m=0 fixm
+512                      fixthalf fixeta
+513                      mul=0.2754651 tau=1 fixtau alpha=1 fixalpha gamma=1 fixgamma
+514                      eta=0.716051 weibull;
+515        
+516                restrict posnodes ln_npos in_npos in2npos pctpos ln_pos in_pos;
+517        
+518                selection sle=0.5 sls=0.10 maxsteps=5 robust;
+519        
+520               early
+521          /* Demographic */
+522               male/E, female/E, age, ln_age, in_age, age2, agee, black/E, white/E,
+523          /* Preoperative factors */
+524               prior, prioreg,
+525          /* Cancer pathology */
+526               barr, pt, pt_1, pt_1im, pt_1sm, pt_2, pt_3, pt_4, ln_pt, in_pt, in2pt,
+527               posnodes, ln_npos, in_npos, in2npos, pctpos, ln_pos, in_pos/S,
+528               in2_pos, sq,
+529               ad, sig/E, pm1a, pm1b, pm, castage, ln_stage, in_stage, st2b, st3, st4a,
+530               st4b, posmarg/S, diff, ln_diff, in_diff,
+531          /* Surgical procedure */
+532               anas_n, appr_ch, appr_th,
+533          /* Postoperative therapy */
+534               anypost/S,
+535          /* Experience */
+536               opyrs, ln_opyrs, in_opyrs, in2opyrs, opyrs2
+537        
+538               ;
+539        
+540               late
+541          /* Demographic */
+542               male/E, female/E, age, ln_age, in_age, age2, agee, black/E, white/E,
+543          /* Preoperative factors */
+544               prior, prioreg,
+545          /* Cancer pathology */
+546               barr, pt, pt_1, pt_1im, pt_1sm, pt_2, pt_3, pt_4, ln_pt, in_pt, in2pt,
+547               posnodes, ln_npos, in_npos, in2npos, pctpos, ln_pos, in_pos, in2_pos, sq,
+548               ad, sig/E, pm1a/S, pm1b/S, pm, castage, ln_stage, in_stage, st2b, st3,
+549               st4a, st4b, posmarg/S, diff, ln_diff, in_diff,
+550          /* Surgical procedure */
+551               anas_n, appr_ch, appr_th,
+552          /* Postoperative therapy */
+553               anypost/S,
+554          /* Experience */
+555               opyrs, ln_opyrs/S, in_opyrs, in2opyrs, opyrs2
+556        
+557               ;
+558          );
+
+NOTE: The data set WORK.N1BURDEN has 0 observations and 60 variables.
+WARNING: Data set WORK.N1BURDEN was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+Running hazard /home/jehrling/hazard/bin/hazard.exe on solaris with data /home/jehrling/development/hazard-4.1/tests/hzr.J11748.X26
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+559          %macro model;
+560          %mend;
+561        *______________________________________________________________________________;
+562        *                                                                              ;
+563        *               C H E C K   O U T   F I N A L   M O D E L                      ;
+564        *______________________________________________________________________________;
+565        *                                                                              ;
+566          %macro check;
+567          %hazard(
+568          proc hazard data=n1burden nocov nocor condition=14 mi=200;
+569               event dead;
+570               time iv_dead;
+571               parms mue=2.853738 thalf=3.028267 nu=1 fixnu m=0 fixm
+572                     fixthalf fixeta
+573                     mul=0.2754651 tau=1 fixtau alpha=1 fixalpha gamma=1 fixgamma
+574                     eta=0.716051 weibull ;
+575        
+576               selection sle=0.12 sls=0.10 robust maxsteps=0;
+577        
+578               early
+3                                                          The SAS System                         14:21 Wednesday, December 13, 2000
+
+579        
+580                 in_age=-3.11266, it=1.339477, pn1=0.7427647, pn1chest=-0.217969
+581               ;
+582               late
+583        
+584                 ln_npos=-1.0624, in_npos=-10.0637, pm=0.7461937, pn0_pt=1.090695
+585               ;
+586          );
+587        
+588          %mend;
+589        
+590        *______________________________________________________________________________;
+591        *                                                                              ;
+592        *               F I N A L   M U L T I V A R I A B L  E   M O D E L             ;
+593        *______________________________________________________________________________;
+594        *                                                                              ;
+595          %hazard(
+596          proc hazard data=n1burden conserve outhaz=outest condition=14 mi=200;
+597               event dead;
+598               time iv_dead;
+599               parms mue=4.56392 thalf=3.446444 nu=1 fixnu m=0 fixm
+600                     mul=0.6741454 tau=1 fixtau alpha=1 fixalpha gamma=1 fixgamma
+601                     eta=0.7069431 weibull ;
+602               early
+603                 in_pos=-0.127405, posmarg=0.5395116, anypost=0.5994018;
+604               late
+605                 pm1a=1.074573, pm1b=1.485148, anypost=-2.01541, ln_opyrs=-0.365839;
+606          );
+Running hazard /home/jehrling/hazard/bin/hazard.exe on solaris with data /home/jehrling/development/hazard-4.1/tests/hzr.J11748.X32
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+607        
+608          data est.hmdtn1s (type=haz);
+609            set outest;
+ERROR: File WORK.OUTEST.DATA does not exist.ERROR: File WORK.OUTEST.DATA does not exist.ERROR: File WORK.OUTEST.DATA does not exist.
+610        
+611          %hazard(
+612          proc hazard data=n1burden conserve outhaz=outest condition=14 mi=200 steepest
+613               quasi;
+614               event dead;
+615               time iv_dead;
+616               parms mue=1.002958 thalf=3.298245 nu=1 fixnu m=0 fixm
+617                     mul=0.7151009 tau=1 fixtau alpha=1 fixalpha gamma=1 fixgamma
+618                     eta=0.7236128 weibull ;
+619               early
+620                 ln_npos=0.4616811, posmarg=0.6858193, anypost=0.6849007;
+621               late
+622                 pm1a=1.086815, pm1b=1.564425, anypost=-2.06235, ln_opyrs=-0.387502;
+623          );
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set EST.HMDTN1S may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set EST.HMDTN1S was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+Running hazard /home/jehrling/hazard/bin/hazard.exe on solaris with data /home/jehrling/development/hazard-4.1/tests/hzr.J11748.X38
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+624        
+625          data est.hmdtn1sn (type=haz);
+626            set outest;
+ERROR: File WORK.OUTEST.DATA does not exist.ERROR: File WORK.OUTEST.DATA does not exist.ERROR: File WORK.OUTEST.DATA does not exist.
+627        *______________________________________________________________________________;
+628        *                                                                              ;
+629        *     E V A L U A T E   M O D E L   B Y   D E C I L E S   O F   R I S K        ;
+630        *______________________________________________________________________________;
+631        *                                                                              ;
+632        * DEFINITIONS OF CALLING ARGUMENTS:                      DEFAULT:              ;
+633        *                                                                              ;
+634        *   IN       = Input data set of values for variables                          ;
+635        *   OUTEST   = PROC HAZARD parameter estimates           OUTEST                ;
+636        *   EVENT    = Event (0/1) indicator                     EVENT                 ;
+637        *   INTERVAL = Interval for the event                    INTERVAL              ;
+638        *   TIME     = Single time interval value for tests      12                    ;
+639        *              (In time units matching INTEVENT)                               ;
+640        *   VARS     = Other variables for means                 none                  ;
+641        *   GROUPS   = Number of groups in table                 10                    ;
+642        *______________________________________________________________________________;
+643        *                                                                              ;
+644          filename deciles ('$MACROS/deciles.hazard.sas');
+645          %inc deciles;
+727          %deciles(in=n1burden, event=dead, interval=iv_dead, time=5, groups=5,
+728            vars=age male pt pm1a pm1b posmarg posnodes pctpos anypost opyrs);
+hazrc 1
+729          run;
+WARNING: The data set EST.HMDTN1SN may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set EST.HMDTN1SN was not replaced because this step was stopped.
+730        *******************************************************************************;
+731          %macro final;
+732          %mend;
+ERROR: Errors printed on pages 1,2,3.ERROR: Errors printed on pages 1,2,3.ERROR: Errors printed on pages 1,2,3.
+

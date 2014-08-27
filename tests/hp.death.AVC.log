@@ -1,0 +1,498 @@
+2295    OPTIONS PAGESIZE=100 LINESIZE=132;
+2296  *******************************************************************************;
+
+2297  * !HZEXAMPLES/hz.death.AVC                                                     ;
+
+2298  *                                                                              ;
+
+2299  * Death after repair of atrioventricular septal defects                        ;
+
+2300  *******************************************************************************;
+
+2301  * Bring in data                                                                ;
+
+2302    TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+2303    TITLE2 'Example Data Set';
+2304    TITLE3 'Death After Repair';
+2305    TITLE4 'Determine Hazard Function';
+2306  *______________________________________________________________________________;
+
+2307  *                                                                              ;
+
+2308  * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+
+2309  *        data.  For illustration, a few variables from a data set for repair   ;
+
+2310  *        of atrioventricular septal defects will be read from a "flat file."   ;
+
+2311  *______________________________________________________________________________;
+
+2312  *                                                                              ;
+
+2313    FILENAME INAVC ('!HZEXAMPLES/data/avc');
+2314    DATA AVCS; INFILE INAVC MISSOVER;
+2315    INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+
+2316          OP_AGE;
+2317    LABEL
+2318          STUDY    = 'Study number'
+2319          STATUS   = 'Clinical status (NYHA I-V)'
+2320          INC_SURG = 'Surgical grade of AV valve incompetence'
+2321          OPMOS    = 'Date of operation (months since 1/67)'
+2322          AGE      = 'Age (months) at repair'
+2323          MAL      = 'Important associated cardiac anomaly'
+2324          COM_IV   = 'Interventricular communication'
+2325          ORIFICE  = 'Accessory left AV valve orifice'
+2326          DEAD     = 'Death'
+2327          INT_DEAD = 'Followup interval (months) after repair'
+2328    ;
+2329    KEEP INT_DEAD DEAD;
+2330  *******************************************************************************;
+
+2331  * Bring in actuarial macros                                                    ;
+
+2332    FILENAME KAPLAN ('!MACROS/kaplan.sas');
+2333    FILENAME NELSON ('!MACROS/nelsont.sas');
+2334    %INC KAPLAN NELSON;
+2735   *______________________________________________________________________________;
+
+2736   *                                                                              ;
+
+2737   * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+
+2738   *                                                                              ;
+
+2739   *   INTERVAL = Time variable                     INTERVAL                      ;
+
+2740   *   EVENT    = Number of events                  EVENT                         ;
+
+2741   *   RCENSOR  = Number of censored cases          0                             ;
+
+2742   *   STRATIFY = Stratification variable           'ALL'                         ;
+
+2743   *   OTHSUMS  = Other variables to be summed      none                          ;
+
+2744   *   ID       = Variables retained in data set    none                          ;
+
+2745   *   CLEVEL   = Confidence coefficient            0.68268948 (1 sd)             ;
+
+2746   *   IN       = Input data set name                                             ;
+
+2747   *   OUT      = Output data set name              EVENT                         ;
+
+2748   *   HLABEL   = Label for time axis of plots      Years After Operation         ;
+
+2749   *   ELABEL   = Label for the event               Death                         ;
+
+2750   *   NOPRINT  = No printed output                 0 (1 for no printing)         ;
+
+2751   *   NOLIST   = Only plotter output, no lists     0 (1 for no lists)            ;
+
+2752   *   PEVENT   = Print only the events             1 (0 for censored also)       ;
+
+2753   *   OEVENT   = Output only the events            1 (0 for censored also)       ;
+
+2754   *   PLOTS    = Plot survival                     1 (0 to skip)                 ;
+
+2755   *   PLOTC    = Plot cumulative hazard            1 (0 to skip)                 ;
+
+2756   *   PLOTH    = Plot hazard                       0 (1 to plot)                 ;
+
+2757   *   PLOTL    = Plot integrated survivorship      0 (1 to plot)                 ;
+
+2758   *______________________________________________________________________________;
+
+2759   *                                                                              ;
+
+2760     %KAPLAN(IN=AVCS, OUT=PLOUT, INTERVAL=INT_DEAD, EVENT=DEAD, PEVENT=1,
+2761             HLABEL=Months After Repair);
+
+NOTE: The infile INAVC is:
+      File Name=c:\hazard\examples\data\avc,
+      RECFM=V,LRECL=256
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.16 seconds
+      cpu time            0.16 seconds
+
+
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK._REFINE_ has 310 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 310 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      27634:195
+NOTE: There were 1 observations read from the data set WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK.S1 has 1 observations and 8 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: There were 1 observations read from the data set WORK.S1.
+NOTE: The data set WORK.S1 has 1 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+NOTE: There were 1 observations read from the data set WORK.S1.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 1 observations read from the data set WORK.S1.
+NOTE: The data set WORK.NSET has 1 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK.BASIC1 has 273 observations and 7 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.03 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+NOTE: There were 273 observations read from the data set WORK.BASIC1.
+NOTE: The data set WORK.BASIC has 273 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+NOTE: There were 273 observations read from the data set WORK.BASIC.
+NOTE: There were 1 observations read from the data set WORK.NSET.
+NOTE: The data set WORK.KAPLAN has 273 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+
+
+
+NOTE: There were 273 observations read from the data set WORK.KAPLAN.
+NOTE: The data set WORK.PRINT has 44 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 44 observations read from the data set WORK.PRINT.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 273 observations read from the data set WORK.KAPLAN.
+NOTE: The data set WORK.PLOT has 273 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: There were 273 observations read from the data set WORK.PLOT.
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: Deleting WORK.OUTTEST (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: There were 273 observations read from the data set WORK.KAPLAN.
+NOTE: The data set WORK.PLOUT has 44 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+NOTE: There were 44 observations read from the data set WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 44 observations and 14 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+2762     DATA PLOUT; SET PLOUT; IF DEAD=1;
+2763     CUM_SURV=CUM_SURV*100;
+2764     BAR=0; CL_LOWER=CL_LOWER*100; CL_UPPER=CL_UPPER*100;
+2765     IF NUMBER IN (14,77,201) THEN BAR=1;
+2766     IF BAR=0 THEN DO; CL_LOWER=.; CL_UPPER=.; END;
+2767   *******************************************************************************;
+
+2768   * Generate and output time points                                              ;
+
+
+NOTE: There were 44 observations read from the data set WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 31 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+2769     DATA PREDICT; DIGITAL=0;
+2770     MAX=180; LN_MAX=LOG(MAX); INC=(5+LN_MAX)/99.9;
+2771     DO LN_TIME=-5 TO LN_MAX BY INC,LN_MAX;
+2772       MONTHS=EXP(LN_TIME);
+2773       OUTPUT;
+2774     END;
+2775     DROP MAX LN_MAX INC LN_TIME;
+2776
+
+NOTE: The data set WORK.PREDICT has 101 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+2777     DATA DIGITAL; DIGITAL=1;
+2778     DTY=12/365.2425;
+2779     DO MONTHS=1*DTY,2*DTY,3*DTY,4*DTY,5*DTY,6*DTY,7*DTY,14*DTY,30*DTY,
+2780               1,2,3,6,12,18,24 TO 180 BY 12;
+2781       OUTPUT;
+2782     END;
+2783     DROP DTY;
+2784
+
+NOTE: The data set WORK.DIGITAL has 29 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+2785     DATA PREDICT; SET PREDICT DIGITAL;
+2786     YEARS=MONTHS/12;
+2787   *******************************************************************************;
+
+2788   * Do predictions                                                               ;
+
+2789     LIBNAME EXAMPLES ('!HZEXAMPLES/sasest');
+NOTE: Libref EXAMPLES was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V8
+      Physical Name(1): c:\hazard\examples\sasest
+2790     %HAZPRED(
+2791     PROC HAZPRED DATA=PREDICT INHAZ=EXAMPLES.HZDEATH OUT=PREDICT; TIME MONTHS; );
+
+
+NOTE: There were 101 observations read from the data set WORK.PREDICT.
+NOTE: There were 29 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.PREDICT has 130 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.05 seconds
+      cpu time            0.05 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X220
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 130 observations read from the data set HZRCALL.HZRCALL.
+NOTE: The data set WORK.PREDICT has 130 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+2792   *******************************************************************************;
+
+2793   * Printer plot survival and hazard                                             ;
+
+2794     DATA PLOT; SET PREDICT PLOUT; CUMSURV=CUM_SURV/100;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      130 at 2794:49
+NOTE: There were 130 observations read from the data set WORK.PREDICT.
+NOTE: There were 31 observations read from the data set WORK.PLOUT.
+NOTE: The data set WORK.PLOT has 161 observations and 31 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+2795     PROC PLOT DATA=PLOT;
+2796          PLOT _SURVIV*MONTHS='*' _CLLSURV*MONTHS='.' _CLUSURV*MONTHS='.'
+2797               CUMSURV*INT_DEAD='K'/OVERLAY VAXIS=0 TO 1 BY 0.1;
+2798          PLOT _HAZARD*MONTHS='*' _CLLHAZ*MONTHS='.' _CLUHAZ*MONTHS='.'
+2799               /OVERLAY VAXIS=0 TO .2 BY 0.02;
+2800   *******************************************************************************;
+
+2801   * Digital nomogram                                                             ;
+
+
+NOTE: There were 161 observations read from the data set WORK.PLOT.
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+2802     DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: There were 130 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.DIGITAL has 29 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+2803     PROC PRINT D; VAR YEARS MONTHS
+2804          _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ;
+2805   *______________________________________________________________________________;
+
+2806   *                                                                              ;
+
+2807   * Scale surviorship function to percent                                        ;
+
+
+NOTE: There were 29 observations read from the data set WORK.DIGITAL.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+2808     DATA PREDICT; SET PREDICT; IF DIGITAL=0;
+2809     _SURVIV=100*_SURVIV; _CLLSURV=100*_CLLSURV; _CLUSURV=100*_CLUSURV;
+2810   *******************************************************************************;
+
+2811   * Bring in PostScript plot macro                                               ;
+
+2812     FILENAME PLT ('!MACROS/plot.sas');
+2813     OPTIONS NOSOURCE; %INC PLT; OPTIONS SOURCE;
+4211   *******************************************************************************;
+
+4212   * Output plot file                                                             ;
+
+4213     FILENAME GSASFILE 'avc.hp.death.AVC';
+4214     %PLOT(
+4215           ID L="avc.hp.death.AVC survival", END;
+4216           LABELX L="Interval (Months) After Repair", END;
+4217           LABELY L="Percent Survival", END;
+4218           LOGO3 L="A-V Septal Defects", NL, L="(Example; Date; n=310)", END;
+
+4219           AXISX ORDER=(0 TO 180 BY 12), MINOR=(NUMBER=1), END;
+4220           AXISY ORDER=(0 TO 100 BY 10), MINOR=(NUMBER=4), END;
+4221           TUPLE SET=PREDICT, X=MONTHS,
+4222                 Y=_SURVIV, CLL=_CLLSURV, CLU=_CLUSURV, LINECL=20, END;
+4223           TUPLE SET=PLOUT, SYMBOL=CIRCLE,
+4224                 SYMBSIZE=3/4, EBARSIZE=3/4, LINEPE=0, LINECL=0, EBAR=1,
+4225                 X=INT_DEAD, Y=CUM_SURV, CLL=CL_LOWER, CLU=CL_UPPER, END;
+4226           );
+GOPTIONS reset=all ctitle=BLACK ctext=BLACK cback=WHITE csymbol=BLACK fontres=presentation gunit=in   device=ljivps htext= 0.24480
+rotate=landscape gaccess=gsasfile gsfmode=append ftext=SWISSB GEPILOG="" NODASH
+
+NOTE: There were 132 observations read from the data set WORK._ZZPLZZ_.
+NOTE: There were 24 observations read from the data set WORK._ZZANZZ_.
+NOTE: PROCEDURE GPLOT used:
+      real time           0.35 seconds
+      cpu time            0.24 seconds
+
+
+4227
+4228     %PLOT(
+4229           ID L="avc.hp.death.AVC hazard", END;
+4230           LABELX L="Interval (Months) After Repair", END;
+4231           LABELY L="Deaths", BUL, L="Year", SUP="-1", END;
+4232           LOGO1 L="A-V Septal Defects", NL, L="(Example; Date; n=310)", END;
+
+4233           AXISX ORDER=(0 TO 180 BY 12), MINOR=(NUMBER=1), END;
+4234           AXISY ORDER=(0 TO .05 BY .01), MINOR=(NUMBER=4), END;
+4235           TUPLE SET=PREDICT, X=MONTHS,
+4236                 Y=_HAZARD, CLL=_CLLHAZ, CLU=_CLUHAZ, LINECL=20, END;
+4237           );
+GOPTIONS reset=all ctitle=BLACK ctext=BLACK cback=WHITE csymbol=BLACK fontres=presentation gunit=in   device=ljivps htext= 0.24480
+rotate=landscape gaccess=gsasfile gsfmode=append ftext=SWISSB GEPILOG="" NODASH
+
+NOTE: There were 101 observations read from the data set WORK._ZZPLZZ_.
+NOTE: PROCEDURE GPLOT used:
+      real time           0.27 seconds
+      cpu time            0.19 seconds
+
+
+4238   *______________________________________________________________________________;
+
+4239   *                                                                              ;
+
+4240   RUN;
+

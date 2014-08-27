@@ -1,0 +1,3 @@
+hzrg.o: hzrg.c shape.h
+
+shape.h:

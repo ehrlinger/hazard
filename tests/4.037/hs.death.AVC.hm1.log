@@ -1,0 +1,528 @@
+1                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.15 seconds
+      cpu time            0.07 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1            OPTIONS PAGESIZE=100 LINESIZE=132;
+2          *******************************************************************************;
+3          * !HZEXAMPLES/hs.death.AVC.hm1                                                 ;
+4          *                                                                              ;
+5          * Multivariable analysis of death after repair                                 ;
+6          *                                                                              ;
+7          * Another strength of a completely parametric survival analysis is that the    ;
+8          * investigator can test the "goodness" of the model.  Specifically, the        ;
+9          * theory of mixture distributions would indicate that if a survival curve      ;
+10         * (or death density function) is generated for each observation, the mean      ;
+11         * of these should be the overall survival curve.  And for any subset of the    ;
+12         * data, such a subset mean should well fit the empiric survival curve (unless  ;
+13         * a risk factor has not been taken into account).                              ;
+14         *                                                                              ;
+15         * The theory of conservation of events also suggests that we can sum the       ;
+16         * cumulative hazard for each patient and predict the number of expected        ;
+17         * deaths, comparing this with the actual number.  One has to be a bit          ;
+18         * careful here, since the cumulative hazard has a limitless upper bound.  One  ;
+19         * could make the case for limiting any cumulative hazard estimate greater      ;
+20         * than 1.0 to that number.                                                     ;
+21         *                                                                              ;
+22         * As a type of internal validation, although the variable is in the model,     ;
+23         * we will predict partial and complete AV Canal from the analysis, overlaying  ;
+24         * it with the nonparametric life table estimates to check out the model.       ;
+25         * Recall that we were concerned that the log-likelihood was better when        ;
+26         * COM_IV was present in the constant hazard phase, but we could not obtain     ;
+27         * reliable estimates for that factor.  This will help us see how badly we      ;
+28         * miss the mark by ignoring this factor in that phase.                         ;
+29         *                                                                              ;
+30         * In actual practice, what I do is to have a "setup" job that generates the    ;
+31         * curves for each patient in the data set and the cumulative hazard values.    ;
+32         * Once stored (often temporarily, for the data set size can be huge), I can    ;
+33         * then stratify the data set in every which way to check myself out using a    ;
+34         * separate job or set of jobs.                                                 ;
+35         *******************************************************************************;
+36         * Bring in data                                                                ;
+37           TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+38           TITLE2 'Example Data Set';
+39           TITLE3 'Multivariable Analysis of Death After Repair';
+40           TITLE4 'Solve Multivariable Equation for Death for Each Patient';
+41           TITLE5 'Stratify By Type of AV Canal';
+42         *______________________________________________________________________________;
+43         *                                                                              ;
+44         * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+45         *        data.  For illustration, a few variables from a data set for repair   ;
+46         *        of atrioventricular septal defects will be read from a "flat file."   ;
+47         *______________________________________________________________________________;
+48         *                                                                              ;
+49           FILENAME INAVC ('!HZEXAMPLES/data/avc');
+50           DATA AVCS; INFILE INAVC MISSOVER;
+51           INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+52                 OP_AGE;
+53           LABEL
+54                 STUDY    = 'Study number'
+55                 STATUS   = 'Clinical status (NYHA I-V)'
+56                 INC_SURG = 'Surgical grade of AV valve incompetence'
+57                 OPMOS    = 'Date of operation (months since 1/67)'
+58                 AGE      = 'Age (months) at repair'
+59                 MAL      = 'Important associated cardiac anomaly'
+60                 COM_IV   = 'Interventricular communication'
+61                 ORIFICE  = 'Accessory left AV valve orifice'
+62                 DEAD     = 'Death'
+63                 INT_DEAD = 'Followup interval (months) after repair'
+64           ;
+65         *******************************************************************************;
+66         * Model:                                                                       ;
+67         * Early Hazard Phase:                                                          ;
+68         *   AGE COM_IV MAL OPMOS OP_AGE STATUS                                         ;
+69         * Constant Hazard Phase:                                                       ;
+70         *   INC_SURG ORIFICE STATUS                                                    ;
+2                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+71         *******************************************************************************;
+72         * Standardize variables with missing values                                    ;
+
+NOTE: The infile INAVC is:
+      File Name=/home/jehrling/hazard-4.1/examples/data/avc,
+      Owner Name=jehrling,Group Name=ctsurg,
+      Access Permission=rwxr-xr-x,
+      File Size (bytes)=16394
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 11 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.04 seconds
+      
+
+73           PROC STANDARD DATA=AVCS OUT=AVCS REPLACE; VAR INC_SURG;
+74         *******************************************************************************;
+75         * First, get the life table estimates for survival after repair                ;
+76         * Stratify by COM_IV                                                           ;
+77           FILENAME KAPLAN ('!MACROS/kaplan.sas');
+78           OPTIONS NOSOURCE; %INC KAPLAN; OPTIONS SOURCE;
+270          %KAPLAN(IN=AVCS, OUT=PLOUT, INTERVAL=INT_DEAD, EVENT=DEAD,
+271                  OEVENT=0, PLOTS=0, PLOTC=0, PLOTH=0, PLOTL=0,
+272                  STRATIFY=COM_IV, HLABEL=Months After Repair);
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 11 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK._REFINE_ has 310 observations and 12 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 310 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      450:195   
+NOTE: There were 1 observations read from the dataset WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The PROCEDURE LIFETEST printed pages 1-2.
+NOTE: PROCEDURE LIFETEST used:
+      real time           0.09 seconds
+      cpu time            0.04 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.S1 has 2 observations and 8 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 2 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.S1 has 2 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 2 observations read from the dataset WORK.S1.
+NOTE: The PROCEDURE PRINT printed page 3.
+NOTE: PROCEDURE PRINT used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+3                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+
+NOTE: There were 2 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.NSET has 2 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.BASIC1 has 282 observations and 7 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.BASIC1.
+NOTE: The data set WORK.BASIC has 282 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      272:232   
+NOTE: There were 282 observations read from the dataset WORK.BASIC.
+NOTE: There were 2 observations read from the dataset WORK.NSET.
+NOTE: The data set WORK.KAPLAN has 282 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.PRINT has 49 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 49 observations read from the dataset WORK.PRINT.
+NOTE: The PROCEDURE PRINT printed page 4.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.PLOT has 282 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Deleting WORK.OUTTEST (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.PLOUT has 282 observations and 29 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+4                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 282 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+273        *******************************************************************************;
+274        * Generate expected vs observed deaths                                         ;
+275          LIBNAME EXAMPLES ('!HZEXAMPLES/sasest');
+NOTE: Directory for library EXAMPLES contains files of mixed engine types.
+NOTE: Libref EXAMPLES was successfully assigned as follows: 
+      Levels:           1
+      Engine(1):        V8 
+      Physical Name(1): /home/jehrling/hazard-4.1/examples/sasest
+276          %HAZPRED (
+277          PROC HAZPRED DATA=AVCS INHAZ=EXAMPLES.HMDEATH OUT=AVCS;
+278               TIME INT_DEAD;
+279          );
+
+Note: Procedure HAZPRED (C-Version 4.036)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 310 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.AVCS has 310 observations and 23 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+280          DATA AVCS; SET AVCS;
+281          CUM_HAZ=-LOG(_SURVIV);
+282          PROB=1-_SURVIV;
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 25 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+283          PROC SORT; BY COM_IV CUM_HAZ;
+284          TITLE6 'Predict number of deaths';
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 25 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+285          PROC SUMMARY DATA=AVCS; BY COM_IV; VAR
+286                 STATUS INC_SURG OPMOS AGE MAL ORIFICE OP_AGE
+287                 DEAD INT_DEAD PROB CUM_HAZ;
+288               OUTPUT OUT=OUTEXP MEAN= SUM(PROB CUM_HAZ DEAD)=PEXPECT EXPECTED
+289                 ACTUAL;
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK.OUTEXP has 2 observations and 17 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+290          PROC PRINT D DATA=OUTEXP; VAR
+291               STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE
+292               DEAD INT_DEAD PROB CUM_HAZ DEAD PEXPECT EXPECTED ACTUAL;
+
+NOTE: There were 2 observations read from the dataset WORK.OUTEXP.
+NOTE: The PROCEDURE PRINT printed page 5.
+NOTE: PROCEDURE PRINT used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+293          DATA AVCS; SET AVCS;
+294          KEEP STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE OP_AGE DEAD INT_DEAD;
+295        *******************************************************************************;
+296        * Digital nomogram                                                             ;
+297        * Calculate parametric estimates of survivorship for each patient              ;
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 10 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+298          DATA DIGITAL; SET AVCS;
+5                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+299          DO MONTHS=1*12/365.2425,7*12/365.2425,14*12/365.2425,30*12/365.2425,
+300             6, 12 TO 180 BY 12;
+301             YEARS=MONTHS/12;
+302             OUTPUT;
+303          END;
+304          %HAZPRED (
+305          PROC HAZPRED DATA=DIGITAL INHAZ=EXAMPLES.HMDEATH OUT=DIGITAL NOHAZ;
+306               TIME MONTHS;
+307          );
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK.DIGITAL has 6200 observations and 12 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.02 seconds
+      
+
+
+Note: Procedure HAZPRED (C-Version 4.036)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 6200 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.DIGITAL has 6200 observations and 24 variables.
+NOTE: DATA statement used:
+      real time           0.19 seconds
+      cpu time            0.19 seconds
+      
+
+308        * Mean curve                                                                   ;
+309          PROC SORT; BY COM_IV;
+
+NOTE: There were 6200 observations read from the dataset WORK.DIGITAL.
+NOTE: The data set WORK.DIGITAL has 6200 observations and 24 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.10 seconds
+      cpu time            0.10 seconds
+      
+
+310          PROC SUMMARY DATA=DIGITAL NWAY; BY COM_IV; ID MONTHS;
+311               CLASS YEARS; VAR _SURVIV _CLLSURV _CLUSURV;
+312               OUTPUT OUT=MEANSD MEAN=MSURVIV MCLLSURV MCLUSURV
+313                 N=NSURVIV NCLLSURV NCLUSURV;
+
+NOTE: There were 6200 observations read from the dataset WORK.DIGITAL.
+NOTE: The data set WORK.MEANSD has 40 observations and 11 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.07 seconds
+      cpu time            0.07 seconds
+      
+
+314          PROC DELETE DATA=DIGITAL;
+315        * Print the results                                                            ;
+
+NOTE: Deleting WORK.DIGITAL (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+316          PROC SORT; BY COM_IV YEARS;
+
+NOTE: There were 40 observations read from the dataset WORK.MEANSD.
+NOTE: The data set WORK.MEANSD has 40 observations and 11 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+317          PROC PRINT; BY COM_IV; VAR YEARS NSURVIV MSURVIV MCLLSURV MCLUSURV;
+318          TITLE5 'Predicted Average Survivorship';
+319        * Comparison with actuarial curves                                             ;
+
+NOTE: There were 40 observations read from the dataset WORK.MEANSD.
+NOTE: The PROCEDURE PRINT printed page 6.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+320          DATA PLOTD; SET MEANSD PLOUT;
+321          IF DEAD=1 THEN DO; PLTCHR='N'; PLTCL='-'; END;
+322          IF DEAD=0 THEN DO; PLTCHR='.'; PLTCL=' '; END;
+
+NOTE: There were 40 observations read from the dataset WORK.MEANSD.
+NOTE: There were 282 observations read from the dataset WORK.PLOUT.
+NOTE: The data set WORK.PLOTD has 322 observations and 27 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+323          PROC SORT; BY COM_IV;
+
+6                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+NOTE: There were 322 observations read from the dataset WORK.PLOTD.
+NOTE: The data set WORK.PLOTD has 322 observations and 27 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+324          PROC PLOT; BY COM_IV;
+325               PLOT MSURVIV*MONTHS='P' (MCLLSURV MCLUSURV)*MONTHS='.'
+326                    CUM_SURV*INT_DEAD='N' (CL_LOWER CL_UPPER)*INT_DEAD='-'
+327                    /OVERLAY VAXIS=0 TO 1 BY 0.1;
+328        *******************************************************************************;
+329        RUN;
+
+NOTE: There were 322 observations read from the dataset WORK.PLOTD.
+NOTE: The PROCEDURE PLOT printed pages 7-8.
+NOTE: PROCEDURE PLOT used:
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+      
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           9.62 seconds
+      cpu time            1.51 seconds
+      

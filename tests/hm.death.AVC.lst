@@ -1,0 +1,990 @@
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000   7
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+                          T H R E E   P H A S E   P A R A M E T R I C   H A Z A R D   P R O C E D U R E
+
+    Initial Summary:
+    ================
+
+      There are   310 observations available for analysis with:
+                             70 events
+                            240 Right Censored Observations
+                            310 Total Subjects
+
+                                     Variable   Label                                          Min            Max
+                -----------------------------------------------------------------------------------------------------
+                Time:                INT_DEAD   Followup interval (months) after repair    0.001368954       170.5826
+                Event:               DEAD       Death                                                0              1
+                -----------------------------------------------------------------------------------------------------
+
+   *------*
+   | Note |
+   *------*
+
+      in  240 observation(s) RCENSOR has been changed from 0 to 1
+
+
+
+
+    Concomitant Information:
+    ========================
+
+
+         Phase     Variable      Label                                          Mean           Min          Max
+         -----------------------------------------------------------------------------------------------------------
+         Early:    AGE           Age (months) at repair                        120.2347     0.9199368      790.9813
+                   STATUS        Clinical status (NYHA I-V)                    2.235484             1             4
+                   COM_IV        Interventricular communication               0.5032258             0             1
+                   ORIFICE       Accessory left AV valve orifice             0.04516129             0             1
+                   MAL           Important associated cardiac anomaly         0.2354839             0             1
+                   INC_SURG      Surgical grade of AV valve incompetence       2.393443             0             5
+                   OPMOS         Date of operation (months since 1/67)         116.7377      2.661246      179.9462
+                   OP_AGE                                                      12632.69      64.68025      125813.4
+                   -------------------------------------------------------------------------------------------------
+         Constant: AGE           Age (months) at repair                        120.2347     0.9199368      790.9813
+                   STATUS        Clinical status (NYHA I-V)                    2.235484             1             4
+                   COM_IV        Interventricular communication               0.5032258             0             1
+                   ORIFICE       Accessory left AV valve orifice             0.04516129             0             1
+                   MAL           Important associated cardiac anomaly         0.2354839             0             1
+                   INC_SURG      Surgical grade of AV valve incompetence       2.393443             0             5
+                   OPMOS         Date of operation (months since 1/67)         116.7377      2.661246      179.9462
+                   OP_AGE                                                      12632.69      64.68025      125813.4
+         -----------------------------------------------------------------------------------------------------------
+
+
+    Model Specifications:
+    =====================
+
+                                       Initial Parameter Values
+                                       ------------------------                                                    Starting
+          Phase        Parameter       Specified        Used       |  Theta                          Estimated?    Value
+          -------------------------------------------------------------------------------------------------------------------
+          Early:       DELTA                    0             0    |  E1                             No
+                       THALF            0.1511909     0.1511909    |  E2                             No
+                        (RHO                          0.1511909)   |
+                       NU                1.438631      1.438631    |  E3                             No
+                       M                        1             1    |  E4                             No
+                       MUE              0.2361697     0.2361697 *  |  E0 = Ln(muE)                   Yes              -1.4432
+                       ------------------------------------------------------------------------------------------------------
+          Constant:    MUC           0.0005437256  0.0005437256 *  |  C0 = Ln(muC)                   Yes             -7.51707
+          -------------------------------------------------------------------------------------------------------------------
+    * The value used is different from the value specified.
+
+    Based on the values used, the following flags and equations have been set:
+          *-------------------------------------------------*
+          |  Early:                                         |
+          |        Delta = 0                Yes             |
+          |        M*Nu = |1|               No              |
+          |        M>0, Nu>0, Generic equations 6 - 8       |
+          |  Constant:                                      |
+          |        Equations 24 - 25                        |
+          *-------------------------------------------------*
+
+
+    Computational Methods:
+    ======================
+
+      Optimization: Newton method using analytic derivatives
+                    initiated using an initial hessian matrix
+
+      Conservation of events: Invoked initially
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000   8
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+    Results:
+    ========
+
+                                                    Forward Stepwise Selection
+
+    * During variable selection steps, variances are approximate because shaping parameter covariances are ignored.
+
+*----------------------------------------------------------------------------------*
+|Step 0.  Intercepts, included variables, and non-fixed shaping parameters entered.|
+*----------------------------------------------------------------------------------*
+
+
+
+        Optimization terminated after    6 iterations and     9 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     8.837943
+        Number of events conserved =     69.99996
+
+        Log likelihood =     -181.109
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -2.94484     0.3648084        -8.072        <.0001
+             COM_IV    Interventricular communication                1.821229     0.3983969         4.571        <.0001     1
+             MAL       Important associated cardiac anomaly         0.6637595     0.2708824         2.450        0.0143     0
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -8.83739      1.353845        -6.528        <.0001
+             ORIFICE   Accessory left AV valve orifice               3.067331     0.8322637         3.686        0.0002     1
+             MAL       Important associated cardiac anomaly         -0.228616      1.116694        -0.205        0.8378     1
+             INC_SURG  Surgical grade of AV valve incompetence      0.7569385     0.3568984         2.121        0.0339     0
+             OP_AGE                                              -0.000110318  7.876034E-05        -1.401        0.1613     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE       Age (months) at repair                     -0.00211907   0.001413423        -1.499        0.1338     1
+             STATUS    Clinical status (NYHA I-V)                      0.6528     0.1569952         4.158        <.0001     1
+             ORIFICE   Accessory left AV valve orifice               1.264913     0.7044789         1.796        0.0726     1
+             INC_SURG  Surgical grade of AV valve incompetence     0.09977697     0.1163941         0.857        0.3913     1
+             OPMOS     Date of operation (months since 1/67)      -0.00600702    0.00368909        -1.628        0.1035     1
+             OP_AGE                                              -7.44413E-06  1.108741E-05        -0.671        0.5020     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE       Age (months) at repair                       0.0218367   0.007443329         2.934        0.0033     1
+             STATUS    Clinical status (NYHA I-V)                    1.003254     0.4850926         2.068        0.0386     1
+             COM_IV    Interventricular communication                -2.14369     0.9072299        -2.363        0.0181     0
+             OPMOS     Date of operation (months since 1/67)      -0.00545166   0.009732333        -0.560        0.5754     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+*----------------------------------------------------------*
+|Step   1. MAL      deleted from CONSTANT PHASE            |
+|                   with Z =      -0.205 and P =     0.8378|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    1 iterations and     3 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     8.827634
+        Number of events conserved =     69.99995
+
+        Log likelihood =     -181.131
+
+        -2(Difference in log likelihood) =   0.04465753
+                                 P(diff) =     0.8326
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -2.94394     0.3648832        -8.068        <.0001
+             COM_IV    Interventricular communication                1.822087     0.3984688         4.573        <.0001     1
+             MAL       Important associated cardiac anomaly         0.6601327      0.270387         2.441        0.0146     0
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -8.86514      1.337997        -6.626        <.0001
+             ORIFICE   Accessory left AV valve orifice               3.048154      0.816587         3.733        0.0002     1
+             INC_SURG  Surgical grade of AV valve incompetence      0.7538262     0.3541078         2.129        0.0333     0
+             OP_AGE                                              -0.000107535  7.622447E-05        -1.411        0.1583     1
+  --------------------------------------------------------------------------------------------------------------------------------
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000   9
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE       Age (months) at repair                     -0.00212031   0.001413571        -1.500        0.1336     1
+             STATUS    Clinical status (NYHA I-V)                   0.6531128     0.1570587         4.158        <.0001     1
+             ORIFICE   Accessory left AV valve orifice               1.270367     0.7040468         1.804        0.0712     1
+             INC_SURG  Surgical grade of AV valve incompetence      0.1001012     0.1163176         0.861        0.3895     1
+             OPMOS     Date of operation (months since 1/67)      -0.00599382   0.003687808        -1.625        0.1041     1
+             OP_AGE                                              -7.44453E-06  1.108779E-05        -0.671        0.5020     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE       Age (months) at repair                      0.02188615   0.007424642         2.948        0.0032     1
+             STATUS    Clinical status (NYHA I-V)                    1.032919     0.4923449         2.098        0.0359     1
+             COM_IV    Interventricular communication                -1.81697      0.817888        -2.222        0.0263     0
+             MAL       Important associated cardiac anomaly         -0.209337      1.019397        -0.205        0.8373     0
+             OPMOS     Date of operation (months since 1/67)      -0.00569855   0.009434586        -0.604        0.5458     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+*----------------------------------------------------------*
+|Step   2. OP_AGE   deleted from CONSTANT PHASE            |
+|                   with Z =      -1.411 and P =     0.1583|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    3 iterations and     5 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     2.379373
+        Number of events conserved =           70
+
+        Log likelihood =     -182.334
+
+        -2(Difference in log likelihood) =     2.405392
+                                 P(diff) =     0.1209
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -2.94408     0.3726203        -7.901        <.0001
+             COM_IV    Interventricular communication                1.833705      0.404932         4.528        <.0001     1
+             MAL       Important associated cardiac anomaly         0.6523232      0.268845         2.426        0.0152     0
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -9.91419      1.357583        -7.303        <.0001
+             ORIFICE   Accessory left AV valve orifice               2.764004     0.7898027         3.500        0.0005     1
+             INC_SURG  Surgical grade of AV valve incompetence      0.8720066     0.3795109         2.298        0.0216     0
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE       Age (months) at repair                      -0.0029505   0.001498056        -1.970        0.0489     1
+             STATUS    Clinical status (NYHA I-V)                   0.6515879     0.1567256         4.158        <.0001     1
+             ORIFICE   Accessory left AV valve orifice               1.326844     0.6889004         1.926        0.0541     1
+             INC_SURG  Surgical grade of AV valve incompetence     0.09510345      0.117027         0.813        0.4164     1
+             OPMOS     Date of operation (months since 1/67)      -0.00634972   0.003724664        -1.705        0.0882     1
+             OP_AGE                                               -1.6538E-05  1.280712E-05        -1.291        0.1966     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE       Age (months) at repair                     0.002615929   0.004057886         0.645        0.5192     1
+             STATUS    Clinical status (NYHA I-V)                    1.354342     0.5065514         2.674        0.0075     1
+             COM_IV    Interventricular communication                -1.39172     0.8368296        -1.663        0.0963     0
+             MAL       Important associated cardiac anomaly        -0.0598991      1.131292        -0.053        0.9578     0
+             OPMOS     Date of operation (months since 1/67)      -0.00862928    0.01178475        -0.732        0.4640     1
+             OP_AGE                                                         0             .             .             .  **
+  --------------------------------------------------------------------------------------------------------------------------------
+    **   Variable ill conditioned indicating possible singularity.
+
+
+
+*----------------------------------------------------------*
+|Step   3. STATUS   added to EARLY PHASE                   |
+|                   with Z =       4.158 and P = <.0001    |
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    4 iterations and     6 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     3.151437
+        Number of events conserved =           70
+
+        Log likelihood =     -173.919
+
+        -2(Difference in log likelihood) =      16.8294
+                                 P(diff) = <.0001
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000  10
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -4.26238     0.5147604        -8.280        <.0001
+             STATUS    Clinical status (NYHA I-V)                   0.6337596     0.1561862         4.058        <.0001     1
+             COM_IV    Interventricular communication                1.543272     0.3974962         3.882        0.0001     1
+             MAL       Important associated cardiac anomaly         0.4931225     0.2703115         1.824        0.0681     0
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -9.51331      1.318623        -7.215        <.0001
+             ORIFICE   Accessory left AV valve orifice               2.746131     0.8168996         3.362        0.0008     1
+             INC_SURG  Surgical grade of AV valve incompetence      0.7350423     0.3913196         1.878        0.0603     0
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE       Age (months) at repair                     -0.00202482   0.001299022        -1.559        0.1191     1
+             ORIFICE   Accessory left AV valve orifice               1.176807     0.6557769         1.795        0.0727     1
+             INC_SURG  Surgical grade of AV valve incompetence     0.07033544      0.116626         0.603        0.5465     1
+             OPMOS     Date of operation (months since 1/67)      -0.00789253   0.003829454        -2.061        0.0393     1
+             OP_AGE                                              -9.83545E-06  1.055846E-05        -0.932        0.3516     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE       Age (months) at repair                     0.001044635   0.003502171         0.298        0.7655     1
+             STATUS    Clinical status (NYHA I-V)                     1.26531     0.5770866         2.193        0.0283     1
+             COM_IV    Interventricular communication                -1.35434     0.8993133        -1.506        0.1321     0
+             MAL       Important associated cardiac anomaly        -0.0631289      1.105008        -0.057        0.9544     0
+             OPMOS     Date of operation (months since 1/67)       -0.0163888    0.01318061        -1.243        0.2137     1
+             OP_AGE                                                         0             .             .             . ***
+  --------------------------------------------------------------------------------------------------------------------------------
+    ***  Tolerance of the Q is zero or negative.
+
+
+
+*----------------------------------------------------------*
+|Step   4. STATUS   added to CONSTANT PHASE                |
+|                   with Z =       2.193 and P =     0.0283|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    4 iterations and     7 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     3.519882
+        Number of events conserved =     69.99995
+
+        Log likelihood =     -172.105
+
+        -2(Difference in log likelihood) =     3.627626
+                                 P(diff) =     0.0568
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -4.23263     0.5203867        -8.134        <.0001
+             STATUS    Clinical status (NYHA I-V)                    0.592593     0.1551423         3.820        0.0001     1
+             COM_IV    Interventricular communication                1.629901     0.4090625         3.984        <.0001     1
+             MAL       Important associated cardiac anomaly         0.4963944     0.2719464         1.825        0.0679     0
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -11.8847      1.952193        -6.088        <.0001
+             STATUS    Clinical status (NYHA I-V)                   0.8973864     0.4638216         1.935        0.0530     1
+             ORIFICE   Accessory left AV valve orifice                 2.6852     0.8056464         3.333        0.0009     1
+             INC_SURG  Surgical grade of AV valve incompetence      0.7999064     0.4046682         1.977        0.0481     0
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE       Age (months) at repair                     -0.00218495   0.001360137        -1.606        0.1082     1
+             ORIFICE   Accessory left AV valve orifice               1.156819     0.6649014         1.740        0.0819     1
+             INC_SURG  Surgical grade of AV valve incompetence     0.04787437     0.1162546         0.412        0.6805     1
+             OPMOS     Date of operation (months since 1/67)       -0.0084516   0.003848182        -2.196        0.0281     1
+             OP_AGE                                              -1.18025E-05  1.132205E-05        -1.042        0.2972     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE       Age (months) at repair                     0.001293993   0.003113509         0.416        0.6777     1
+             COM_IV    Interventricular communication                -1.47594     0.8068503        -1.829        0.0674     0
+             MAL       Important associated cardiac anomaly         -0.129329      1.078899        -0.120        0.9046     0
+             OPMOS     Date of operation (months since 1/67)      -0.00678331    0.01059243        -0.640        0.5219     1
+             OP_AGE                                                         0             .             .             . ***
+  --------------------------------------------------------------------------------------------------------------------------------
+    ***  Tolerance of the Q is zero or negative.
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000  11
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+
+
+*----------------------------------------------------------*
+|Step   5. OPMOS    added to EARLY PHASE                   |
+|                   with Z =      -2.196 and P =     0.0281|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    3 iterations and     5 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     6.700492
+        Number of events conserved =     69.99988
+
+        Log likelihood =     -169.821
+
+        -2(Difference in log likelihood) =      4.56752
+                                 P(diff) =     0.0326
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -3.59881     0.5888084        -6.112        <.0001
+             STATUS    Clinical status (NYHA I-V)                   0.6235351     0.1565511         3.983        <.0001     1
+             COM_IV    Interventricular communication                1.893622     0.4392653         4.311        <.0001     1
+             MAL       Important associated cardiac anomaly         0.5833295     0.2764204         2.110        0.0348     0
+             OPMOS     Date of operation (months since 1/67)       -0.0078135   0.003577661        -2.184        0.0290     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -12.2431      2.271565        -5.390        <.0001
+             STATUS    Clinical status (NYHA I-V)                   0.9352889     0.4634701         2.018        0.0436     1
+             ORIFICE   Accessory left AV valve orifice               2.747955      0.803336         3.421        0.0006     1
+             INC_SURG  Surgical grade of AV valve incompetence      0.8786732     0.4700616         1.869        0.0616     0
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE       Age (months) at repair                     -0.00278275   0.001422638        -1.956        0.0505     1
+             ORIFICE   Accessory left AV valve orifice               0.964968     0.6419533         1.503        0.1328     1
+             INC_SURG  Surgical grade of AV valve incompetence     0.01242428     0.1200161         0.104        0.9175     1
+             OP_AGE                                              -1.25257E-05  1.328839E-05        -0.943        0.3459     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE       Age (months) at repair                     0.003165634    0.00376014         0.842        0.3998     1
+             COM_IV    Interventricular communication                 -1.4653     0.7901905        -1.854        0.0637     0
+             MAL       Important associated cardiac anomaly         -0.302503      1.177272        -0.257        0.7972     0
+             OPMOS     Date of operation (months since 1/67)      -0.00221261    0.01073868        -0.206        0.8368     1
+             OP_AGE                                                         0             .             .             .  **
+  --------------------------------------------------------------------------------------------------------------------------------
+    **   Variable ill conditioned indicating possible singularity.
+
+
+
+*----------------------------------------------------------*
+|Step   6. AGE      added to EARLY PHASE                   |
+|                   with Z =      -1.956 and P =     0.0505|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    4 iterations and     6 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =      7.39277
+        Number of events conserved =      69.9998
+
+        Log likelihood =     -167.048
+
+        -2(Difference in log likelihood) =     5.545764
+                                 P(diff) =     0.0185
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -2.58025     0.7214441        -3.577        0.0003
+             AGE       Age (months) at repair                     -0.00500051    0.00249607        -2.003        0.0451     1
+             STATUS    Clinical status (NYHA I-V)                   0.5599693     0.1599731         3.500        0.0005     1
+             COM_IV    Interventricular communication                1.442253     0.4462403         3.232        0.0012     1
+             MAL       Important associated cardiac anomaly          0.715151     0.2774007         2.578        0.0099     0
+             OPMOS     Date of operation (months since 1/67)       -0.0097759   0.003634517        -2.690        0.0072     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -13.9907      4.392858        -3.185        0.0014
+             STATUS    Clinical status (NYHA I-V)                    1.048384      0.509636         2.057        0.0397     1
+             ORIFICE   Accessory left AV valve orifice               2.885422      1.005923         2.868        0.0041     1
+             INC_SURG  Surgical grade of AV valve incompetence       1.260338      0.902392         1.397        0.1625     0
+  --------------------------------------------------------------------------------------------------------------------------------
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000  12
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     ORIFICE   Accessory left AV valve orifice              0.6927195     0.5927231         1.169        0.2425     1
+             INC_SURG  Surgical grade of AV valve incompetence    -0.00619203     0.1208528        -0.051        0.9591     1
+             OP_AGE                                              0.0001662598  5.333254E-05         3.117        0.0018     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE       Age (months) at repair                      0.01822294   0.004987745         3.654        0.0003     1
+             COM_IV    Interventricular communication                -1.46882     0.7783243        -1.887        0.0591     0
+             MAL       Important associated cardiac anomaly          -4.05731      2.505672        -1.619        0.1054     0
+             OPMOS     Date of operation (months since 1/67)      0.001983105   0.009935294         0.200        0.8418     1
+             OP_AGE                                              0.0003734863  6.967401E-05         5.360        <.0001     0
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+*----------------------------------------------------------*
+|Step   7. AGE      added to CONSTANT PHASE                |
+|                   with Z =       3.654 and P =     0.0003|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    5 iterations and     8 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     7.569203
+        Number of events conserved =           70
+
+        Log likelihood =     -165.503
+
+        -2(Difference in log likelihood) =     3.090304
+                                 P(diff) =     0.0788
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -2.44015     0.6500663        -3.754        0.0002
+             AGE       Age (months) at repair                     -0.00537401    0.00246128        -2.183        0.0290     1
+             STATUS    Clinical status (NYHA I-V)                   0.5524904     0.1572981         3.512        0.0004     1
+             COM_IV    Interventricular communication                1.368819     0.4162437         3.289        0.0010     1
+             MAL       Important associated cardiac anomaly         0.7228042     0.2681362         2.696        0.0070     0
+             OPMOS     Date of operation (months since 1/67)       -0.0100245   0.003436067        -2.917        0.0035     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -18.1647      5.304546        -3.424        0.0006
+             AGE       Age (months) at repair                     0.003478297   0.001812981         1.919        0.0550     1
+             STATUS    Clinical status (NYHA I-V)                    1.330084     0.6531068         2.037        0.0417     1
+             ORIFICE   Accessory left AV valve orifice                3.50816      1.187211         2.955        0.0031     1
+             INC_SURG  Surgical grade of AV valve incompetence       1.939576      0.909756         2.132        0.0330     0
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     ORIFICE   Accessory left AV valve orifice              0.7125524     0.5823415         1.224        0.2211     1
+             INC_SURG  Surgical grade of AV valve incompetence     -0.0137864     0.1153464        -0.120        0.9049     1
+             OP_AGE                                              0.0001624002  5.473458E-05         2.967        0.0030     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  COM_IV    Interventricular communication                -1.59895     0.9568955        -1.671        0.0947     0
+             MAL       Important associated cardiac anomaly          -1.07746      1.330887        -0.810        0.4182     0
+             OPMOS     Date of operation (months since 1/67)      0.003140287    0.01056698         0.297        0.7663     1
+             OP_AGE                                              1.404923E-05  4.198359E-05         0.335        0.7379     0
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+*----------------------------------------------------------*
+|Step   8. OP_AGE   added to EARLY PHASE                   |
+|                   with Z =       2.967 and P =     0.0030|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    6 iterations and     8 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     11.09816
+        Number of events conserved =           70
+
+        Log likelihood =     -160.177
+
+        -2(Difference in log likelihood) =     10.65311
+                                 P(diff) =     0.0011
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000  13
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -1.01353     0.7588863        -1.336        0.1817
+             AGE       Age (months) at repair                      -0.0320165    0.00977472        -3.275        0.0011     1
+             STATUS    Clinical status (NYHA I-V)                   0.4974216     0.1575841         3.157        0.0016     1
+             COM_IV    Interventricular communication                1.298695     0.4154279         3.126        0.0018     1
+             MAL       Important associated cardiac anomaly         0.6979863     0.2682704         2.602        0.0093     0
+             OPMOS     Date of operation (months since 1/67)        -0.019245   0.004383846        -4.390        <.0001     1
+             OP_AGE                                              0.0002042146  6.263279E-05         3.261        0.0011     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -16.3417      3.438299        -4.753        <.0001
+             AGE       Age (months) at repair                     0.002588524   0.002190308         1.182        0.2373     1
+             STATUS    Clinical status (NYHA I-V)                    1.178052     0.5405894         2.179        0.0293     1
+             ORIFICE   Accessory left AV valve orifice               3.262909     0.9276969         3.517        0.0004     1
+             INC_SURG  Surgical grade of AV valve incompetence       1.638706     0.6317752         2.594        0.0095     0
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     ORIFICE   Accessory left AV valve orifice              0.5759918     0.5699947         1.011        0.3122     1
+             INC_SURG  Surgical grade of AV valve incompetence     -0.0465743     0.1140887        -0.408        0.6831     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  COM_IV    Interventricular communication                -1.61511     0.9340316        -1.729        0.0838     0
+             MAL       Important associated cardiac anomaly          -1.10624      1.286876        -0.860        0.3900     0
+             OPMOS     Date of operation (months since 1/67)     0.0004176805    0.01193706         0.035        0.9721     1
+             OP_AGE                                                         0             .             .             . ***
+  --------------------------------------------------------------------------------------------------------------------------------
+    ***  Tolerance of the Q is zero or negative.
+
+
+
+*----------------------------------------------------------*
+|Step   9. AGE      deleted from CONSTANT PHASE            |
+|                   with Z =       1.182 and P =     0.2373|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    3 iterations and     5 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     11.20475
+        Number of events conserved =           70
+
+        Log likelihood =      -160.64
+
+        -2(Difference in log likelihood) =    0.9259863
+                                 P(diff) =     0.3359
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -1.06127     0.7606036        -1.395        0.1629
+             AGE       Age (months) at repair                      -0.0318558   0.009406884        -3.386        0.0007     1
+             STATUS    Clinical status (NYHA I-V)                   0.5079264     0.1570196         3.235        0.0012     1
+             COM_IV    Interventricular communication                1.334448      0.419878         3.178        0.0015     1
+             MAL       Important associated cardiac anomaly         0.6804819     0.2681959         2.537        0.0112     0
+             OPMOS     Date of operation (months since 1/67)       -0.0195001   0.004373454        -4.459        <.0001     1
+             OP_AGE                                              0.0002073191  5.922524E-05         3.501        0.0005     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -14.4455      3.128622        -4.617        <.0001
+             STATUS    Clinical status (NYHA I-V)                    1.060801     0.5037577         2.106        0.0352     1
+             ORIFICE   Accessory left AV valve orifice               3.082632     0.9020532         3.417        0.0006     1
+             INC_SURG  Surgical grade of AV valve incompetence       1.328655     0.6428807         2.067        0.0388     0
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     ORIFICE   Accessory left AV valve orifice              0.5606611     0.5749534         0.975        0.3295     1
+             INC_SURG  Surgical grade of AV valve incompetence     -0.0435429     0.1147807        -0.379        0.7044     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE       Age (months) at repair                     0.004858507   0.004045113         1.201        0.2297     0
+             COM_IV    Interventricular communication                -1.50055     0.8282324        -1.812        0.0700     0
+             MAL       Important associated cardiac anomaly          -1.22911       1.28977        -0.953        0.3406     0
+             OPMOS     Date of operation (months since 1/67)      -0.00356955    0.01092363        -0.327        0.7438     1
+             OP_AGE                                                         0             .             .             . ***
+  --------------------------------------------------------------------------------------------------------------------------------
+    ***  Tolerance of the Q is zero or negative.
+
+
+    No other variables met the          0.2 significance level for entry into the model.
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000  14
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+
+
+    Final Results:
+    ==============
+
+
+                                                  Parameter Estimate Summary
+
+    Phase      Parameter   Label                                       Estimate       Std error             Z          Prob>|Z|
+    --------------------------------------------------------------------------------------------------------------------------------
+    Early:     E0                                                         -1.06127      0.7606036         -1.395          0.1629
+               AGE         Age (months) at repair                       -0.0318558    0.009406884         -3.386          0.0007
+               STATUS      Clinical status (NYHA I-V)                    0.5079264      0.1570196          3.235          0.0012
+               COM_IV      Interventricular communication                 1.334448       0.419878          3.178          0.0015
+               MAL         Important associated cardiac anomaly          0.6804819      0.2681959          2.537          0.0112
+               OPMOS       Date of operation (months since 1/67)        -0.0195001    0.004373454         -4.459          <.0001
+               OP_AGE                                                 0.0002073191   5.922524E-05          3.501          0.0005
+               ---------------------------------------------------------------------------------------------------------------------
+    Constant:  C0                                                         -14.4455       3.128622         -4.617          <.0001
+               STATUS      Clinical status (NYHA I-V)                     1.060801      0.5037577          2.106          0.0352
+               ORIFICE     Accessory left AV valve orifice                3.082632      0.9020532          3.417          0.0006
+               INC_SURG    Surgical grade of AV valve incompetence        1.328655      0.6428807          2.067          0.0388
+    --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                                  Estimates for Model Parameters
+
+                                          Phase       Parameter     Fixed?     Estimate
+                                          ------------------------------------------------
+                                          Early:      DELTA         Yes                  0
+                                                      THALF         Yes          0.1511909
+                                                       (RHO                      0.1511909)
+                                                      NU            Yes           1.438631
+                                                      M             Yes                  1
+                                                      MUE                        0.3460157
+                                                      ------------------------------------
+                                          Constant:   MUC                     5.326072E-07
+                                          ------------------------------------------------
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000  15
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+                          T H R E E   P H A S E   P A R A M E T R I C   H A Z A R D   P R O C E D U R E
+
+    Initial Summary:
+    ================
+
+      There are   310 observations available for analysis with:
+                             70 events
+                            240 Right Censored Observations
+                            310 Total Subjects
+
+                                     Variable   Label                                          Min            Max
+                -----------------------------------------------------------------------------------------------------
+                Time:                INT_DEAD   Followup interval (months) after repair    0.001368954       170.5826
+                Event:               DEAD       Death                                                0              1
+                -----------------------------------------------------------------------------------------------------
+
+   *------*
+   | Note |
+   *------*
+
+      in  240 observation(s) RCENSOR has been changed from 0 to 1
+
+
+
+
+    Concomitant Information:
+    ========================
+
+
+         Phase     Variable      Label                                          Mean           Min          Max
+         -----------------------------------------------------------------------------------------------------------
+         Early:    AGE           Age (months) at repair                        120.2347     0.9199368      790.9813
+                   COM_IV        Interventricular communication               0.5032258             0             1
+                   MAL           Important associated cardiac anomaly         0.2354839             0             1
+                   OPMOS         Date of operation (months since 1/67)         116.7377      2.661246      179.9462
+                   OP_AGE                                                      12632.69      64.68025      125813.4
+                   STATUS        Clinical status (NYHA I-V)                    2.235484             1             4
+                   -------------------------------------------------------------------------------------------------
+         Constant: STATUS        Clinical status (NYHA I-V)                    2.235484             1             4
+                   INC_SURG      Surgical grade of AV valve incompetence       2.393443             0             5
+                   ORIFICE       Accessory left AV valve orifice             0.04516129             0             1
+         -----------------------------------------------------------------------------------------------------------
+
+
+    Model Specifications:
+    =====================
+
+                                       Initial Parameter Values
+                                       ------------------------                                                    Starting
+          Phase        Parameter       Specified        Used       |  Theta                          Estimated?    Value
+          -------------------------------------------------------------------------------------------------------------------
+          Early:       DELTA                    0             0    |  E1                             No
+                       THALF            0.1905077     0.1905077    |  E2 = Ln(Thalf)                 Yes             -1.65806
+                        (RHO                          0.1905077)   |
+                       NU                1.437416      1.437416    |  E3 = Ln(|Nu|)                  Yes            0.3628471
+                       M                        1             1    |  E4                             No
+                       MUE              0.3504743     0.3504743 *  |  E0 = Ln(muE)                   Yes #           -1.04847
+                       ------------------------------------------------------------------------------------------------------
+          Constant:    MUC           4.391673E-07  4.391673E-07 *  |  C0 = Ln(muC)                   Yes             -14.6384
+          -------------------------------------------------------------------------------------------------------------------
+    # This MU parameter is estimated in closed form.
+    * The value used is different from the value specified.
+
+    Based on the values used, the following flags and equations have been set:
+          *-------------------------------------------------*
+          |  Early:                                         |
+          |        Delta = 0                Yes             |
+          |        M*Nu = |1|               No              |
+          |        M>0, Nu>0, Generic equations 6 - 8       |
+          |  Constant:                                      |
+          |        Equations 24 - 25                        |
+          *-------------------------------------------------*
+
+
+    Computational Methods:
+    ======================
+
+      Optimization: Quasi-Newton method using numeric derivatives
+                    initiated using an initial hessian matrix
+
+      Conservation of events: Invoked at each iteration
+      If only one scaling parameter, estimation is in closed form.
+
+
+    Results:
+    ========
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000  16
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+    Iteration   Log Likelihood      E2            E3            E0            AGE           COM_IV        MAL           OPMOS
+                                    OP_AGE        STATUS        C0            STATUS        INC_SURG      ORIFICE
+    -----------------------------------------------------------------------------------------------------------------------------
+
+        0           -160.408         -1.65806     0.3628471      -1.04847    -0.0320577      1.336675     0.6872028    -0.0196338
+                                 0.0002086689     0.5169533      -14.6384      1.054988      1.375285       3.11765
+
+        1           -160.408         -1.65806     0.3628494      -1.04859    -0.0320555      1.336566     0.6872363    -0.0196329
+                                 0.0002086541     0.5169828      -14.6387      1.055056      1.375293      3.117818
+
+
+        Optimization terminated after    1 iterations and   118 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     11.12495
+        Number of events conserved =     69.99998
+
+        Log likelihood =     -160.408
+
+
+
+    Final Results:
+    ==============
+
+
+                                                  Parameter Estimate Summary
+
+    Phase      Parameter   Label                                       Estimate       Std error             Z          Prob>|Z|
+    --------------------------------------------------------------------------------------------------------------------------------
+    Early:     E2                                                         -1.65806      0.3631533         -4.566          <.0001
+               E3                                                        0.3628494      0.1236952          2.933          0.0034
+               E0                                                         -1.04859      0.7576228         -1.384          0.1663
+               AGE         Age (months) at repair                       -0.0320555    0.009398603         -3.411          0.0006
+               COM_IV      Interventricular communication                 1.336566      0.4210704          3.174          0.0015
+               MAL         Important associated cardiac anomaly          0.6872364      0.2686634          2.558          0.0105
+               OPMOS       Date of operation (months since 1/67)        -0.0196329    0.004375574         -4.487          <.0001
+               OP_AGE                                                 0.0002086541   5.920445E-05          3.524          0.0004
+               STATUS      Clinical status (NYHA I-V)                    0.5169829      0.1584257          3.263          0.0011
+               ---------------------------------------------------------------------------------------------------------------------
+    Constant:  C0                                                         -14.6387       3.150046         -4.647          <.0001
+               STATUS      Clinical status (NYHA I-V)                     1.055057        0.51251          2.059          0.0395
+               INC_SURG    Surgical grade of AV valve incompetence        1.375293      0.6366941          2.160          0.0308
+               ORIFICE     Accessory left AV valve orifice                3.117818      0.9181106          3.396          0.0007
+    --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                                  Estimates for Model Parameters
+
+                                          Phase       Parameter     Fixed?     Estimate
+                                          ------------------------------------------------
+                                          Early:      DELTA         Yes                  0
+                                                      THALF         No            0.190509
+                                                       (RHO                       0.190509)
+                                                      NU            No            1.437419
+                                                      M             Yes                  1
+                                                      MUE                        0.3504322
+                                                      ------------------------------------
+                                          Constant:   MUC                     4.390436E-07
+                                          ------------------------------------------------
+
+
+                                                Asymptotic Variance-Covariance Matrix
+
+                       E2            E3            E0            AGE           COM_IV        MAL           OPMOS         OP_AGE
+                       STATUS        C0            STATUS        INC_SURG      ORIFICE
+    -----------------------------------------------------------------------------------------------------------------------------
+    Early:
+
+       E2              0.1318803    0.01574328   0.005084269  -8.24931E-05   -9.8751E-05   0.002797748  -2.61828E-05  5.564798E-07
+
+                      0.00453322      -0.12254   -0.00217493    0.02874649    0.02310423
+
+       E3             0.01574328    0.01530051  -0.000847839  6.447356E-06   -0.00101284  -8.86995E-05  2.844502E-05  -3.35315E-08
+
+                    0.0002202692    -0.0484116   0.001796898   0.009993251   0.009786689
+
+       E0            0.005084269  -0.000847839     0.5739923   -0.00416384    -0.0970091    0.01034134   -0.00204229  2.512198E-05
+
+                      -0.0699239     -0.110502    0.01364057    0.01935367  0.0001307624
+
+       AGE          -8.24931E-05  6.447356E-06   -0.00416384  8.833373E-05   0.000151539  -0.000175859  2.130672E-05  -5.48664E-07
+
+                    0.0003041681   0.001449337  -0.000199925  -0.000228373  -0.000184089
+
+       COM_IV        -9.8751E-05   -0.00101284    -0.0970091   0.000151539     0.1773003   -0.00708906  -0.000416575  7.855642E-07
+
+                      -0.0052921   0.004985243   0.007305574   -0.00585956    0.01932927
+
+       MAL           0.002797748  -8.86995E-05    0.01034134  -0.000175859   -0.00708906       0.07218  -0.000171332  9.364679E-07
+
+                     -0.00485545    -0.0532139   0.003833508     0.0107208     0.0119922
+
+       OPMOS        -2.61828E-05  2.844502E-05   -0.00204229  2.130672E-05  -0.000416575  -0.000171332  1.914565E-05  -1.46317E-07
+
+                    3.415924E-05  0.0008186875  -0.000115033  -0.000127466  -0.000225682
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:25 Friday, November 10, 2000  17
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+
+       OP_AGE       5.564798E-07  -3.35315E-08  2.512198E-05  -5.48664E-07  7.855642E-07  9.364679E-07  -1.46317E-07  3.505167E-09
+
+                    -1.75556E-06  -9.10879E-06  1.301018E-06  1.354943E-06  1.629017E-06
+
+       STATUS         0.00453322  0.0002202692    -0.0699239  0.0003041681    -0.0052921   -0.00485545  3.415924E-05  -1.75556E-06
+
+                      0.02509869   -0.00301494   -0.00289642   0.002044428   0.002913532
+
+       --------------------------------------------------------------------------------------------------------------------------
+    Constant:
+
+       C0               -0.12254    -0.0484116     -0.110502   0.001449337   0.004985243    -0.0532139  0.0008186875  -9.10879E-06
+
+                     -0.00301494      9.922787     -0.948857        -1.733      -1.53816
+
+       STATUS        -0.00217493   0.001796898    0.01364057  -0.000199925   0.007305574   0.003833508  -0.000115033  1.301018E-06
+
+                     -0.00289642     -0.948857     0.2626665    0.04128688     0.1314002
+
+       INC_SURG       0.02874649   0.009993251    0.01935367  -0.000228373   -0.00585956     0.0107208  -0.000127466  1.354943E-06
+
+                     0.002044428        -1.733    0.04128688     0.4053794     0.2367411
+
+       ORIFICE        0.02310423   0.009786689  0.0001307624  -0.000184089    0.01932927     0.0119922  -0.000225682  1.629017E-06
+
+                     0.002913532      -1.53816     0.1314002     0.2367411      0.842927
+
+    -----------------------------------------------------------------------------------------------------------------------------
+
+
+                                                     Asymptotic Correlation Matrix
+
+                       E2            E3            E0            AGE           COM_IV        MAL           OPMOS         OP_AGE
+                       STATUS        C0            STATUS        INC_SURG      ORIFICE
+    -----------------------------------------------------------------------------------------------------------------------------
+    Early:
+
+       E2                      1     0.3504712     0.0184793    -0.0241693  -0.000645798    0.02867545    -0.0164775    0.02588243
+
+                      0.07879367      -0.10712    -0.0116856     0.1243266    0.06929573
+
+       E3              0.3504712             1   -0.00904706   0.005545816    -0.0194462   -0.00266907    0.05255551   -0.00457874
+
+                      0.01124023     -0.124245    0.02834446     0.1268887    0.08617631
+
+       E0              0.0184793   -0.00904706             1     -0.584761     -0.304092    0.05080604     -0.616068     0.5600754
+
+                       -0.582569    -0.0463022    0.03512991    0.04012172  0.0001879901
+
+       AGE            -0.0241693   0.005545816     -0.584761             1    0.03829185    -0.0696454     0.5181056     -0.986026
+
+                       0.2042795    0.04895413    -0.0415052    -0.0381638    -0.0213338
+
+       COM_IV       -0.000645798    -0.0194462     -0.304092    0.03829185             1    -0.0626651     -0.226101    0.03151176
+
+                      -0.0793319   0.003758502    0.03385301    -0.0218564     0.0499995
+
+       MAL            0.02867545   -0.00266907    0.05080604    -0.0696454    -0.0626651             1     -0.145745    0.05887489
+
+                       -0.114076    -0.0628782    0.02784105    0.06267408     0.0486178
+
+       OPMOS          -0.0164775    0.05255551     -0.616068     0.5181056     -0.226101     -0.145745             1     -0.564814
+
+                      0.04927738    0.05939724    -0.0512964     -0.045754     -0.056178
+
+       OP_AGE         0.02588243   -0.00457874     0.5600754     -0.986026    0.03151176    0.05887489     -0.564814             1
+
+                        -0.18717    -0.0488415    0.04287721    0.03594479    0.02996929
+
+       STATUS         0.07879367    0.01124023     -0.582569     0.2042795    -0.0793319     -0.114076    0.04927738      -0.18717
+
+                               1   -0.00604138    -0.0356725    0.02026821    0.02003085
+
+       --------------------------------------------------------------------------------------------------------------------------
+    Constant:
+
+       C0               -0.10712     -0.124245    -0.0463022    0.04895413   0.003758502    -0.0628782    0.05939724    -0.0488415
+
+                     -0.00604138             1     -0.587735     -0.864074      -0.53185
+
+       STATUS         -0.0116856    0.02834446    0.03512991    -0.0415052    0.03385301    0.02784105    -0.0512964    0.04287721
+
+                      -0.0356725     -0.587735             1     0.1265257     0.2792535
+
+       INC_SURG        0.1243266     0.1268887    0.04012172    -0.0381638    -0.0218564    0.06267408     -0.045754    0.03594479
+
+                      0.02026821     -0.864074     0.1265257             1     0.4049934
+
+       ORIFICE        0.06929573    0.08617631  0.0001879901    -0.0213338     0.0499995     0.0486178     -0.056178    0.02996929
+
+                      0.02003085      -0.53185     0.2792535     0.4049934             1
+
+    -----------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,6 @@
+/* Styles for the Hazard site navigation bar */
+body {background-color:#ffffff}
+td {font-family: Arial,sans-serif; font-weight: bold; color: #006699; font-style: italic}
+a:link { text-decoration: none; color: #006699;}
+a:active { text-decoration: none; color: #006699;}
+a:visited { text-decoration: none; color: #006699;} 

@@ -1,0 +1,2589 @@
+From cvsrehb Thu Dec  1 12:03:03 1994
+Received: by UABCVSR.cvsr.uab.edu (AIX 3.2/UCB 5.64/4.03)
+          id AA31413; Thu, 1 Dec 1994 12:03:02 -0600
+Date: Thu, 1 Dec 94 12:03:02 -0600
+From: cvsrehb
+Message-ID: <9412011803.AA31413@UABCVSR.cvsr.uab.edu>
+To: cvsrehb
+Subject: 27598.uabcvsr
+
+1                                                          The SAS System                           12:00 Thursday, December 1, 1994
+
+NOTE: Copyright(c) 1989 by SAS Institute Inc., Cary, NC USA. 
+NOTE: SAS (r) Proprietary Software Release 6.09  TS027
+      Licensed to UNIVERSITY OF ALABAMA AT BIRMINGHAM, Site 0001676011.
+
+NOTE: Running on IBM Model RS/6000 Serial Number 000002582E00.
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: AUTOEXEC processing beginning; file is /apps/sasnew/sas609/autoexec.sas.
+
+
+NOTE: AUTOEXEC processing completed.
+
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * /programs/hazard/examples/hp.death.COMPARISON                                ;
+4          *______________________________________________________________________________;
+5          *                                                                              ;
+6          * This is an example of comparison of different treatment strategies based     ;
+7          * on patient-specific estimates.                                               ;
+8          *                                                                              ;
+9          * Here we explore simple survival differences.                                 ;
+10         *                                                                              ;
+11         * In the macros directory, macros are included that also do hazard ratio       ;
+12         * comparisons and differences in lifetime between strategies.                  ;
+13         *______________________________________________________________________________;
+14         *                                                                              ;
+15         * Comparison of primary CABG (KUL) vs primary PTCA (MHI) vs VA medical for:
+16         * Left main disease and 1, 2, and 3 system disease
+17         *
+18         * Other factors: Age 65, male, no proximal LAD (GE 50%), distal RCA (70%),
+19         *                or posterolateral 95% disease, angina class 2 (severe, stable,
+20         *                chronic angina), 1 previous MI, no acute evolving infarct,
+21         *                hemodynamically stable, EF=55%, no LVH, no ischemic mitral
+22         *                incompetence, no peripheral vascular disease, no small
+23         *                coronaries, no hypertension, no diabetes, normal pulmonary
+24         *                function, smoker, triglycerides 175, HDL of 40
+25         *
+26         *   PTCA-specific: elective PTCA, 11 years after start of experience,
+27         *                PTCA of left main for left main disease, no dilation of
+28         *                chronic occlusion.
+29         *
+30         *   CABG-specific: not Surgeon #1, complete revascularization, no sequentials,
+31         *                IMA used, no endarterectomy,
+32         *
+33         *   Medical-specific: weight/height ratio = 0.43
+34         *______________________________________________________________________________;
+35         *                                                                              ;
+36           OPTIONS PAGESIZE=100 LINESIZE=132;
+37           TITLE1 "Percutaneous Transluminal Coronary Angioplasty";
+38           TITLE2 "MHI; June 1980 - July 1991";
+39           TITLE3 "Primary PTCA Without Previous CABG";
+40           TITLE4 "Multivariable Analysis of Death";
+41           TITLE5 "Patient, Procedure and Experience Risk Factors";
+42           TITLE6 "Comparison of CABG (KUL) and PTCA";
+43           TITLE7 "Left Main Stenosis, 1, 2, and 3 system disease";
+44         *______________________________________________________________________________;
+45         *                                                                              ;
+46         *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+47         *                        P T C A   (M H I)                                     ;
+48         *                                                                              ;
+49         * Early Hazard Phase:                                                          ;
+50         *   FEMALE IN_AGE LN_CREAT ANGMMS2 AMI_TM URGENT EFC2 DVES _PLAD50 _RPLAT95    ;
+51         *   _MRCA50 RCA_DIST OCCLNDIL IMP_BLUE PTCA_LM LN_YRS                          ;
+52         * Constant Hazard Phase:                                                       ;
+53         *   AGE2 IN_AGE LN_CREAT IN_CREAT HISTSMOK DIABETRX CAC0NRMI ANGREST EFC2 DVES ;
+54         *   PTCA_LM PTOTDLAD                                                           ;
+55         * Late Hazard Phase:                                                           ;
+56         *   FEMALE IN_AGE HYPERTEN DIABETRX LN_CREAT AMI_SEND _PLADOC                  ;
+57         *______________________________________________________________________________;
+58         *                                                                              ;
+59         *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+60         *                        C A B G   (K U L)                                     ;
+61         *                                                                              ;
+62         * Early Hazard Phase:                                                          ;
+63         *   AGE LMAIN_90 EF LVH ANGCLS HEMO2CLS VASCPATH MM1_DIST DIABETES             ;
+64         *   EXP1SECP OPYRS SURGEON1 ENDART_N SEQUENTL                                  ;
+65         * Constant Hazard Phase:                                                       ;
+66         *   EF VASCPATH MITRAL_I UNST_ANG ANG_NO HDL INCOMPL                           ;
+67         * Late Hazard Phase:                                                           ;
+68         *   AGE EF VASCPATH MM1_DIST DIABETES EXP1SECP VESSDIS LTRIGL IMA_NO           ;
+69         *   LN_AGE                                                                     ;
+70         *______________________________________________________________________________;
+71         *                                                                              ;
+72         *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+73         *       I N I T I A L   M E D I C A L   T H E R A P Y   (V A S T U D Y)        ;
+74         *                                                                              ;
+75         * Early Hazard Phase:                                                          ;
+76         *   NYHAB LVNLM_50 LV_LM_50                                                    ;
+77         * Constant Hazard Phase:                                                       ;
+78         *   IN_WTHT LM_50 LV_NVD_E NUMPRVMI ANG_SV HISTHYP                             ;
+2                                                          The SAS System                           12:00 Thursday, December 1, 1994
+
+79         * Late Hazard Phase:                                                           ;
+80         *   WT_HT                                                                      ;
+81         *______________________________________________________________________________;
+82         *                                                                              ;
+83         * Set values for standard model incremental risk factors variables.            ;
+84           DATA DESIGN;
+85         * Demographic                                                                  ;
+86           FEMALE=0;      /* Sex                                               */
+87           AGE=65;        /* Age (years) at time zero                          */
+88           WT_HT=0.43;    /* Weight-height ratio (kg/cm)                       */
+89         * Coronary disease                                                             ;
+90           IMP_BLUE=0     /* Dummy imputation variable--set to zero            */
+91         * VESSDIS=2;     /* Number of systems diseased (1-3): 50% criterion   */
+92         * LMCA=0;        /* Percent stenosis of left main coronary artery     */
+93           _PLAD50=0;     /* Proximal LAD disease (50% criterion)              */
+94           _PLADOC=0;     /* Occludid proximal LAD                             */
+95           _MRCA50=0;     /* Mid-RCA disease (50% criterion)                   */
+96           RCA_DIST=0;    /* % Distal RCA disease                              */
+97           _RPLAT95=0;    /* Right posterolateral disease (95% criterion)      */
+98         * Angina                                                                       ;
+99           ANGCLS=2;      /* Angina grade according to KUL                     */
+100                         /*   0 = No anginal symptoms (11% KUL)               */
+101                         /*   1 = Minimal anginal symptoms (9% KUL)           */
+102                         /*       (probably grade I-II of CCS)                */
+103                         /*   2 = Moderate angina (at normal activities),     */
+104                         /*       the usual "chronic stable angina" (41% LUL) */
+105                         /*       (probably grade III of CCS)                 */
+106                         /*   3 = Severe anginal symptoms at night/rest       */
+107                         /*       (21% KUL; probably grade IV of CCS)         */
+108                         /*   4 = Unstable angina or acute myocardial infarct */
+109                         /*       (18% KUL)                                   */
+110          UNST_MED=0;    /* On medications for unstable angina at operation   */
+111        * Myocardial infarction                                                        ;
+112          NUMPRVMI=1;    /* Number of previous myocardial infarcts            */
+113          ACUTE_MI=0;    /* Acute myocardial infarction (0,1) (within 24 hrs  */
+114                         /*       of revascularizaton in the KUL experience)  */
+115          AMI_TM=0;      /* Acute evolving transmural myocardial infarction   */
+116          HEMO_UNS=0;    /* Hemodynamically unstable (this includes acute     */
+117                         /*       cardiac failure with unstable angina, the   */
+118                         /*       acute (hours) phase of myocardial infarct   */
+119                         /*       and cardiogenic shock)                      */
+120          SHOCK=0;       /* Cardiogenic shock                                 */
+121          URGENT=0;      /* Urgent PTCA                                       */
+122        * LV function                                                                  ;
+123          EF=0.55;       /* Ejection fraction (0 to 1)                        */
+124          LVH=0;         /* LV Hypertrophy (0,1)                              */
+125          MITRAL_I=0;    /* Important, but untreated, ischemic mitral incomp. */
+126        * Aggressiveness of atherosclerotic process                                    ;
+127          VASCPATH=0;    /* Peripheral vascular disease (0,1)                 */
+128          MM1_DIST=0;    /* Normalized # of distals 1 mm or less in diameter  */
+129        * Coexisting conditions                                                        ;
+130          HYPERTEN=0;    /* History of hypertension                           */
+131          DIABETES=0;    /* Diabetic patient (in KUL this is insulin treated) */
+132          DIABETRX=0;    /* Diabetic patient (insulin or  is insulin treated) */
+133          EXP1SECP=100;  /* One second expired volume (% of normal)           */
+134          CREAT=1.1;     /* Serum creatinine                                  */
+135          HISTSMOK=1;    /* History of smoking                                */
+136        * Hyperlipidemia                                                               ;
+137          TRIGLYC=175;   /* Triglyceride level                                */
+138          HDL=40;        /* High density lipoprotein level                    */
+139        * Procedural factors: CABG                                                     ;
+140          INCOMPL=0;     /* Incomplete revascularization (0,1)                */
+141          ENDART_N=0;    /* Number of endarterectomized vessels               */
+142          SEQUENTL=1;    /* Ratio of distals to conduits                      */
+143          IMA=1;         /* Use of IMA                                        */
+144        * Procedural factors: PTCA                                                     ;
+145        * PTCA_LM=1;     /* PTCA of left main stenosis                        */
+146          PTOTDLAD=0;    /* PTCA of occluded distal LAD                       */
+147          OCCLNDIL=0;    /* Chronic occlusion not dilated                     */
+148        * Experience factors                                                           ;
+149          PTCAYRS=11;    /* Date of operation (years from 6/1/80)             */
+150          SURGEON1=0;    /* High-risk surgeon                                 */
+151        * MONTHS=6;      /* Time of observation (months)                      */
+152        *******************************************************************************;
+153        * Generate isobars for various variables                                       ;
+154          PPLOT=1; VESSDIS=2; LMCA=90; PTCA_LM=1; OUTPUT;
+155          PPLOT=2; VESSDIS=1; LMCA=0; PTCA_LM=0; OUTPUT;
+156          PPLOT=3; VESSDIS=2; LMCA=0; PTCA_LM=0; OUTPUT;
+157          PPLOT=4; VESSDIS=3; LMCA=0; PTCA_LM=0; OUTPUT;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      1 at 91:1   
+NOTE: The data set WORK.DESIGN has 4 observations and 42 variables.
+
+158          DATA DESIGN; SET DESIGN;
+159        *******************************************************************************;
+160        * Transformations of variables into those needed for the various               ;
+161        * predictions:                                                                 ;
+162          LN_AGE=LOG(AGE);
+163          IN_AGE=50/AGE;
+164          AGE2=(AGE/50)**2;
+165          IN_WTHT=1/WT_HT;
+166        
+167          IMP_LVC=0; IF EF LE 0.5 THEN IMP_LVC=1;
+168        
+169          LMAIN_90=(LMCA GE 90);
+170          LM_50=(LMCA GE 50);
+3                                                          The SAS System                           12:00 Thursday, December 1, 1994
+
+171          DVES=VESSDIS;
+172          NVD_50=VESSDIS;
+173          NVD_EXP=EXP(NVD_50);
+174          IF LM_50 THEN DO;
+175            NVD_50=0;
+176            NVD_EXP=0;
+177          END;
+178          LV_NVD_E=IMP_LVC*NVD_EXP;
+179          LV_LM_50=IMP_LVC*LM_50;
+180          LVNLM_50=(1-IMP_LVC)*LM_50;
+181        
+182          ACUTEMI=ACUTE_MI;
+183          AMI_SEND=0; IF ACUTEMI=1 AND AMI_TM=0 THEN AMI_SEND=1;
+184        
+185          HEMO2CLS=HEMO_UNS; IF ACUTE_MI OR UNST_MED THEN HEMO2CLS=1;
+186            IF SHOCK THEN HEMO2CLS=4;
+187          IF ANGCLS=0 THEN ANG_NO=1; ELSE ANG_NO=0;
+188          IF ANGCLS=3 THEN DO; NITE_ANG=1; ANGREST=1; END;
+189            ELSE DO; NITE_ANG=0; ANGREST=0; END;
+190          IF ACUTE_MI=0 AND ANGCLS=4 THEN UNST_ANG=1; ELSE UNST_ANG=0;
+191          ANGMMS=ANGCLS; IF ACUTEMI=1 THEN ANGMMS=0;
+192          NYHAB=ANGCLS; IF ANGCLS>1 THEN NYHAB=ANGCLS+1;
+193          ANG_SV=ANGCLS > 2;
+194          CAC0NRMI=0; IF ANGCLS=0 AND ACUTEMI=0 AND NUMPRVMI=0 THEN CAC0NRMI=1;
+195        
+196          LTRIGL=LOG(TRIGLYC);
+197          LN_CREAT=LOG(CREAT);
+198          IN_CREAT=1/CREAT;
+199          ANGMMS2=ANGMMS*ANGMMS;
+200          OPYRS=PTCAYRS + 9.4156622;
+201          LN_YRS=LOG(PTCAYRS);
+202          EFC=(1-EF)/1; EFC2=EFC*EFC;
+203        
+204          HISTHYP=HYPERTEN;
+205        
+206          IMA_NO=(IMA=0);
+
+NOTE: The data set WORK.DESIGN has 4 observations and 76 variables.
+
+207          PROC PRINT DATA=DESIGN;
+208        *______________________________________________________________________________;
+209        * Generate horizontal axis                                                     ;
+
+NOTE: The PROCEDURE PRINT printed page 1.
+
+210          DATA PREDICT; SET DESIGN; DIGITAL=0;
+211          MAX=LOG(120); MIN=-5; INC=(MAX-MIN)/999.9;
+212                               *INC=(MAX-MIN)/9.9;
+213          DO LN_TIME=MIN TO MAX BY INC, MAX;
+214            MONTHS=EXP(LN_TIME);
+215            YEARS=MONTHS/12;
+216            OUTPUT;
+217          END;
+218          DROP LN_TIME MIN MAX INC;
+219        * and for digital nomogram                                                     ;
+
+NOTE: The data set WORK.PREDICT has 4004 observations and 79 variables.
+
+220          DATA DIGITAL; SET DESIGN; DIGITAL=1;
+221          DO MONTHS=30*12/365.2425, 12, 60, 120, 180, 240;
+222            YEARS=MONTHS/12;
+223            OUTPUT;
+224          END;
+225        * then put them together                                                       ;
+
+NOTE: The data set WORK.DIGITAL has 24 observations and 79 variables.
+
+226          DATA PREDICT; SET PREDICT DIGITAL;
+227        *______________________________________________________________________________;
+228        *                                                                              ;
+229        *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+230        *                        P T C A   (M H I)                                     ;
+231        *                                                                              ;
+232        *                      P R E D I C T I O N S                                   ;
+233        *______________________________________________________________________________;
+234        *                                                                              ;
+235          LIBNAME PTCAMHI '/programs/hazard/examples/sasest';
+NOTE: Libref PTCAMHI was successfully assigned as follows: 
+      Engine:        V609 
+      Physical Name: /programs/hazard/examples/sasest
+236          %HAZPRED(
+237          PROC HAZPRED DATA=PREDICT INHAZ=PTCAMHI.HMPDTHE3 OUT=PREDICT;
+238               TIME MONTHS;
+239          );
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 79 variables.
+
+
+Note: Procedure HAZPRED (C-Version 4.0.0)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 91 variables.
+
+240          TITLE6 'PTCA Equation';
+4                                                          The SAS System                           12:00 Thursday, December 1, 1994
+
+241        * Rename variables for the comparison                                          ;
+242          DATA PREDICT; SET PREDICT;
+243          _SURVIVP=_SURVIV; CLLPSURV=_CLLSURV; CLUPSURV=_CLUSURV;
+244          DROP _SURVIV _CLLSURV _CLUSURV _EARLYS _CONSTS _LATES _HAZARD _CLLHAZ
+245               _CLUHAZ _EARLYH _CONSTH _LATEH;
+246        *______________________________________________________________________________;
+247        *                                                                              ;
+248        *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+249        *                        C A B G   (K U L)                                     ;
+250        *                                                                              ;
+251        *                      P R E D I C T I O N S                                   ;
+252        *______________________________________________________________________________;
+253        *                                                                              ;
+254          LIBNAME CABGKUL '/programs/hazard/examples/sasest';
+NOTE: Libname CABGKUL refers to the same physical library as PTCAMHI.
+NOTE: Libref CABGKUL was successfully assigned as follows: 
+      Engine:        V609 
+      Physical Name: /programs/hazard/examples/sasest
+255          %HAZPRED(
+256          PROC HAZPRED DATA=PREDICT INHAZ=CABGKUL.HMDEADP OUT=PREDICT;
+257               TIME MONTHS;
+258          );
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 82 variables.
+
+
+Note: Procedure HAZPRED (C-Version 4.0.0)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 94 variables.
+
+259          TITLE6 'KUL Equation';
+260        * Rename variables for comparison                                              ;
+261          DATA PREDICT; SET PREDICT;
+262          _SURVIVC=_SURVIV; CLLCSURV=_CLLSURV; CLUCSURV=_CLUSURV;
+263          DROP _SURVIV _CLLSURV _CLUSURV _EARLYS _CONSTS _LATES _HAZARD _CLLHAZ
+264               _CLUHAZ _EARLYH _CONSTH _LATEH;
+265        *______________________________________________________________________________;
+266        *                                                                              ;
+267        *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+268        *       I N I T I A L   M E D I C A L   T H E R A P Y   (V A S T U D Y)        ;
+269        *                                                                              ;
+270        *                      P R E D I C T I O N S                                   ;
+271        *______________________________________________________________________________;
+272        *                                                                              ;
+273          LIBNAME VAMEDCBG '/programs/hazard/examples/sasest/ihd';
+NOTE: Libref VAMEDCBG was successfully assigned as follows: 
+      Engine:        V609 
+      Physical Name: /programs/hazard/examples/sasest/ihd
+274          %HAZPRED(
+275          PROC HAZPRED DATA=PREDICT INHAZ=VAMEDCBG.HMDEATH OUT=PREDICT;
+276               TIME MONTHS;
+277          );
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 85 variables.
+
+
+Note: Procedure HAZPRED (C-Version 4.0.0)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 97 variables.
+
+278          TITLE6 'VA Medical Equation';
+279        * Rename variables for comparison                                              ;
+280          DATA PREDICT; SET PREDICT;
+281          _SURVIVM=_SURVIV; CLLMSURV=_CLLSURV; CLUMSURV=_CLUSURV;
+282          DROP _SURVIV _CLLSURV _CLUSURV _EARLYS _CONSTS _LATES _HAZARD _CLLHAZ
+283               _CLUHAZ _EARLYH _CONSTH _LATEH;
+284        *______________________________________________________________________________;
+285        *                                                                              ;
+286        * Generate survivorship differences                                            ;
+287        * Bring in analysis macro:                                                     ;
+288          FILENAME SURDIFP '/programs/hazard/examples/macros/surdifp';
+289          OPTIONS NOSOURCE; %INC SURDIFP; OPTIONS SOURCE;
+374        * PTCA vs. CABG                                                                ;
+375          %SURDIFP(IN=PREDICT, PVALUES=1, CUMSURVS=_SURVIVC, CUMSURVM=_SURVIVP,
+376                   CLLSSURV=CLLCSURV, CLUSSURV=CLUCSURV, CLLMSURV=CLLPSURV,
+377                   CLUMSURV=CLUPSURV, CUMSURVD=CUMSURPC, CLLDSURV=CLLDSUPC,
+378                   CLUDSURV=CLUDSUPC, CUMSURVP=CUMSVPPC);
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 88 variables.
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      378:91   
+NOTE: The data set WORK._MACDEF has 1 observations and 1 variables.
+
+379        * CABG vs. VA Medical                                                          ;
+380          %SURDIFP(IN=PREDICT, PVALUES=1, CUMSURVS=_SURVIVC, CUMSURVM=_SURVIVM,
+381                   CLLSSURV=CLLCSURV, CLUSSURV=CLUCSURV, CLLMSURV=CLLMSURV,
+5                                                          The SAS System                           12:00 Thursday, December 1, 1994
+
+382                   CLUMSURV=CLUMSURV, CUMSURVD=CUMSURCM, CLLDSURV=CLLDSUCM,
+383                   CLUDSURV=CLUDSUCM, CUMSURVP=CUMSVPCM);
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 93 variables.
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      383:91   
+NOTE: The data set WORK._MACDEF has 1 observations and 1 variables.
+
+384        * PTCA vs. VA Medical                                                          ;
+385          %SURDIFP(IN=PREDICT, PVALUES=1, CUMSURVS=_SURVIVP, CUMSURVM=_SURVIVM,
+386                   CLLSSURV=CLLPSURV, CLUSSURV=CLUPSURV, CLLMSURV=CLLMSURV,
+387                   CLUMSURV=CLUMSURV, CUMSURVD=CUMSURPM, CLLDSURV=CLLDSUPM,
+388                   CLUDSURV=CLUDSUPM, CUMSURVP=CUMSVPPM);
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 97 variables.
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      388:91   
+NOTE: The data set WORK._MACDEF has 1 observations and 1 variables.
+
+389        *******************************************************************************;
+390        * Printer plot                                                                 ;
+391        * Survivorship Functions                                                       ;
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 101 variables.
+
+392          PROC SORT DATA=PREDICT; BY PPLOT;
+
+NOTE: The data set WORK.PREDICT has 4028 observations and 101 variables.
+
+393          PROC PLOT DATA=PREDICT; BY PPLOT;
+394               PLOT _SURVIVP*YEARS='P' CLLPSURV*YEARS='.' CLUPSURV*YEARS='.'
+395                    _SURVIVC*YEARS='C' CLLCSURV*YEARS='-' CLUCSURV*YEARS='-'
+396                    _SURVIVM*YEARS='M' CLLMSURV*YEARS='+' CLUMSURV*YEARS='+'
+397                    /OVERLAY VAXIS=0 TO 1 BY 0.1;
+398        * Comparative Benefit:  Survivorship Difference                                ;
+
+NOTE: The PROCEDURE PLOT printed pages 2-5.
+
+399          PROC PLOT DATA=PREDICT; BY PPLOT;
+400               PLOT CUMSURPC*YEARS='C' CLLDSUPC*YEARS='.' CLUDSUPC*YEARS='.'
+401                    /OVERLAY VAXIS=-0.5 to 0.5 by 0.1;
+402               PLOT CUMSURCM*YEARS='M' CLLDSUCM*YEARS='.' CLUDSUCM*YEARS='.'
+403                    /OVERLAY VAXIS=-0.5 to 0.5 by 0.1;
+404               PLOT CUMSURPM*YEARS='P' CLLDSUPM*YEARS='.' CLUDSUPM*YEARS='.'
+405                    /OVERLAY VAXIS=-0.5 to 0.5 by 0.1;
+406        * Comparative Benefit:  Survivorship Difference P-value                        ;
+
+NOTE: The PROCEDURE PLOT printed pages 6-17.
+
+407          PROC PLOT DATA=PREDICT; BY PPLOT;
+408               PLOT CUMSVPPC*YEARS='C' CUMSVPCM*YEARS='M' CUMSVPPM*YEARS='P'
+409                    /OVERLAY;
+410        *******************************************************************************;
+411        * Digital nomogram                                                             ;
+
+NOTE: The PROCEDURE PLOT printed pages 18-21.
+
+412          DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: The data set WORK.DIGITAL has 24 observations and 101 variables.
+
+413          PROC SORT DATA=DIGITAL; BY PPLOT;
+
+NOTE: The data set WORK.DIGITAL has 24 observations and 101 variables.
+
+414          PROC PRINT D DATA=DIGITAL; VAR MONTHS YEARS _SURVIVC _SURVIVP _SURVIVM
+415               CUMSURPC CUMSVPPC CUMSURCM CUMSVPCM CUMSURPM CUMSVPPM; BY PPLOT;
+416        *******************************************************************************;
+NOTE: The PROCEDURE PRINT printed page 22.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994   1
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                 Comparison of CABG (KUL) and PTCA
+                                           Left Main Stenosis, 1, 2, and 3 system disease
+
+                 I         R _   U N A   H            M V M H D D  E      H          E S   P O    S
+                 M V _ _ _ C R   N U C   E            I A M Y I I  X      I  T     I N E   T C  P U      P
+       F         P E P P M A P A S M U A M   U        T S 1 P A A  P      S  R     N D Q   O C  T R      T    L       I
+       E      W  _ S L L R _ L N T P T M O S R        R C _ E B B  1   C  T  I     C A U   T L  C G P    C    N       N
+       M      T  B S A A C D A G _ R E I _ H G        A P D R E E  S   R  S  G     O R E   D N  A E P  L A    _       _      A
+     O A  A   _  L D D D A I T C M V _ _ U O E      L L A I T T T  E   E  M  L   H M T N I L D  Y O L  M _    A       A      G
+     B L  G   H  U I 5 O 5 S 9 L E M M T N C N   E  V _ T S E E R  C   A  O  Y   D P _ T M A I  R N O  C L    G       G      E
+     S E  E   T  E S 0 C 0 T 5 S D I I M S K T   F  H I H T N S X  P   T  K  C   L L N L A D L  S 1 T  A M    E       E      2
+
+     1 0 65 0.43 0 2 0 0 0 0 0 2 0 1 0 0 0 0 0 0.55 0 0 0 0 0 0 0 100 1.1 1 175 40 0 0 1 1 0 0 11 0 1 90 1 4.17439 0.76923 1.69
+     2 0 65 0.43 0 1 0 0 0 0 0 2 0 1 0 0 0 0 0 0.55 0 0 0 0 0 0 0 100 1.1 1 175 40 0 0 1 1 0 0 11 0 2  0 0 4.17439 0.76923 1.69
+     3 0 65 0.43 0 2 0 0 0 0 0 2 0 1 0 0 0 0 0 0.55 0 0 0 0 0 0 0 100 1.1 1 175 40 0 0 1 1 0 0 11 0 3  0 0 4.17439 0.76923 1.69
+     4 0 65 0.43 0 3 0 0 0 0 0 2 0 1 0 0 0 0 0 0.55 0 0 0 0 0 0 0 100 1.1 1 175 40 0 0 1 1 0 0 11 0 4  0 0 4.17439 0.76923 1.69
+
+                 L               L L L   A H   N   U       C             L       I
+          I    I M          N    V V V A M E   I A N       A             N       N    A                             H
+          N    M A     N    V    _ _ N C I M A T N S A   A C    L        _       _    N            L                I I
+          _    P I L   V    D    N L L U _ O N E G T N N N 0    T        C       C    G    O       N                S M
+          W    _ N M D D    _    V M M T S 2 G _ R _ G Y G N    R        R       R    M    P       _            E   T A
+     O    T    L _ _ V _    E    D _ _ E E C _ A E A M H _ R    I        E       E    M    Y       Y      E     F   H _
+     B    H    V 9 5 E 5    X    _ 5 5 M N L N N S N M A S M    G        A       A    S    R       R      F     C   Y N
+     S    T    C 0 0 S 0    P    E 0 0 I D S O G T G S B V I    L        T       T    2    S       S      C     2   P O
+
+     1 2.32558 0 1 1 2 0  0.0000 0 0 1 0 0 0 0 0 0 0 2 3 0 0 5.16479 0.095310 0.90909 4 20.4157 2.39790 0.45 0.2025 0 0
+     2 2.32558 0 0 0 1 1  2.7183 0 0 0 0 0 0 0 0 0 0 2 3 0 0 5.16479 0.095310 0.90909 4 20.4157 2.39790 0.45 0.2025 0 0
+     3 2.32558 0 0 0 2 2  7.3891 0 0 0 0 0 0 0 0 0 0 2 3 0 0 5.16479 0.095310 0.90909 4 20.4157 2.39790 0.45 0.2025 0 0
+     4 2.32558 0 0 0 3 3 20.0855 0 0 0 0 0 0 0 0 0 0 2 3 0 0 5.16479 0.095310 0.90909 4 20.4157 2.39790 0.45 0.2025 0 0
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994   2
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=1 --------------------------------------------------------------
+
+                                            Plot of _SURVIVP*YEARS.  Symbol used is 'P'.
+                                            Plot of CLLPSURV*YEARS.  Symbol used is '.'.
+                                            Plot of CLUPSURV*YEARS.  Symbol used is '.'.
+                                            Plot of _SURVIVC*YEARS.  Symbol used is 'C'.
+                                            Plot of CLLCSURV*YEARS.  Symbol used is '-'.
+                                            Plot of CLUCSURV*YEARS.  Symbol used is '-'.
+                                            Plot of _SURVIVM*YEARS.  Symbol used is 'M'.
+                                            Plot of CLLMSURV*YEARS.  Symbol used is '+'.
+                                            Plot of CLUMSURV*YEARS.  Symbol used is '+'.
+
+_SURVIVP |
+         |
+     1.0 +P          CC          MM
+         |PP           CCCCCCCCCCCCC           M
+         | PP                       CCCCCCCCCCCC           M
+         |  PP                                  CCCCCCCCC           M
+         |   PP                                          CCCCCCCC           M
+         |    PP                                                 CCCCCC           M
+         |     PP                                                      CCCCC           MM
+     0.9 +      PP                                                           CCCC            MMM
+         |        PP                                                               CCCC              MMM
+         |         PP                                                                  CCCC                 MMM
+         |          PP                                                                     CC                   MMMM
+         |           PP                      MMM
+         |            PP                        MMMM
+         |              PP                           MMM
+     0.8 +               PP                             MMM
+         |                PP                                MMM
+         |                 PPP                                  MMM
+         |                   PP                                     MMM
+         |                    PP                                       MMM
+         |                     PPP                                         MMM
+         |                       PP                                            MMM
+     0.7 +                        PPP                                              MMM
+         |                          PP                                                 MMM
+         |                           PPP                                                   MMM
+         |                             PP                                                     MMM
+         |                              PP                                                                                                    C                                                        MM
+         |                                PP                                                          MMM
+         |                                 PPP                                                            MMM
+     0.6 +                                   PP                                                              MMM
+         |                                     PP                                                                 MMM
+         |                                      PP                                                                   MMM
+         |                                        PP                                                                     MM
+         |                                          PP
+         |                                           PPP
+         |                                             PPP
+     0.5 +                                               PP
+         |                                                 PP
+         |                                                   PP
+         |                                                    PPP
+         |                                                      PPP
+         |                                                         PP
+         |                                                          PPP
+     0.4 +
+         |                                                                                                    M
+         |
+         |
+         |                                                                                                                                  C
+         |
+         |
+     0.3 +
+         |
+         |
+         |
+         |                                                                                                                                  M
+         |                                                                                          P
+         |
+     0.2 +
+         |
+         |
+         |
+         |
+         |
+         |
+     0.1 +                                                                                                                        P
+         |
+         |
+         |          .............................................................                             .                             .          .............................................................                             .                             .          -------------------------------------------------------------                             -                             -          -------------------------------------------------------------                             -                             -          +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                             +                             +          +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                             +                             +
+         |
+         |
+         |
+     0.0 +
+         |
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 8433 obs hidden.                                                                                                              
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994   3
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=2 --------------------------------------------------------------
+
+                                            Plot of _SURVIVP*YEARS.  Symbol used is 'P'.
+                                            Plot of CLLPSURV*YEARS.  Symbol used is '.'.
+                                            Plot of CLUPSURV*YEARS.  Symbol used is '.'.
+                                            Plot of _SURVIVC*YEARS.  Symbol used is 'C'.
+                                            Plot of CLLCSURV*YEARS.  Symbol used is '-'.
+                                            Plot of CLUCSURV*YEARS.  Symbol used is '-'.
+                                            Plot of _SURVIVM*YEARS.  Symbol used is 'M'.
+                                            Plot of CLLMSURV*YEARS.  Symbol used is '+'.
+                                            Plot of CLUMSURV*YEARS.  Symbol used is '+'.
+
+_SURVIVP |
+         |
+     1.0 +PPPP          CCCC          MM
+         |   PPPPPPP             CCCCCCCCCCCCCC           MMMM
+         |         PPPPPPP                          CCCCCCCCCCCC              MMMMMMMM
+         |               PPPPPP                                     CCCCCCCCC                     MMMMMM
+         |                     PPPPPP                                              CCCCCCC                          MMMMMM
+         |                          PPPPPP                                                     CCCCCC                               MMMMM
+         |                               PPPPPP                                                          CCCCC                                    MMMM
+     0.9 +                                    PPPPPP                                                               CCCCC                                        MMMM
+         |                                         PPPP                                                                   CCCC                                           MMMM
+         |                                             PPPP                                               MMMM
+         |                                                 PPPP                                                  MMMM
+         |                                                    PPPP                                                     MMMM
+         |                                                        PPP                                                         MMM
+         |                                                           PP                                                           MMMM
+     0.8 +                                                              MMM
+         |                                                                 MMM
+         |                                                                    MMM
+         |
+         |
+         |
+         |                                                                                                    C
+     0.7 +
+         |
+         |
+         |
+         |
+         |                                                                                          P
+         |
+     0.6 +
+         |                                                                                                    M
+         |
+         |
+         |
+         |
+         |
+     0.5 +
+         |
+         |
+         |                                                                                                                                  C
+         |
+         |
+         |                                                                                                                                  M
+     0.4 +
+         |
+         |                                                                                                                        P
+         |
+         |
+         |
+         |
+     0.3 +
+         |
+         |
+         |
+         |
+         |
+         |
+     0.2 +
+         |
+         |
+         |
+         |
+         |
+         |
+     0.1 +
+         |
+         |
+         |          .............................................................                             .                             .          .............................................................                             .                             .          -------------------------------------------------------------                             -                             -          -------------------------------------------------------------                             -                             -          +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                             +                             +          +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                             +                             +
+         |
+         |
+         |
+     0.0 +
+         |
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 8473 obs hidden.                                                                                                              
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994   4
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=3 --------------------------------------------------------------
+
+                                            Plot of _SURVIVP*YEARS.  Symbol used is 'P'.
+                                            Plot of CLLPSURV*YEARS.  Symbol used is '.'.
+                                            Plot of CLUPSURV*YEARS.  Symbol used is '.'.
+                                            Plot of _SURVIVC*YEARS.  Symbol used is 'C'.
+                                            Plot of CLLCSURV*YEARS.  Symbol used is '-'.
+                                            Plot of CLUCSURV*YEARS.  Symbol used is '-'.
+                                            Plot of _SURVIVM*YEARS.  Symbol used is 'M'.
+                                            Plot of CLLMSURV*YEARS.  Symbol used is '+'.
+                                            Plot of CLUMSURV*YEARS.  Symbol used is '+'.
+
+_SURVIVP |
+         |
+     1.0 +PPP          CCCC          MM
+         |  PPPPPP             CCCCCCCCCCCCCC           MMMM
+         |       PPPPPPP                          CCCCCCCCCCC              MMMMMMMM
+         |             PPPPPP                                    CCCCCCCCC                     MMMMMM
+         |                  PPPPPP                                            CCCCCCC                          MMMMMM
+         |                       PPPPPP                                                   CCCCC                               MMMMM
+         |                            PPPPP                                                        CCCC                                    MMMM
+     0.9 +                                PPPPP                                                            CCCC                                        MMMM
+         |                                     PPPPP                                                               CCCC                                           MMMM
+         |                                         PPPP                                                                   CCC                                               MMMM
+         |                                             PPPP                                                                      C                                                  MMMM
+         |                                                PPPP                                                     MMMM
+         |                                                    PPP                                                         MMM
+         |                                                       PPPP                                                           MMMM
+     0.8 +                                                          PPP                                                              MMM
+         |                                                                 MMM
+         |                                                                    MMM
+         |
+         |
+         |
+         |
+     0.7 +
+         |
+         |
+         |
+         |                                                                                                    C
+         |
+         |
+     0.6 +                                                                                          P
+         |                                                                                                    M
+         |
+         |
+         |
+         |
+         |
+     0.5 +
+         |
+         |
+         |
+         |
+         |
+         |                                                                                                                                  M
+     0.4 +
+         |
+         |
+         |                                                                                                                        P
+         |                                                                                                                                  C
+         |
+         |
+     0.3 +
+         |
+         |
+         |
+         |
+         |
+         |
+     0.2 +
+         |
+         |
+         |
+         |
+         |
+         |
+     0.1 +
+         |
+         |
+         |          .............................................................                             .                             .          .............................................................                             .                             .          -------------------------------------------------------------                             -                             -          -------------------------------------------------------------                             -                             -          +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                             +                             +          +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                             +                             +
+         |
+         |
+         |
+     0.0 +
+         |
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 8471 obs hidden.                                                                                                              
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994   5
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=4 --------------------------------------------------------------
+
+                                            Plot of _SURVIVP*YEARS.  Symbol used is 'P'.
+                                            Plot of CLLPSURV*YEARS.  Symbol used is '.'.
+                                            Plot of CLUPSURV*YEARS.  Symbol used is '.'.
+                                            Plot of _SURVIVC*YEARS.  Symbol used is 'C'.
+                                            Plot of CLLCSURV*YEARS.  Symbol used is '-'.
+                                            Plot of CLUCSURV*YEARS.  Symbol used is '-'.
+                                            Plot of _SURVIVM*YEARS.  Symbol used is 'M'.
+                                            Plot of CLLMSURV*YEARS.  Symbol used is '+'.
+                                            Plot of CLUMSURV*YEARS.  Symbol used is '+'.
+
+_SURVIVP |
+         |
+     1.0 +PP          CCCC          MM
+         | PPPPPP             CCCCCCCCCCCCCC           MMMM
+         |      PPPPP                          CCCCCCCCCC              MMMMMMMM
+         |           PPPPP                                   CCCCCCCC                     MMMMMM
+         |               PPPPP                                           CCCCCC                          MMMMMM
+         |                    PPPPP                                                CCCCC                               MMMMM
+         |                        PPPPP                                                     CCCC                                    MMMM
+     0.9 +                             PPPP                                                         CCC                                        MMMM
+         |                                 PPPP                                                            CCC                                           MMMM
+         |                                     PPPP                                                               CCC                                               MMMM
+         |                                         PPP                                                                  CCC                                                  MMMM
+         |                                            PPPP                                                                    CCC                                                     MMMM
+         |                                               PPPP                                                         MMM
+         |                                                   PPP                                                           MMMM
+     0.8 +                                                      PPP                                                              MMM
+         |                                                         PPP                                                                 MMM
+         |                                                           PP                                                                    MMM
+         |
+         |
+         |
+         |
+     0.7 +
+         |
+         |
+         |
+         |
+         |
+         |
+     0.6 +
+         |                                                                                          P                                                                                                    M
+         |                                                                                                    C
+         |
+         |
+         |
+         |
+     0.5 +
+         |
+         |
+         |
+         |
+         |
+         |                                                                                                                                  M
+     0.4 +
+         |
+         |
+         |
+         |                                                                                                                        P
+         |
+         |
+     0.3 +
+         |
+         |
+         |
+         |                                                                                                                                  C
+         |
+         |
+     0.2 +
+         |
+         |
+         |
+         |
+         |
+         |
+     0.1 +
+         |
+         |
+         |          .............................................................                             .                             .          .............................................................                             .                             .          -------------------------------------------------------------                             -                             -          -------------------------------------------------------------                             -                             -          +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                             +                             +          +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                             +                             +
+         |
+         |
+         |
+     0.0 +
+         |
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 8475 obs hidden.                                                                                                              
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994   6
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=1 --------------------------------------------------------------
+
+                                            Plot of CUMSURPC*YEARS.  Symbol used is 'C'.
+                                            Plot of CLLDSUPC*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUPC*YEARS.  Symbol used is '.'.
+
+     0.5 +              .
+         |              .
+         |              .
+         |              .
+         |                                                         CCCC             ..
+         |                                                     CCCCC             .
+         |                                                  CCC                                     C             .
+         |                                               CCC             .
+     0.4 +                                            CCCC             .
+         |                                          CCC             .
+         |                                        CCC             .
+         |                                      CC            .
+         |                                    CCC            .
+         |                                  CCC            .
+         |                                CCC            .
+         |                               CC            .
+     0.3 +                             CC            .
+         |                           CCC           ..
+         |                          CC           .
+         |                        CCC           .
+         |                       CC                                                                                               C           .
+         |                     CCC           .
+         |                    CC           .
+         |                   CC           .
+     0.2 +                 CCC           .
+         |                CC           .
+         |               CC          ..
+         |              CC          .
+CUMSURPC |            CC          .
+         |           CC          .
+         |          CC          .
+         |         CC          .
+     0.1 +        CC          .
+         |       CC          .
+         |      CC          .
+         |    CC          .
+         |   CC          .
+         |  CC          .
+         | CC          .
+         |CC          .
+     0.0 +C
+         |          .
+         |          .
+         |          .
+         |          .
+         |          .
+         |          .
+         |          .
+    -0.1 +          .
+         |          .
+         |          .
+         |          .
+         |          .
+         |          ..
+         |           .
+         |           .
+    -0.2 +           .
+         |           .
+         |           .
+         |           ..
+         |            .
+         |            .
+         |            .
+         |            .                                                                                                                     .
+    -0.3 +            ..
+         |             .
+         |             .
+         |             .
+         |             .
+         |              .
+         |              .
+         |              .
+    -0.4 +              ..
+         |               .
+         |               .
+         |               .
+         |               ..
+         |                .
+         |                .
+         |                ..
+    -0.5 +                 .
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2339 obs hidden.  499 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994   7
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=1 --------------------------------------------------------------
+
+                                            Plot of CUMSURCM*YEARS.  Symbol used is 'M'.
+                                            Plot of CLLDSUCM*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUCM*YEARS.  Symbol used is '.'.
+
+     0.5 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+     0.4 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+     0.3 +                                                        MMMMM           .
+         |                                                  MMMMMMM           .
+         |                                              MMMMM           .
+         |                                          MMMMM                                           M           .
+         |                                       MMMM           .
+         |                                   MMMM           .
+         |                                MMMM           .
+         |                             MMMM           .
+     0.2 +                          MMMM           .
+         |                       MMMM           .
+         |                    MMMM           .
+         |                  MMM           .
+CUMSURCM |               MMM           .
+         |            MMMM           .
+         |         MMMM           .
+         |      MMMM                                                                                                              M          ..
+     0.1 +   MMMM          .
+         |  MM          .
+         | MM          .
+         | M          .
+         | M          .
+         | M          .
+         | M          .
+         | M          .
+     0.0 +MM          .          .
+         |          .
+         |          .
+         |          .
+         |          .
+         |          .
+         |          .
+         |          .
+    -0.1 +          .
+         |          ..
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+    -0.2 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+    -0.3 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+    -0.4 +           .
+         |            .
+         |            .
+         |            .
+         |            ..
+         |             .
+         |             ..
+         |              .
+    -0.5 +              ..
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2189 obs hidden.  660 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994   8
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=1 --------------------------------------------------------------
+
+                                            Plot of CUMSURPM*YEARS.  Symbol used is 'P'.
+                                            Plot of CLLDSUPM*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUPM*YEARS.  Symbol used is '.'.
+
+     0.5 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+     0.4 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+     0.3 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+     0.2 +           .                                                                                                                      .
+         |           .
+         |           .
+         |           .
+CUMSURPM |          ..
+         |          .
+         |          .
+         |          .
+     0.1 +          .
+         |          .
+         |          .
+         | PPP          .
+         | P PP          .
+         | P  PPP          .
+         | P    PPP          .
+         | P      PPP          .
+     0.0 +PP        PP
+         |PP          PPP          .
+         |              PPP          .
+         |                PPP          .
+         |                  PPPP          .
+         |                     PPPP          .
+         |                        PPPP          .
+         |                           PPPP          .
+    -0.1 +                               PPPP          .
+         |                                   PPPPP          .
+         |                                       PPPPPPP          .
+         |                                             PPPPPPPPP                                                                  P          .
+         |                                                     PPPPPPPP          .
+         |                                                                                          P          ..
+         |           .
+         |           .
+    -0.2 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+    -0.3 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+    -0.4 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .                                                                                                                      .
+    -0.5 +           .
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2037 obs hidden.  816 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994   9
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=2 --------------------------------------------------------------
+
+                                            Plot of CUMSURPC*YEARS.  Symbol used is 'C'.
+                                            Plot of CLLDSUPC*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUPC*YEARS.  Symbol used is '.'.
+
+     0.5 +                             ..
+         |                             .
+         |                            ..
+         |                           ..
+         |                           .
+         |                          ..
+         |                          .
+         |                         ..
+     0.4 +                        ..
+         |                        .
+         |                       ..
+         |                       .
+         |                      ..
+         |                     ..
+         |                     .
+         |                    ..
+     0.3 +                    .
+         |                   ..
+         |                   .
+         |                  ..
+         |                  .
+         |                 ..
+         |                 .
+         |                .
+     0.2 +                .
+         |               .
+         |              ..
+         |              .
+CUMSURPC |              .
+         |             .
+         |             .
+         |            ..
+     0.1 +            .
+         |                                                                                          C           ..
+         |                                                                                                                        C           .
+         |                                                 CCCCCCCCCCCC           .
+         |                                      CCCCCCCCCCC          ..
+         |                           CCCCCCCCCCCC          .
+         |                 CCCCCCCCCCC          .
+         |       CCCCCCCCCCC          .
+     0.0 +CCCCCCCC          .          .
+         |          .
+         |          .
+         |          .
+         |          ..
+         |           .
+         |           .
+         |           ..
+    -0.1 +            .
+         |            ..
+         |             .
+         |             ..
+         |              .
+         |              ..
+         |               .
+         |               ..
+    -0.2 +                .
+         |                ..
+         |                 ..
+         |                  .
+         |                  ..
+         |                   .
+         |                    .
+         |                    ..
+    -0.3 +                     .
+         |                     ..
+         |                      ..
+         |                       .
+         |                       ..
+         |                        ..
+         |                         .
+         |                         ..
+    -0.4 +                          ..
+         |                           .
+         |                           ..
+         |                            ..
+         |                             .
+         |                              .
+         |                              ..
+         |                               .
+    -0.5 +                                .
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2612 obs hidden.  224 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  10
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=2 --------------------------------------------------------------
+
+                                            Plot of CUMSURCM*YEARS.  Symbol used is 'M'.
+                                            Plot of CLLDSUCM*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUCM*YEARS.  Symbol used is '.'.
+
+     0.5 +                          ..
+         |                          .
+         |                         ..
+         |                         .
+         |                        ..
+         |                       ..
+         |                       .
+         |                      ..
+     0.4 +                      .
+         |                     ..
+         |                     .
+         |                    ..
+         |                   ..
+         |                   .
+         |                  ..
+         |                  .
+     0.3 +                 ..
+         |                ..
+         |                .
+         |               ..
+         |               .
+         |              ..
+         |              .
+         |             ..
+     0.2 +            ..
+         |            .
+         |            .
+         |           ..
+CUMSURCM |           .
+         |           .
+         |                                                                                          M           .
+         |                                                      MMMMMMM           .
+     0.1 +                                                MMMMMMM           .
+         |                                          MMMMMM           .
+         |                                    MMMMMMM           .
+         |                               MMMMMM           .
+         |                         MMMMMMM          ..
+         |                  MMMMMMM                                                                                               M          .
+         |          MMMMMMMMM          .
+         | MMMMMMMMM          .
+     0.0 +MM          .          .
+         |          .
+         |          .
+         |          .
+         |          ..
+         |           .
+         |           .
+         |           .
+    -0.1 +           .
+         |           .
+         |           .
+         |           .
+         |           ..
+         |            .
+         |            ..
+         |             .
+    -0.2 +              .
+         |              ..
+         |               .
+         |               ..
+         |                ..
+         |                 .
+         |                 ..
+         |                  ..
+    -0.3 +                   .
+         |                   ..
+         |                    ..
+         |                     .
+         |                     ..
+         |                      ..
+         |                       .
+         |                       ..
+    -0.4 +                        ..
+         |                         .
+         |                         ..
+         |                          .
+         |                           .
+         |                           ..
+         |                            ..
+         |                             .
+    -0.5 +                             ..
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2584 obs hidden.  251 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  11
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=2 --------------------------------------------------------------
+
+                                            Plot of CUMSURPM*YEARS.  Symbol used is 'P'.
+                                            Plot of CLLDSUPM*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUPM*YEARS.  Symbol used is '.'.
+
+     0.5 +                       .
+         |                       .
+         |                      .
+         |                      .
+         |                     .
+         |                     .
+         |                    ..
+         |                    .
+     0.4 +                   ..
+         |                   .
+         |                  ..
+         |                  .
+         |                 ..
+         |                 .
+         |                 .
+         |                .
+     0.3 +                .
+         |               ..
+         |               .
+         |              ..
+         |              .
+         |              .
+         |             .
+         |             .
+     0.2 +            ..
+         |            .
+         |            .
+         |           ..
+CUMSURPM |           .
+         |           .
+         |           .
+         |           .
+     0.1 +           .
+         |           .
+         |           .
+         |           .
+         |                                                      PPPPPPP           .
+         |                                         PPPPPPPPPPPPP                                    P          ..
+         |                             PPPPPPPPPPPPP          .
+         | PPPPPPPPPPPPPPPPPPPPPPPPPPPP          .
+     0.0 +PP          .          .
+         |          .
+         |          .
+         |                                                                                                                        P          ..
+         |           .
+         |           .
+         |           .
+         |           .
+    -0.1 +           .
+         |           .
+         |           .
+         |           ..
+         |            .
+         |            .
+         |            ..
+         |             .
+    -0.2 +             .
+         |             ..
+         |              .
+         |              ..
+         |               .
+         |               .
+         |               ..
+         |                .
+    -0.3 +                ..
+         |                 .
+         |                 ..
+         |                  .
+         |                  .
+         |                   .
+         |                   .
+         |                   ..
+    -0.4 +                    .
+         |                    ..
+         |                     .
+         |                     ..
+         |                      .
+         |                      ..
+         |                       .
+         |                       ..
+    -0.5 +                        .
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2542 obs hidden.  310 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  12
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=3 --------------------------------------------------------------
+
+                                            Plot of CUMSURPC*YEARS.  Symbol used is 'C'.
+                                            Plot of CLLDSUPC*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUPC*YEARS.  Symbol used is '.'.
+
+     0.5 +                           ..
+         |                           .
+         |                          ..
+         |                          .
+         |                         ..
+         |                         .
+         |                        .
+         |                       ..
+     0.4 +                       .
+         |                      ..
+         |                      .
+         |                     ..
+         |                     .
+         |                    ..
+         |                    .
+         |                   ..
+     0.3 +                   .
+         |                  ..
+         |                  .
+         |                 ..
+         |                 .
+         |                ..
+         |                .
+         |               ..
+     0.2 +               .
+         |              ..
+         |              .
+         |             ..
+CUMSURPC |             .
+         |             .
+         |            ..
+         |            .
+     0.1 +           ..
+         |           .
+         |           .
+         |                                          CCCCCCCCCCCCCCCCCCC          ..
+         |                               CCCCCCCCCCC                                                C          .
+         |                     CCCCCCCCCC          .
+         |             CCCCCCCCC          .
+         |     CCCCCCCCC          .
+     0.0 +CCCCCC          .          .
+         |                                                                                                                        C          .
+         |          .
+         |          .
+         |          .
+         |          ..
+         |           .
+         |           .
+    -0.1 +           ..
+         |            .
+         |            ..
+         |             .
+         |             ..
+         |              .
+         |              ..
+         |               .
+    -0.2 +               ..
+         |                .
+         |                ..
+         |                 .
+         |                 ..
+         |                  ..
+         |                   .
+         |                   ..
+    -0.3 +                    .
+         |                    ..
+         |                     ..
+         |                      .
+         |                      ..
+         |                       .
+         |                        .
+         |                        ..
+    -0.4 +                         .
+         |                          .
+         |                          ..
+         |                           .
+         |                           ..
+         |                            ..
+         |                             .
+         |                             ..
+    -0.5 +                              .
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2596 obs hidden.  242 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  13
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=3 --------------------------------------------------------------
+
+                                            Plot of CUMSURCM*YEARS.  Symbol used is 'M'.
+                                            Plot of CLLDSUCM*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUCM*YEARS.  Symbol used is '.'.
+
+     0.5 +                          ..
+         |                          .
+         |                         ..
+         |                         .
+         |                        ..
+         |                       ..
+         |                       .
+         |                      ..
+     0.4 +                      .
+         |                     ..
+         |                     .
+         |                    ..
+         |                   ..
+         |                   .
+         |                  ..
+         |                  .
+     0.3 +                 ..
+         |                ..
+         |                .
+         |               ..
+         |               .
+         |              ..
+         |              .
+         |             ..
+     0.2 +            ..
+         |            .
+         |            .
+         |           ..
+CUMSURCM |           .
+         |           .
+         |           .
+         |           .
+     0.1 +                                                        MMMMM           .
+         |                                              MMMMMMMMMMM           .
+         |                                      MMMMMMMM           .
+         |                                MMMMMMM                                                   M           .
+         |                         MMMMMMM          ..
+         |                  MMMMMMMM          .
+         |          MMMMMMMMM          .
+         | MMMMMMMMMM          .
+     0.0 +MM          .          .
+         |          .
+         |          .
+         |          .
+         |          ..
+         |                                                                                                                        M           .
+         |           .
+         |           .
+    -0.1 +           .
+         |           .
+         |           .
+         |           .
+         |           ..
+         |            .
+         |            ..
+         |             .
+    -0.2 +              .
+         |              ..
+         |               .
+         |               ..
+         |                ..
+         |                 .
+         |                 ..
+         |                  ..
+    -0.3 +                   .
+         |                   ..
+         |                    ..
+         |                     .
+         |                     ..
+         |                      ..
+         |                       .
+         |                       ..
+    -0.4 +                        ..
+         |                         .
+         |                         ..
+         |                          .
+         |                           .
+         |                           ..
+         |                            .
+         |                             .
+    -0.5 +                             ..
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2583 obs hidden.  253 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  14
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=3 --------------------------------------------------------------
+
+                                            Plot of CUMSURPM*YEARS.  Symbol used is 'P'.
+                                            Plot of CLLDSUPM*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUPM*YEARS.  Symbol used is '.'.
+
+     0.5 +                      .
+         |                      .
+         |                     .
+         |                     .
+         |                    ..
+         |                    .
+         |                   ..
+         |                   .
+     0.4 +                  ..
+         |                  .
+         |                  .
+         |                 ..
+         |                 .
+         |                ..
+         |                .
+         |                .
+     0.3 +               .
+         |               .
+         |              ..
+         |              .
+         |             ..
+         |             .
+         |             .
+         |            ..
+     0.2 +            .
+         |            .
+         |            .
+         |           .
+CUMSURPM |           .
+         |           .
+         |           .
+         |           .
+     0.1 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |          ..
+         |                                          PPPPPPPPPPPPPPPPPPP          .
+         | PPPPPPP                PPPPPPPPPPPPPPPPPPP                                               P          .
+     0.0 +PP     PPPPPPPPPPPPPPPPP          .          .
+         |          .
+         |          .
+         |          ..
+         |           .
+         |                                                                                                                        P           .
+         |           .
+         |           .
+    -0.1 +           .
+         |           .
+         |           .
+         |           .
+         |           ..
+         |            .
+         |            .
+         |            ..
+    -0.2 +             .
+         |             .
+         |             ..
+         |              .
+         |              .
+         |              ..
+         |               .
+         |               ..
+    -0.3 +                .
+         |                .
+         |                ..
+         |                 .
+         |                 ..
+         |                  .
+         |                  .
+         |                  ..
+    -0.4 +                   .
+         |                   ..
+         |                    .
+         |                    ..
+         |                     .
+         |                     .
+         |                     ..
+         |                      .
+    -0.5 +                      ..
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2524 obs hidden.  327 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  15
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=4 --------------------------------------------------------------
+
+                                            Plot of CUMSURPC*YEARS.  Symbol used is 'C'.
+                                            Plot of CLLDSUPC*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUPC*YEARS.  Symbol used is '.'.
+
+     0.5 +                         ..
+         |                         .
+         |                        ..
+         |                        .
+         |                       ..
+         |                       .
+         |                      ..
+         |                      .
+     0.4 +                     ..
+         |                     .
+         |                    ..
+         |                    .
+         |                   ..
+         |                   .
+         |                  ..
+         |                  .
+     0.3 +                  .
+         |                 .
+         |                 .
+         |                ..
+         |                .
+         |               ..
+         |               .
+         |              ..
+     0.2 +              .
+         |              .
+         |             ..
+         |             .
+CUMSURPC |            ..
+         |            .
+         |            .
+         |           ..
+     0.1 +           .
+         |           .
+         |          ..
+         |                                CCCCCCCCCCCCCCCCCCCCCCCCCCCCC          .
+         |                       CCCCCCCCCC          .
+         |                CCCCCCCC          .
+         |          CCCCCCC          .
+         |   CCCCCCCC          .
+     0.0 +CCCC          .          .
+         |                                                                                          C          .
+         |          .
+         |          .
+         |          .
+         |          .
+         |          ..
+         |                                                                                                                        C           .
+    -0.1 +           .
+         |           ..
+         |            .
+         |            ..
+         |             .
+         |             ..
+         |              .
+         |              ..
+    -0.2 +               .
+         |               ..
+         |                .
+         |                ..
+         |                 .
+         |                 ..
+         |                  .
+         |                  ..
+    -0.3 +                   .
+         |                   ..
+         |                    .
+         |                     .
+         |                     ..
+         |                      .
+         |                      ..
+         |                       .
+    -0.4 +                        .
+         |                        ..
+         |                         .
+         |                         ..
+         |                          .
+         |                          ..
+         |                           ..
+         |                            .
+    -0.5 +                            ..
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2577 obs hidden.  262 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  16
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=4 --------------------------------------------------------------
+
+                                            Plot of CUMSURCM*YEARS.  Symbol used is 'M'.
+                                            Plot of CLLDSUCM*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUCM*YEARS.  Symbol used is '.'.
+
+     0.5 +                          ..
+         |                          .
+         |                         ..
+         |                         .
+         |                        .
+         |                       ..
+         |                       .
+         |                      ..
+     0.4 +                      .
+         |                     ..
+         |                     .
+         |                    .
+         |                   ..
+         |                   .
+         |                  ..
+         |                  .
+     0.3 +                 ..
+         |                ..
+         |                .
+         |               ..
+         |               .
+         |              ..
+         |              .
+         |             ..
+     0.2 +            ..
+         |            .
+         |            .
+         |           ..
+CUMSURCM |           .
+         |           .
+         |           .
+         |           .
+     0.1 +           .
+         |           .
+         |                                           MMMMMMMMMMMMMMMMMM           .
+         |                                  MMMMMMMMMM           .
+         |                          MMMMMMMM          ..
+         |                  MMMMMMMMM          .
+         |          MMMMMMMMM          .
+         | MMMMMMMMMM          .
+     0.0 +MM          .          .
+         |          .
+         |                                                                                          M          .
+         |          .
+         |          ..
+         |           .
+         |           .
+         |           .
+    -0.1 +           .
+         |           .
+         |           .
+         |           .
+         |           ..
+         |                                                                                                                        M            .
+         |            ..
+         |             .
+    -0.2 +              .
+         |              ..
+         |               .
+         |               ..
+         |                ..
+         |                 .
+         |                 ..
+         |                  ..
+    -0.3 +                   .
+         |                   ..
+         |                    ..
+         |                     .
+         |                     ..
+         |                      ..
+         |                       .
+         |                       ..
+    -0.4 +                        .
+         |                         .
+         |                         ..
+         |                          .
+         |                          ..
+         |                           ..
+         |                            .
+         |                            ..
+    -0.5 +                             .
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2585 obs hidden.  254 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  17
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=4 --------------------------------------------------------------
+
+                                            Plot of CUMSURPM*YEARS.  Symbol used is 'P'.
+                                            Plot of CLLDSUPM*YEARS.  Symbol used is '.'.
+                                            Plot of CLUDSUPM*YEARS.  Symbol used is '.'.
+
+     0.5 +                     .
+         |                     .
+         |                    ..
+         |                    .
+         |                   ..
+         |                   .
+         |                   .
+         |                  .
+     0.4 +                  .
+         |                 ..
+         |                 .
+         |                ..
+         |                .
+         |                .
+         |               ..
+         |               .
+     0.3 +              ..
+         |              .
+         |              .
+         |             ..
+         |             .
+         |             .
+         |            ..
+         |            .
+     0.2 +            .
+         |           ..
+         |           .
+         |           .
+CUMSURPM |           .
+         |           .
+         |           .
+         |           .
+     0.1 +           .
+         |           .
+         |           .
+         |           .
+         |          ..
+         |          .
+         |          .
+         | PPP                                               PPPPPPPPPP          .
+     0.0 +PP PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP          .          .
+         |                                                                                          P          .
+         |          .
+         |          .
+         |          ..
+         |           .
+         |                                                                                                                        P           .
+         |           .
+    -0.1 +           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           .
+         |           ..
+         |            .
+    -0.2 +            .
+         |            ..
+         |             .
+         |             .
+         |             ..
+         |              .
+         |              .
+         |              ..
+    -0.3 +               .
+         |               .
+         |               ..
+         |                .
+         |                ..
+         |                 .
+         |                 .
+         |                 ..
+    -0.4 +                  .
+         |                  .
+         |                   .
+         |                   .
+         |                   ..
+         |                    .
+         |                    ..
+         |                     .
+    -0.5 +                     .
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2507 obs hidden.  347 obs out of range.                                                                                       
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  18
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=1 --------------------------------------------------------------
+
+                                            Plot of CUMSVPPC*YEARS.  Symbol used is 'C'.
+                                            Plot of CUMSVPCM*YEARS.  Symbol used is 'M'.
+                                            Plot of CUMSVPPM*YEARS.  Symbol used is 'P'.
+
+CUMSVPPC |
+         |
+    1.00 +          MM           P        PP
+         |          MM           P       PPPPP
+         |          MM           P      PP   PP
+         |          MM           P     PP     PPP
+         |C          MM           P    PP        PPP
+         |C          MM           P   PP            PPP
+    0.95 +C          MM           P   P               PPPP
+         |CC          MM           P  PP                  PPPP
+         |CC          MM           P  P                      PPPP
+         |CC          MM          PP PP                          PPPP
+         |CC          MM          PP P                               PPPPP
+         |CC          MM          PP P                                   PPPPP
+    0.90 +CCC          MM          PPP                                        PPPPP
+         |C C          MM          PPP                                             PPPPP
+         |C C          MM          PPP                                                 PPPPP
+         |C CC          MM          P                                                       PPPP
+         |C  C           M          P                                                           P
+         |C  C           M          P
+    0.85 +C  CC           M          P
+         |C   CC           M          P
+         |C    C           M                                                                                                                      M          P
+         |C    CC           M          P
+         |C     CC           M          P
+         |C      CC           M          P
+    0.80 +C       CC           M          P
+         |C        CC           MM    MMM                                                                                M          P
+         |C          CC            MMMMMM MMMMMMMMMMMMMM
+         |C           CC                                MMMMMMMMMMMMMMM                       M                                                                                                    P
+         |              CC                                               MMMMMMMMMMMMMMMMMMMMMMM
+         |               CCC
+    0.75 +                 CCC
+         |                    CCC
+         |                      CCCC
+         |                         CCCC
+         |                            CCCC
+         |                                CCCCC
+    0.70 +                                    CCCCC
+         |                                         CCCCCC
+         |                                              CCCCCC
+         |                                                    CCCCCCC
+         |                                                          CCC
+         |
+    0.65 +
+         |
+         |
+         |
+         |
+         |                                                                                          C
+    0.60 +
+         |
+         |
+         |
+         |
+         |
+    0.55 +
+         |
+         |
+         |
+         |
+         |
+    0.50 +                                                                                                                                  P
+         |
+         |
+         |
+         |
+         |
+    0.45 +
+         |                                                                                                                        C
+         |
+         |
+         |
+         |
+    0.40 +
+         |
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2684 obs hidden.                                                                                                              
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  19
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=2 --------------------------------------------------------------
+
+                                            Plot of CUMSVPPC*YEARS.  Symbol used is 'C'.
+                                            Plot of CUMSVPCM*YEARS.  Symbol used is 'M'.
+                                            Plot of CUMSVPPM*YEARS.  Symbol used is 'P'.
+
+CUMSVPPC |
+         |
+    1.00 +C C           M           P
+         |C C           M           P
+         |C CC           M           P
+         |C CC          MM           P
+         |C CC          MM           P
+    0.99 +C CC          MM           P
+         |C CC          MM           P
+         |CCCCC          MM           P
+         |CC  C          MM           P
+         |CC  C          MM          PP
+    0.98 +CC  C          MM          PP
+         |CC  CC          MM          PP
+         |CC   C          MM          PP              PPPPPP                                                                    P
+         |CC   C          MM          PP           PPP     PPPPPP
+         |CC   CC          MM          PP         PP             PPPPP
+    0.97 +CC    C          MM          PP        PP                  PPPP
+         |CC    C          MM          PP       PP                      PPPP
+         |CC    CC          MM                                                                                                                      M          PP      PP                           PPPP
+         |CC     C          MM          PP      P                                PPPPP
+         |CC     CC          MM          PP     PP                                    PPPPPP
+    0.96 +CC      CC          MM          PP     P                                           PPPPPPPPPP
+         |CC       C          MM          PP    PP                                                                                                                P
+         |CC       CC          MM          PP    P
+         |CC        CC          MM          PP    P
+         |CC         CC          MM          PP   P
+    0.95 +C           CC          MM          PP   P
+         |C            CC          MM          PP   P
+         |C             CCC          MM          PP  PP
+         |C               CC          MM          PP  P
+         |C                CCC          MM          PP  P
+    0.94 +C                  CCC          MM          PP  P
+         |C                    CCC          MM          PP  P
+         |C                       CCCC                                                              C          MM          PP PP
+         |C                          CCCCC          MM          PP P
+         |C                               CCCCCCCCCCCCCCCCCCCCCCCCCCCCC          MM          PP P
+    0.93 +C          MM          PP P
+         |C          MM          PP P
+         |C          MM    MMMMM          PP P
+         |C                                                                                                                       C          MM  MMM   MMMM          PP P
+         |C          MM MM        MMM          PPP
+    0.92 +C          MMMM           MMM          PPP
+         |C          M MM             MMM          PPP
+         |C          M M                MM          PPP
+         |C          M                    MM          PPP
+         |C          M                     MMM                                                                 M          PPP
+    0.91 +C          M                       MMM          PPP
+         |C          M                         MMM          PPP
+         |C          M                           MMM          PPP
+         |C          M                             MMM          P
+         |C          M                               MMM          P
+    0.90 +C          M                                  MMM          P
+         |C          M                                     MMM          P
+         |C          M                                        MMMM          P
+         |C          M                                            MMMMMMMM      MM          P
+         |C          M                                                    MMMMMM          P
+    0.89 +C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+    0.88 +          M          P
+         |          M          P
+         |          M
+         |          M
+         |          M
+    0.87 +          M
+         |          M
+         |          M
+         |          M
+         |          M
+    0.86 +          M
+         |          M
+         |
+         |
+         |
+    0.85 +
+         |
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2459 obs hidden.                                                                                                              
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  20
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=3 --------------------------------------------------------------
+
+                                            Plot of CUMSVPPC*YEARS.  Symbol used is 'C'.
+                                            Plot of CUMSVPCM*YEARS.  Symbol used is 'M'.
+                                            Plot of CUMSVPPM*YEARS.  Symbol used is 'P'.
+
+    1.00 +CC           M           P
+         |CC           M           P
+         |CCC           M           P
+         |CCC          MM           P
+         |CCC                                                                                                                     C          MM           P
+    0.99 +CCC          MM           P            PPPPPPPPPPPP                                                                P
+         |CCC          MM           P          PPP           PPPP
+         |CCC          MM           P         PP                 PPPP
+         |CCC          MM           P        P                      PPPP
+         |CCC          MM           P       P                           PPPP
+    0.98 +CCCC          MM           P      PP                               PPPPP
+         |CC C          MM           P     PP                                    PPPPPP
+         |CC C          MM           P     P                                          PPPPPPPPPPP
+         |CC C          MM           P     P
+         |C  C          MM           P    P
+    0.97 +C  CC          MM           P    P
+         |C   C          MM           P   PP
+         |C   C                                                                                     C          MM           P   P
+         |C   C          MM           P   P
+         |C   CC          MM           P   P
+    0.96 +C    C          MM          PP  P
+         |C    C          MM                                                                                        M          PP  P
+         |C    CC          MM          PP  P
+         |C     C          MM          PP  P
+         |C     CC          MM          PP PP
+    0.95 +C      C          MM          PP P
+         |C      CC          MM          PP P
+CUMSVPPC |C       C          MM          PP P
+         |C        C          MM          PP P
+         |C        CC          MM          PP P
+    0.94 +C         CC          MM          PP P                                                                                                                    P
+         |C          CC                                              CC          MM          PPPP
+         |C           CC                                           CC          MM          PPP
+         |C            CC                                       CCC          MM          PPP
+         |C             CC                                    CCC          MM                                                                                                                      M          PPP
+    0.93 +C               CC                               CCC          MM          PPP
+         |C                CCC                          CCC          MM          PPP
+         |C                  CCCC                   CCCC          MM    MMMMM          PPP
+         |C                     CCCCC         CCCCCC          MM  MMM    MMM          PPP
+         |C                         CCCCCCCCCCC          MM MM        MMMM          P
+    0.92 +C          MMMM            MMM          P
+         |C          M MM              MMM          P
+         |C          M M                 MMM          P
+         |C          M                     MMMM                                 MM          P
+         |C          M                        MMM                             MMM          P
+    0.91 +C          M                          MMMM                      MMMM          P
+         |C          M                              MMMMM             MMMMM          P
+         |C          M                                  MMMMMMMMMMMMMM          P
+         |C          M          P
+         |C          M          P
+    0.90 +C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+    0.89 +C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+    0.88 +C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+    0.87 +C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+    0.86 +C          M          P
+         |C          M          P
+         |C          P
+         |C          P
+         |          P
+    0.85 +          P
+         |          P
+         |
+         |
+         |
+    0.84 +
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2459 obs hidden.                                                                                                              
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  21
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=4 --------------------------------------------------------------
+
+                                            Plot of CUMSVPPC*YEARS.  Symbol used is 'C'.
+                                            Plot of CUMSVPCM*YEARS.  Symbol used is 'M'.
+                                            Plot of CUMSVPPM*YEARS.  Symbol used is 'P'.
+
+CUMSVPPC |
+         |
+    1.00 +CC           M           P       PP                        PPPPPP
+         |CC           M           P      PPPPP                 PPPPPP     PPPPPPP
+         |CC          MM           P     PP   PPPPP      PPPPPPP                 PPPPPPPPPPP
+         |CC                                                                                        C          MM           P     P        PPPPPPP                                   PPP                             P
+         |CC          MM           P    P
+         |CC          MM                                                                                        M           P   PP
+         |CC          MM           P   P
+    0.98 +CC          MM           P   P
+         |CC          MM           P  P
+         |CCC          MM           P  P
+         |C C          MM           P  P
+         |C C          MM           P PP
+         |C C          MM           P P
+         |C C          MM           P P
+    0.96 +C CC          MM           P P
+         |C  C          MM           PPP
+         |C  C          MM           PP
+         |C  CC          MM           PP
+         |C   C          MM           PP
+         |C   CC                                                     CC          MM           PP
+         |C    C                                                   CCC          MM           PP
+    0.94 +C    CC                                                 CC          MM                                                          M           P
+         |C     C                                               CC          MM                                                        MM           P
+         |C     CC                                            CC          MM                                                       MM          PP
+         |C      CC                                         CC          MM                                                    MMM          P
+         |C       CC                                      CC          MM                                                  MMM          P
+         |C        CC                                   CC          MM   MMMMMMMM                                    MMM          P
+         |C         CC                               CCC          MM MMM       MMMM                              MMM          P
+    0.92 +C           CC                           CCC          MMMM             MMMMM                     MMMM          P                                                                                                                       P
+         |C            CCC                      CCC          M M                  MMMMMMM         MMMMMM          P
+         |C              CCCC               CCCC          M                          MMMMMMMMMM          P
+         |C                 CCCCCCCCCCCCCCCC          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+    0.90 +C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+    0.88 +C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C          M          P
+         |C                                                                                                                       C          M          P
+    0.86 +C          M          P
+         |C          M          P
+         |C          P
+         |C          P
+         |C          P
+         |C          P
+         |C          P
+    0.84 +C          P
+         |C          P
+         |C          P
+         |C          P
+         |C          P
+         |C          P
+         |C          P
+    0.82 +          P
+         |          P
+         |
+         |
+         |
+         |
+         |
+    0.80 +
+         |
+         |
+         |
+         |                                                                                                                                  M
+         |
+         |
+    0.78 +
+         |
+         -+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0           2           4           6           8          10          12          14          16          18          20
+
+                                                                    YEARS
+
+NOTE: 2566 obs hidden.                                                                                                              
+                                           Percutaneous Transluminal Coronary Angioplasty       12:00 Thursday, December 1, 1994  22
+                                                     MHI; June 1980 - July 1991
+                                                 Primary PTCA Without Previous CABG
+                                                  Multivariable Analysis of Death
+                                           Patient, Procedure and Experience Risk Factors
+                                                        VA Medical Equation
+
+------------------------------------------------------------- PPLOT=1 --------------------------------------------------------------
+
+
+     OBS    MONTHS    YEARS    _SURVIVC   _SURVIVP   _SURVIVM   CUMSURPC   CUMSVPPC   CUMSURCM   CUMSVPCM   CUMSURPM   CUMSVPPM
+
+
+       1     0.986    0.0821    0.99335    0.98615    0.99464    0.00721    0.94315   -0.00129    0.98433   -0.00850    0.92765
+
+       2    12.000    1.0000    0.98627    0.91166    0.88102    0.07460    0.82177    0.10525    0.78734    0.03064    0.96163
+
+       3    60.000    5.0000    0.95440    0.65151    0.74374    0.30289    0.71626    0.21066    0.77389   -0.09223    0.93040
+
+       4   120.000   10.0000    0.85931    0.40785    0.55945    0.45146    0.66781    0.29986    0.77090   -0.15160    0.87075
+
+       5   180.000   15.0000    0.64607    0.22265    0.38389    0.42342    0.60858    0.26218    0.78782   -0.16124    0.77084
+
+       6   240.000   20.0000    0.34864    0.09483    0.23853    0.25380    0.44417    0.11010    0.83644   -0.14370    0.49685
+
+
+------------------------------------------------------------- PPLOT=2 --------------------------------------------------------------
+
+    OBS    MONTHS    YEARS    _SURVIVC   _SURVIVP   _SURVIVM    CUMSURPC   CUMSVPPC   CUMSURCM   CUMSVPCM    CUMSURPM   CUMSVPPM
+
+
+      7     0.986    0.0821    0.99634    0.99826    0.99872   -0.001914    0.95180   -0.00238    0.93299   -0.000463    0.98103
+
+      8    12.000    1.0000    0.98984    0.98505    0.97516    0.004791    0.96890    0.01468    0.92523    0.009888    0.95605
+
+      9    60.000    5.0000    0.95976    0.92526    0.90492    0.034501    0.93355    0.05484    0.90494    0.020338    0.97089
+
+     10   120.000   10.0000    0.88163    0.81400    0.76617    0.067630    0.93279    0.11545    0.89321    0.047824    0.95963
+
+     11   180.000   15.0000    0.71066    0.62430    0.59177    0.086359    0.93555    0.11889    0.91147    0.032530    0.97553
+
+     12   240.000   20.0000    0.45045    0.37354    0.41388    0.076908    0.92390    0.03657    0.96548   -0.040339    0.95812
+
+
+------------------------------------------------------------- PPLOT=3 --------------------------------------------------------------
+
+   OBS    MONTHS    YEARS    _SURVIVC   _SURVIVP   _SURVIVM    CUMSURPC   CUMSVPPC    CUMSURCM   CUMSVPCM    CUMSURPM   CUMSVPPM
+
+
+    13     0.986    0.0821    0.99634    0.99755    0.99872   -0.001203    0.97348   -0.002377    0.93299   -0.001174    0.95932
+
+    14    12.000    1.0000    0.98983    0.98219    0.97516    0.007644    0.95427    0.014673    0.92528    0.007029    0.97074
+
+    15    60.000    5.0000    0.95794    0.91459    0.90492    0.043346    0.92228    0.053015    0.90929    0.009669    0.98675
+
+    16   120.000   10.0000    0.86251    0.79601    0.76617    0.066506    0.93796    0.096341    0.91358    0.029835    0.97526
+
+    17   180.000   15.0000    0.64848    0.60399    0.59177    0.044492    0.96674    0.056713    0.95754    0.012221    0.99076
+
+    18   240.000   20.0000    0.34994    0.35754    0.41388   -0.007600    0.99109   -0.063941    0.93139   -0.056342    0.94019
+
+
+------------------------------------------------------------- PPLOT=4 --------------------------------------------------------------
+
+    OBS    MONTHS    YEARS    _SURVIVC   _SURVIVP   _SURVIVM    CUMSURPC   CUMSVPPC   CUMSURCM   CUMSVPCM    CUMSURPM   CUMSVPPM
+
+
+     19     0.986    0.0821    0.99634    0.99631    0.99872    0.000032    0.99941   -0.00238    0.93299   -0.002409    0.93241
+
+     20    12.000    1.0000    0.98982    0.97832    0.97516    0.011503    0.93738    0.01466    0.92535    0.003161    0.98781
+
+     21    60.000    5.0000    0.95543    0.90183    0.90492    0.053595    0.91110    0.05050    0.91506   -0.003092    0.99596
+
+     22   120.000   10.0000    0.83682    0.77522    0.76617    0.061597    0.94610    0.07065    0.93879    0.009051    0.99263
+
+     23   180.000   15.0000    0.57152    0.58099    0.59177   -0.009470    0.99274   -0.02025    0.98455   -0.010776    0.99180
+
+     24   240.000   20.0000    0.24700    0.33971    0.41388   -0.092708    0.86211   -0.16688    0.78773   -0.074174    0.91921
+

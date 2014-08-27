@@ -1,0 +1,221 @@
+1                                        The SAS System           14:08 Friday, November 10, 2000
+
+NOTE: Copyright (c) 1999-2000 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Release 8.1 (TS1M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0008874001.
+NOTE: This session is executing on the WIN_PRO  platform.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.75 seconds
+      cpu time            0.38 seconds
+      
+1            OPTIONS PAGESIZE=100 LINESIZE=132;
+2          *******************************************************************************;
+3          * !HZEXAMPLES/hp.death.AVC.hm1                                                 ;
+4          *                                                                              ;
+5          * Multivariable analysis of death after repair of atrioventricular canals      ;
+6          *                                                                              ;
+7          * Exploration of strength of risk factors.  A major strength of completely     ;
+8          * parametric models is that once parameter estimates are available, the        ;
+9          * resulting equation can be solved for any given set of risk factors.  This    ;
+10         * permits, for example, solving the equation for the time-related survival     ;
+11         * of an individual patient by "plugging in" that patients specific risk        ;
+12         * factors (patient-specific prediction).                                       ;
+13         *                                                                              ;
+14         * In this example, we exploit the parametric model by exploring the shape      ;
+15         * of risk factors.  Here, for a given set of risk factors, we compare survival ;
+16         * in two otherwise similar patients, except that one has an additional         ;
+17         * major cardiac anomaly.                                                       ;
+18         *******************************************************************************;
+19           TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+20           TITLE2 'Example Data Set';
+21           TITLE3 'Multivariable Analysis of Death After Repair';
+22           TITLE4 'Solve Multivariable Equation for Survival and Hazard';
+23           TITLE5 'In Complete Canal With and Without Associated Anomalies';
+24           TITLE6 'For a 6-month Old Infant in the Current Era';
+25         *______________________________________________________________________________;
+26         *                                                                              ;
+27         * Model:                                                                       ;
+28         * Early Hazard Phase:                                                          ;
+29         *   AGE COM_IV MAL OPMOS OP_AGE STATUS                                         ;
+30         * Constant Hazard Phase:                                                       ;
+31         *   INC_SURG ORIFICE STATUS                                                    ;
+32         *______________________________________________________________________________;
+33         *                                                                              ;
+34         * Set values for standard model incremental risk factors variables.            ;
+35           DATA DESIGN;
+36           AGE=6;         /* Six months of age                                         */
+37           COM_IV=1;      /* Interventricular communication present                    */
+38         * MAL=0;         /* Major associated cardiac anomaly                          */
+39           ORIFICE=0;     /* Accessory left AV valve orifice                           */
+40           INC_SURG=0;    /* Degree of AV valve incompetence pre-repair                */
+41           STATUS=3;      /* Clinical status (NYHA I-IV)                               */
+42           OPMOS=180;     /* Current data (1982)                                       */
+43         * MONTHS=6;      /* Time of observation (months)                              */
+44         *______________________________________________________________________________;
+45         *                                                                              ;
+46         * Transformations of variables                                                 ;
+47           OPYEAR=1967 + OPMOS/12;
+48           OP_AGE=OPMOS*AGE;
+49         * YEARS=MONTHS/12;
+50         *******************************************************************************;
+51         * Generate "isobars" of risk factors here, but check for possible              ;
+52         * transformations that may be needed.                                          ;
+53           DO MAL=0,1;
+54             OUTPUT;
+55           END;
+
+NOTE: The data set WORK.DESIGN has 2 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+56           PROC PRINT;
+57         *******************************************************************************;
+58         * Generate and output points                                                   ;
+
+NOTE: There were 2 observations read from the data set WORK.DESIGN.
+NOTE: The PROCEDURE PRINT printed page 1.
+NOTE: PROCEDURE PRINT used:
+      real time           0.14 seconds
+      cpu time            0.05 seconds
+      
+
+59           DATA PREDICT; SET DESIGN; DIGITAL=0;
+60           MAX=180; LN_MAX=LOG(MAX); INC=(5+LN_MAX)/99.9;
+61           DO LN_TIME=-5 TO LN_MAX BY INC,LN_MAX;
+62             MONTHS=EXP(LN_TIME);
+63             OUTPUT;
+64           END;
+65           DROP MAX LN_MAX INC LN_TIME;
+66         
+
+NOTE: There were 2 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.PREDICT has 202 observations and 11 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+2                                                          The SAS System                            14:08 Friday, November 10, 2000
+
+      
+
+67           DATA DIGITAL; SET DESIGN; DIGITAL=1;
+68           DTY=12/365.2425;
+69           DO MONTHS=1*DTY,2*DTY,3*DTY,4*DTY,5*DTY,6*DTY,7*DTY,14*DTY,30*DTY,
+70                     1,2,3,6,12,18,24 TO 180 BY 12;
+71             OUTPUT;
+72           END;
+73           DROP DTY;
+74         
+
+NOTE: There were 2 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DIGITAL has 58 observations and 11 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+75           DATA PREDICT; SET PREDICT DIGITAL;
+76           YEARS=MONTHS/12;
+77         *******************************************************************************;
+78         * Do predictions                                                               ;
+
+NOTE: There were 202 observations read from the data set WORK.PREDICT.
+NOTE: There were 58 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.PREDICT has 260 observations and 12 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+79           PROC SORT DATA=PREDICT; BY MAL;
+80           LIBNAME EXAMPLES '!HZEXAMPLES/sasest';
+NOTE: Libref EXAMPLES was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: c:\hazard\examples\sasest
+81           %HAZPRED (
+82           PROC HAZPRED DATA=PREDICT INHAZ=EXAMPLES.HMDEATH OUT=PREDICT;
+83                TIME MONTHS; ID MAL;
+84           );
+
+NOTE: There were 260 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 260 observations and 12 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.15 seconds
+      cpu time            0.07 seconds
+      
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1792.X7
+85         *******************************************************************************;
+86         * Printer plot survival and hazard                                             ;
+87           PROC PLOT DATA=PREDICT; PLOT _SURVIV*YEARS=MAL
+ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.
+88                        _CLLSURV*YEARS='.' _CLUSURV*YEARS='.'
+ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.
+ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.
+89                        /OVERLAY VAXIS=0 TO 1 BY 0.1;
+NOTE: The previous statement has been deleted.
+90                                   PLOT _HAZARD*YEARS=MAL
+ERROR: Variable _HAZARD not found.ERROR: Variable _HAZARD not found.ERROR: Variable _HAZARD not found.
+91                        _CLLHAZ*YEARS='.' _CLUHAZ*YEARS='.'
+ERROR: Variable _CLLHAZ not found.ERROR: Variable _CLLHAZ not found.ERROR: Variable _CLLHAZ not found.
+ERROR: Variable _CLUHAZ not found.ERROR: Variable _CLUHAZ not found.ERROR: Variable _CLUHAZ not found.
+92                        /OVERLAY VAXIS=0 TO 0.1 BY 0.01;
+NOTE: The previous statement has been deleted.
+93         *******************************************************************************;
+94         * Digital nomogram                                                             ;
+
+NOTE: PROCEDURE PLOT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+95           DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: There were 260 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.DIGITAL has 58 observations and 12 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+96           PROC SORT; BY MAL;
+
+NOTE: There were 58 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.DIGITAL has 58 observations and 12 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+97           PROC PRINT D; BY MAL; VAR MONTHS YEARS
+98                OPYEAR OPMOS AGE COM_IV MAL INC_SURG ORIFICE STATUS
+99                _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ;
+ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.
+ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.
+ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.
+ERROR: Variable _HAZARD not found.ERROR: Variable _HAZARD not found.ERROR: Variable _HAZARD not found.
+3                                                          The SAS System                            14:08 Friday, November 10, 2000
+
+ERROR: Variable _CLLHAZ not found.ERROR: Variable _CLLHAZ not found.ERROR: Variable _CLLHAZ not found.
+ERROR: Variable _CLUHAZ not found.ERROR: Variable _CLUHAZ not found.ERROR: Variable _CLUHAZ not found.
+100        *******************************************************************************;
+101        RUN;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+ERROR: Errors printed on pages 2,3.ERROR: Errors printed on pages 2,3.ERROR: Errors printed on pages 2,3.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           2.63 seconds
+      cpu time            0.97 seconds
+      

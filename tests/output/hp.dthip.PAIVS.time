@@ -1,0 +1,1971 @@
+From cvsrehb Thu Dec  1 08:08:15 1994
+Received: by UABCVSR.cvsr.uab.edu (AIX 3.2/UCB 5.64/4.03)
+          id AA29467; Thu, 1 Dec 1994 08:08:13 -0600
+Date: Thu, 1 Dec 94 08:08:13 -0600
+From: cvsrehb
+Message-ID: <9412011408.AA29467@UABCVSR.cvsr.uab.edu>
+To: cvsrehb
+Subject: 27557.uabcvsr
+
+1                                                          The SAS System                           08:06 Thursday, December 1, 1994
+
+NOTE: Copyright(c) 1989 by SAS Institute Inc., Cary, NC USA. 
+NOTE: SAS (r) Proprietary Software Release 6.09  TS027
+      Licensed to UNIVERSITY OF ALABAMA AT BIRMINGHAM, Site 0001676011.
+
+NOTE: Running on IBM Model RS/6000 Serial Number 000002582E00.
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: AUTOEXEC processing beginning; file is /apps/sasnew/sas609/autoexec.sas.
+
+
+NOTE: AUTOEXEC processing completed.
+
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * /programs/hazard/examples/hp.dthip.PAIVS.time                                ;
+4          *                                                                              ;
+5          * Survival after initial for pulmonary atresia with intact ventricular septum  ;
+6          *                                                                              ;
+7          * Time-related survival after various operations at several Zs for TV          ;
+8          *                                                                              ;
+9          * Birth weight 3.1 kg (median), date of admission 1991.                        ;
+10         *______________________________________________________________________________;
+11         *                                                                              ;
+12           OPTIONS PS=100 LS=132;
+13           TITLE1 "Pulmonary Atresia with Intact Ventricular Septum";
+14           TITLE2 "(Congenital Heart Surgeons Society; 1987 to Oct 1993)";
+15           TITLE3 "Death After Initial Achieved Procedure";
+16           TITLE4 "Time-Related Survival After Various Treatment Strategies";
+17         *______________________________________________________________________________;
+18         *                                                                              ;
+19         * Model:                                                                       ;
+20         *   Early Hazard Phase
+21         *    LN_WTBRT MISSBTHW RVDEPCC NCANOM RVNSTVSE ATBDPV BAS
+22         *    SHAS1GRP PVS1GRP TAP1GZ2T TAPS1ZMT PV1Z2TV
+23         *   Constant Hazard Phase
+24         *    RVSP RVENL TVINC_SE RAE APCOL SHNT1GRP SHAS1GRP PVS1GRP
+25         *    TAPS1GRP TAPS1ZMT
+26         *______________________________________________________________________________;
+27         *                                                                              ;
+28         * Set values for standard model incremental risk factors variables.            ;
+29           DATA DESIGN;
+30           WT_BIRTH=3.1;  /* Birth weight (kg)                                 */
+31           MISSBTHW=0;    /* Missing birth weight                              */
+32           RVDEPCC=0;     /* RV dependent coronary circulation                 */
+33           NCANOM=0;      /* Noncardiac anomaly                                */
+34           TVINC_SE=0;    /* TV incompetence (severe)                          */
+35           RVENL=0;       /* RV enlarged                                       */
+36           RAE=0;         /* Large right atrium                                */
+37           APCOL=0;       /* Large AP colateral arteries                       */
+38           ATBDPV=0;      /* Previous attempted balloon valvotomy              */
+39           BAS=0;         /* Previous balloon atrial septostomy                */
+40           SHAS1GRP=0;    /* Shunt + atrial septectomy group                   */
+41           TAP1GRP=0;     /* Surgical TAP without a shunt                      */
+42           TAPS1GRP=0;    /* Surgical TAP with a shunt                         */
+43           SHNT1GRP=0;    /* Shunt only                                        */
+44           PVS1GRP=0;     /* Surgical pulmonary valvotomy with a shunt         */
+45           PV1GRP=0;      /* Surgical pulmonary valvotomy without a shunt      */
+46           ZMTVECHO=-2;   /* Dimension (Z) of tricuspid valve                  */
+47           RVSP=110;      /* RV peak systolic pressure                         */
+48           MONTHS=6;      /* Time of observation (months)                      */
+49         *******************************************************************************;
+50         * Transformations of variables                                                 ;
+51           RVNS=0; IF TAP1GRP=1 OR PV1GRP=1 THEN RVNS=1;
+52           PV1=0; IF PV1GRP=1 OR PVS1GRP=1 THEN PV1=1;
+53         * Logarithpic:                                                                 ;
+54           LN_WTBRT=LOG(WT_BIRTH);
+55         * Power:                                                                       ;
+56           Z2MTVECH=ZMTVECHO**2;
+57         * Interaction:                                                                 ;
+58           RVNSTVSE=TVINC_SE*RVNS;
+59           TAP1GZ2T=TAP1GRP*Z2MTVECH;
+60           TAPS1ZMT=TAPS1GRP*ZMTVECHO;
+61           PV1Z2TV=PV1*Z2MTVECH;
+62           YEARS=MONTHS/12;
+63         *******************************************************************************;
+64         * Generate "isobars" of risk factors here, but check for possible              ;
+65         * transformations that may be needed.                                          ;
+66           DO ZMTVECHO=-1, -2, -3, -4;
+67             MULT=ABS(ZMTVECHO);
+68             Z2MTVECH=ZMTVECHO**2;
+69             OUTPUT;
+70           END;
+
+NOTE: The data set WORK.DESIGN has 4 observations and 29 variables.
+
+71           DATA DESIGN; SET DESIGN;
+72         * Shunt alone                                                                  ;
+73           SHAS1GRP=0; SHNT1GRP=1; PV1GRP=0; PVS1GRP=0; TAP1GRP=0; TAPS1GRP=0;
+74             PLOT=2*MULT+1; PLOTLINE=1; PLTCHR='S'; PLTCL='s'; DECISION='Shunt Alone ';
+75             PATIENT=1; OUTPUT;
+2                                                          The SAS System                           08:06 Thursday, December 1, 1994
+
+76         * Pulmonary valvotomy without a shunt:                                         ;
+77           SHAS1GRP=0; SHNT1GRP=0; PV1GRP=1; PVS1GRP=0; TAP1GRP=0; TAPS1GRP=0;
+78             PLOT=2*MULT+1; PLOTLINE=2; PLTCHR='V'; PLTCL='v'; DECISION='Valvot Alone';
+79             PATIENT=2; OUTPUT;
+80         * Pulmonary valvotomy with a shunt:                                            ;
+81           SHAS1GRP=0; SHNT1GRP=0; PV1GRP=0; PVS1GRP=1; TAP1GRP=0; TAPS1GRP=0;
+82             PLOT=2*MULT+1; PLOTLINE=3; PLTCHR='W'; PLTCL='w'; DECISION='Valvot+Shunt';
+83             PATIENT=3; OUTPUT;
+84         * Shunt alone                                                                  ;
+85           SHAS1GRP=0; SHNT1GRP=1; PV1GRP=0; PVS1GRP=0; TAP1GRP=0; TAPS1GRP=0;
+86             PLOT=2*MULT+2; PLOTLINE=1; PLTCHR='S'; PLTCL='s'; DECISION='Shunt Alone ';
+87             PATIENT=4; OUTPUT;
+88         * TAP without a shunt:                                                         ;
+89           SHAS1GRP=0; SHNT1GRP=0; PV1GRP=0; PVS1GRP=0; TAP1GRP=1; TAPS1GRP=0;
+90             PLOT=2*MULT+2; PLOTLINE=2; PLTCHR='T'; PLTCL='v'; DECISION='TAP Alone   ';
+91             PATIENT=5; OUTPUT;
+92         * TAP with a shunt:                                                            ;
+93           SHAS1GRP=0; SHNT1GRP=0; PV1GRP=0; PVS1GRP=0; TAP1GRP=0; TAPS1GRP=1;
+94             PLOT=2*MULT+2; PLOTLINE=3; PLTCHR='W'; PLTCL='w'; DECISION='TAP + Shunt ';
+95             PATIENT=6; OUTPUT;
+96         
+
+NOTE: The data set WORK.DESIGN has 24 observations and 35 variables.
+
+97           DATA DESIGN; SET DESIGN;
+98         * Transformations of variables                                                 ;
+99           RVNS=0; IF TAP1GRP=1 OR PV1GRP=1 THEN RVNS=1;
+100          PV1=0; IF PV1GRP=1 OR PVS1GRP=1 THEN PV1=1;
+101        * Power:                                                                       ;
+102          Z2MTVECH=ZMTVECHO**2;
+103        * Interaction:                                                                 ;
+104          RVNSTVSE=TVINC_SE*RVNS;
+105          TAP1GZ2T=TAP1GRP*Z2MTVECH;
+106          TAPS1ZMT=TAPS1GRP*ZMTVECHO;
+107          PV1Z2TV=PV1*Z2MTVECH;
+108        
+
+NOTE: The data set WORK.DESIGN has 24 observations and 35 variables.
+
+109          PROC PRINT;
+110        *******************************************************************************;
+111        * Generate and output points                                                   ;
+
+NOTE: The PROCEDURE PRINT printed page 1.
+
+112          DATA PREDICT; SET DESIGN; DIGITAL=0;
+113          MAX=84; LN_MAX=LOG(MAX); INC=(5+LN_MAX)/999.9;
+114          DO LN_TIME=-5 TO LN_MAX BY INC,LN_MAX;
+115            MONTHS=EXP(LN_TIME); YEARS=MONTHS/12;
+116            OUTPUT;
+117          END;
+118          DROP LN_TIME MAX LN_MAX INC;
+119        
+
+NOTE: The data set WORK.PREDICT has 24024 observations and 36 variables.
+
+120          DATA DIGITAL; SET DESIGN; DIGITAL=1;
+121          DTY=12/365.2425;
+122          DO MONTHS=1*DTY,2*DTY,3*DTY,4*DTY,5*DTY,6*DTY,7*DTY,14*DTY,30*DTY,
+123          1,2,3,6,12 TO 84 BY 12;
+124            YEARS=MONTHS/12;
+125            OUTPUT;
+126          END;
+127          DROP DTY;
+
+NOTE: The data set WORK.DIGITAL has 480 observations and 36 variables.
+
+128          DATA PREDICT; SET PREDICT DIGITAL;
+129        * Stipulate region of available data                                           ;
+130          IF (PATIENT=2 OR PATIENT=3) AND ZMTVECHO<-4.4 THEN DELETE;
+131          IF PATIENT=5 AND ZMTVECHO<-3.7 THEN DELETE;
+132          IF PATIENT=6 AND ZMTVECHO<-5.7 THEN DELETE;
+133        *******************************************************************************;
+134        * Do predictions for atresia                                                   ;
+
+NOTE: The data set WORK.PREDICT has 23483 observations and 36 variables.
+
+135          PROC SORT; BY PATIENT;
+136          LIBNAME CHSPTR94 '/programs/hazard/examples/sasest';
+NOTE: Libref CHSPTR94 was successfully assigned as follows: 
+      Engine:        V609 
+      Physical Name: /programs/hazard/examples/sasest
+137          %HAZPRED(
+138          PROC HAZPRED DATA=PREDICT INHAZ=CHSPTR94.HMDTHIPR OUT=PREDICT;
+139               TIME MONTHS; ID PATIENT;
+140          );
+
+NOTE: The data set WORK.PREDICT has 23483 observations and 36 variables.
+
+
+Note: Procedure HAZPRED (C-Version 4.0.0)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+
+NOTE: The data set WORK.PREDICT has 23483 observations and 48 variables.
+3                                                          The SAS System                           08:06 Thursday, December 1, 1994
+
+
+141        *******************************************************************************;
+142        * Printer plot survival and hazard                                             ;
+143          DATA PREDICT; SET PREDICT;
+144          LABEL _SURVIV  = 'Probability of Survival';
+
+NOTE: The data set WORK.PREDICT has 23483 observations and 48 variables.
+
+145          PROC SORT; BY PLOT;
+
+NOTE: The data set WORK.PREDICT has 23483 observations and 48 variables.
+
+146          PROC PLOT DATA=PREDICT; BY PLOT;
+147               PLOT _SURVIV*YEARS=PLTCHR
+148                   _CLLSURV*YEARS=PLTCL _CLUSURV*YEARS=PLTCL
+149                    /OVERLAY VAXIS=0 TO 1 BY 0.1;
+150        *******************************************************************************;
+151        * Digital nomogram                                                             ;
+
+NOTE: The PROCEDURE PLOT printed pages 2-9.
+
+152          DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: The data set WORK.DIGITAL has 460 observations and 48 variables.
+
+153          PROC SORT; BY PLOT DECISION ZMTVECHO;
+
+NOTE: The data set WORK.DIGITAL has 460 observations and 48 variables.
+
+154          PROC PRINT; BY PLOT DECISION ZMTVECHO; VAR MONTHS YEARS
+155            WT_BIRTH RVDEPCC NCANOM TVINC_SE RVENL RAE APCOL ATBDPV BAS SHAS1GRP RVNS
+156            TAP1GRP TAPS1GRP SHNT1GRP PVS1GRP PV1 ZMTVECHO RVSP
+157            _SURVIV _CLLSURV _CLUSURV;
+158        *******************************************************************************;
+NOTE: The PROCEDURE PRINT printed pages 10-18.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994   1
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+                   W  M     T           S   T S      Z              L     Z R  T  T             P          D
+                   T  I R   V           H T A H P    M              N     2 V  A  A  P          L          E       P
+                   _  S V N I       A   A A P N V P  T     M        _     M N  P  P  V          O P        C       A
+                   B  S D C N R   A T   S P S T S V  V     O        W     T S  1  S  1  Y       T L P      I       T
+                   I  B E A C V   P B   1 1 1 1 1 1  E  R  N R      T     V T  G  1  Z  E  M  P L T L      S       I
+                O  R  T P N _ E R C D B G G G G G G  C  V  T V P    B     E V  Z  Z  2  A  U  L I C T      I       E
+                B  T  H C O S N A O P A R R R R R R  H  S  H N V    R     C S  2  M  T  R  L  O N H C      O       N
+                S  H  W C M E L E L V S P P P P P P  O  P  S S 1    T     H E  T  T  V  S  T  T E R L      N       T
+
+                1 3.1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -1 110 6 0 0 1.13140  1 0  0  0  0 0.5 1  3 1 S s Shunt Alone  1
+                2 3.1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 -1 110 6 1 1 1.13140  1 0  0  0  1 0.5 1  3 2 V v Valvot Alone 2
+                3 3.1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 -1 110 6 0 1 1.13140  1 0  0  0  1 0.5 1  3 3 W w Valvot+Shunt 3
+                4 3.1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -1 110 6 0 0 1.13140  1 0  0  0  0 0.5 1  4 1 S s Shunt Alone  4
+                5 3.1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 -1 110 6 1 0 1.13140  1 0  1  0  0 0.5 1  4 2 T v TAP Alone    5
+                6 3.1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 -1 110 6 0 0 1.13140  1 0  0 -1  0 0.5 1  4 3 W w TAP + Shunt  6
+                7 3.1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -2 110 6 0 0 1.13140  4 0  0  0  0 0.5 2  5 1 S s Shunt Alone  1
+                8 3.1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 -2 110 6 1 1 1.13140  4 0  0  0  4 0.5 2  5 2 V v Valvot Alone 2
+                9 3.1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 -2 110 6 0 1 1.13140  4 0  0  0  4 0.5 2  5 3 W w Valvot+Shunt 3
+               10 3.1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -2 110 6 0 0 1.13140  4 0  0  0  0 0.5 2  6 1 S s Shunt Alone  4
+               11 3.1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 -2 110 6 1 0 1.13140  4 0  4  0  0 0.5 2  6 2 T v TAP Alone    5
+               12 3.1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 -2 110 6 0 0 1.13140  4 0  0 -2  0 0.5 2  6 3 W w TAP + Shunt  6
+               13 3.1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -3 110 6 0 0 1.13140  9 0  0  0  0 0.5 3  7 1 S s Shunt Alone  1
+               14 3.1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 -3 110 6 1 1 1.13140  9 0  0  0  9 0.5 3  7 2 V v Valvot Alone 2
+               15 3.1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 -3 110 6 0 1 1.13140  9 0  0  0  9 0.5 3  7 3 W w Valvot+Shunt 3
+               16 3.1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -3 110 6 0 0 1.13140  9 0  0  0  0 0.5 3  8 1 S s Shunt Alone  4
+               17 3.1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 -3 110 6 1 0 1.13140  9 0  9  0  0 0.5 3  8 2 T v TAP Alone    5
+               18 3.1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 -3 110 6 0 0 1.13140  9 0  0 -3  0 0.5 3  8 3 W w TAP + Shunt  6
+               19 3.1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -4 110 6 0 0 1.13140 16 0  0  0  0 0.5 4  9 1 S s Shunt Alone  1
+               20 3.1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 -4 110 6 1 1 1.13140 16 0  0  0 16 0.5 4  9 2 V v Valvot Alone 2
+               21 3.1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 -4 110 6 0 1 1.13140 16 0  0  0 16 0.5 4  9 3 W w Valvot+Shunt 3
+               22 3.1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -4 110 6 0 0 1.13140 16 0  0  0  0 0.5 4 10 1 S s Shunt Alone  4
+               23 3.1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 -4 110 6 1 0 1.13140 16 0 16  0  0 0.5 4 10 2 T v TAP Alone    5
+               24 3.1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 -4 110 6 0 0 1.13140 16 0  0 -4  0 0.5 4 10 3 W w TAP + Shunt  6
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994   2
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+-------------------------------------------------------------- PLOT=3 --------------------------------------------------------------
+
+                                        Plot of _SURVIV*YEARS.   Symbol is value of PLTCHR.
+                                        Plot of _CLLSURV*YEARS.  Symbol is value of PLTCL.
+                                        Plot of _CLUSURV*YEARS.  Symbol is value of PLTCL.
+
+             |
+         1.0 +  W                w
+             |  S                s                sw
+             |  SW                s                swwwwwwwwwww
+             |  SWWWWWWW                sw                ss          wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |  SS     WWWWWWWWWWWWWWWWW                sww                vs                                        wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |  VS                     WWWWWWWWWWWWWWWWWWWWWWWWWWWWW                s wwwwww                 sss                                                                                         wwwwwwwwwwwww
+             |   SS                                                 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW                ss     wwwwwwwwwwwww                   sssvvv
+             |    SSS                                                                                   WWWWWWWWWWWWWWWWWW                 s                 wwwwwwwwwwwwwwwwwwww                     sssvvvvvvvvvvvvvvv
+         0.9 +      SSVVV                 ss                                    wwwwwwwwwwwwwwwwwwwwwwwww                       sss            vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |       SSSVVVVVVVVVVV                  sss                                                           wwwwwwwwwwwwwwwwwwwwwwwwwww                         ssss                                                    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |         SSSS       VVVVVVVVVVVVVVVVVVVVVVV                   vssv                                                                                   wwwwwwwwwwwwwwww                            ssss
+             |            SSS                            VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                     sssvvvvv                               sssss
+             |               SSS                                                                                VVVVVVVVVV                       sss  vvvvvvvvvv                                   ssss
+             |                 SSSS                          sss         vvvvvvvvvvvvvvvvvvv                                       ssss
+             |                    SSSS                            sss                          vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                           ssss
+             |                        SSSS                               sss                                                            vvvvvvvvvvvvvvvvvvvvvvvvvvvv                                               sssss
+         0.8 +                           SSSS                                 ssss                                                   sssss
+             |                              SSSS                                    sss                                                       ssssss
+             |                                 SSSSS                                      ssss                                                            sssss
+             |                                     SSSS                                         ssss                                                                 sssss
+             |                                         SSSS                                            ssss                                                                      ssssss
+             |                                            SSSSS                                               ssss                                                                           ssssss
+             |                                                SSSSS                                                  ssss                                                                                ssssss
+             |                                                    SSSSS                                                     ssss                                                                                      ssssss
+         0.7 +                                                        SSSSS                                                        ssss                                                                                            ssssss
+             |                                                             SSSS                                                           ssss                                                                                                 ssssss
+             |                                                                 SSSS                                                              ssss                                                                                                       ssssss
+             |                                                                     SSSSS                                                                  sss                                                                                                             ssssss
+             |                                                                         SSSSS                                                                     ssss                                                                                                                   sssssss
+       P     |                                                                              SSSSS                                                                        ssss
+       r     |                                                                                   SSSSS                                                                            ssss
+       o     |                                                                                       SSSSS                                                                               ssss
+       b 0.6 +                                                                                            SSSSS                                                                                   ssss
+       a     |                                                                                                 SSSSS                                                                                       sss
+       b     |                                                                                                      SSSSS                                                                                          sssss
+       i     |                                                                                                           S                                                                                              ssss
+       l     |                                                                                                  ssss
+       i     |                                                                                                      sssss
+       t     |                                                                                                          sssss
+       y     |                                                                                                               sss
+         0.5 +                                                                                                                  sssss
+       o     |                                                                                                                       sss
+       f     |
+             |
+       S     |
+       u     |
+       r     |
+       v     |
+       i 0.4 +
+       v     |
+       a     |
+       l     |
+             |
+             |
+             |
+             |
+         0.3 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.2 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.1 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.0 +
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+                0              1              2              3              4              5              6              7
+
+                                                                  YEARS
+
+NOTE: 8171 obs hidden.                                                                                                              
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994   3
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+-------------------------------------------------------------- PLOT=4 --------------------------------------------------------------
+
+                                        Plot of _SURVIV*YEARS.   Symbol is value of PLTCHR.
+                                        Plot of _CLLSURV*YEARS.  Symbol is value of PLTCL.
+                                        Plot of _CLUSURV*YEARS.  Symbol is value of PLTCL.
+
+             |
+         1.0 +
+             |  S                s                s
+             |  S                s                s
+             |  S                s                ss
+             |  SS                s                vs
+             |  TS                s                 sss
+             |  WSS                ss                 wwsssvv
+             |   WSSS                ws                   wwsssvvvvvvvvvvvv
+         0.9 +    WWSSTTT                 ss                      wssswww      vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |     WWSSSTTTTTTTTT                 wsss                         sssswwwwwwwwwww                                vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |       WWSSSS     TTTTTTTTTTTTTTTTTTTTT                  wvssv                            ssss       wwwwwwwwwwwwwwwwwwww
+             |            SSSWWWWWW                  TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT                   wwsssvvvv                               sssss                       wwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |               SSS  WWWWWWWWWWWWWW                                                    TTTTTTTTTTTTTTTTTTTTTT                    wwwsss vvvvvvvvvv                                   ssss                                                  wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |                 SSSS            WWWWWWWWWWWWWWWWWWWW                       wwwsss       vvvvvvvvvvvvvvvvvv                                       ssss
+             |                    SSSS                             WWWWWWWWWWWWWWWWWWWWWWWWWWWW                            ssswwwww                 vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                           ssss
+             |                        SSSS                                                    WWWWWWWWWWWWWWWWWWWWWWWWWWWW                               sss wwwwwwwwwwww                                       vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                               sssss
+         0.8 +                           SSSS                                 ssss         wwwwwwwwwwwwwwwww                                                   sssss
+             |                              SSSS                                    sss                        wwwwwwwwwwwwwwwwwwwwwww                                                       ssssss
+             |                                 SSSSS                                      ssss                                           wwwwwwwwwwwwwwwwwwwwwwwwwwww                                                            sssss
+             |                                     SSSS                                         ssss                                                                    wwwwwwwww                                                                 sssss
+             |                                         SSSS                                            ssss                                                                      ssssss
+             |                                            SSSSS                                               ssss                                                                           ssssss
+             |                                                SSSSS                                                  ssss                                                                                ssssss
+             |                                                    SSSSS                                                     ssss                                                                                      ssssss
+         0.7 +                                                        SSSSS                                                        ssss                                                                                            ssssss
+             |                                                             SSSS                                                           ssss                                                                                                 ssssss
+             |                                                                 SSSS                                                              ssss                                                                                                       ssssss
+             |                                                                     SSSSS                                                                  sss                                                                                                             ssssss
+             |                                                                         SSSSS                                                                     ssss                                                                                                                   sssssss
+       P     |                                                                              SSSSS                                                                        ssss
+       r     |                                                                                   SSSSS                                                                            ssss
+       o     |                                                                                       SSSSS                                                                               ssss
+       b 0.6 +                                                                                            SSSSS                                                                                   ssss
+       a     |                                                                                                 SSSSS                                                                                       sss
+       b     |                                                                                                      SSSSS                                                                                          sssss
+       i     |                                                                                                           S                                                                                              ssss
+       l     |                                                                                                  ssss
+       i     |                                                                                                      sssss
+       t     |                                                                                                          sssss
+       y     |                                                                                                               sss
+         0.5 +                                                                                                                  sssss
+       o     |                                                                                                                       sss
+       f     |
+             |
+       S     |
+       u     |
+       r     |
+       v     |
+       i 0.4 +
+       v     |
+       a     |
+       l     |
+             |
+             |
+             |
+             |
+         0.3 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.2 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.1 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.0 +
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+                0              1              2              3              4              5              6              7
+
+                                                                  YEARS
+
+NOTE: 8185 obs hidden.                                                                                                              
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994   4
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+-------------------------------------------------------------- PLOT=5 --------------------------------------------------------------
+
+                                        Plot of _SURVIV*YEARS.   Symbol is value of PLTCHR.
+                                        Plot of _CLLSURV*YEARS.  Symbol is value of PLTCL.
+                                        Plot of _CLUSURV*YEARS.  Symbol is value of PLTCL.
+
+             |
+         1.0 +  W                w
+             |  S                s                sw
+             |  SW                s                swwwwwwwww
+             |  SWWWWWWW                sw                ss       wwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |  SS     WWWWWWWWWWWWWWWWW                swww                vs                                   wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |  VS                     WWWWWWWWWWWWWWWWWWWWWWWWWWWWW                s  wwwwwww                 sss                                                                                 wwwwwwwwwwwwwwwwwwwww
+             |   SS                                                 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW                ss       wwwwwwwwwwwwwww                   sssvvvv
+             |    SSS                                                                                   WWWWWWWWWWWWWWWWWW                 s                      wwwwwwwwwwwwwwwwwwwwww                     sss vvvvvvvvvvvvvvv
+         0.9 +      SSVVV                 ss                                          wwwwwwwwwwwwwwwwwwwwwwwwww                       sss              vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |       SSSVVVVVVVVVVV                  sss                                                                  wwwwwwwwwwwwwwwwwwwwwwwwww                         ssss                                                          vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |         SSSS       VVVVVVVVVVVVVVVVVVVVVVV                   vssv                                                                                          wwwwwwwww                            ssss
+             |            SSS                            VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                     sssvvvv                               sssss
+             |               SSS                                                                                VVVVVVVVVV                       sss vvvvvvvvvv                                   ssss
+             |                 SSSS                          sss       vvvvvvvvvvvvvvvvvv                                       ssss
+             |                    SSSS                            sss                       vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                           ssss
+             |                        SSSS                               sss                                                     vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                               sssss
+         0.8 +                           SSSS                                 ssss                                                   sssss
+             |                              SSSS                                    sss                                                       ssssss
+             |                                 SSSSS                                      ssss                                                            sssss
+             |                                     SSSS                                         ssss                                                                 sssss
+             |                                         SSSS                                            ssss                                                                      ssssss
+             |                                            SSSSS                                               ssss                                                                           ssssss
+             |                                                SSSSS                                                  ssss                                                                                ssssss
+             |                                                    SSSSS                                                     ssss                                                                                      ssssss
+         0.7 +                                                        SSSSS                                                        ssss                                                                                            ssssss
+             |                                                             SSSS                                                           ssss                                                                                                 ssssss
+             |                                                                 SSSS                                                              ssss                                                                                                       ssssss
+             |                                                                     SSSSS                                                                  sss                                                                                                             ssssss
+             |                                                                         SSSSS                                                                     ssss                                                                                                                   sssssss
+       P     |                                                                              SSSSS                                                                        ssss
+       r     |                                                                                   SSSSS                                                                            ssss
+       o     |                                                                                       SSSSS                                                                               ssss
+       b 0.6 +                                                                                            SSSSS                                                                                   ssss
+       a     |                                                                                                 SSSSS                                                                                       sss
+       b     |                                                                                                      SSSSS                                                                                          sssss
+       i     |                                                                                                           S                                                                                              ssss
+       l     |                                                                                                  ssss
+       i     |                                                                                                      sssss
+       t     |                                                                                                          sssss
+       y     |                                                                                                               sss
+         0.5 +                                                                                                                  sssss
+       o     |                                                                                                                       sss
+       f     |
+             |
+       S     |
+       u     |
+       r     |
+       v     |
+       i 0.4 +
+       v     |
+       a     |
+       l     |
+             |
+             |
+             |
+             |
+         0.3 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.2 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.1 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.0 +
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+                0              1              2              3              4              5              6              7
+
+                                                                  YEARS
+
+NOTE: 8169 obs hidden.                                                                                                              
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994   5
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+-------------------------------------------------------------- PLOT=6 --------------------------------------------------------------
+
+                                        Plot of _SURVIV*YEARS.   Symbol is value of PLTCHR.
+                                        Plot of _CLLSURV*YEARS.  Symbol is value of PLTCL.
+                                        Plot of _CLUSURV*YEARS.  Symbol is value of PLTCL.
+
+             |
+         1.0 +
+             |  S                s                s
+             |  S                s                s
+             |  S                s                ss
+             |  SS                s                vs
+             |  TS                s                 sss
+             |  WSS                ss                 wwsssvvvv
+             |   WSSS                vs                   wwsss vvvvvvvvvvvvvvvvv
+         0.9 +    WWSSTTT                wss                       ssswwwww           vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |     WWSSSTTTTTTTTT                 wsss                         ssss wwwwwwwwwwwwwww                                                 vvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |       WWSSSS     TTTTTTTTTTTTTTTTTTTTT                 wwvss                            ssss            wwwwwwwwwwwwwwwwwwwwwwww
+             |            SSSWWWWWW                  TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT                  ww sssvv                               sssss                               wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |               SSS  WWWWWWWWWWWWWW                                                    TTTTTTTTTTTTTTTTTTTTTT                    wwwsssvvvvvv                                   ssss                                                              wwwwwwwwwwwwwwwwwwwww
+             |                 SSSS            WWWWWWWWWWWWWWWWWWWW                      wwwwsss  vvvvvvvvvvvvvv                                       ssss
+             |                    SSSS                             WWWWWWWWWWWWWWWWWWWWWWWWWWWW                         wwwsssw            vvvvvvvvvvvvvvvvvvvvvvvvv                                           ssss
+             |                        SSSS                                                    WWWWWWWWWWWWWWWWWWWWWWWWWWWW                               ssswwwwwww                            vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                               sssss
+         0.8 +                           SSSS                                 ssss    wwwwwwwwwwwwww                                                            vvvvvvv                                                   sssss
+             |                              SSSS                                    sss                wwwwwwwwwwwwwwwwwwww                                                       ssssss
+             |                                 SSSSS                                      ssss                                 wwwwwwwwwwwwwwwwwwwwwwwwww                                                            sssss
+             |                                     SSSS                                         ssss                                                        wwwwwwwwwwwwwwwwwwwww                                                                 sssss
+             |                                         SSSS                                            ssss                                                                      ssssss
+             |                                            SSSSS                                               ssss                                                                           ssssss
+             |                                                SSSSS                                                  ssss                                                                                ssssss
+             |                                                    SSSSS                                                     ssss                                                                                      ssssss
+         0.7 +                                                        SSSSS                                                        ssss                                                                                            ssssss
+             |                                                             SSSS                                                           ssss                                                                                                 ssssss
+             |                                                                 SSSS                                                              ssss                                                                                                       ssssss
+             |                                                                     SSSSS                                                                  sss                                                                                                             ssssss
+             |                                                                         SSSSS                                                                     ssss                                                                                                                   sssssss
+       P     |                                                                              SSSSS                                                                        ssss
+       r     |                                                                                   SSSSS                                                                            ssss
+       o     |                                                                                       SSSSS                                                                               ssss
+       b 0.6 +                                                                                            SSSSS                                                                                   ssss
+       a     |                                                                                                 SSSSS                                                                                       sss
+       b     |                                                                                                      SSSSS                                                                                          sssss
+       i     |                                                                                                           S                                                                                              ssss
+       l     |                                                                                                  ssss
+       i     |                                                                                                      sssss
+       t     |                                                                                                          sssss
+       y     |                                                                                                               sss
+         0.5 +                                                                                                                  sssss
+       o     |                                                                                                                       sss
+       f     |
+             |
+       S     |
+       u     |
+       r     |
+       v     |
+       i 0.4 +
+       v     |
+       a     |
+       l     |
+             |
+             |
+             |
+             |
+         0.3 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.2 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.1 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.0 +
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+                0              1              2              3              4              5              6              7
+
+                                                                  YEARS
+
+NOTE: 8185 obs hidden.                                                                                                              
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994   6
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+-------------------------------------------------------------- PLOT=7 --------------------------------------------------------------
+
+                                        Plot of _SURVIV*YEARS.   Symbol is value of PLTCHR.
+                                        Plot of _CLLSURV*YEARS.  Symbol is value of PLTCL.
+                                        Plot of _CLUSURV*YEARS.  Symbol is value of PLTCL.
+
+             |
+         1.0 +  W                w
+             |  S                s                sw
+             |  SW                s                swwwwwwww
+             |  SWWWWWWW                sw                ss      wwwwwwwwwwwwwwwwwwwwwwwwww
+             |  SS     WWWWWWWWWWWWWWWWW                swwww                 sv                               wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |  VS                     WWWWWWWWWWWWWWWWWWWWWWWWWWWWW                s   wwwwwwww                 sssvv                                                                           wwwwwwwwwwwwwwwwwwwwwwwww
+             |   SS                                                 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW                ss         wwwwwwwwwwwwwwwww                   sssvvvvvvvvvvv
+             |    SSS                                                                                   WWWWWWWWWWWWWWWWWW                vs                         wwwwwwwwwwwwwwwwwwwwwww                     sss        vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+         0.9 +      SSVVV                 ss                                              wwwwwwwwwwwwwwwwwwwwwwwww                       sss                                        vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |       SSSVVVVVVVVVVV                 vsss                                                                     wwwwwwwwwwwwwwwwwwwwwwwww                         ssss
+             |         SSSS       VVVVVVVVVVVVVVVVVVVVVVV                  vvss                                                                                             wwwwwww                            ssss
+             |            SSS                            VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                    vsss                               sssss
+             |               SSS                                                                                VVVVVVVVVV                      vsssvv                                   ssss
+             |                 SSSS                          sssvvvvvvv                                       ssss
+             |                    SSSS                            sss    vvvvvvvvvvvvvvvv                                           ssss
+             |                        SSSS                               sss                vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                               sssss
+         0.8 +                           SSSS                                 ssss                                          vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                                   sssss
+             |                              SSSS                                    sss                                                       ssssss
+             |                                 SSSSS                                      ssss                                                            sssss
+             |                                     SSSS                                         ssss                                                                 sssss
+             |                                         SSSS                                            ssss                                                                      ssssss
+             |                                            SSSSS                                               ssss                                                                           ssssss
+             |                                                SSSSS                                                  ssss                                                                                ssssss
+             |                                                    SSSSS                                                     ssss                                                                                      ssssss
+         0.7 +                                                        SSSSS                                                        ssss                                                                                            ssssss
+             |                                                             SSSS                                                           ssss                                                                                                 ssssss
+             |                                                                 SSSS                                                              ssss                                                                                                       ssssss
+             |                                                                     SSSSS                                                                  sss                                                                                                             ssssss
+             |                                                                         SSSSS                                                                     ssss                                                                                                                   sssssss
+       P     |                                                                              SSSSS                                                                        ssss
+       r     |                                                                                   SSSSS                                                                            ssss
+       o     |                                                                                       SSSSS                                                                               ssss
+       b 0.6 +                                                                                            SSSSS                                                                                   ssss
+       a     |                                                                                                 SSSSS                                                                                       sss
+       b     |                                                                                                      SSSSS                                                                                          sssss
+       i     |                                                                                                           S                                                                                              ssss
+       l     |                                                                                                  ssss
+       i     |                                                                                                      sssss
+       t     |                                                                                                          sssss
+       y     |                                                                                                               sss
+         0.5 +                                                                                                                  sssss
+       o     |                                                                                                                       sss
+       f     |
+             |
+       S     |
+       u     |
+       r     |
+       v     |
+       i 0.4 +
+       v     |
+       a     |
+       l     |
+             |
+             |
+             |
+             |
+         0.3 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.2 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.1 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.0 +
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+                0              1              2              3              4              5              6              7
+
+                                                                  YEARS
+
+NOTE: 8166 obs hidden.                                                                                                              
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994   7
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+-------------------------------------------------------------- PLOT=8 --------------------------------------------------------------
+
+                                        Plot of _SURVIV*YEARS.   Symbol is value of PLTCHR.
+                                        Plot of _CLLSURV*YEARS.  Symbol is value of PLTCL.
+                                        Plot of _CLUSURV*YEARS.  Symbol is value of PLTCL.
+
+             |
+         1.0 +
+             |  S                s                s
+             |  S                s                s
+             |  S                s                ss
+             |  SS                s                wsvv
+             |  TS                s                 sssvvvvvvv
+             |  WSS                ss                  wsss    vvvvvvvvvvvvvvvvvvvvvvvvv
+             |   WSSS                vs                     ssswww                       vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+         0.9 +    WWSSTTT                vss                       ssswwwwwwwwwwwww
+             |     WWSSSTTTTTTTTT                 vsss                         ssss         wwwwwwwwwwwwwwwwwwwww
+             |       WWSSSS     TTTTTTTTTTTTTTTTTTTTT                 vv ss                            ssss                          wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |            SSSWWWWWW                  TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT                 wvv sss                               sssss                                                     wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |               SSS  WWWWWWWWWWWWWW                                                    TTTTTTTTTTTTTTTTTTTTTT                  wvvv sss                                   ssss
+             |                 SSSS            WWWWWWWWWWWWWWWWWWWW                    wvvvv sss                                       ssss
+             |                    SSSS                             WWWWWWWWWWWWWWWWWWWWWWWWWWWW                      wwvvvvsss                                           ssss
+             |                        SSSS                                                    WWWWWWWWWWWWWWWWWWWWWWWWWWWW                          wwwwvsssvvvvvv                                               sssss
+         0.8 +                           SSSS                               wwsssswwwvvvvvvvvvvvvvvvvv                                                   sssss
+             |                              SSSS                                    sss wwwwwwwwwwwwwww  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                                       ssssss
+             |                                 SSSSS                                      ssss            wwwwwwwwwwwwwwwwwww              vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                                            sssss
+             |                                     SSSS                                         ssss                            wwwwwwwwwwwwwwwwwwwwwwwww                                                                 sssss
+             |                                         SSSS                                            ssss                                                  wwwwwwwwwwwwwwwwwwwwwwww                                                                      ssssss
+             |                                            SSSSS                                               ssss                                                                           ssssss
+             |                                                SSSSS                                                  ssss                                                                                ssssss
+             |                                                    SSSSS                                                     ssss                                                                                      ssssss
+         0.7 +                                                        SSSSS                                                        ssss                                                                                            ssssss
+             |                                                             SSSS                                                           ssss                                                                                                 ssssss
+             |                                                                 SSSS                                                              ssss                                                                                                       ssssss
+             |                                                                     SSSSS                                                                  sss                                                                                                             ssssss
+             |                                                                         SSSSS                                                                     ssss                                                                                                                   sssssss
+       P     |                                                                              SSSSS                                                                        ssss
+       r     |                                                                                   SSSSS                                                                            ssss
+       o     |                                                                                       SSSSS                                                                               ssss
+       b 0.6 +                                                                                            SSSSS                                                                                   ssss
+       a     |                                                                                                 SSSSS                                                                                       sss
+       b     |                                                                                                      SSSSS                                                                                          sssss
+       i     |                                                                                                           S                                                                                              ssss
+       l     |                                                                                                  ssss
+       i     |                                                                                                      sssss
+       t     |                                                                                                          sssss
+       y     |                                                                                                               sss
+         0.5 +                                                                                                                  sssss
+       o     |                                                                                                                       sss
+       f     |
+             |
+       S     |
+       u     |
+       r     |
+       v     |
+       i 0.4 +
+       v     |
+       a     |
+       l     |
+             |
+             |
+             |
+             |
+         0.3 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.2 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.1 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.0 +
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+                0              1              2              3              4              5              6              7
+
+                                                                  YEARS
+
+NOTE: 8184 obs hidden.                                                                                                              
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994   8
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+-------------------------------------------------------------- PLOT=9 --------------------------------------------------------------
+
+                                        Plot of _SURVIV*YEARS.   Symbol is value of PLTCHR.
+                                        Plot of _CLLSURV*YEARS.  Symbol is value of PLTCL.
+                                        Plot of _CLUSURV*YEARS.  Symbol is value of PLTCL.
+
+             |
+         1.0 +  W                w
+             |  S                s                sw
+             |  SW                s                swwwwwwwwwww
+             |  SWWWWWWW                sw                ss         wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |  SS     WWWWWWWWWWWWWWWWW                swww                 svvvv                                     wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |  VS                     WWWWWWWWWWWWWWWWWWWWWWWWWWWWW                s  wwwww                 sss vvvvvvvvvvvvvvvv                                                                          wwwwwwwwwww
+             |   SS                                                 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW                ss     wwwwwwwwwwwww                   sss              vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+             |    SSS                                                                                   WWWWWWWWWWWWWWWWWW                vs                 wwwwwwwwwwwwwwwwwwww                     sss                                                                           vvvvvvvvvvvvvvvvvvvvvvv
+         0.9 +      SSVVV                vss                                   wwwwwwwwwwwwwwwwwwwwwwwww                       sss
+             |       SSSVVVVVVVVVVV                 vsss                                                          wwwwwwwwwwwwwwwwwwwwwwwww                         ssss
+             |         SSSS       VVVVVVVVVVVVVVVVVVVVVVV                 v  ss                                                                                  wwwwwwwwwwwwwwwwww                            ssss
+             |            SSS                            VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV                 vv  sss                               sssss
+             |               SSS                                                                                VVVVVVVVVV                  vv   sss                                   ssss
+             |                 SSSS                   vvv    sss                                       ssss
+             |                    SSSS                     vvvvv  sss                                           ssss
+             |                        SSSS                         vvvvvvsss                                               sssss
+         0.8 +                           SSSS                              vvvssssvvv                                                   sssss
+             |                              SSSS                                    sssvvvvvvvvvvvvvvvvv                                                       ssssss
+             |                                 SSSSS                                      ssss             vvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                                            sssss
+             |                                     SSSS                                         ssss                                      vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv                                                                 sssss
+             |                                         SSSS                                            ssss                                                                      ssssss
+             |                                            SSSSS                                               ssss                                                                           ssssss
+             |                                                SSSSS                                                  ssss                                                                                ssssss
+             |                                                    SSSSS                                                     ssss                                                                                      ssssss
+         0.7 +                                                        SSSSS                                                        ssss                                                                                            ssssss
+             |                                                             SSSS                                                           ssss                                                                                                 ssssss
+             |                                                                 SSSS                                                              ssss                                                                                                       ssssss
+             |                                                                     SSSSS                                                                  sss                                                                                                             ssssss
+             |                                                                         SSSSS                                                                     ssss                                                                                                                   sssssss
+       P     |                                                                              SSSSS                                                                        ssss
+       r     |                                                                                   SSSSS                                                                            ssss
+       o     |                                                                                       SSSSS                                                                               ssss
+       b 0.6 +                                                                                            SSSSS                                                                                   ssss
+       a     |                                                                                                 SSSSS                                                                                       sss
+       b     |                                                                                                      SSSSS                                                                                          sssss
+       i     |                                                                                                           S                                                                                              ssss
+       l     |                                                                                                  ssss
+       i     |                                                                                                      sssss
+       t     |                                                                                                          sssss
+       y     |                                                                                                               sss
+         0.5 +                                                                                                                  sssss
+       o     |                                                                                                                       sss
+       f     |
+             |
+       S     |
+       u     |
+       r     |
+       v     |
+       i 0.4 +
+       v     |
+       a     |
+       l     |
+             |
+             |
+             |
+             |
+         0.3 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.2 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.1 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.0 +
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+                0              1              2              3              4              5              6              7
+
+                                                                  YEARS
+
+NOTE: 8156 obs hidden.                                                                                                              
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994   9
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+------------------------------------------------------------- PLOT=10 --------------------------------------------------------------
+
+                                        Plot of _SURVIV*YEARS.   Symbol is value of PLTCHR.
+                                        Plot of _CLLSURV*YEARS.  Symbol is value of PLTCL.
+                                        Plot of _CLUSURV*YEARS.  Symbol is value of PLTCL.
+
+             |
+         1.0 +
+             |  S                s                s
+             |  S                s                s
+             |  S                s                ss
+             |  SS                s                ws
+             |  WS                s                 sss
+             |  WSS                ss                   ssswww
+             |   WSSS                ws                     ssswwwwwwwwwww
+         0.9 +    WWSS                wss                       sss        wwwwwwwwwwwwwwwwwwww
+             |     WWSSS                wwsss                         ssss                         wwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |       WWSSSS                 w  ss                            ssss                                                    wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+             |            SSSWWWWWW                 w   sss                               sssss
+             |               SSS  WWWWWWWWWWWWWW                  w    sss                                   ssss
+             |                 SSSS            WWWWWWWWWWWWWWWWWWWW                  www     sss                                       ssss
+             |                    SSSS                             WWWWWWWWWWWWWWWWWWWWWWWWWWWW                    ww      sss                                           ssss
+             |                        SSSS                                                    WWWWWWWWWWWWWWWWWWWWWWWWWWWW                      www      sss                                               sssss
+         0.8 +                           SSSS                         wwwww   ssss                                                   sssss
+             |                              SSSS                             wwwwwwwsss                                                       ssssss
+             |                                 SSSSS                                     wsssswwwwww                                                            sssss
+             |                                     SSSS                                         ssss   wwwwwwwwwwwwwwwww                                                                 sssss
+             |                                         SSSS                                            ssss                wwwwwwwwwwwwwwwwwwwwww                                                                      ssssss
+             |                                            SSSSS                                               ssss                                   wwwwwwwwwwwwwwwwwwwwwwwwwwww                                                                           ssssss
+             |                                                SSSSS                                                  ssss                                                           wwwwwwwww                                                                                ssssss
+             |                                                    SSSSS                                                     ssss                                                                                      ssssss
+         0.7 +                                                        SSSSS                                                        ssss                                                                                            ssssss
+             |                                                             SSSS                                                           ssss                                                                                                 ssssss
+             |                                                                 SSSS                                                              ssss                                                                                                       ssssss
+             |                                                                     SSSSS                                                                  sss                                                                                                             ssssss
+             |                                                                         SSSSS                                                                     ssss                                                                                                                   sssssss
+       P     |                                                                              SSSSS                                                                        ssss
+       r     |                                                                                   SSSSS                                                                            ssss
+       o     |                                                                                       SSSSS                                                                               ssss
+       b 0.6 +                                                                                            SSSSS                                                                                   ssss
+       a     |                                                                                                 SSSSS                                                                                       sss
+       b     |                                                                                                      SSSSS                                                                                          sssss
+       i     |                                                                                                           S                                                                                              ssss
+       l     |                                                                                                  ssss
+       i     |                                                                                                      sssss
+       t     |                                                                                                          sssss
+       y     |                                                                                                               sss
+         0.5 +                                                                                                                  sssss
+       o     |                                                                                                                       sss
+       f     |
+             |
+       S     |
+       u     |
+       r     |
+       v     |
+       i 0.4 +
+       v     |
+       a     |
+       l     |
+             |
+             |
+             |
+             |
+         0.3 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.2 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.1 +
+             |
+             |
+             |
+             |
+             |
+             |
+             |
+         0.0 +
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+                0              1              2              3              4              5              6              7
+
+                                                                  YEARS
+
+NOTE: 5424 obs hidden.                                                                                                              
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994  10
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+--------------------------------------------- PLOT=3 DECISION=Shunt Alone ZMTVECHO=-1 ----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+   1    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.97755   0.96919   0.98368
+   2    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.97026   0.95977   0.97808
+   3    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.96547   0.95364   0.97436
+   4    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.96184   0.94902   0.97153
+   5    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.95889   0.94529   0.96921
+   6    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.95639   0.94215   0.96724
+   7    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.95421   0.93943   0.96552
+   8    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.94367   0.92644   0.95705
+   9    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.93029   0.91044   0.94601
+  10    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.93002   0.91011   0.94578
+  11    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.91521   0.89309   0.93310
+  12    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.90466   0.88132   0.92381
+  13    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.88105   0.85549   0.90260
+  14   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.84507   0.81576   0.87046
+  15   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.78622   0.74756   0.82039
+  16   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.73485   0.68597   0.77858
+  17   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.68811   0.62961   0.74116
+  18   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.64498   0.57800   0.70672
+  19   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.60493   0.53075   0.67458
+  20   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.56762   0.48747   0.64437
+
+
+--------------------------------------------- PLOT=3 DECISION=Valvot Alone ZMTVECHO=-1 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+  21    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.97439   0.96501   0.98130
+  22    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.96621   0.95443   0.97503
+  23    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.96090   0.94761   0.97093
+  24    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.95693   0.94252   0.96785
+  25    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.95373   0.93844   0.96537
+  26    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.95106   0.93503   0.96328
+  27    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.94875   0.93210   0.96148
+  28    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.93796   0.91847   0.95303
+  29    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.92553   0.90287   0.94324
+  30    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.92529   0.90257   0.94305
+  31    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.91372   0.88810   0.93392
+  32    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.90694   0.87961   0.92856
+  33    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.89543   0.86519   0.91952
+  34   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.88419   0.85099   0.91077
+  35   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.87332   0.83712   0.90242
+  36   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.86717   0.82920   0.89775
+  37   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.86290   0.82366   0.89453
+  38   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.85965   0.81941   0.89210
+  39   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.85702   0.81597   0.89014
+  40   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -1   110   0.85481   0.81309   0.88850
+
+
+--------------------------------------------- PLOT=3 DECISION=Valvot+Shunt ZMTVECHO=-1 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+  41    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.98983   0.98287   0.99398
+  42    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.98654   0.97760   0.99194
+  43    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.98439   0.97419   0.99060
+  44    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.98277   0.97163   0.98959
+  45    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.98147   0.96958   0.98877
+  46    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.98037   0.96786   0.98808
+  47    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.97943   0.96637   0.98748
+  48    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.97495   0.95942   0.98463
+  49    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.96967   0.95134   0.98123
+  50    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.96956   0.95119   0.98116
+  51    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.96444   0.94353   0.97779
+  52    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.96128   0.93892   0.97567
+  53    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.95548   0.93073   0.97165
+  54   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.94877   0.92182   0.96677
+  55   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.94028   0.91106   0.96031
+  56   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.93380   0.90284   0.95538
+  57   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.92814   0.89540   0.95120
+  58   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.92294   0.88822   0.94751
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994  11
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+--------------------------------------------- PLOT=3 DECISION=Valvot+Shunt ZMTVECHO=-1 ---------------------------------------------
+                                                            (continued)
+
+                      W            T                       S           T   S            Z                      _         _
+                      T    R       V                       H       T   A   H   P        M            _         C         C
+             M        _    V   N   I               A       A       A   P   N   V        T            S         L         L
+             O   Y    B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+             N   E    I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+       O     T   A    R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+       B     H   R    T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+       S     S   S    H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+       59   72   6   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.91803   0.88114   0.94419
+       60   84   7   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -1   110   0.91332   0.87406   0.94116
+
+
+--------------------------------------------- PLOT=4 DECISION=Shunt Alone ZMTVECHO=-1 ----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+  61    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.97755   0.96919   0.98368
+  62    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.97026   0.95977   0.97808
+  63    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.96547   0.95364   0.97436
+  64    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.96184   0.94902   0.97153
+  65    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.95889   0.94529   0.96921
+  66    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.95639   0.94215   0.96724
+  67    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.95421   0.93943   0.96552
+  68    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.94367   0.92644   0.95705
+  69    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.93029   0.91044   0.94601
+  70    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.93002   0.91011   0.94578
+  71    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.91521   0.89309   0.93310
+  72    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.90466   0.88132   0.92381
+  73    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.88105   0.85549   0.90260
+  74   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.84507   0.81576   0.87046
+  75   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.78622   0.74756   0.82039
+  76   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.73485   0.68597   0.77858
+  77   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.68811   0.62961   0.74116
+  78   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.64498   0.57800   0.70672
+  79   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.60493   0.53075   0.67458
+  80   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -1   110   0.56762   0.48747   0.64437
+
+
+--------------------------------------------- PLOT=4 DECISION=TAP + Shunt ZMTVECHO=-1 ----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+  81    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.96940   0.95867   0.97742
+  82    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.95967   0.94628   0.96982
+  83    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.95335   0.93831   0.96486
+  84    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.94862   0.93236   0.96113
+  85    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.94482   0.92761   0.95812
+  86    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.94164   0.92364   0.95559
+  87    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.93889   0.92023   0.95341
+  88    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.92607   0.90438   0.94314
+  89    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.91125   0.88626   0.93118
+  90    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.91097   0.88591   0.93095
+  91    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.89709   0.86907   0.91967
+  92    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.88886   0.85913   0.91295
+  93    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.87462   0.84202   0.90128
+  94   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.85999   0.82460   0.88921
+  95   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.84443   0.80633   0.87617
+  96   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.83441   0.79475   0.86768
+  97   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.82663   0.78580   0.86105
+  98   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.82004   0.77822   0.85544
+  99   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.81421   0.77146   0.85052
+ 100   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -1   110   0.80890   0.76524   0.84607
+
+
+---------------------------------------------- PLOT=4 DECISION=TAP Alone ZMTVECHO=-1 -----------------------------------------------
+
+                             W            T                       S           T   S            Z                      _         _
+                             T    R       V                       H       T   A   H   P        M            _         C         C
+          M                  _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O          Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N          E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+ O        T          A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+ B        H          R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+ S        S          S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+101   0.032855   .0027379   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.97403   0.96458   0.98101
+102   0.065710   .0054758   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.96575   0.95390   0.97463
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994  12
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+---------------------------------------------- PLOT=4 DECISION=TAP Alone ZMTVECHO=-1 -----------------------------------------------
+                                                            (continued)
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 103    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.96037   0.94701   0.97046
+ 104    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.95634   0.94187   0.96733
+ 105    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.95310   0.93775   0.96481
+ 106    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.95039   0.93431   0.96269
+ 107    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.94805   0.93135   0.96086
+ 108    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.93712   0.91759   0.95227
+ 109    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.92453   0.90183   0.94232
+ 110    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.92429   0.90153   0.94213
+ 111    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.91257   0.88691   0.93285
+ 112    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.90570   0.87833   0.92742
+ 113    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.89405   0.86375   0.91825
+ 114   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.88267   0.84938   0.90938
+ 115   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.87167   0.83535   0.90093
+ 116   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.86545   0.82732   0.89621
+ 117   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.86113   0.82172   0.89297
+ 118   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.85783   0.81742   0.89050
+ 119   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.85518   0.81393   0.88853
+ 120   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -1   110   0.85295   0.81101   0.88688
+
+
+--------------------------------------------- PLOT=5 DECISION=Shunt Alone ZMTVECHO=-2 ----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 121    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.97755   0.96919   0.98368
+ 122    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.97026   0.95977   0.97808
+ 123    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.96547   0.95364   0.97436
+ 124    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.96184   0.94902   0.97153
+ 125    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.95889   0.94529   0.96921
+ 126    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.95639   0.94215   0.96724
+ 127    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.95421   0.93943   0.96552
+ 128    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.94367   0.92644   0.95705
+ 129    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.93029   0.91044   0.94601
+ 130    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.93002   0.91011   0.94578
+ 131    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.91521   0.89309   0.93310
+ 132    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.90466   0.88132   0.92381
+ 133    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.88105   0.85549   0.90260
+ 134   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.84507   0.81576   0.87046
+ 135   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.78622   0.74756   0.82039
+ 136   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.73485   0.68597   0.77858
+ 137   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.68811   0.62961   0.74116
+ 138   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.64498   0.57800   0.70672
+ 139   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.60493   0.53075   0.67458
+ 140   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.56762   0.48747   0.64437
+
+
+--------------------------------------------- PLOT=5 DECISION=Valvot Alone ZMTVECHO=-2 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 141    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.97439   0.96484   0.98139
+ 142    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.96621   0.95412   0.97520
+ 143    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.96090   0.94719   0.97116
+ 144    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.95693   0.94203   0.96813
+ 145    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.95373   0.93789   0.96568
+ 146    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.95106   0.93443   0.96363
+ 147    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.94875   0.93146   0.96186
+ 148    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.93796   0.91763   0.95353
+ 149    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.92553   0.90181   0.94388
+ 150    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.92529   0.90151   0.94369
+ 151    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.91372   0.88687   0.93467
+ 152    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.90694   0.87830   0.92938
+ 153    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.89543   0.86375   0.92043
+ 154   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.88419   0.84946   0.91174
+ 155   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.87332   0.83554   0.90343
+ 156   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.86717   0.82760   0.89877
+ 157   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.86290   0.82206   0.89556
+ 158   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.85965   0.81781   0.89313
+ 159   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.85702   0.81438   0.89117
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994  13
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+--------------------------------------------- PLOT=5 DECISION=Valvot Alone ZMTVECHO=-2 ---------------------------------------------
+                                                            (continued)
+
+                      W            T                       S           T   S            Z                      _         _
+                      T    R       V                       H       T   A   H   P        M            _         C         C
+             M        _    V   N   I               A       A       A   P   N   V        T            S         L         L
+             O   Y    B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+             N   E    I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+       O     T   A    R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+       B     H   R    T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+       S     S   S    H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+      160   84   7   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -2   110   0.85481   0.81150   0.88953
+
+
+--------------------------------------------- PLOT=5 DECISION=Valvot+Shunt ZMTVECHO=-2 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 161    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.98983   0.98371   0.99366
+ 162    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.98654   0.97870   0.99152
+ 163    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.98439   0.97544   0.99011
+ 164    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.98277   0.97301   0.98905
+ 165    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.98147   0.97105   0.98818
+ 166    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.98037   0.96941   0.98746
+ 167    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.97943   0.96800   0.98683
+ 168    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.97495   0.96137   0.98384
+ 169    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.96967   0.95367   0.98026
+ 170    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.96956   0.95352   0.98018
+ 171    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.96444   0.94621   0.97665
+ 172    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.96128   0.94180   0.97442
+ 173    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.95548   0.93393   0.97022
+ 174   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.94877   0.92527   0.96516
+ 175   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.94028   0.91464   0.95856
+ 176   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.93380   0.90638   0.95360
+ 177   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.92814   0.89881   0.94945
+ 178   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.92294   0.89148   0.94583
+ 179   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.91803   0.88422   0.94261
+ 180   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -2   110   0.91332   0.87696   0.93967
+
+
+--------------------------------------------- PLOT=6 DECISION=Shunt Alone ZMTVECHO=-2 ----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 181    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.97755   0.96919   0.98368
+ 182    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.97026   0.95977   0.97808
+ 183    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.96547   0.95364   0.97436
+ 184    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.96184   0.94902   0.97153
+ 185    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.95889   0.94529   0.96921
+ 186    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.95639   0.94215   0.96724
+ 187    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.95421   0.93943   0.96552
+ 188    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.94367   0.92644   0.95705
+ 189    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.93029   0.91044   0.94601
+ 190    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.93002   0.91011   0.94578
+ 191    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.91521   0.89309   0.93310
+ 192    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.90466   0.88132   0.92381
+ 193    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.88105   0.85549   0.90260
+ 194   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.84507   0.81576   0.87046
+ 195   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.78622   0.74756   0.82039
+ 196   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.73485   0.68597   0.77858
+ 197   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.68811   0.62961   0.74116
+ 198   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.64498   0.57800   0.70672
+ 199   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.60493   0.53075   0.67458
+ 200   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -2   110   0.56762   0.48747   0.64437
+
+
+--------------------------------------------- PLOT=6 DECISION=TAP + Shunt ZMTVECHO=-2 ----------------------------------------------
+
+                             W            T                       S           T   S            Z                      _         _
+                             T    R       V                       H       T   A   H   P        M            _         C         C
+          M                  _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O          Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N          E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+ O        T          A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+ B        H          R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+ S        S          S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+201   0.032855   .0027379   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.96940   0.95734   0.97814
+202   0.065710   .0054758   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.95967   0.94449   0.97082
+203   0.098565   .0082137   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.95335   0.93622   0.96604
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994  14
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+--------------------------------------------- PLOT=6 DECISION=TAP + Shunt ZMTVECHO=-2 ----------------------------------------------
+                                                            (continued)
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 204    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.94862   0.93007   0.96245
+ 205    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.94482   0.92514   0.95955
+ 206    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.94164   0.92103   0.95711
+ 207    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.93889   0.91750   0.95501
+ 208    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.92607   0.90110   0.94512
+ 209    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.91125   0.88238   0.93358
+ 210    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.91097   0.88202   0.93335
+ 211    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.89709   0.86467   0.92244
+ 212    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.88886   0.85445   0.91593
+ 213    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.87462   0.83693   0.90459
+ 214   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.85999   0.81921   0.89278
+ 215   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.84443   0.80079   0.87994
+ 216   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.83441   0.78921   0.87150
+ 217   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.82663   0.78030   0.86487
+ 218   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.82004   0.77280   0.85925
+ 219   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.81421   0.76613   0.85429
+ 220   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -2   110   0.80890   0.76001   0.84980
+
+
+---------------------------------------------- PLOT=6 DECISION=TAP Alone ZMTVECHO=-2 -----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 221    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.97403   0.96359   0.98154
+ 222    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.96575   0.95255   0.97537
+ 223    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.96037   0.94542   0.97135
+ 224    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.95634   0.94010   0.96832
+ 225    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.95310   0.93584   0.96589
+ 226    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.95039   0.93228   0.96384
+ 227    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.94805   0.92921   0.96208
+ 228    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.93712   0.91496   0.95380
+ 229    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.92453   0.89863   0.94422
+ 230    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.92429   0.89832   0.94404
+ 231    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.91257   0.88318   0.93511
+ 232    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.90570   0.87431   0.92988
+ 233    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.89405   0.85923   0.92105
+ 234   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.88267   0.84442   0.91248
+ 235   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.87167   0.82999   0.90431
+ 236   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.86545   0.82176   0.89973
+ 237   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.86113   0.81602   0.89658
+ 238   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.85783   0.81162   0.89419
+ 239   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.85518   0.80807   0.89226
+ 240   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -2   110   0.85295   0.80509   0.89065
+
+
+--------------------------------------------- PLOT=7 DECISION=Shunt Alone ZMTVECHO=-3 ----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 241    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.97755   0.96919   0.98368
+ 242    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.97026   0.95977   0.97808
+ 243    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.96547   0.95364   0.97436
+ 244    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.96184   0.94902   0.97153
+ 245    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.95889   0.94529   0.96921
+ 246    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.95639   0.94215   0.96724
+ 247    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.95421   0.93943   0.96552
+ 248    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.94367   0.92644   0.95705
+ 249    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.93029   0.91044   0.94601
+ 250    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.93002   0.91011   0.94578
+ 251    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.91521   0.89309   0.93310
+ 252    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.90466   0.88132   0.92381
+ 253    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.88105   0.85549   0.90260
+ 254   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.84507   0.81576   0.87046
+ 255   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.78622   0.74756   0.82039
+ 256   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.73485   0.68597   0.77858
+ 257   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.68811   0.62961   0.74116
+ 258   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.64498   0.57800   0.70672
+ 259   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.60493   0.53075   0.67458
+ 260   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.56762   0.48747   0.64437
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994  15
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+--------------------------------------------- PLOT=7 DECISION=Valvot Alone ZMTVECHO=-3 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 261    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.97439   0.96205   0.98279
+ 262    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.96621   0.95028   0.97716
+ 263    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.96090   0.94268   0.97350
+ 264    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.95693   0.93701   0.97074
+ 265    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.95373   0.93247   0.96852
+ 266    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.95106   0.92868   0.96666
+ 267    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.94875   0.92542   0.96506
+ 268    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.93796   0.91026   0.95751
+ 269    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.92553   0.89298   0.94875
+ 270    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.92529   0.89264   0.94858
+ 271    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.91372   0.87670   0.94039
+ 272    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.90694   0.86739   0.93557
+ 273    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.89543   0.85166   0.92739
+ 274   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.88419   0.83632   0.91941
+ 275   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.87332   0.82149   0.91172
+ 276   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.86717   0.81309   0.90739
+ 277   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.86290   0.80725   0.90439
+ 278   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.85965   0.80280   0.90210
+ 279   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.85702   0.79920   0.90026
+ 280   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -3   110   0.85481   0.79619   0.89872
+
+
+--------------------------------------------- PLOT=7 DECISION=Valvot+Shunt ZMTVECHO=-3 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 281    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.98983   0.98429   0.99342
+ 282    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.98654   0.97942   0.99121
+ 283    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.98439   0.97626   0.98976
+ 284    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.98277   0.97390   0.98867
+ 285    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.98147   0.97199   0.98778
+ 286    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.98037   0.97040   0.98703
+ 287    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.97943   0.96903   0.98638
+ 288    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.97495   0.96259   0.98330
+ 289    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.96967   0.95511   0.97960
+ 290    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.96956   0.95497   0.97953
+ 291    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.96444   0.94786   0.97588
+ 292    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.96128   0.94357   0.97359
+ 293    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.95548   0.93589   0.96928
+ 294   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.94877   0.92737   0.96412
+ 295   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.94028   0.91676   0.95746
+ 296   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.93380   0.90840   0.95252
+ 297   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.92814   0.90068   0.94844
+ 298   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.92294   0.89319   0.94492
+ 299   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.91803   0.88576   0.94178
+ 300   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -3   110   0.91332   0.87834   0.93894
+
+
+--------------------------------------------- PLOT=8 DECISION=Shunt Alone ZMTVECHO=-3 ----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 301    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.97755   0.96919   0.98368
+ 302    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.97026   0.95977   0.97808
+ 303    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.96547   0.95364   0.97436
+ 304    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.96184   0.94902   0.97153
+ 305    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.95889   0.94529   0.96921
+ 306    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.95639   0.94215   0.96724
+ 307    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.95421   0.93943   0.96552
+ 308    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.94367   0.92644   0.95705
+ 309    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.93029   0.91044   0.94601
+ 310    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.93002   0.91011   0.94578
+ 311    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.91521   0.89309   0.93310
+ 312    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.90466   0.88132   0.92381
+ 313    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.88105   0.85549   0.90260
+ 314   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.84507   0.81576   0.87046
+ 315   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.78622   0.74756   0.82039
+ 316   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.73485   0.68597   0.77858
+ 317   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.68811   0.62961   0.74116
+ 318   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.64498   0.57800   0.70672
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994  16
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+--------------------------------------------- PLOT=8 DECISION=Shunt Alone ZMTVECHO=-3 ----------------------------------------------
+                                                            (continued)
+
+                      W            T                       S           T   S            Z                      _         _
+                      T    R       V                       H       T   A   H   P        M            _         C         C
+             M        _    V   N   I               A       A       A   P   N   V        T            S         L         L
+             O   Y    B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+             N   E    I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+       O     T   A    R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+       B     H   R    T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+       S     S   S    H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+      319   72   6   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.60493   0.53075   0.67458
+      320   84   7   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -3   110   0.56762   0.48747   0.64437
+
+
+--------------------------------------------- PLOT=8 DECISION=TAP + Shunt ZMTVECHO=-3 ----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 321    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.96940   0.95432   0.97961
+ 322    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.95967   0.94048   0.97284
+ 323    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.95335   0.93159   0.96842
+ 324    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.94862   0.92496   0.96510
+ 325    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.94482   0.91966   0.96242
+ 326    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.94164   0.91524   0.96017
+ 327    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.93889   0.91145   0.95822
+ 328    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.92607   0.89384   0.94907
+ 329    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.91125   0.87378   0.93839
+ 330    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.91097   0.87339   0.93818
+ 331    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.89709   0.85487   0.92806
+ 332    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.88886   0.84401   0.92201
+ 333    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.87462   0.82547   0.91141
+ 334   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.85999   0.80690   0.90029
+ 335   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.84443   0.78783   0.88807
+ 336   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.83441   0.77599   0.87996
+ 337   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.82663   0.76696   0.87354
+ 338   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.82004   0.75938   0.86807
+ 339   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.81421   0.75267   0.86323
+ 340   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -3   110   0.80890   0.74651   0.85883
+
+
+---------------------------------------------- PLOT=8 DECISION=TAP Alone ZMTVECHO=-3 -----------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 341    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.97403   0.95716   0.98437
+ 342    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.96575   0.94402   0.97923
+ 343    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.96037   0.93555   0.97588
+ 344    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.95634   0.92923   0.97336
+ 345    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.95310   0.92417   0.97134
+ 346    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.95039   0.91994   0.96964
+ 347    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.94805   0.91630   0.96817
+ 348    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.93712   0.89941   0.96131
+ 349    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.92453   0.88013   0.95336
+ 350    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.92429   0.87976   0.95320
+ 351    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.91257   0.86197   0.94579
+ 352    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.90570   0.85159   0.94144
+ 353    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.89405   0.83406   0.93407
+ 354   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.88267   0.81699   0.92688
+ 355   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.87167   0.80053   0.91998
+ 356   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.86545   0.79123   0.91608
+ 357   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.86113   0.78478   0.91338
+ 358   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.85783   0.77987   0.91133
+ 359   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.85518   0.77591   0.90967
+ 360   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   1   1   0   0   0   0   -3   110   0.85295   0.77261   0.90828
+
+
+--------------------------------------------- PLOT=9 DECISION=Shunt Alone ZMTVECHO=-4 ----------------------------------------------
+
+                             W            T                       S           T   S            Z                      _         _
+                             T    R       V                       H       T   A   H   P        M            _         C         C
+          M                  _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O          Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N          E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+ O        T          A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+ B        H          R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+ S        S          S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+361   0.032855   .0027379   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.97755   0.96919   0.98368
+362   0.065710   .0054758   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.97026   0.95977   0.97808
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994  17
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+--------------------------------------------- PLOT=9 DECISION=Shunt Alone ZMTVECHO=-4 ----------------------------------------------
+                                                            (continued)
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 363    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.96547   0.95364   0.97436
+ 364    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.96184   0.94902   0.97153
+ 365    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.95889   0.94529   0.96921
+ 366    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.95639   0.94215   0.96724
+ 367    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.95421   0.93943   0.96552
+ 368    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.94367   0.92644   0.95705
+ 369    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.93029   0.91044   0.94601
+ 370    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.93002   0.91011   0.94578
+ 371    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.91521   0.89309   0.93310
+ 372    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.90466   0.88132   0.92381
+ 373    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.88105   0.85549   0.90260
+ 374   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.84507   0.81576   0.87046
+ 375   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.78622   0.74756   0.82039
+ 376   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.73485   0.68597   0.77858
+ 377   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.68811   0.62961   0.74116
+ 378   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.64498   0.57800   0.70672
+ 379   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.60493   0.53075   0.67458
+ 380   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.56762   0.48747   0.64437
+
+
+--------------------------------------------- PLOT=9 DECISION=Valvot Alone ZMTVECHO=-4 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 381    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.97439   0.95440   0.98574
+ 382    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.96621   0.94013   0.98116
+ 383    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.96090   0.93094   0.97817
+ 384    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.95693   0.92409   0.97593
+ 385    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.95373   0.91861   0.97413
+ 386    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.95106   0.91404   0.97261
+ 387    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.94875   0.91011   0.97130
+ 388    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.93796   0.89190   0.96516
+ 389    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.92553   0.87124   0.95803
+ 390    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.92529   0.87085   0.95790
+ 391    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.91372   0.85191   0.95121
+ 392    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.90694   0.84092   0.94728
+ 393    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.89543   0.82246   0.94058
+ 394   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.88419   0.80463   0.93400
+ 395   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.87332   0.78758   0.92764
+ 396   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.86717   0.77800   0.92402
+ 397   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.86290   0.77139   0.92151
+ 398   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.85965   0.76637   0.91959
+ 399   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.85702   0.76234   0.91803
+ 400   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   1   0   0   0   0   1   -4   110   0.85481   0.75897   0.91673
+
+
+--------------------------------------------- PLOT=9 DECISION=Valvot+Shunt ZMTVECHO=-4 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 401    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.98983   0.98326   0.99383
+ 402    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.98654   0.97798   0.99180
+ 403    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.98439   0.97456   0.99046
+ 404    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.98277   0.97199   0.98945
+ 405    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.98147   0.96993   0.98863
+ 406    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.98037   0.96820   0.98794
+ 407    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.97943   0.96671   0.98735
+ 408    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.97495   0.95974   0.98451
+ 409    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.96967   0.95164   0.98111
+ 410    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.96956   0.95149   0.98104
+ 411    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.96444   0.94383   0.97767
+ 412    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.96128   0.93922   0.97555
+ 413    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.95548   0.93101   0.97153
+ 414   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.94877   0.92201   0.96668
+ 415   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.94028   0.91102   0.96033
+ 416   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.93380   0.90255   0.95552
+ 417   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.92814   0.89486   0.95146
+ 418   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.92294   0.88745   0.94790
+ 419   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.91803   0.88015   0.94469
+                                          Pulmonary Atresia with Intact Ventricular Septum      08:06 Thursday, December 1, 1994  18
+                                       (Congenital Heart Surgeons Society; 1987 to Oct 1993)
+                                               Death After Initial Achieved Procedure
+                                      Time-Related Survival After Various Treatment Strategies
+
+--------------------------------------------- PLOT=9 DECISION=Valvot+Shunt ZMTVECHO=-4 ---------------------------------------------
+                                                            (continued)
+
+                      W            T                       S           T   S            Z                      _         _
+                      T    R       V                       H       T   A   H   P        M            _         C         C
+             M        _    V   N   I               A       A       A   P   N   V        T            S         L         L
+             O   Y    B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+             N   E    I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+       O     T   A    R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+       B     H   R    T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+       S     S   S    H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+      420   84   7   3.1   0   0   0   0   0   0   0   0   0   0   0   0   0   1   1   -4   110   0.91332   0.87288   0.94175
+
+
+--------------------------------------------- PLOT=10 DECISION=Shunt Alone ZMTVECHO=-4 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 421    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.97755   0.96919   0.98368
+ 422    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.97026   0.95977   0.97808
+ 423    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.96547   0.95364   0.97436
+ 424    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.96184   0.94902   0.97153
+ 425    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.95889   0.94529   0.96921
+ 426    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.95639   0.94215   0.96724
+ 427    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.95421   0.93943   0.96552
+ 428    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.94367   0.92644   0.95705
+ 429    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.93029   0.91044   0.94601
+ 430    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.93002   0.91011   0.94578
+ 431    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.91521   0.89309   0.93310
+ 432    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.90466   0.88132   0.92381
+ 433    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.88105   0.85549   0.90260
+ 434   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.84507   0.81576   0.87046
+ 435   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.78622   0.74756   0.82039
+ 436   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.73485   0.68597   0.77858
+ 437   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.68811   0.62961   0.74116
+ 438   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.64498   0.57800   0.70672
+ 439   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.60493   0.53075   0.67458
+ 440   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   -4   110   0.56762   0.48747   0.64437
+
+
+--------------------------------------------- PLOT=10 DECISION=TAP + Shunt ZMTVECHO=-4 ---------------------------------------------
+
+                            W            T                       S           T   S            Z                      _         _
+                            T    R       V                       H       T   A   H   P        M            _         C         C
+          M                 _    V   N   I               A       A       A   P   N   V        T            S         L         L
+          O         Y       B    D   C   N   R       A   T       S       P   S   T   S        V            U         L         U
+          N         E       I    E   A   C   V       P   B       1   R   1   1   1   1        E    R       R         S         S
+  O       T         A       R    P   N   _   E   R   C   D   B   G   V   G   G   G   G   P    C    V       V         U         U
+  B       H         R       T    C   O   S   N   A   O   P   A   R   N   R   R   R   R   V    H    S       I         R         R
+  S       S         S       H    C   M   E   L   E   L   V   S   P   S   P   P   P   P   1    O    P       V         V         V
+
+ 441    0.0329   0.00274   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.96940   0.95004   0.98141
+ 442    0.0657   0.00548   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.95967   0.93486   0.97527
+ 443    0.0986   0.00821   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.95335   0.92511   0.97127
+ 444    0.1314   0.01095   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.94862   0.91785   0.96826
+ 445    0.1643   0.01369   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.94482   0.91206   0.96583
+ 446    0.1971   0.01643   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.94164   0.90722   0.96379
+ 447    0.2300   0.01917   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.93889   0.90307   0.96203
+ 448    0.4600   0.03833   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.92607   0.88385   0.95374
+ 449    0.9856   0.08214   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.91125   0.86202   0.94406
+ 450    1.0000   0.08333   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.91097   0.86160   0.94387
+ 451    2.0000   0.16667   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.89709   0.84153   0.93468
+ 452    3.0000   0.25000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.88886   0.82982   0.92917
+ 453    6.0000   0.50000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.87462   0.80994   0.91948
+ 454   12.0000   1.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.85999   0.79022   0.90923
+ 455   24.0000   2.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.84443   0.77025   0.89783
+ 456   36.0000   3.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.83441   0.75801   0.89018
+ 457   48.0000   4.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.82663   0.74875   0.88410
+ 458   60.0000   5.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.82004   0.74102   0.87890
+ 459   72.0000   6.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.81421   0.73418   0.87427
+ 460   84.0000   7.00000   3.1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   -4   110   0.80890   0.72791   0.87008
+

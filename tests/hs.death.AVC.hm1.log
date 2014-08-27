@@ -1,0 +1,535 @@
+4733     OPTIONS PAGESIZE=100 LINESIZE=132;
+4734   *******************************************************************************;
+
+4735   * !HZEXAMPLES/hs.death.AVC.hm1                                                 ;
+
+4736   *                                                                              ;
+
+4737   * Multivariable analysis of death after repair                                 ;
+
+4738   *                                                                              ;
+
+4739   * Another strength of a completely parametric survival analysis is that the    ;
+
+4740   * investigator can test the "goodness" of the model.  Specifically, the        ;
+
+4741   * theory of mixture distributions would indicate that if a survival curve      ;
+
+4742   * (or death density function) is generated for each observation, the mean      ;
+
+4743   * of these should be the overall survival curve.  And for any subset of the    ;
+
+4744   * data, such a subset mean should well fit the empiric survival curve (unless  ;
+
+4745   * a risk factor has not been taken into account).                              ;
+
+4746   *                                                                              ;
+
+4747   * The theory of conservation of events also suggests that we can sum the       ;
+
+4748   * cumulative hazard for each patient and predict the number of expected        ;
+
+4749   * deaths, comparing this with the actual number.  One has to be a bit          ;
+
+4750   * careful here, since the cumulative hazard has a limitless upper bound.  One  ;
+
+4751   * could make the case for limiting any cumulative hazard estimate greater      ;
+
+4752   * than 1.0 to that number.                                                     ;
+
+4753   *                                                                              ;
+
+4754   * As a type of internal validation, although the variable is in the model,     ;
+
+4755   * we will predict partial and complete AV Canal from the analysis, overlaying  ;
+
+4756   * it with the nonparametric life table estimates to check out the model.       ;
+
+4757   * Recall that we were concerned that the log-likelihood was better when        ;
+
+4758   * COM_IV was present in the constant hazard phase, but we could not obtain     ;
+
+4759   * reliable estimates for that factor.  This will help us see how badly we      ;
+
+4760   * miss the mark by ignoring this factor in that phase.                         ;
+
+4761   *                                                                              ;
+
+4762   * In actual practice, what I do is to have a "setup" job that generates the    ;
+
+4763   * curves for each patient in the data set and the cumulative hazard values.    ;
+
+4764   * Once stored (often temporarily, for the data set size can be huge), I can    ;
+
+4765   * then stratify the data set in every which way to check myself out using a    ;
+
+4766   * separate job or set of jobs.                                                 ;
+
+4767   *******************************************************************************;
+
+4768   * Bring in data                                                                ;
+
+4769     TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+4770     TITLE2 'Example Data Set';
+4771     TITLE3 'Multivariable Analysis of Death After Repair';
+4772     TITLE4 'Solve Multivariable Equation for Death for Each Patient';
+4773     TITLE5 'Stratify By Type of AV Canal';
+4774   *______________________________________________________________________________;
+
+4775   *                                                                              ;
+
+4776   * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+
+4777   *        data.  For illustration, a few variables from a data set for repair   ;
+
+4778   *        of atrioventricular septal defects will be read from a "flat file."   ;
+
+4779   *______________________________________________________________________________;
+
+4780   *                                                                              ;
+
+4781     FILENAME INAVC ('!HZEXAMPLES/data/avc');
+4782     DATA AVCS; INFILE INAVC MISSOVER;
+4783     INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+
+4784           OP_AGE;
+4785     LABEL
+4786           STUDY    = 'Study number'
+4787           STATUS   = 'Clinical status (NYHA I-V)'
+4788           INC_SURG = 'Surgical grade of AV valve incompetence'
+4789           OPMOS    = 'Date of operation (months since 1/67)'
+4790           AGE      = 'Age (months) at repair'
+4791           MAL      = 'Important associated cardiac anomaly'
+4792           COM_IV   = 'Interventricular communication'
+4793           ORIFICE  = 'Accessory left AV valve orifice'
+4794           DEAD     = 'Death'
+4795           INT_DEAD = 'Followup interval (months) after repair'
+4796     ;
+4797   *******************************************************************************;
+
+4798   * Model:                                                                       ;
+
+4799   * Early Hazard Phase:                                                          ;
+
+4800   *   AGE COM_IV MAL OPMOS OP_AGE STATUS                                         ;
+
+4801   * Constant Hazard Phase:                                                       ;
+
+4802   *   INC_SURG ORIFICE STATUS                                                    ;
+
+4803   *******************************************************************************;
+
+4804   * Standardize variables with missing values                                    ;
+
+
+NOTE: The infile INAVC is:
+      File Name=c:\hazard\examples\data\avc,
+      RECFM=V,LRECL=256
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 11 variables.
+NOTE: DATA statement used:
+      real time           0.07 seconds
+      cpu time            0.06 seconds
+
+
+4805     PROC STANDARD DATA=AVCS OUT=AVCS REPLACE; VAR INC_SURG;
+4806   *******************************************************************************;
+
+4807   * First, get the life table estimates for survival after repair                ;
+
+4808   * Stratify by COM_IV                                                           ;
+
+4809     FILENAME KAPLAN ('!MACROS/kaplan.sas');
+4810     OPTIONS NOSOURCE; %INC KAPLAN; OPTIONS SOURCE;
+5002     %KAPLAN(IN=AVCS, OUT=PLOUT, INTERVAL=INT_DEAD, EVENT=DEAD,
+5003             OEVENT=0, PLOTS=0, PLOTC=0, PLOTH=0, PLOTL=0,
+5004             STRATIFY=COM_IV, HLABEL=Months After Repair);
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 11 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+
+
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK._REFINE_ has 310 observations and 12 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 310 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      53401:195
+NOTE: There were 1 observations read from the data set WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: PROCEDURE LIFETEST used:
+      real time           0.06 seconds
+      cpu time            0.05 seconds
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK.S1 has 2 observations and 8 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 2 observations read from the data set WORK.S1.
+NOTE: The data set WORK.S1 has 2 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 2 observations read from the data set WORK.S1.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+NOTE: There were 2 observations read from the data set WORK.S1.
+NOTE: The data set WORK.NSET has 2 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK.BASIC1 has 282 observations and 7 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+NOTE: There were 282 observations read from the data set WORK.BASIC1.
+NOTE: The data set WORK.BASIC has 282 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      41:232
+NOTE: There were 282 observations read from the data set WORK.BASIC.
+NOTE: There were 2 observations read from the data set WORK.NSET.
+NOTE: The data set WORK.KAPLAN has 282 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.05 seconds
+      cpu time            0.05 seconds
+
+
+
+NOTE: There were 282 observations read from the data set WORK.KAPLAN.
+NOTE: The data set WORK.PRINT has 49 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 49 observations read from the data set WORK.PRINT.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 282 observations read from the data set WORK.KAPLAN.
+NOTE: The data set WORK.PLOT has 282 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: Deleting WORK.OUTTEST (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+
+
+
+NOTE: There were 282 observations read from the data set WORK.KAPLAN.
+NOTE: The data set WORK.PLOUT has 282 observations and 29 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 282 observations read from the data set WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 282 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+5005   *******************************************************************************;
+
+5006   * Generate expected vs observed deaths                                         ;
+
+5007     LIBNAME EXAMPLES ('!HZEXAMPLES/sasest');
+NOTE: Libref EXAMPLES was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V8
+      Physical Name(1): c:\hazard\examples\sasest
+5008     %HAZPRED (
+5009     PROC HAZPRED DATA=AVCS INHAZ=EXAMPLES.HMDEATH OUT=AVCS;
+5010          TIME INT_DEAD;
+5011     );
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X434
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 310 observations read from the data set HZRCALL.HZRCALL.
+NOTE: The data set WORK.AVCS has 310 observations and 23 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+5012     DATA AVCS; SET AVCS;
+5013     CUM_HAZ=-LOG(_SURVIV);
+5014     PROB=1-_SURVIV;
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 25 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+5015     PROC SORT; BY COM_IV CUM_HAZ;
+5016     TITLE6 'Predict number of deaths';
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 25 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+5017     PROC SUMMARY DATA=AVCS; BY COM_IV; VAR
+5018            STATUS INC_SURG OPMOS AGE MAL ORIFICE OP_AGE
+5019            DEAD INT_DEAD PROB CUM_HAZ;
+5020          OUTPUT OUT=OUTEXP MEAN= SUM(PROB CUM_HAZ DEAD)=PEXPECT EXPECTED
+5021            ACTUAL;
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK.OUTEXP has 2 observations and 17 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+5022     PROC PRINT D DATA=OUTEXP; VAR
+5023          STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE
+5024          DEAD INT_DEAD PROB CUM_HAZ DEAD PEXPECT EXPECTED ACTUAL;
+
+NOTE: There were 2 observations read from the data set WORK.OUTEXP.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+5025     DATA AVCS; SET AVCS;
+5026     KEEP STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE OP_AGE DEAD INT_DEAD;
+5027   *******************************************************************************;
+
+5028   * Digital nomogram                                                             ;
+
+5029   * Calculate parametric estimates of survivorship for each patient              ;
+
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 10 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+5030     DATA DIGITAL; SET AVCS;
+5031     DO MONTHS=1*12/365.2425,7*12/365.2425,14*12/365.2425,30*12/365.2425,
+5032        6, 12 TO 180 BY 12;
+5033        YEARS=MONTHS/12;
+5034        OUTPUT;
+5035     END;
+5036     %HAZPRED (
+5037     PROC HAZPRED DATA=DIGITAL INHAZ=EXAMPLES.HMDEATH OUT=DIGITAL NOHAZ;
+5038          TIME MONTHS;
+5039     );
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK.DIGITAL has 6200 observations and 12 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X442
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 6200 observations read from the data set HZRCALL.HZRCALL.
+NOTE: The data set WORK.DIGITAL has 6200 observations and 24 variables.
+NOTE: DATA statement used:
+      real time           0.14 seconds
+      cpu time            0.13 seconds
+
+
+5040   * Mean curve                                                                   ;
+
+5041     PROC SORT; BY COM_IV;
+
+NOTE: There were 6200 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.DIGITAL has 6200 observations and 24 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.09 seconds
+      cpu time            0.09 seconds
+
+
+5042     PROC SUMMARY DATA=DIGITAL NWAY; BY COM_IV; ID MONTHS;
+5043          CLASS YEARS; VAR _SURVIV _CLLSURV _CLUSURV;
+5044          OUTPUT OUT=MEANSD MEAN=MSURVIV MCLLSURV MCLUSURV
+5045            N=NSURVIV NCLLSURV NCLUSURV;
+
+NOTE: There were 6200 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.MEANSD has 40 observations and 11 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+
+
+5046     PROC DELETE DATA=DIGITAL;
+5047   * Print the results                                                            ;
+
+
+NOTE: Deleting WORK.DIGITAL (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+5048     PROC SORT; BY COM_IV YEARS;
+
+NOTE: There were 40 observations read from the data set WORK.MEANSD.
+NOTE: The data set WORK.MEANSD has 40 observations and 11 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+5049     PROC PRINT; BY COM_IV; VAR YEARS NSURVIV MSURVIV MCLLSURV MCLUSURV;
+5050     TITLE5 'Predicted Average Survivorship';
+5051   * Comparison with actuarial curves                                             ;
+
+
+NOTE: There were 40 observations read from the data set WORK.MEANSD.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+5052     DATA PLOTD; SET MEANSD PLOUT;
+5053     IF DEAD=1 THEN DO; PLTCHR='N'; PLTCL='-'; END;
+5054     IF DEAD=0 THEN DO; PLTCHR='.'; PLTCL=' '; END;
+
+NOTE: There were 40 observations read from the data set WORK.MEANSD.
+NOTE: There were 282 observations read from the data set WORK.PLOUT.
+NOTE: The data set WORK.PLOTD has 322 observations and 27 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+5055     PROC SORT; BY COM_IV;
+
+NOTE: There were 322 observations read from the data set WORK.PLOTD.
+NOTE: The data set WORK.PLOTD has 322 observations and 27 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+5056     PROC PLOT; BY COM_IV;
+5057          PLOT MSURVIV*MONTHS='P' (MCLLSURV MCLUSURV)*MONTHS='.'
+5058               CUM_SURV*INT_DEAD='N' (CL_LOWER CL_UPPER)*INT_DEAD='-'
+5059               /OVERLAY VAXIS=0 TO 1 BY 0.1;
+5060   *******************************************************************************;
+
+5061   RUN;
+

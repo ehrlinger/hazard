@@ -1,0 +1,282 @@
+1                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.13 seconds
+      cpu time            0.07 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1            OPTIONS PAGESIZE=100 LINESIZE=132;
+2          *******************************************************************************;
+3          * !HZEXAMPLES/lg.death.AVC                                                     ;
+4          *                                                                              ;
+5          * Descriptive analysis of death after repair                                   ;
+6          * Transformations of scale investigation                                       ;
+7          *******************************************************************************;
+8          * Bring in data                                                                ;
+9            TITLE1 "Repair of Atrioventricular Septal (A-V Canal) Defects";
+10           TITLE2 "Example Data Set";
+11           TITLE3 "Death After Repair";
+12           TITLE6 "Investigate Transformations of Scale";
+13         *______________________________________________________________________________;
+14         *                                                                              ;
+15         * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+16         *        data.  For illustration, a few variables from a data set for repair   ;
+17         *        of atrioventricular septal defects will be read from a "flat file."   ;
+18         *______________________________________________________________________________;
+19         *                                                                              ;
+20           FILENAME INAVC ('!HZEXAMPLES/data/avc');
+21           DATA AVCS; INFILE INAVC MISSOVER;
+22           INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+23                 OP_AGE;
+24           LABEL
+25                 STUDY    = 'Study number'
+26                 STATUS   = 'Clinical status (NYHA I-V)'
+27                 INC_SURG = 'Surgical grade of AV valve incompetence'
+28                 OPMOS    = 'Date of operation (months since 1/67)'
+29                 AGE      = 'Age (months) at repair'
+30                 MAL      = 'Important associated cardiac anomaly'
+31                 COM_IV   = 'Interventricular communication'
+32                 ORIFICE  = 'Accessory left AV valve orifice'
+33                 DEAD     = 'Death'
+34                 INT_DEAD = 'Followup interval (months) after repair'
+35           ;
+36         *******************************************************************************;
+37         * Bring in LOGIT macro                                                         ;
+38           FILENAME LOGIT ('!MACROS/logit.sas');
+39           FILENAME LOGITGR ('!MACROS/logitgr.sas');
+40           OPTIONS NOSOURCE; %INC LOGIT LOGITGR; OPTIONS SOURCE;
+201        *______________________________________________________________________________;
+202        *                                                                              ;
+203        * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+204        *                                                                              ;
+205        *   EVENT    = Event (0/1) indicator             EVENT                         ;
+206        *   VAR      = Variable to be categorized                                      ;
+207        *   GROUPS   = Number of groups (deciles)        10                            ;
+208        *   MEAN     = Mean within each group of VAR     MEAN                          ;
+209        *   MAX      = Max within each group of VAR      MAX                           ;
+210        *   MIN      = Min within each group of VAR      MIN                           ;
+211        *   PROB     = Group probability of event        PROB                          ;
+212        *   LOGIT    = Logit for each group              PROB                          ;
+213        *   N        = Number of observations in decile  N                             ;
+214        *   SUM      = Number of events in decile        EVENTS                        ;
+215        *   IN       = Input data set name                                             ;
+216        *   OUT      = Output data set name              LOGIT                         ;
+217        *   GOMPIT   = Use Gompertz rather than logistic 0 (1 for GOMPIT)              ;
+218        *   COX      = Use Cox transform (const. hazard) 0 (1 for COX)                 ;
+219        *   INTERVAL = Interval to event (Cox method)    Not give                      ;
+220        *                                                                              ;
+221        * NOTE:  The output data set consists of GROUP observations from which         ;
+222        *        various plots and relations can be run.                               ;
+223        *______________________________________________________________________________;
+224        *                                                                              ;
+225        * Decile Analysis of AGE                                                       ;
+226          %LOGIT(VAR=AGE, EVENT=DEAD, GROUPS=5, IN=AVCS);
+
+NOTE: The infile INAVC is:
+      File Name=/home/jehrling/hazard-4.1/examples/data/avc,
+      Owner Name=jehrling,Group Name=ctsurg,
+2                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+      Access Permission=rwxr-xr-x,
+      File Size (bytes)=16394
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 11 variables.
+NOTE: DATA statement used:
+      real time           0.07 seconds
+      cpu time            0.08 seconds
+      
+
+227          TITLE5 'Age at Repair (AGE)';
+
+NOTE: There were 6 observations read from the dataset WORK.LOGIT.
+NOTE: The data set WORK.LOGIT has 5 observations and 7 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+228          PROC PRINT DATA=LOGIT;
+
+NOTE: There were 5 observations read from the dataset WORK.LOGIT.
+NOTE: The PROCEDURE PRINT printed page 1.
+NOTE: PROCEDURE PRINT used:
+      real time           0.07 seconds
+      cpu time            0.01 seconds
+      
+
+229          DATA LOGIT; SET LOGIT;
+230          LN_MEAN=LOG(MEAN); IN_MEAN=1/MEAN; IN2MEAN=IN_MEAN*IN_MEAN;
+
+NOTE: There were 5 observations read from the dataset WORK.LOGIT.
+NOTE: The data set WORK.LOGIT has 5 observations and 10 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+231          PROC PLOT; PLOT LOGIT*MEAN='*' LOGIT*LN_MEAN='*' LOGIT*IN_MEAN='*'
+232                     LOGIT*IN2MEAN='*';
+233        *******************************************************************************;
+234        * Decile Analysis of STATUS                                                    ;
+235          %LOGITGR(VAR=STATUS, EVENT=DEAD, GROUPS=STATUS, IN=AVCS);
+
+NOTE: There were 5 observations read from the dataset WORK.LOGIT.
+NOTE: The PROCEDURE PLOT printed pages 2-5.
+NOTE: PROCEDURE PLOT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+236          TITLE5 'Clinical Status (STATUS)';
+
+NOTE: There were 5 observations read from the dataset WORK.LOGIT.
+NOTE: The data set WORK.LOGIT has 4 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+237          PROC PRINT DATA=LOGIT;
+
+NOTE: There were 4 observations read from the dataset WORK.LOGIT.
+NOTE: The PROCEDURE PRINT printed page 6.
+NOTE: PROCEDURE PRINT used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+238          DATA LOGIT; SET LOGIT;
+239          LN_MEAN=LOG(MEAN); IN_MEAN=1/MEAN; IN2MEAN=IN_MEAN*IN_MEAN;
+
+NOTE: There were 4 observations read from the dataset WORK.LOGIT.
+NOTE: The data set WORK.LOGIT has 4 observations and 11 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+240          PROC PLOT; PLOT LOGIT*MEAN='*' LOGIT*LN_MEAN='*' LOGIT*IN_MEAN='*'
+241                     LOGIT*IN2MEAN='*';
+242        *******************************************************************************;
+243        * Decile Analysis of INC_SURG                                                  ;
+244          %LOGIT(VAR=INC_SURG, EVENT=DEAD, IN=AVCS);
+
+NOTE: There were 4 observations read from the dataset WORK.LOGIT.
+NOTE: The PROCEDURE PLOT printed pages 7-10.
+NOTE: PROCEDURE PLOT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+245          TITLE5 'Surgical Assessment of Grade of AV Valve Incompetence (INC_SURG)';
+
+NOTE: There were 7 observations read from the dataset WORK.LOGIT.
+NOTE: The data set WORK.LOGIT has 6 observations and 7 variables.
+3                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+246          PROC PRINT DATA=LOGIT;
+
+NOTE: There were 6 observations read from the dataset WORK.LOGIT.
+NOTE: The PROCEDURE PRINT printed page 11.
+NOTE: PROCEDURE PRINT used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+247          DATA LOGIT; SET LOGIT;
+248          LN_MEAN=LOG(MEAN+1); IN_MEAN=1/(MEAN+1); IN2MEAN=IN_MEAN*IN_MEAN;
+
+NOTE: There were 6 observations read from the dataset WORK.LOGIT.
+NOTE: The data set WORK.LOGIT has 6 observations and 10 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+249          PROC PLOT; PLOT LOGIT*MEAN='*' LOGIT*LN_MEAN='*' LOGIT*IN_MEAN='*'
+250                     LOGIT*IN2MEAN='*';
+251        *******************************************************************************;
+252        * Decile Analysis of OPMOS                                                     ;
+253          %LOGIT(VAR=OPMOS, EVENT=DEAD, GROUPS=4, IN=AVCS);
+
+NOTE: There were 6 observations read from the dataset WORK.LOGIT.
+NOTE: The PROCEDURE PLOT printed pages 12-15.
+NOTE: PROCEDURE PLOT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+254          TITLE5 'Date of Repair (Months Since 1/67) (OPMOS)';
+
+NOTE: There were 5 observations read from the dataset WORK.LOGIT.
+NOTE: The data set WORK.LOGIT has 4 observations and 7 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+255          PROC PRINT DATA=LOGIT;
+
+NOTE: There were 4 observations read from the dataset WORK.LOGIT.
+NOTE: The PROCEDURE PRINT printed page 16.
+NOTE: PROCEDURE PRINT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+256          DATA LOGIT; SET LOGIT;
+257          LN_MEAN=LOG(MEAN); IN_MEAN=1/MEAN; IN2MEAN=IN_MEAN*IN_MEAN;
+
+NOTE: There were 4 observations read from the dataset WORK.LOGIT.
+NOTE: The data set WORK.LOGIT has 4 observations and 10 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+258          PROC PLOT; PLOT LOGIT*MEAN='*' LOGIT*LN_MEAN='*' LOGIT*IN_MEAN='*'
+259                     LOGIT*IN2MEAN='*';
+260        *******************************************************************************;
+NOTE: There were 4 observations read from the dataset WORK.LOGIT.
+NOTE: The PROCEDURE PLOT printed pages 17-20.
+NOTE: PROCEDURE PLOT used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           2.98 seconds
+      cpu time            0.61 seconds
+      

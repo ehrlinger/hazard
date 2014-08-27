@@ -1,0 +1,177 @@
+1                                                          The SAS System                           13:44 Monday, September 18, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.14 seconds
+      cpu time            0.06 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1          // JOB hm.death.patient.sas           __           __           __
+           180           180           180
+ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+2          sas hm.death.patient.sas
+3          spool cont to email
+4          splfile hm.death.patient.l*
+5          // FILE hm.death.patient.sas
+6          *______________________________________________________________________________;
+
+7          *                                                                              ;
+8          * !HZEXAMPLES/hm.death.patient.sas
+9          *
+10         * Primary valve replacement
+11         *
+12         * Multivariable analysis of death
+13         *
+14         * Patient variables only
+15         *______________________________________________________________________________;
+16         *                                                                              ;
+17           OPTIONS PAGESIZE=80 LINESIZE=132;
+18           TITLE1 'Primary Valve Operations';
+19           TITLE2 '(UAB; 1975 - July 1979; n=1533)';
+20           TITLE3 'Multivariable Analysis of Death (Original Equation)';
+21         *******************************************************************************;
+22         * Bring in data                                                                ;
+23           FILENAME INVALV ('!HZEXAMPLES/data/valves');
+24           DATA VALVES; INFILE INVALV MISSOVER;
+25           INPUT AGE_COP 1-10 5 NYHA 12 MITRAL 14 DOUBLE 16 AO_PINC 18 BLACK 20
+26               I_PATH 22 NVE 24 MECHVALV 26 MALE 28 INT_DEAD 30-39 5 DEAD 41 INT_PVE
+27               43-52 5 PVE 54 BIO 56 INT_RDG 58-67 5 REOP_DG 69 INT_REOP 71-80 5
+28               REOP 82;
+29           LABEL
+30                 AGE_COP  = 'Age (years) at current operation'
+31                 NYHA     = 'Augmented NYHA functional class'
+32                 MITRAL   = 'Mitral valve replacement only'
+33                 DOUBLE   = 'Multiple valve replacement'
+34                 AO_PINC  = 'Pure aortic incompetence'
+35                 BLACK    = 'Black race'
+36                 I_PATH   = 'Ischemic mitral pathology'
+37                 NVE      = 'Native valve endocarditis'
+38                 MECHVALV = 'Mechanic prosthesis inserted'
+39                 MALE     = 'Male patient'
+40                 MALE     = 'Male patient'
+41                 INT_DEAD = 'Followup Interval (months) After Repair'
+42                 DEAD     = 'Death'
+43                 INT_PVE  = 'Interval (months) to first PVE'
+44                 PVE      = 'Prosthetic Valve Endocarditis (event)'
+45                 BIO      = 'Bioprosthesis inserted'
+46                 INT_RDG  = 'Interval (months) to Bio degeneration'
+2                                                          The SAS System                           13:44 Monday, September 18, 2000
+
+47                 REOP_DG  = 'Reoperation for Bio degeneration'
+48                 INT_REOP = 'Interval (months) to and reoperation'
+49                 REOP     = 'First Reoperation'
+50           ;
+51         *******************************************************************************;
+52         * Standardize for missing values                                               ;
+
+NOTE: SAS set option OBS=0 and will continue to check statements. This may cause NOTE: No observations in data set.
+NOTE: The data set WORK.VALVES has 0 observations and 19 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+      
+
+53           PROC STANDARD DATA=VALVES OUT=VALVES REPLACE; VAR NYHA;
+54         *******************************************************************************;
+55         * Data transformations                                                         ;
+
+NOTE: No observations in data set WORK.VALVES.
+NOTE: The data set WORK.VALVES has 0 observations and 19 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+56           DATA VALVES; SET VALVES;
+57           MV_NYHA=MITRAL*NYHA;
+58           MV_INCNI=(MV_INC=1 AND I_PATH=0);
+59           run;
+
+NOTE: The data set WORK.VALVES has 0 observations and 22 variables.
+WARNING: Data set WORK.VALVES was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+60         *______________________________________________________________________________;
+61         *                                                                              ;
+62         *               F I N A L   M Uls T I V A R I A B L  E   M O D E L             ;
+63         *______________________________________________________________________________;
+64         *                                                                              ;
+65           %HAZARD(
+66           PROC HAZARD DATA=VALVES OUTHAZ=OUTEST CONSERVE CONDITION=14 P;
+67                TIME INT_DEAD; EVENT DEAD;
+68                PARMS MUE=0.0008955212 THALF=3.894791 NU=1.958339 M=1 FIXM
+69                      MUC=0.001145244;
+70                EARLY
+71                  AGE_COP=0.02485742, NYHA=0.9373906, MV_NYHA=0.3270209, DOUBLE=1.040199,
+72                  AO_PINC=0.7010022 ;
+73                CONSTANT
+74                  AGE_COP=0.01439241, BLACK=0.9098664, I_PATH=1.45418;
+75            );
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+76            libname est ('!HZEXAMPLES');
+NOTE: Libref EST was successfully assigned as follows: 
+      Levels:           1
+      Engine(1):        V8 
+      Physical Name(1): /home/jehrling/hazard-4.1/examples
+77            data est.hmdeadp (type=haz);
+78                 set outest;
+ERROR: File WORK.OUTEST.DATA does not exist.ERROR: File WORK.OUTEST.DATA does not exist.ERROR: File WORK.OUTEST.DATA does not exist.
+79            run;
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set EST.HMDEADP may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set EST.HMDEADP was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.14 seconds
+      cpu time            0.01 seconds
+      
+
+80            libname out xport '!HZEXAMPLES/hmdeadp.xport';
+NOTE: Libref OUT was successfully assigned as follows: 
+      Engine:        XPORT 
+      Physical Name: /home/jehrling/hazard-4.1/examples/hmdeadp.xport
+81            data out.out; set est.hmdeadp; run;
+
+3                                                          The SAS System                           13:44 Monday, September 18, 2000
+
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+82         *******************************************************************************;
+
+ERROR: Errors printed on pages 1,2,3.ERROR: Errors printed on pages 1,2,3.ERROR: Errors printed on pages 1,2,3.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           1.45 seconds
+      cpu time            0.29 seconds
+      

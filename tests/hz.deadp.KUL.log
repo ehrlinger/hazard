@@ -1,0 +1,186 @@
+6502   *______________________________________________________________________________;
+
+6503   *                                                                              ;
+
+6504   * !HZEXAMPLES/hz.deadp.KUL                                                     ;
+
+6505   *                                                                              ;
+
+6506   * Survival after primary isolated CABG                                         ;
+
+6507   *                                                                              ;
+
+6508   * Hazard function for death                                                    ;
+
+6509   *______________________________________________________________________________;
+
+6510   *                                                                              ;
+
+6511     OPTIONS PAGESIZE=100 LINESIZE=132;
+6512     TITLE1 "Surgery for Ischemic Heart Disease";
+6513     TITLE2 "KUL; 1971-Jul 1987";
+6514     TITLE3 "Primary Isolated CABG";
+6515     TITLE4 "Hazard Function for Death";
+6516   *******************************************************************************;
+
+6517   * Bring in data                                                                ;
+
+6518     FILENAME INCABG ('!HZEXAMPLES/data/cabgkul');
+6519     DATA CABG; INFILE INCABG MISSOVER;
+6520     INPUT INT_DEAD 1-10 5 DEAD 12-15 INT_ANG 17-26 5 ANGINA 28-31 INT_REIN 33-42 5
+
+6521           REINT 44-47;
+6522     LABEL
+6523           INT_DEAD = 'Followup Interval (months) After Repair'
+6524           DEAD     = 'Death'
+6525           INT_ANG  = 'Interval (months) to Return of Angina'
+6526           ANGINA   = 'Return of Angina'
+6527           INT_REIN = 'Interval (months) to Reintervention'
+6528           REINT    = 'First Reintervention'
+6529     ;
+6530     KEEP INT_DEAD DEAD;
+6531   *******************************************************************************;
+
+6532   * Estimate parameters of the distribution of the event                         ;
+
+6533     %HAZARD(
+6534     PROC HAZARD DATA=CABG P OUTHAZ=OUTEST NOCONSERVE STEEPEST QUASI CONDITION=14;
+
+6535          TIME INT_DEAD;
+6536          EVENT DEAD;
+6537          PARMS MUE=.02 THALF=0.2 NU=1 M=1 FIXTHALF FIXNU FIXM
+6538                MUC=0.0008
+6539                MUL=1.0E-9 TAU=1 FIXTAU ALPHA=1 FIXALPHA ETA=1 FIXETA FIXGAMMA
+
+6540                GAMMA=3 WEIBULL;
+6541     );
+
+NOTE: The infile INCABG is:
+      File Name=c:\hazard\examples\data\cabgkul,
+      RECFM=V,LRECL=256
+
+NOTE: 5880 records were read from the infile INCABG.
+      The minimum record length was 47.
+      The maximum record length was 47.
+NOTE: The data set WORK.CABG has 5880 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.09 seconds
+      cpu time            0.09 seconds
+
+
+Running hazard c:\hazard\bin\hazard.bat on Windows with data C:\WINNT\TEMP\hzr.J1660.X502
+
+Note: Procedure HAZARD (C-Version 4.1.0)
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: There were 17 observations read from the data set HZRCALL.HZRCALL.
+NOTE: The data set WORK.OUTEST has 17 observations and 14 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+6542   *______________________________________________________________________________;
+
+6543   *                                                                              ;
+
+6544   * To begin a 3-phase analysis, get the scale factors, for example, as above.   ;
+
+6545   * Then you are ready to switch to CONSERVE, remove FIXTHALF FIXNU FIXM and     ;
+
+6546   * FIXGAMMA, after you have entered for MUE MUC and MUL the values obtained     ;
+
+6547   * from the above.  Go from there, eventually getting a model and checking it   ;
+
+6548   * out by removing the /* and */ below.                                         ;
+
+6549   *______________________________________________________________________________;
+
+6550   *                                                                              ;
+
+6551     /*
+6552   *******************************************************************************;
+
+6553   * Plot various survival functions                                              ;
+
+6554     FILENAME HAZPLOT ('!MACROS/hazplot.sas');
+6555     OPTIONS NOSOURCE; %INC HAZPLOT; OPTIONS SOURCE;
+6556     %HAZPLOT(INTERVAL=INT_DEAD,EVENT=DEAD,IN=CABG,INEST=OUTEST,
+6557              PLOTI=1, PDETAIL=1, HLABEL=Months After CABG);
+6558   *******************************************************************************;
+
+6559   * Digital nomogram                                                             ;
+
+6560     DATA DIG;
+6561     YRMO=12/365.2425;
+6562     DO MONTHS=7*YRMO,14*YRMO,30*YRMO, 2 TO 36 BY 1, 48 TO 240 BY 6;
+6563       YEARS=MONTHS/12;
+6564       OUTPUT;
+6565     END;
+6566     %HAZPRED(
+6567     PROC HAZPRED DATA=DIG INHAZ=OUTEST OUT=HFDIG; TIME MONTHS;
+6568     );
+6569     DATA PRINT; SET HFDIG;
+6570     PROC PRINT D; VAR MONTHS YEARS
+6571          _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ
+6572     ;
+6573   *******************************************************************************;
+
+6574    */
+6575    RUN;
+6576
+6577   *______________________________________________________________________________;
+
+6578   *                                                                              ;
+
+6579   * EHB notes:                                                                   ;
+
+6580   *      TIME INT_DEAD;                                                          ;
+
+6581   *      EVENT DEAD;                                                             ;
+
+6582   *      PARMS MUE=.02260252 THALF=0.1647423 NU=1.358020 M=0 FIXM                ;
+
+6583   *            MUC=0.0008272497                                                  ;
+
+6584   *            MUL=1.28230E-9 TAU=1 FIXTAU ALPHA=1 FIXALPHA ETA=1 FIXETA         ;
+
+6585   *            GAMMA=3.761092 WEIBULL;                                           ;
+
+6586   *                                                                              ;
+
+6587   *      TIME INT_ANG;                                                           ;
+
+6588   *      EVENT ANGINA;                                                           ;
+
+6589   *      PARMS MUE=0.03829104 THALF=5.028068 NU=1 FIXNU M=0 FIXM                 ;
+
+6590   *            MUC=0.002302776                                                   ;
+
+6591   *            MUL=2.24566E-8 TAU=1 FIXTAU ETA=1 FIXETA GAMMA=3.274861           ;
+
+6592   *            ALPHA=1 FIXALPHA WEIBULL;                                         ;
+
+6593   *                                                                              ;
+
+6594   *      TIME INT_REIN;                                                          ;
+
+6595   *      EVENT REINT;                                                            ;
+
+6596   *      PARMS MUE=0.008098863 THALF=7.900485 NU=0.3200757 M=1 FIXM              ;
+
+6597   *            MUL=0.05174078 TAU=122.3389 ALPHA=0 FIXALPHA                      ;
+
+6598   *            GAMMA=2 FIXGAMMA ETA=1 FIXETA WEIBULL;                            ;
+
+6599   *______________________________________________________________________________;
+
+6600   *                                                                              ;
+
+

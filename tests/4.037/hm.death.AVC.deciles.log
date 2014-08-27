@@ -1,0 +1,206 @@
+1                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.14 seconds
+      cpu time            0.07 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1          
+2            OPTIONS PAGESIZE=100 LINESIZE=132;
+3          *******************************************************************************;
+4          * !HZEXAMPLES/hm.death.AVC.deciles                                             ;
+5          *                                                                              ;
+6          * Multivariable analysis of death after repair                                 ;
+7          * Decile goodness of fit testing included                                      ;
+8          * NOTE:  we will use just a few of the variables for illustration              ;
+9          *******************************************************************************;
+10         * Bring in data                                                                ;
+11           TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+12           TITLE2 'Example Data Set';
+13           TITLE3 'Multivariable Analysis of Death After Repair';
+14         *______________________________________________________________________________;
+15         *                                                                              ;
+16         * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+17         *        data.  For illustration, a few variables from a data set for repair   ;
+18         *        of atrioventricular septal defects will be read from a "flat file."   ;
+19         *______________________________________________________________________________;
+20         *                                                                              ;
+21           FILENAME INAVC ('!HZEXAMPLES/data/avc');
+22           DATA AVCS; INFILE INAVC MISSOVER;
+23           INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+24                 OP_AGE;
+25           LABEL
+26                 STUDY    = 'Study number'
+27                 STATUS   = 'Clinical status (NYHA I-V)'
+28                 INC_SURG = 'Surgical grade of AV valve incompetence'
+29                 OPMOS    = 'Date of operation (months since 1/67)'
+30                 AGE      = 'Age (months) at repair'
+31                 MAL      = 'Important associated cardiac anomaly'
+32                 COM_IV   = 'Interventricular communication'
+33                 ORIFICE  = 'Accessory left AV valve orifice'
+34                 DEAD     = 'Death'
+35                 INT_DEAD = 'Followup interval (months) after repair'
+36           ;
+37         *******************************************************************************;
+38         * Data transformations                                                         ;
+39         * Logarithmic:                                                                 ;
+40           LN_AGE=LOG(AGE);
+41           LN_OPMOS=LOG(OPMOS);
+42           LN_INC=.; IF INC_SURG NE . THEN LN_INC=LOG(INC_SURG+1);
+43           LN_NYHA=LOG(STATUS);
+44         * Inverse:                                                                     ;
+45         * Power:                                                                       ;
+46         * Exponential:                                                                 ;
+47         * Categorizations:                                                             ;
+48         * New variables:                                                               ;
+49         *______________________________________________________________________________;
+50         *                                                                              ;
+51         * NOTE:  These transformations would normally be suggested by some logistic    ;
+52         *        or Gompertz plots such as in lg.death.AVC.deciles.deciles                             ;
+53         *______________________________________________________________________________;
+54         *                                                                              ;
+55         *******************************************************************************;
+56         * Interactions                                                                 ;
+57         * OP_AGE=OPMOS*AGE; /* Interaction term already is on the input file */
+58         *______________________________________________________________________________;
+59         *                                                                              ;
+60         * NOTE:  From a medical standpoint, important interactions with the two types  ;
+61         *        a AV canal (complete and partial, as embodies in COM_IV) would be     ;
+62         *        important.  This was done with separate analyses, and no interactions ;
+63         *        were, in fact, identified.                                            ;
+64         *______________________________________________________________________________;
+65         *                                                                              ;
+66         *******************************************************************************;
+67         * Standardize variables with missing values                                    ;
+
+NOTE: The infile INAVC is:
+      File Name=/home/jehrling/hazard-4.1/examples/data/avc,
+2                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+      Owner Name=jehrling,Group Name=ctsurg,
+      Access Permission=rwxr-xr-x,
+      File Size (bytes)=16394
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+68           PROC STANDARD DATA=AVCS OUT=AVCS REPLACE; VAR INC_SURG LN_INC;
+69         *______________________________________________________________________________;
+70         *                                                                              ;
+71         *               F I N A L   M U L T I V A R I A B L  E   M O D E L             ;
+72         *______________________________________________________________________________;
+73         *                                                                              ;
+74           %HAZARD(
+75           PROC HAZARD DATA=AVCS P CONSERVE OUTHAZ=OUTEST CONDITION=14
+76                         QUASI;
+77                TIME INT_DEAD;
+78                EVENT DEAD;
+79                PARMS MUE=0.3504743 THALF=0.1905077 NU=1.437416 M=1 FIXM
+80                      MUC=4.391673E-07;
+81                EARLY AGE=-0.03205774, COM_IV=1.336675, MAL=0.6872028,
+82                      OPMOS=-0.01963377, OP_AGE=0.0002086689, STATUS=0.5169533;
+83                CONSTANT INC_SURG=1.375285, ORIFICE=3.11765, STATUS=1.054988;
+84           );
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 15 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.03 seconds
+      cpu time            0.04 seconds
+      
+
+
+Note: Procedure HAZARD (C-Version 4.037)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: There were 41 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.OUTEST has 41 observations and 38 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+85         *______________________________________________________________________________;
+86         *                                                                              ;
+87         *     D E C I L E   A N A L Y S I S   O F   G O O D N E S S   O F   F I T      ;
+88         *______________________________________________________________________________;
+89         *                                                                              ;
+90         * Bring in decile macro                                                        ;
+91         * At 10-year point, test for sum of curves and deciles                         ;
+92           FILENAME DECILES ('!MACROS/deciles.hazard.sas');
+93           %INC DECILES;
+175          %DECILES(IN=AVCS, EVENT=DEAD, INTERVAL=INT_DEAD, TIME=120, GROUPS=5,
+176                   VARS=AGE COM_IV MAL OPMOS STATUS ORIFICE INC_SURG,
+177                   OUTEST=OUTEST);
+hazrc 0
+
+NOTE: There were 310 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.DECILES has 310 observations and 27 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.DECILES has 310 observations and 29 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+211        *******************************************************************************;
+212          RUN;
+
+NOTE: Deleting WORK.DECILES (memtype=DATA).
+NOTE: Deleting WORK.DECILE1 (memtype=DATA).
+NOTE: Deleting WORK.DECILE2 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+212      !       
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+3                                                          The SAS System                           13:43 Monday, September 18, 2000
+
+NOTE: The SAS System used:
+      real time           7.11 seconds
+      cpu time            0.83 seconds
+      

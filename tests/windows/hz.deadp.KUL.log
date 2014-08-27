@@ -1,0 +1,135 @@
+1                                        The SAS System           14:09 Friday, November 10, 2000
+
+NOTE: Copyright (c) 1999-2000 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Release 8.1 (TS1M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0008874001.
+NOTE: This session is executing on the WIN_PRO  platform.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.68 seconds
+      cpu time            0.38 seconds
+      
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * !HZEXAMPLES/hz.deadp.KUL                                                     ;
+4          *                                                                              ;
+5          * Survival after primary isolated CABG                                         ;
+6          *                                                                              ;
+7          * Hazard function for death                                                    ;
+8          *______________________________________________________________________________;
+9          *                                                                              ;
+10           OPTIONS PAGESIZE=100 LINESIZE=132;
+11           TITLE1 "Surgery for Ischemic Heart Disease";
+12           TITLE2 "KUL; 1971-Jul 1987";
+13           TITLE3 "Primary Isolated CABG";
+14           TITLE4 "Hazard Function for Death";
+15         *******************************************************************************;
+16         * Bring in data                                                                ;
+17           FILENAME INCABG ('!HZEXAMPLES/data/cabgkul');
+18           DATA CABG; INFILE INCABG MISSOVER;
+19           INPUT INT_DEAD 1-10 5 DEAD 12-15 INT_ANG 17-26 5 ANGINA 28-31 INT_REIN 33-42 5
+20                 REINT 44-47;
+21           LABEL
+22                 INT_DEAD = 'Followup Interval (months) After Repair'
+23                 DEAD     = 'Death'
+24                 INT_ANG  = 'Interval (months) to Return of Angina'
+25                 ANGINA   = 'Return of Angina'
+26                 INT_REIN = 'Interval (months) to Reintervention'
+27                 REINT    = 'First Reintervention'
+28           ;
+29           KEEP INT_DEAD DEAD;
+30         *******************************************************************************;
+31         * Estimate parameters of the distribution of the event                         ;
+32           %HAZARD(
+33           PROC HAZARD DATA=CABG P OUTHAZ=OUTEST NOCONSERVE STEEPEST QUASI CONDITION=14;
+34                TIME INT_DEAD;
+35                EVENT DEAD;
+36                PARMS MUE=.02 THALF=0.2 NU=1 M=1 FIXTHALF FIXNU FIXM
+37                      MUC=0.0008
+38                      MUL=1.0E-9 TAU=1 FIXTAU ALPHA=1 FIXALPHA ETA=1 FIXETA FIXGAMMA
+39                      GAMMA=3 WEIBULL;
+40           );
+
+NOTE: The infile INCABG is:
+      File Name=c:\hazard\examples\data\cabgkul,
+      RECFM=V,LRECL=256
+
+NOTE: 5880 records were read from the infile INCABG.
+      The minimum record length was 47.
+      The maximum record length was 47.
+NOTE: The data set WORK.CABG has 5880 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.21 seconds
+      cpu time            0.15 seconds
+      
+
+Running hazard c:\hazard\bin\hazard.bat on Windows with data C:\WINNT\TEMP\hzr.J1844.X5
+41         *______________________________________________________________________________;
+42         *                                                                              ;
+43         * To begin a 3-phase analysis, get the scale factors, for example, as above.   ;
+44         * Then you are ready to switch to CONSERVE, remove FIXTHALF FIXNU FIXM and     ;
+45         * FIXGAMMA, after you have entered for MUE MUC and MUL the values obtained     ;
+46         * from the above.  Go from there, eventually getting a model and checking it   ;
+47         * out by removing the /* and */ below.                                         ;
+48         *______________________________________________________________________________;
+49         *                                                                              ;
+50           /*
+51         *******************************************************************************;
+52         * Plot various survival functions                                              ;
+53           FILENAME HAZPLOT ('!MACROS/hazplot.sas');
+54           OPTIONS NOSOURCE; %INC HAZPLOT; OPTIONS SOURCE;
+55           %HAZPLOT(INTERVAL=INT_DEAD,EVENT=DEAD,IN=CABG,INEST=OUTEST,
+56                    PLOTI=1, PDETAIL=1, HLABEL=Months After CABG);
+57         *******************************************************************************;
+58         * Digital nomogram                                                             ;
+59           DATA DIG;
+60           YRMO=12/365.2425;
+61           DO MONTHS=7*YRMO,14*YRMO,30*YRMO, 2 TO 36 BY 1, 48 TO 240 BY 6;
+62             YEARS=MONTHS/12;
+63             OUTPUT;
+64           END;
+65           %HAZPRED(
+66           PROC HAZPRED DATA=DIG INHAZ=OUTEST OUT=HFDIG; TIME MONTHS;
+67           );
+68           DATA PRINT; SET HFDIG;
+69           PROC PRINT D; VAR MONTHS YEARS
+70                _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ
+71           ;
+72         *******************************************************************************;
+2                                                          The SAS System                            14:09 Friday, November 10, 2000
+
+73          */
+74          RUN;
+75         
+76         *______________________________________________________________________________;
+77         *                                                                              ;
+78         * EHB notes:                                                                   ;
+79         *      TIME INT_DEAD;                                                          ;
+80         *      EVENT DEAD;                                                             ;
+81         *      PARMS MUE=.02260252 THALF=0.1647423 NU=1.358020 M=0 FIXM                ;
+82         *            MUC=0.0008272497                                                  ;
+83         *            MUL=1.28230E-9 TAU=1 FIXTAU ALPHA=1 FIXALPHA ETA=1 FIXETA         ;
+84         *            GAMMA=3.761092 WEIBULL;                                           ;
+85         *                                                                              ;
+86         *      TIME INT_ANG;                                                           ;
+87         *      EVENT ANGINA;                                                           ;
+88         *      PARMS MUE=0.03829104 THALF=5.028068 NU=1 FIXNU M=0 FIXM                 ;
+89         *            MUC=0.002302776                                                   ;
+90         *            MUL=2.24566E-8 TAU=1 FIXTAU ETA=1 FIXETA GAMMA=3.274861           ;
+91         *            ALPHA=1 FIXALPHA WEIBULL;                                         ;
+92         *                                                                              ;
+93         *      TIME INT_REIN;                                                          ;
+94         *      EVENT REINT;                                                            ;
+95         *      PARMS MUE=0.008098863 THALF=7.900485 NU=0.3200757 M=1 FIXM              ;
+96         *            MUL=0.05174078 TAU=122.3389 ALPHA=0 FIXALPHA                      ;
+97         *            GAMMA=2 FIXGAMMA ETA=1 FIXETA WEIBULL;                            ;
+98         *______________________________________________________________________________;
+99         *                                                                              ;
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           1.65 seconds
+      cpu time            0.77 seconds
+      

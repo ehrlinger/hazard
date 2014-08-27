@@ -1,0 +1,218 @@
+2210    OPTIONS PAGESIZE=100 LINESIZE=132;
+2211  *******************************************************************************;
+
+2212  * !HZEXAMPLES/hp.death.AVC.hm2                                                 ;
+
+2213  *                                                                              ;
+
+2214  * Multivariable analysis of death after repair                                 ;
+
+2215  *                                                                              ;
+
+2216  * Exploration of strength of risk factors.                                     ;
+
+2217  *                                                                              ;
+
+2218  * Display strength of date of repair in partial and complete forms of AV Canal ;
+
+2219  *******************************************************************************;
+
+2220    TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+2221    TITLE2 'Example Data Set';
+2222    TITLE3 'Multivariable Analysis of Death After Repair';
+2223    TITLE4 'Solve Multivariable Equation for 6-Months Survival';
+2224    TITLE5 'In Complete and Partial Canal According to Date of Repair';
+2225  *______________________________________________________________________________;
+
+2226  *                                                                              ;
+
+2227  * Model:                                                                       ;
+
+2228  * Early Hazard Phase:                                                          ;
+
+2229  *   AGE COM_IV MAL OPMOS OP_AGE STATUS                                         ;
+
+2230  * Constant Hazard Phase:                                                       ;
+
+2231  *   INC_SURG ORIFICE STATUS                                                    ;
+
+2232  *______________________________________________________________________________;
+
+2233  *                                                                              ;
+
+2234  * Set values for standard model incremental risk factors variables.            ;
+
+2235    DATA DESIGN;
+2236    AGE=6;         /* Six months of age                                         */
+
+2237  * COM_IV=1;      /* Interventricular communication present                    */
+
+2238    MAL=0;         /* Major associated cardiac anomaly                          */
+
+2239    ORIFICE=0;     /* Accessory left AV valve orifice                           */
+
+2240    INC_SURG=0;    /* Degree of AV valve incompetence pre-repair                */
+
+2241    STATUS=3;      /* Clinical status (NYHA I-IV)                               */
+
+2242  * OPMOS=180;     /* Current data (1982)                                       */
+
+2243    MONTHS=6;      /* Time of observation (months)                              */
+
+2244  *______________________________________________________________________________;
+
+2245  *                                                                              ;
+
+2246  * Transformations of variables                                                 ;
+
+2247  * OPYEAR=1967 + OPMOS/12;
+2248  * OP_AGE=OPMOS*AGE;
+2249    YEARS=MONTHS/12;
+2250  *******************************************************************************;
+
+2251  * Generate "isobars" of risk factors here, but check for possible              ;
+
+2252  * transformations that may be needed.                                          ;
+
+2253    DO COM_IV=0,1;
+2254      OUTPUT;
+2255    END;
+
+NOTE: The data set WORK.DESIGN has 2 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+
+
+2256    PROC PRINT;
+2257  *******************************************************************************;
+
+2258  * Generate and output points                                                   ;
+
+
+NOTE: There were 2 observations read from the data set WORK.DESIGN.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+2259    DATA PREDICT; SET DESIGN; DIGITAL=0;
+2260    MIN=0; MAX=180; INC=(MAX-MIN)/99.9;
+2261    DO OPMOS=MIN TO MAX BY INC, MAX;
+2262      OUTPUT;
+2263    END;
+2264    DROP MIN MAX INC;
+2265
+
+NOTE: There were 2 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.PREDICT has 202 observations and 10 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+2266    DATA DIGITAL; SET DESIGN; DIGITAL=1;
+2267    DO OPMOS=0 TO 180 BY 12;
+2268      OUTPUT;
+2269    END;
+2270
+
+NOTE: There were 2 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DIGITAL has 32 observations and 10 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+2271    DATA PREDICT; SET PREDICT DIGITAL;
+2272    OPYEAR=1967 + OPMOS/12;
+2273    OP_AGE=OPMOS*AGE;
+2274  *******************************************************************************;
+
+2275  * Do predictions                                                               ;
+
+2276    LIBNAME EXAMPLES ('!HZEXAMPLES/sasest');
+NOTE: Libref EXAMPLES was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V8
+      Physical Name(1): c:\hazard\examples\sasest
+2277    %HAZPRED (
+2278    PROC HAZPRED DATA=PREDICT INHAZ=EXAMPLES.HMDEATH OUT=PREDICT;
+2279         TIME MONTHS;
+2280    );
+
+NOTE: There were 202 observations read from the data set WORK.PREDICT.
+NOTE: There were 32 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.PREDICT has 234 observations and 12 variables.
+NOTE: DATA statement used:
+      real time           0.05 seconds
+      cpu time            0.05 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X211
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 234 observations read from the data set HZRCALL.HZRCALL.
+NOTE: The data set WORK.PREDICT has 234 observations and 24 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+2281  *******************************************************************************;
+
+2282  * Printer plot survival and hazard                                             ;
+
+2283    PROC PLOT DATA=PREDICT; PLOT _SURVIV*OPYEAR=COM_IV
+2284                 _CLLSURV*OPYEAR='.' _CLUSURV*OPYEAR='.'
+2285                 /OVERLAY VAXIS=0 TO 1 BY 0.1;
+2286  *******************************************************************************;
+
+2287  * Digital nomogram                                                             ;
+
+
+NOTE: There were 234 observations read from the data set WORK.PREDICT.
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+2288    DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: There were 234 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.DIGITAL has 32 observations and 24 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+2289    PROC SORT; BY COM_IV;
+
+NOTE: There were 32 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.DIGITAL has 32 observations and 24 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+2290    PROC PRINT D; BY COM_IV; VAR MONTHS YEARS
+2291         OPYEAR OPMOS AGE COM_IV MAL INC_SURG ORIFICE STATUS
+2292         _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ;
+2293  *******************************************************************************;
+
+2294  RUN;
+
+NOTE: There were 32 observations read from the data set WORK.DIGITAL.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+

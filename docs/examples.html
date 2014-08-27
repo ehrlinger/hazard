@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3c.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+  <head>
+    <title>Hazard Function Examples</title>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+      <!-- Required by xhtml to define the default character set. -->
+      <meta http-equiv="Content-type" content="text/html; charset=iso-8859-1" />
+  </head>
+  <body>
+    <h1>Hazard Examples</h1>
+    <p>
+      To illustrate the use of PROC HAZARD and PROC HAZPRED a number of
+      limited data sets, of a variety of types, are included to illustrate
+      both the procedures and to provide a new user with practice.  When 
+      you unbundle the hazard package, the examples will be stored in 
+      directory !HAZARD/examples, where !HAZARD is an environmental 
+      variable that points to the location of the hazard program on your
+      system. Define the environment variable !HZEXAMPLES to point to 
+      !HAZARD/examples.
+    </p>
+    <h2>Analysis Examples</h2>
+    <h3>Datasets</h3>
+    <h4>AVC</h4>
+    <p>
+      The first example is a short (n=310) data set with a few variables of
+      the many studied is included as '!HZEXAMPLES/data/avc'.
+      (The lesion is a form of congenital heart disease known as
+      atrioventricular septal defects, or atrioventricular (AV) canal. The
+      entire spectrum of lesions is included from partial through 
+      intermediate to complete forms, in that with this many cases, the data
+      looked indeed like a spectrum, not 3 isolated forms.) The followup is
+      such that at present, I find only two hazard phases:  the early phase
+      after the operation, and a constant hazard phase.  As time goes on,
+      undoutedly the hazard will again rise, if for no other reason old age.
+      Duration of followup time, as well as the actual distribution of
+      events, will dictate how many phases of hazard are found (NOTE: we use
+      "phases" as a more understandable term to clinicians than "mixture
+      distribution components").
+    </p>
+    <p>
+      TheAVC example dataset is stored in a file named 
+      <tt>!HZEXAMPLES/examples/data/avc</tt>.
+    </p>
+    <p>
+      Normally this would be a SAS data set, probably built from the raw
+      data. For illustration, a few variables from a data set for repair of
+      atrioventricular septal defects will be read from a "flat file."
+    </p>
+    <h4>OMC</h4>
+    <p>
+      For a complete change of pace, another data set is included that has
+      within it a repeated event (thromboembolism) and an evaluation of the 
+      seriousnes of the event.  In hz.te123 we look at two ways of analyzing
+      such data:  straight repeated event methodology using longitudinal 
+      segmentation of the observation as described in the documentation and
+      left censoring, and a modulated renewal process.  When the latter is
+      valid, it makes for a much more interpretable analysis, in my opinion.
+      In hz.tm123, the event is analyzed as a weighted outcome variable,
+      using the WEIGHT statement.
+    </p>
+    <p>
+      The OMC example dataset is stored in a file named
+      <tt>$HZEXAMPLES/examples/data/omc</tt>.   
+    </p>
+    <h4>CABGKUL</h4>
+    <p>
+      The CABGKUL example dataset is stored in a file named
+      <tt>$HZEXAMPLES/examples/data/cabgkul</tt>.   
+    </p>
+    <h3>Examples</h3>
+    <dl>
+      <dt><strong>ac.death.AVC.sas</strong></dt>
+      <dd>
+	<p>
+	  Life Table for death after repair of atrioventricular septal defect
+	</p>
+      </dd>
+      <dt><strong>hz.death.AVC.sas</strong></dt>
+      <dd>
+	<p>
+	  Determine Hazard Function for Death after repair of 
+	  atrioventricular septal defects.
+	</p>
+	<p>
+	  This job concentrates on determining the shaping parameter
+	  estimates for the overall (underlying) distribution of event.
+	  It is the major exercise that is different from Cox.  It can
+	  be time-consuming at first, and has all the frustrations of
+	  nonlinear estimation.  For me, after about 3000 of these
+	  exercises, the time varies from about 5 minutes to an hour.
+	  I use the non-parametric cumulative hazard function to
+	  provide all the clues.  I start with simple models and
+	  work up (because it is easy to get into an overdetermined
+	  state).  The final models are rarely complex.  For example, an
+	  n=6000 coronary data set with 20 years followup will have all
+	  three phases present, with the hardest to fit late phase
+	  probably being a simple Weibul (late hazard=MUL*t**power), a
+	  constant hazard phase, and an early phase with M or NU likely
+	  simplifying to a constant (1 or 0).  You need not bother with
+	  DELTA.  But do note that sometimes the program will terminate
+	  abnomally, but with M or NU driven to near zero (E3 or E4 large
+	  negative numbers).  THIS IS A CLUE that you want to set NU or M
+	  to zero (M=0 FIXM, for example).  So when you get abnomal
+	  terminations, be sure that it is for something other than the
+	  computer trying to get close to minus infinity.  There are 3
+	  different optimization algorithms available, and we haven't
+	  found that we can do without all of them.  In some problems,
+	  STEEPEST is really needed, in others QUASI works fine (sometimes
+	  in conjunction with STEEPEST), as does the Newton method.
+	  Sometimes the early phase will have some huge exponents--but
+	  there will be one of its 3 branches that will tame these
+	  exponents.  Read the documentation--I know it is wordy.  Don't
+	  become frustrated, however.  We have had a number of users with
+	  initial start-up problems who have simply shipped us a data set
+	  of events and intervals and a description of their problems, and
+	  we have been able to help them get a good start.  This effort is
+	  not terribly time- consuming for us, so do not hesitate in
+	  asking assistance.
+	</p>
+      </dd>
+      <dt><strong>hz.deadp.KUL.sas</strong></dt>
+      <dd>
+	<p>
+	  Survival after primary isolated CABG. Hazard function for death.
+	</p> 
+      </dd>
+      <dt><strong>hz.te123.OMC.sas</strong></dt>
+      <dd>
+	<p>
+	  Hazard function for repeated thromboembolic events.
+	</p>
+      </dd>
+      <dt><strong>hz.tm123.OMC.sas</strong></dt>
+      <dd>
+	<p>
+	  Hazard function for permanent morbidity from thromboembolic 
+	  events. 
+	</p>
+      </dd>
+      <dt><strong>lg.death.AVC</strong></dt>
+      <dd>
+	<p>
+	  Descriptive analysis of death after repair. Transformations of
+	  scale investigation.
+	</p>
+      </dd>
+      <dt><strong>hm.death.AVC</strong></dt>
+      <dd>
+	<p>
+	  Multivariable analysis of death after repair
+	</p>
+	<p>
+	  This job is an example of a multivariable analysis.  As you
+	  see, the shaping parameters should be FIXED during the process
+	  of obtaining the risk factors.  The actual process of doing this
+	  is no more difficult than a logistic or Cox modeling effort.  We
+	  have tried, in fact, to make it a bit simpler by allowing you to
+	  a) exclude variables with an /E option but still look at 
+	  their q-statistics for entry (equivalent to one Newton step), b)
+	  select variables with associated /S, and c) include variables
+	  with the /E option.  These are all directly associated with
+	  the variables, so you do not have to move anything around--in
+	  particular you can keep your variables ogranized in their
+	  medically meaningful, and usually highly correlated, groups.  A
+	  stepwise procedure is provided, and is useful for going a few
+	  steps (I rarely allow it to go more than 3-5 steps).  But we
+	  don't recommend automatic model building in absence of knowledge
+	  of the quality of each variable and the covariance structure.
+	  The only intellectual hurdle you must overcome is looking
+	  simultaneously at multiple hazard phases.  However, this "buys"
+	  relaxation of proportional hazards assumptions, and takes into
+	  account (especially in surgical series) the well established
+	  observation that some risk factors are strong early after
+	  operation, and much less so later.  The job also shows that as a
+	  final run, we would then suggest unfixing the shaping
+	  parameters, specifying all the estimates and making a final run.
+	  In theory, the shaping parameter values must change--we have
+	  been surprised by how little they change (that is, the average
+	  curve is not the same as setting all risk factors to zero).  You
+	  may wish also to reexplore the early phase shaping parameters in
+	  the rare event that THALF gets much larger in this final step.
+	</p>
+      </dd>
+    </dl>
+    
+    <p>
+      These are examples of exploring the strengths of risk factors either
+      at a slice across time (hm.death.hm1) or across time (hm.death.hm1).
+      The advantage of an all parametric model is that all you have to do
+      is solve an equation!	
+    </p>
+    <dl>
+      <dt><strong>hp.death.AVC.hm1</strong></dt>
+      <dd>
+	<p>
+	  Multivariable analysis of death after repair of atrioventricular 
+	  canals.
+	</p>
+	<p>
+	  Exploration of strength of risk factors.  A major strength of
+	  completely parametric models is that once parameter estimates are 
+	  available, the resulting equation can be solved for any given set
+	  of risk factors.  This permits, for example, solving the equation
+	  for the time-related survival of an individual patient by
+	  "plugging in" that patient's specific risk factors
+	  (patient-specific prediction). 
+	</p>
+	<p>
+	  In this example, we exploit the parametric model by exploring the
+	  shape of risk factors.  Here, for a given set of risk factors, we 
+	  compare survival in two otherwise similar patients, except that one
+	  has an additional major cardiac anomaly.
+	</p>
+      </dd>
+      <dt><strong>hp.death.AVC.hm2</strong></dt>
+      <dd>
+	<p>
+	  Multivariable analysis of death after repair
+	</p>
+	<p>
+	  Exploration of strength of risk factors.
+	</p>
+	<p>
+	  Display strength of date of repair in partial and complete forms of
+	  AV Canal
+	</p>
+      </dd>
+      <dt><strong>hs.death.AVC.hm1</strong></dt>
+      <dd>
+	<p>
+	  Multivariable analysis of death after repair
+	</p>
+	<p>
+	  Another strength of a completely parametric survival analysis is 
+	  that the investigator can test the "goodness" of the model.  
+	  Specifically, the theory of mixture distributions would indicate
+	  that if a survival curve (or death density function) is generated 
+	  for each observation, the mean of these should be the overall 
+	  survival curve.  And for any subset of the data, such a subset mean
+	  should well fit the empiric survival curve (unless a risk factor
+	  has not been taken into account).
+	</p>
+	<p>
+	  The theory of conservation of events also suggests that we can sum
+	  the cumulative hazard for each patient and predict the number of
+	  expected deaths, comparing this with the actual number.  One has to
+	  be a bit careful here, since the cumulative hazard has a limitless
+	  upper bound. One could make the case for limiting any cumulative
+	  hazard estimate greater than 1.0 to that number.
+	</p>
+	<p>
+	  As a type of internal validation, although the variable is in the
+	  model, we'll predict partial and complete AV Canal from the 
+	  analysis, overlaying it with the nonparametric life table
+	  estimates to check out the model. Recall that we were concerned
+	  that the log-likelihood was better when COM_IV was present in the
+	  constant hazard phase, but we could not obtain reliable estimates
+	  for that factor.  This will help us see how badly we miss the mark
+	  by ignoring this factor in that phase.
+	</p>
+	<p>
+	  In actual practice, what I do is to have a "setup" job that
+	  generates the curves for each patient in the data set and the 
+	  cumulative hazard values. Once stored (often temporarily, for the
+	  data set size can be huge), I can then stratify the data set in 
+	  every which way to check myself out using a separate job or set of
+	  jobs.
+	</p>
+      </dd>
+    </dl>
+    
+    <h3>Notes</h3>
+    <p>
+      For shear practice of fitting a variety of hazard shapes with up to
+      three phases, you may now wish to explore the coronary artery bypass 
+      grafting data set.  It contains the event death, return of angina, and
+      reintervention.  To get you started, hz.deadp.KUL is an annotated 
+      setup for the event death.  You will want to start off with some
+      actuarial estimates, as you did for the data set above, and work your
+      way through all these events.
+    </p>
+    <p>
+      For practice at both fitting interesting hazard shapes, controversy as
+      to what events should be "bundled" as a single event, and then
+      exercising of the procedure's variable selection possibilities, a 
+      limited valve replacement data set
+      ($HAZARD/examples/data/valves) is provided, along
+      with a sample multivariable setup program hm.deadp.VALVES.
+    </p>
+    <p>
+      Since an important aspect of the model is exercising the resulting
+      equations, we have included a number of plots (hp. jobs) as well as a
+      number of validation files (the hs jobs).  These are internally 
+      commented.
+    </p>
+    <p>
+      Another use of predictions is for comparing alternative treatments from
+      analyses of different data sets.  One example of this is given in
+      hp.death.COMPARISON, an example of comparison of PTCA, CABG and medical
+      treatment.
+    </p>
+    <hr />
+      <address>
+	<a href="http://validator.w3.org/check/referer" target="_top">
+	  <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" align="right" border="0" /></a>
+	<a href="mailto:hazard@bio.ri.ccf.org">hazard@bio.ri.ccf.org</a>
+      </address>
+  </body>
+</html>

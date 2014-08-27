@@ -1,0 +1,207 @@
+1                                                          The SAS System                            12:47 Friday, November 10, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.11 seconds
+      cpu time            0.08 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * !HZEXAMPLES/hm.deadp.VALVES                                                  ;
+4          *                                                                              ;
+5          * Survival after primary valve replacement                                     ;
+6          *                                                                              ;
+7          * Hazard function for death                                                    ;
+8          *______________________________________________________________________________;
+9          *                                                                              ;
+10           OPTIONS PAGESIZE=100 LINESIZE=132;
+11           TITLE1 "Primary Valve Operations";
+12           TITLE3 "(1975 - July 1979; n=1533)";
+13           TITLE4 "Multivariable Analysis of Death";
+14         *******************************************************************************;
+15         * Bring in data                                                                ;
+16           FILENAME INVALV ('!HZEXAMPLES/data/valves');
+17           DATA VALVES; INFILE INVALV MISSOVER;
+18           INPUT AGE_COP 1-10 5 NYHA 12 MITRAL 14 DOUBLE 16 AO_PINC 18 BLACK 20
+19               I_PATH 22 NVE 24 MECHVALV 26 MALE 28 INT_DEAD 30-39 5 DEAD 41 INT_PVE
+20               43-52 5 PVE 54 BIO 56 INT_RDG 58-67 5 REOP_DG 69 INT_REOP 71-80 5
+21               REOP 82;
+22           LABEL
+23                 AGE_COP  = 'Age (years) at current operation'
+24                 NYHA     = 'Augmented NYHA functional class'
+25                 MITRAL   = 'Mitral valve replacement only'
+26                 DOUBLE   = 'Multiple valve replacement'
+27                 AO_PINC  = 'Pure aortic incompetence'
+28                 BLACK    = 'Black race'
+29                 I_PATH   = 'Ischemic mitral pathology'
+30                 NVE      = 'Native valve endocarditis'
+31                 MECHVALV = 'Mechanic prosthesis inserted'
+32                 MALE     = 'Male patient'
+33                 MALE     = 'Male patient'
+34                 INT_DEAD = 'Followup Interval (months) After Repair'
+35                 DEAD     = 'Death'
+36                 INT_PVE  = 'Interval (months) to first PVE'
+37                 PVE      = 'Prosthetic Valve Endocarditis (event)'
+38                 BIO      = 'Bioprosthesis inserted'
+39                 INT_RDG  = 'Interval (months) to Bio degeneration'
+40                 REOP_DG  = 'Reoperation for Bio degeneration'
+41                 INT_REOP = 'Interval (months) to and reoperation'
+42                 REOP     = 'First Reoperation'
+43           ;
+44         *******************************************************************************;
+45         * Standardize for missing values                                               ;
+
+NOTE: The infile INVALV is:
+      File Name=/home/jehrling/hazard/examples/data/valves,
+      Owner Name=jehrling,Group Name=ctsurg,
+      Access Permission=rw-r--r--,
+      File Size (bytes)=127239
+
+NOTE: 1533 records were read from the infile INVALV.
+      The minimum record length was 82.
+      The maximum record length was 82.
+NOTE: The data set WORK.VALVES has 1533 observations and 19 variables.
+NOTE: DATA statement used:
+      real time           0.11 seconds
+      cpu time            0.08 seconds
+      
+
+46           PROC STANDARD DATA=VALVES OUT=VALVES REPLACE; VAR NYHA;
+47         *******************************************************************************;
+48         * Data transformations                                                         ;
+
+NOTE: There were 1533 observations read from the dataset WORK.VALVES.
+NOTE: The data set WORK.VALVES has 1533 observations and 19 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+2                                                          The SAS System                            12:47 Friday, November 10, 2000
+
+      
+
+49           DATA VALVES; SET VALVES;
+50           MV_NYHA=MITRAL*NYHA;
+51         *______________________________________________________________________________;
+52         *                                                                              ;
+53         *               M U L T I V A R I A B L  E   A N A L Y S I S                   ;
+54         *______________________________________________________________________________;
+55         *                                                                              ;
+56         * Stepwise analysis                                                            ;
+57         *                                                                              ;
+58         * Since I like to do variable selection mostly 'by hand', lets only allow      ;
+59         * automatic varible selection to go a little way.  We will notice immediately  ;
+60         * that some continous and ordinal variables enter.  Better have checked them   ;
+61         * out in an 'lg.' job as we did for AV canal to see if transformations are     ;
+62         * needed before we go any farther.                                             ;
+63         *                                                                              ;
+64           %HAZARD(
+65           PROC HAZARD DATA=VALVES NOCOV NOCOR;
+66                EVENT DEAD;
+67                TIME INT_DEAD;
+68                PARMS MUE=0.09596854 THALF=0.6781774 NU=0 FIXNU M=-2.15596 FIXTHALF FIXM
+69                      MUC=0.00349094;
+70                SELECTION SLS=0.1 MAXSTEPS=5;
+71                EARLY
+72           /* Demographic variables */
+73                AGE_COP, BLACK, MALE,
+74           /* Ventricular function variables */
+75                NYHA,
+76           /* Valve lesion */
+77                AO_PINC, I_PATH, NVE,
+78           /* Valve replaced */
+79                MITRAL, DOUBLE,
+80           /* Type of prosthesis used */
+81                MECHVALV, BIO
+82                ;
+83                CONSTANT
+84           /* Demographic variables */
+85                AGE_COP, BLACK, MALE,
+86           /* Ventricular function variables */
+87                NYHA,
+88           /* Valve lesion */
+89                AO_PINC, I_PATH, NVE,
+90           /* Valve replaced */
+91                MITRAL, DOUBLE,
+92           /* Type of prosthesis used */
+93                MECHVALV, BIO
+94                ;
+95           );
+
+NOTE: There were 1533 observations read from the dataset WORK.VALVES.
+NOTE: The data set WORK.VALVES has 1533 observations and 20 variables.
+NOTE: DATA statement used:
+      real time           0.05 seconds
+      cpu time            0.06 seconds
+      
+
+WARNING: The argument to macro function %SYSGET is not defined as a system variable.
+WARNING: Argument 2 to macro function %SUBSTR is missing or out of range.
+WARNING: Argument 3 to macro function %SUBSTR is missing or out of range.
+Running hazard /home/jehrling/hazard/bin/hazard.exe on  with data /home/jehrling/development/hazard-4.1/tests/hzr.J28399.X3
+
+Note: Procedure HAZARD (C-Version 4.1.0)
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Program being stopped by MAXSTEPS.
+Note: Procedure HAZARD completed successfully.
+96         *______________________________________________________________________________;
+97         *                                                                              ;
+98         *               F I N A L   M U L T I V A R I A B L  E   M O D E L             ;
+99         *______________________________________________________________________________;
+100        *                                                                              ;
+101        * Here, when I am done, I will enter the variables accompanied by their        ;
+102        * estimates, freeing up the shaping parameters (and checking that the shape    ;
+103        * still holds after entering concomitant variables!).  MUE and MUC will        ;
+104        * need to be the ones that correspond to the variables and the coefficients    ;
+105        * entered (and found on one of the 'Final Results' pages).                     ;
+106        *                                                                              ;
+107        * %HAZARD(
+108        * PROC HAZARD DATA=VALVES P CONSERVE OUTHAZ=OUTEST CONDITION=14 QUASI;
+109        *      EVENT DEAD;
+110        *      TIME INT_DEAD;
+111        *      PARMS MUE=0.09596854 THALF=0.6781774 NU=0 FIXNU M=-2.15596
+112        *            MUC=0.00349094;
+113        *      EARLY NYHA=1.121142, I_PATH=0.9513664; * etc.;
+114        *      CONSTANT BLACK=0.9266753, AGE_COP=0.01897221; * etc.;
+115        * );
+116        * LIBNAME VALVEST ('!HZEXAMPLES/sasest');
+117        * DATA VALVEST.HMDTHR1 (TYPE=HAZ);
+118        *      SET OUTEST;
+119        *______________________________________________________________________________;
+120        *                                                                              ;
+121        RUN;
+
+3                                                          The SAS System                            12:47 Friday, November 10, 2000
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           4.49 seconds
+      cpu time            0.53 seconds
+      

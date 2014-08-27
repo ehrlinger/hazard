@@ -1,0 +1,1411 @@
+From cvsrehb Thu Dec  1 11:20:10 1994
+Received: by UABCVSR.cvsr.uab.edu (AIX 3.2/UCB 5.64/4.03)
+          id AA37966; Thu, 1 Dec 1994 11:20:08 -0600
+Date: Thu, 1 Dec 94 11:20:08 -0600
+From: cvsrehb
+Message-ID: <9412011720.AA37966@UABCVSR.cvsr.uab.edu>
+To: cvsrehb
+Subject: 27587.uabcvsr
+
+1                                                          The SAS System                           11:19 Thursday, December 1, 1994
+
+NOTE: Copyright(c) 1989 by SAS Institute Inc., Cary, NC USA. 
+NOTE: SAS (r) Proprietary Software Release 6.09  TS027
+      Licensed to UNIVERSITY OF ALABAMA AT BIRMINGHAM, Site 0001676011.
+
+NOTE: Running on IBM Model RS/6000 Serial Number 000002582E00.
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: AUTOEXEC processing beginning; file is /apps/sasnew/sas609/autoexec.sas.
+
+
+NOTE: AUTOEXEC processing completed.
+
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * /programs/hazard/examples/hs.dthar.TGA.hs1                                   ;
+4          *                                                                              ;
+5          * Arterial Switch Operations                                                   ;
+6          *                                                                              ;
+7          * Multivariable analysis of risk factors for death after operation             ;
+8          * Patient risk factors                                                         ;
+9          *                                                                              ;
+10         * Average survivorship curves for each experience in the data set, generated   ;
+11         * from the multivariable equation for death.                                   ;
+12         *                                                                              ;
+13         * The estimates have been put to the plot disk by hs.dthar.TGA.setup           ;
+14         *                                                                              ;
+15         * Stratification by Era of Operation                                           ;
+16         *______________________________________________________________________________;
+17         *                                                                              ;
+18           OPTIONS PAGESIZE=100 LINESIZE=132;
+19           TITLE1 "Arterial Switch Operations";
+20           TITLE2 "Death After Operation";
+21           TITLE3 "Multivariable Analysis of Risk Factors";
+22           TITLE4 "Patient Risk Factors Only";
+23           TITLE5 "Application of Multivariable Analysis of Death to Create a
+24          Risk-Adjusted Curve for Each Patient";
+25           TITLE6 "Stratify By Era of Operation";
+26         *******************************************************************************;
+27         * Bring in data                                                                ;
+28           FILENAME INTGA '/programs/hazard/examples/data/tga';
+29           DATA ARTSW; INFILE INTGA MISSOVER;
+30           INPUT STUDY $ 1-10 SIMPLE 12 DEXTROIN 14 CA_1RL2C 16 HYAAPROC 18 NO_TCA 20
+31               TCA_TIME 22-31 5 AGE_DAYS 33-42 5 ARCIOPYR 44-51 5 DEAD 53 INT_DEAD
+32               55-64 5 SOURCE $ 66-75 CA1_2_L 77 OPYEAR 79-88 5;
+33           LABEL
+34                 SIMPLE   = 'Simple TGA'
+35                 DEXTROIN = 'Dextrocardia'
+36                 HYAAPROC = 'Procedure for hypoplastic arch'
+37                 NO_TCA   = 'No TCA'
+38                 TCA_TIME = 'TCA time'
+39                 AGE_DAYS = 'Age at operation'
+40                 INT_DEAD = 'Followup Interval (months) After Repair'
+41                 DEAD     = 'Death'
+42           ;
+43         *******************************************************************************;
+44         * Stratifying variable                                                         ;
+45           ERA=.; IF OPYEAR<1986 THEN ERA=1;
+46                  IF OPYEAR>1985 AND OPYEAR<1989 THEN ERA=2;
+47                  IF OPYEAR>1988 THEN ERA=3;
+48         *******************************************************************************;
+49         * Form groupings                                                               ;
+50           KEEP STUDY SOURCE ERA;
+
+NOTE: The infile INTGA is:
+      File Name=/programs/hazard/examples/data/tga,
+      Owner Name=cvsrehb,Group Name=cvsrgrp,
+      Access Permission=rw-rw----,
+      File Size (bytes)=41830
+
+NOTE: 470 records were read from the infile INTGA.
+      The minimum record length was 88.
+      The maximum record length was 88.
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+
+51           PROC SORT; BY SOURCE STUDY;
+52           LIBNAME ARTSWT '/programs/hazard/examples/data';
+NOTE: Libref ARTSWT was successfully assigned as follows: 
+      Engine:        V609 
+      Physical Name: /programs/hazard/examples/data
+
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+
+53           DATA EST; SET ARTSWT.HSDTARXC;
+
+NOTE: The data set WORK.EST has 470 observations and 18 variables.
+
+54           PROC SORT; BY SOURCE STUDY;
+
+NOTE: The data set WORK.EST has 470 observations and 18 variables.
+
+2                                                          The SAS System                           11:19 Thursday, December 1, 1994
+
+55           DATA ARTSW; MERGE ARTSW EST; BY SOURCE STUDY;
+
+NOTE: The data set WORK.ARTSW has 470 observations and 19 variables.
+
+56           DATA ARTSW; SET ARTSW;
+57           IF ERA=. THEN DELETE;
+
+NOTE: The data set WORK.ARTSW has 470 observations and 19 variables.
+
+58           PROC SORT; BY ERA;
+
+NOTE: The data set WORK.ARTSW has 470 observations and 19 variables.
+
+59           PROC MEANS N MEAN STD MIN MAX SUM; BY ERA;
+60         *******************************************************************************;
+61         * Observed v. expected deaths.                                                 ;
+
+NOTE: The PROCEDURE MEANS printed page 1.
+
+62           PROC SUMMARY; BY ERA; VAR
+63           SIMPLE DEXTROIN CA_1RL2C CA1_2_L HYAAPROC NO_TCA LN_TCAT SIMIAGP1 ARCIOPYR
+64           DEAD INT_DEAD PROB CUM_HAZ;
+65               OUTPUT OUT=OUTEXP MEAN= SUM(PROB CUM_HAZ DEAD)=PEXPECT EXPECTED
+66                 ACTUAL N(DEAD)=N;
+
+NOTE: The data set WORK.OUTEXP has 3 observations and 20 variables.
+
+67           DATA OUTEXP; SET OUTEXP;
+68           FILENAME CHISQGF '/programs/hazard/examples/macros/chisqgf';
+69           OPTIONS NOSOURCE; %INC CHISQGF; OPTIONS SOURCE;
+102        *______________________________________________________________________________;
+103        *                                                                              ;
+104        * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+105        *                                                                              ;
+106        *   N        = Denominator (sample size)         N                             ;
+107        *   OBSERVED = Number of observed events         OBSERVED                      ;
+108        *   EXPECTED = Number of expected events         EXPECTED                      ;
+109        *   PROB_OBS = Proportion observed               PROB_OBS                      ;
+110        *   PROB_EXP = Proportion expected               PROB_OBS                      ;
+111        *   ZVALUE   = Z-value for difference            Z-VALUE                       ;
+112        *   PVALUE   = P-value for difference            P-VALUE                       ;
+113        *______________________________________________________________________________;
+114        *                                                                              ;
+115        * Statistics                                                                   ;
+116          %CHISQGF(N=N, OBSERVED=ACTUAL, EXPECTED=EXPECTED);
+
+NOTE: The data set WORK.OUTEXP has 3 observations and 27 variables.
+
+117          PROC PRINT D DATA=OUTEXP; VAR
+118               SIMPLE DEXTROIN CA_1RL2C CA1_2_L HYAAPROC NO_TCA LN_TCAT SIMIAGP1 ARCIOPYR
+119               PROB CUM_HAZ DEAD PEXPECT EXPECTED ACTUAL N PVALUE;
+120        *******************************************************************************;
+121        * Stratified actuarial analysis                                                ;
+122          FILENAME KAPLAN '/programs/hazard/examples/macros/kaplan';
+123          OPTIONS NOSOURCE; %INC KAPLAN; OPTIONS SOURCE;
+313        *______________________________________________________________________________;
+314        *                                                                              ;
+315        * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+316        *                                                                              ;
+317        *   INTERVAL = Time variable                     INTERVAL                      ;
+318        *   EVENT    = Event (0/1) indicator             EVENT                         ;
+319        *   STRATIFY = Stratification variable           'ALL'                         ;
+320        *   CLEVEL   = Confidence coefficient            0.68268948 (1 sd)             ;
+321        *   IN       = Input data set name                                             ;
+322        *   OUT      = Output data set name              EVENT                         ;
+323        *   HLABEL   = Label for time axis of plots      Years After Operation         ;
+324        *   ELABEL   = Label for the event               Death                         ;
+325        *   PEVENT   = Print only the events             1 (0 for censored also)       ;
+326        *   OEVENT   = Output only the events            1 (0 for censored also)       ;
+327        *   PLOTS    = Plot survival                     1 (0 to skip)                 ;
+328        *   PLOTC    = Plot cumulative hazard            1 (0 to skip)                 ;
+329        *   PLOTH    = Plot hazard                       0 (1 to plot)                 ;
+330        *   PLOTL    = Plot integrated survivorship      0 (1 to plot)                 ;
+331        *______________________________________________________________________________;
+332        *                                                                              ;
+333          %KAPLAN(IN=ARTSW, OUT=PLOUT, INTERVAL=INT_DEAD, EVENT=DEAD, PEVENT=0,
+334                  OEVENT=0, PLOTS=0, PLOTC=0, STRATIFY=ERA,
+335                  HLABEL=Months After Operation);
+
+NOTE: The PROCEDURE PRINT printed page 2.
+
+
+NOTE: The data set WORK._REFINE_ has 470 observations and 20 variables.
+
+
+NOTE: The data set WORK._REFINE_ has 470 observations and 9 variables.
+
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      545:195   
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+
+
+NOTE: The PROCEDURE LIFETEST printed pages 3-4.
+
+NOTE: The data set WORK.S1 has 3 observations and 8 variables.
+
+3                                                          The SAS System                           11:19 Thursday, December 1, 1994
+
+
+NOTE: The data set WORK.S1 has 3 observations and 9 variables.
+
+
+NOTE: The PROCEDURE PRINT printed page 5.
+
+
+NOTE: The data set WORK.NSET has 3 observations and 2 variables.
+
+NOTE: The data set WORK.BASIC1 has 416 observations and 7 variables.
+
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+
+
+NOTE: The data set WORK.BASIC has 416 observations and 8 variables.
+
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      335:207   
+NOTE: The data set WORK.KAPLAN has 416 observations and 28 variables.
+
+
+NOTE: The data set WORK.PRINT has 416 observations and 28 variables.
+
+
+NOTE: The PROCEDURE PRINT printed pages 6-10.
+
+
+NOTE: The data set WORK.PLOT has 416 observations and 28 variables.
+
+
+NOTE: Deleting WORK.OUTTEST (memtype=DATA).
+
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+
+
+NOTE: The data set WORK.PLOUT has 416 observations and 29 variables.
+
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+
+336        *******************************************************************************;
+337        * Time-related nomograms                                                       ;
+
+NOTE: The data set WORK.PLOUT has 416 observations and 15 variables.
+
+338          DATA ARTSW; SET ARTSW;
+339          KEEP STUDY SOURCE ERA;
+
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+
+340          PROC SORT DATA=ARTSW; BY SOURCE STUDY;
+
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+
+341          DATA PREDICT; SET ARTSWT.HSDTARXP;
+
+NOTE: The data set WORK.PREDICT has 29140 observations and 7 variables.
+
+342          PROC SORT DATA=PREDICT; BY SOURCE STUDY;
+
+NOTE: The data set WORK.PREDICT has 29140 observations and 7 variables.
+
+343          DATA PREDICT; MERGE ARTSW PREDICT; BY SOURCE STUDY;
+344          IF ERA=. THEN DELETE;
+345        *******************************************************************************;
+346        * Digital nomogram                                                             ;
+
+NOTE: The data set WORK.PREDICT has 29140 observations and 8 variables.
+
+347          DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: The data set WORK.DIGITAL has 5170 observations and 8 variables.
+
+348          PROC SORT DATA=DIGITAL; BY ERA;
+349        * Mean curve                                                                   ;
+
+NOTE: The data set WORK.DIGITAL has 5170 observations and 8 variables.
+
+350          PROC SUMMARY DATA=DIGITAL NWAY; BY ERA;
+351               CLASS MONTHS; VAR _SURVIV _CLLSURV _CLUSURV;
+352               OUTPUT OUT=MEANS MEAN=MSURVIV MCLLSURV MCLUSURV
+353                 N=NSURVIV NCLLSURV NCLUSURV;
+354        * Print the results                                                            ;
+
+NOTE: The data set WORK.MEANS has 33 observations and 10 variables.
+
+355          PROC SORT DATA=MEANS; BY ERA MONTHS;
+
+NOTE: The data set WORK.MEANS has 33 observations and 10 variables.
+
+356          PROC PRINT D; BY ERA; VAR MONTHS NSURVIV MSURVIV MCLLSURV MCLUSURV;
+357        *******************************************************************************;
+4                                                          The SAS System                           11:19 Thursday, December 1, 1994
+
+358        * Calculate parametric survivorship curves for each subgroup                   ;
+
+NOTE: The PROCEDURE PRINT printed page 11.
+
+359          DATA PREDICT; SET PREDICT; IF DIGITAL=0;
+
+NOTE: The data set WORK.PREDICT has 23970 observations and 8 variables.
+
+360          PROC SORT DATA=PREDICT; BY ERA;
+361        * Mean curve                                                                   ;
+
+NOTE: The data set WORK.PREDICT has 23970 observations and 8 variables.
+
+362          PROC SUMMARY DATA=PREDICT NWAY; BY ERA;
+363               CLASS MONTHS; VAR _SURVIV _CLLSURV _CLUSURV;
+364               OUTPUT OUT=MEANS MEAN=MSURVIV MCLLSURV MCLUSURV
+365                 N=NSURVIV NCLLSURV NCLUSURV;
+
+NOTE: The data set WORK.MEANS has 153 observations and 10 variables.
+
+366          PROC DELETE DATA=PREDICT;
+367        * Compare survivorships with stratified actuarial estimates                    ;
+
+NOTE: Deleting WORK.PREDICT (memtype=DATA).
+
+368          DATA PLOT; SET MEANS PLOUT;
+369          IF DEAD=1 THEN DO; PLTCHR='N'; PLTCL='-'; END;
+370          IF DEAD=0 THEN DO; PLTCHR='.'; PLTCL=' '; END;
+
+NOTE: The data set WORK.PLOT has 569 observations and 26 variables.
+
+371          PROC SORT; BY ERA;
+
+NOTE: The data set WORK.PLOT has 569 observations and 26 variables.
+
+372          PROC PLOT; BY ERA;
+373               PLOT MSURVIV*MONTHS=ERA (MCLLSURV MCLUSURV)*MONTHS='.'
+374                    CUM_SURV*INT_DEAD='N' (CL_LOWER CL_UPPER)*INT_DEAD='-'
+375                    /OVERLAY VAXIS=0 TO 1 BY 0.1;
+376        *******************************************************************************;
+NOTE: The PROCEDURE PLOT printed pages 12-14.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994   1
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+--------------------------------------------------------------- ERA=1 --------------------------------------------------------------
+
+
+    Variable  Label                                      N          Mean       Std Dev       Minimum       Maximum           Sum
+    ----------------------------------------------------------------------------------------------------------------------------
+    INT_DEAD  Followup Interval (months) After Repair   56    64.6732680    33.9630944     0.0010300   100.0759800       3621.70
+    SIMPLE    Simple TGA                                56     0.7500000     0.4369314             0     1.0000000    42.0000000
+    DEXTROIN  Dextrocardia                              56     0.0178571     0.1336306             0     1.0000000     1.0000000
+    CA_1RL2C                                            56             0             0             0             0             0
+    CA1_2_L                                             56     0.0714286     0.2598701             0     1.0000000     4.0000000
+    HYAAPROC  Procedure for hypoplastic arch            56             0             0             0             0             0
+    NO_TCA    No TCA                                    56             0             0             0             0             0
+    LN_TCAT                                             56     4.2401438     0.1830092     3.9512437     4.7184989   237.4480541
+    SIMIAGP1                                            56     4.7647494     5.7470224             0    30.4368750   266.8259641
+    ARCIOPYR                                            56     0.6561214     0.8157394             0     3.6524300    36.7428000
+    TCA_TIME  TCA time                                  56    69.6250000    13.9356476    51.0000000   111.0000000       3899.00
+    AGE_DAYS  Age at operation                          56    96.0892857   275.1499609             0       1778.00       5381.00
+    DEAD      Death                                     56     0.1964286     0.4008919             0     1.0000000    11.0000000
+    IN_AGEP1                                            56     4.9469029     5.6353779     0.0171090    30.4368750   277.0265617
+    CUM_HAZ                                             56     0.1653078     0.2022771     0.0027442     1.1642736     9.2572387
+    PROB                                                56     0.1381714     0.1333672     0.0027404     0.6878507     7.7376009
+    ----------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------- ERA=2 --------------------------------------------------------------
+
+
+    Variable  Label                                      N          Mean       Std Dev       Minimum       Maximum           Sum
+    ----------------------------------------------------------------------------------------------------------------------------
+    INT_DEAD  Followup Interval (months) After Repair  178    40.7251052    14.3569575     0.0034200    62.0628800       7249.07
+    SIMPLE    Simple TGA                               178     0.5505618     0.4988401             0     1.0000000    98.0000000
+    DEXTROIN  Dextrocardia                             178             0             0             0             0             0
+    CA_1RL2C                                           178     0.0280899     0.1656958             0     1.0000000     5.0000000
+    CA1_2_L                                            178     0.0730337     0.2609258             0     1.0000000    13.0000000
+    HYAAPROC  Procedure for hypoplastic arch           178     0.0112360     0.1056999             0     1.0000000     2.0000000
+    NO_TCA    No TCA                                   178     0.0505618     0.2197192             0     1.0000000     9.0000000
+    LN_TCAT                                            178     3.2670787     1.0627380             0     4.7449321   581.5400022
+    SIMIAGP1                                           178     2.4464734     3.0372925             0    15.2184375   435.4722724
+    ARCIOPYR                                           178     0.0616927     0.1070721             0     0.3162300    10.9813000
+    TCA_TIME  TCA time                                 178    37.1292135    26.6036007             0   114.0000000       6609.00
+    AGE_DAYS  Age at operation                         178    95.8932584   252.5136118     1.0000000       2154.00      17069.00
+    DEAD      Death                                    178     0.0842697     0.2785754             0     1.0000000    15.0000000
+    IN_AGEP1                                           178     3.2350937     2.9348297     0.0141238    15.2184375   575.8466870
+    CUM_HAZ                                            178     0.0703628     0.1055295     0.0049734     1.2329732    12.5245699
+    PROB                                               178     0.0639158     0.0701591     0.0049611     0.7085752    11.3770173
+    ----------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------- ERA=3 --------------------------------------------------------------
+
+
+    Variable  Label                                      N          Mean       Std Dev       Minimum       Maximum           Sum
+    ----------------------------------------------------------------------------------------------------------------------------
+    INT_DEAD  Followup Interval (months) After Repair  236    14.3123624     7.0370061     0.0013700    31.0478700       3377.72
+    SIMPLE    Simple TGA                               236     0.5847458     0.4938131             0     1.0000000   138.0000000
+    DEXTROIN  Dextrocardia                             236     0.0127119     0.1122661             0     1.0000000     3.0000000
+    CA_1RL2C                                           236     0.0593220     0.2367285             0     1.0000000    14.0000000
+    CA1_2_L                                            236     0.0720339     0.2590935             0     1.0000000    17.0000000
+    HYAAPROC  Procedure for hypoplastic arch           236     0.0169492     0.1293552             0     1.0000000     4.0000000
+    NO_TCA    No TCA                                   236     0.0381356     0.1919306             0     1.0000000     9.0000000
+    LN_TCAT                                            236     3.2280295     1.0258737             0     4.6443909   761.8149597
+    SIMIAGP1                                           236     2.4543066     2.8389833             0    15.2184375   579.2163628
+    ARCIOPYR                                           236     0.0183522     0.0476462             0     0.1648200     4.3311200
+    TCA_TIME  TCA time                                 236    35.0211864    23.3446786             0   103.0000000       8265.00
+    AGE_DAYS  Age at operation                         236    92.1271186   281.3298374     1.0000000       2846.00      21742.00
+    DEAD      Death                                    236     0.0593220     0.2367285             0     1.0000000    14.0000000
+    IN_AGEP1                                           236     3.2133506     2.6163076     0.0106909    15.2184375   758.3507369
+    CUM_HAZ                                            236     0.0771957     0.1385491     0.0039506     1.6703125    18.2181889
+    PROB                                               236     0.0677712     0.0854636     0.0039428     0.8118118    15.9940075
+    ----------------------------------------------------------------------------------------------------------------------------
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994   2
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+                OBS     SIMPLE    DEXTROIN    CA_1RL2C     CA1_2_L    HYAAPROC     NO_TCA     LN_TCAT    SIMIAGP1
+
+
+                 1     0.75000    0.017857    0.000000    0.071429    0.000000    0.000000    4.24014     4.76475
+
+                 2     0.55056    0.000000    0.028090    0.073034    0.011236    0.050562    3.26708     2.44647
+
+                 3     0.58475    0.012712    0.059322    0.072034    0.016949    0.038136    3.22803     2.45431
+
+
+                OBS    ARCIOPYR      PROB     CUM_HAZ      DEAD     PEXPECT    EXPECTED    ACTUAL     N      PVALUE
+
+
+                 1      0.65612    0.13817    0.16531    0.19643     7.7376      9.2572      11       56    0.53069
+
+                 2      0.06169    0.06392    0.07036    0.08427    11.3770     12.5246      15      178    0.46817
+
+                 3      0.01835    0.06777    0.07720    0.05932    15.9940     18.2182      14      236    0.30359
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994   3
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+                                                       The LIFETEST Procedure
+
+                                      Summary of the Number of Censored and Uncensored Values
+
+                                        _CATG       Total     Failed   Censored  %Censored
+
+                                        1              56         11         45    80.3571
+                                        2             178         15        163    91.5730
+                                        3             236         14        222    94.0678
+
+                                        Total         470         40        430    91.4894
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994   4
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+                                                       The LIFETEST Procedure
+
+                                         Testing Homogeneity of Survival Curves over Strata
+                                                       Time Variable INT_DEAD
+
+
+                                                          Rank Statistics
+
+                                                 _CATG        Log-Rank     Wilcoxon
+
+                                                 1              6.3241       3054.0
+                                                 2             -0.8284       -464.0
+                                                 3             -5.4957      -2590.0
+
+
+                                           Covariance Matrix for the Log-Rank Statistics
+
+                                         _CATG                1             2             3
+
+                                         1              4.05417      -1.90081      -2.15336
+                                         2             -1.90081       9.34558      -7.44477
+                                         3             -2.15336      -7.44477       9.59813
+
+
+                                           Covariance Matrix for the Wilcoxon Statistics
+
+                                         _CATG                1             2             3
+
+                                         1               776739       -339817       -436921
+                                         2              -339817       1845187      -1505369
+                                         3              -436921      -1505369       1942290
+
+
+                                                    Test of Equality over Strata
+
+                                                                              Pr >
+                                               Test      Chi-Square    DF  Chi-Square
+
+                                               Log-Rank     10.4050     2      0.0055
+                                               Wilcoxon     12.4561     2      0.0020
+                                               -2Log(LR)     3.4900     2      0.1746
+
+
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994   5
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+                              OBS    _CATG     N     DEAD    CENSORED      MIN       MAX        SUM
+
+
+                               1       1       56     11         45      .00103    100.076    3621.70
+
+                               2       2      178     15        163      .00342     62.063    7249.07
+
+                               3       3      236     14        222      .00137     31.048    3377.72
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994   6
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+------------------------------------------------------------- _CATG=1 --------------------------------------------------------------
+
+        OBS INT_DEAD NUMBER CENSORED DEAD CUM_SURV SE_EXACT CL_LOWER CL_UPPER CUM_HAZ  HAZARD DENSITY MID_INT   LIFE  PROPLIFE
+
+          1    0.001   56       0      1   0.98214 0.017697  0.95250  0.99342 0.01802 17.4937 17.3370 0.00052 0.00100  0.97321
+          2    0.002   55       0      1   0.96429 0.024801  0.92928  0.98229 0.03637 17.9894 17.5070 0.00154 0.00198  0.96433
+          3    0.003   54       0      1   0.94643 0.030095  0.90705  0.96968 0.05506 13.6439 13.0344 0.00274 0.00326  0.95358
+          4    0.004   53       0      1   0.92857 0.034424  0.88554  0.95623 0.07411 27.6061 25.8799 0.00377 0.00390  0.94788
+          5    0.033   52       0      6   0.82143 0.051207  0.76440  0.86705 0.19671  4.2659  3.7280 0.01848 0.02596  0.79038
+          6    2.924   46       0      1   0.80357 0.053128  0.74501  0.85137 0.21869  0.0076  0.0062 1.47847 2.32346  0.79459
+          7   46.621   45       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+          8   56.346   44       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+          9   62.030   43       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         10   66.827   42       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         11   67.254   41       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         12   67.714   40       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         13   67.944   39       2      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         14   68.831   37       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         15   69.192   36       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         16   69.291   35       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         17   71.065   34       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         18   71.295   33       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         19   71.427   32       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         20   72.084   31       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         21   73.595   30       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         22   75.172   29       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         23   76.716   28       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         24   77.735   27       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         25   78.852   26       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         26   79.509   25       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         27   80.987   24       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         28   81.382   23       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         29   82.039   22       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         30   82.301   21       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         31   82.433   20       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         32   84.667   19       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         33   85.226   18       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         34   85.423   17       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         35   89.628   16       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         36   90.154   15       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         37   90.285   14       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         38   91.107   13       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         39   91.238   12       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         40   91.435   11       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         41   91.928   10       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         42   92.257    9       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         43   93.374    8       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         44   93.604    7       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         45   94.228    6       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         46   94.655    5       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         47   96.298    4       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         48   97.283    3       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         49   99.123    2       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+         50  100.076    1       1      0   0.80357 0.053128  0.74501  0.85137 0.21869   .       .      .      2.32346  0.79459
+                                     ----
+      _CATG                           11                                                                                      
+
+
+------------------------------------------------------------- _CATG=2 --------------------------------------------------------------
+
+       OBS INT_DEAD NUMBER CENSORED DEAD CUM_SURV SE_EXACT CL_LOWER CL_UPPER  CUM_HAZ  HAZARD DENSITY MID_INT   LIFE  PROPLIFE
+
+        51   0.0034   178      0      1   0.99438 0.005602  0.98483  0.99793 0.005634 1.64732 1.64268 0.00171 0.00339  0.99157
+        52   0.0048   177      0      1   0.98876 0.007900  0.97738  0.99445 0.011300 4.13557 4.10071 0.00411 0.00474  0.98997
+        53   0.0082   176      0      1   0.98315 0.009648  0.97023  0.99051 0.016998 1.66609 1.64268 0.00650 0.00809  0.98596
+        54   0.0164   175      0      1   0.97753 0.011109  0.96328  0.98633 0.022728 0.69716 0.68345 0.01232 0.01611  0.98033
+        55   0.0329   174      0      2   0.96629 0.013528  0.94981  0.97749 0.034289 0.70407 0.68428 0.02464 0.03188  0.97051
+        56   0.0986   172      0      2   0.95506 0.015530  0.93670  0.96827 0.045985 0.17799 0.17099 0.06571 0.09427  0.95646
+        57   1.2156   170      0      1   0.94944 0.016423  0.93025  0.96355 0.051885 0.00528 0.00503 0.65710 1.15172  0.94743
+        58   1.4128   169      0      1   0.94382 0.017261  0.92385  0.95879 0.057820 0.03011 0.02850 1.31420 1.33722  0.94653
+        59   2.1356   168      0      1   0.93820 0.018049  0.91750  0.95397 0.063790 0.00826 0.00777 1.77417 2.01333  0.94276
+        60   4.7311   167      0      1   0.93258 0.018795  0.91118  0.94912 0.069796 0.00231 0.00216 3.43334 4.42659  0.93564
+        61   6.2424   166      0      1   0.92697 0.019504  0.90490  0.94423 0.075838 0.00400 0.00372 5.48677 5.82330  0.93286
+        62   6.3739   165      0      1   0.92135 0.020179  0.89865  0.93930 0.081917 0.04626 0.04275 6.30814 5.94401  0.93256
+        63  18.5302   164      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        64  23.4912   163      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        65  29.1423   162      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        66  29.3066   161      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        67  29.8322   160      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        68  30.2265   159      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        69  30.4565   158      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        70  30.5222   157      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        71  31.1136   156      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        72  31.1464   155      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        73  31.1793   154      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        74  31.2779   153      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        75  32.0007   152      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        76  32.1321   151      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        77  32.3949   150      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        78  32.6578   149      2      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        79  32.8549   147      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+        80  32.9863   146      1      0   0.92135 0.020179  0.89865  0.93930 0.081917  .       .       .      5.94401  0.93256
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994   7
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+------------------------------------------------------------- _CATG=2 --------------------------------------------------------------
+                                                            (continued)
+
+     OBS INT_DEAD NUMBER CENSORED DEAD CUM_SURV SE_EXACT CL_LOWER CL_UPPER  CUM_HAZ   HAZARD   DENSITY  MID_INT   LIFE  PROPLIFE
+
+      81  33.4134   145      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      82  33.5777   144      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      83  33.6106   143      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      84  33.9062   142      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      85  34.0377   141      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      86  34.1034   140      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      87  34.1691   139      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      88  34.2019   138      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      89  34.4319   137      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      90  34.6619   136      2      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      91  34.8919   134      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      92  35.0233   133      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      93  35.2862   132      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      94  35.4504   131      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      95  35.6147   130      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      96  35.8775   129      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      97  35.9104   128      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      98  36.0090   127      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+      99  36.4361   126      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     100  36.6332   125      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     101  36.6661   124      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     102  36.6989   123      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     103  37.1260   122      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     104  37.2246   121      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     105  37.4546   120      2      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     106  37.5203   118      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     107  37.8817   117      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     108  37.9474   116      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     109  38.0788   115      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     110  38.2102   114      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     111  38.2759   113      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     112  38.6702   112      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     113  38.8345   111      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     114  39.0973   110      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     115  39.2944   109      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     116  39.5244   108      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     117  39.6559   107      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     118  39.6887   106      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     119  39.7544   105      1      0   0.92135 0.020179  0.89865  0.93930 0.081917 .         .           .      5.9440  0.93256
+     120  39.9187   104      0      1   0.91249 0.021844  0.88804  0.93201 0.091579 .00028803 .00026410 23.1463 36.4047  0.91197
+     121  39.9515   103      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     122  40.0830   102      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     123  40.5101   101      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     124  41.1343   100      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     125  41.2657    99      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     126  41.3643    98      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     127  41.7257    97      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     128  41.8571    96      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     129  42.2185    95      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     130  42.2842    94      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     131  42.5142    93      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     132  42.7771    92      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     133  42.8428    91      2      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     134  42.8756    89      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     135  42.9413    88      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     136  42.9742    87      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     137  43.3356    86      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     138  43.5327    85      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     139  43.6970    84      2      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     140  43.7956    82      2      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     141  44.2884    80      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     142  44.5841    79      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     143  44.6169    78      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     144  44.7812    77      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     145  44.9783    76      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     146  45.1098    75      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     147  45.5369    74      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     148  45.6683    73      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     149  45.9968    72      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     150  46.2925    71      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     151  46.4897    70      2      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     152  46.5554    68      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     153  46.7197    67      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     154  46.8511    66      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     155  46.8839    65      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     156  47.3439    64      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     157  47.5082    63      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     158  47.6396    62      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     159  47.8367    61      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     160  48.0338    60      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     161  48.1981    59      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     162  48.2638    58      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     163  48.3295    57      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     164  48.5924    56      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     165  48.7238    55      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     166  48.8552    54      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     167  48.9866    53      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+     168  49.3809    52      1      0   0.91249 0.021844  0.88804  0.93201 0.091579 .         .           .     36.4047  0.91197
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994   8
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+------------------------------------------------------------- _CATG=2 --------------------------------------------------------------
+                                                            (continued)
+
+        OBS INT_DEAD NUMBER CENSORED DEAD CUM_SURV SE_EXACT CL_LOWER CL_UPPER  CUM_HAZ HAZARD DENSITY MID_INT   LIFE  PROPLIFE
+
+        169  49.5123   51       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        170  49.7423   50       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        171  49.9723   49       2      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        172  50.0708   47       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        173  50.3008   46       2      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        174  50.3665   44       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        175  50.5637   43       2      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        176  50.7937   41       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        177  51.0893   40       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        178  51.1551   39       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        179  51.2208   38       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        180  51.2865   37       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        181  51.4179   36       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        182  51.5822   35       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        183  51.7136   34       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        184  51.7793   33       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        185  52.4693   32       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        186  52.8635   31       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        187  53.1264   30       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        188  53.2906   29       2      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        189  53.5535   27       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        190  53.5863   26       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        191  53.6192   25       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        192  53.6520   24       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        193  53.6849   23       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        194  54.0791   22       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        195  54.2106   21       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        196  55.7219   20       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        197  56.3133   19       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        198  56.5433   18       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        199  57.0032   17       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        200  57.2989   16       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        201  57.3975   15       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        202  57.6603   14       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        203  57.7260   13       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        204  57.8903   12       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        205  58.6788   11       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        206  58.7774   10       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        207  58.9088    9       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        208  59.2045    8       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        209  59.6316    7       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        210  60.5516    6       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        211  60.7815    5       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        212  61.3401    4       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        213  61.9972    3       2      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+        214  62.0629    1       1      0   0.91249 0.021844  0.88804  0.93201 0.091579    .      .       .    36.4047  0.91197
+                                     ----
+      _CATG                           15                                                                                      
+
+
+------------------------------------------------------------- _CATG=3 --------------------------------------------------------------
+
+       OBS INT_DEAD NUMBER CENSORED DEAD CUM_SURV SE_EXACT CL_LOWER CL_UPPER  CUM_HAZ  HAZARD DENSITY MID_INT   LIFE  PROPLIFE
+
+       215  0.00137   236      0      2   0.99153 0.005967  0.98291  0.99582 0.008511 6.21218 6.18582 0.00069 0.00135  0.98729
+       216  0.00274   234      0      1   0.98729 0.007292  0.97750  0.99285 0.012793 3.12603 3.09291 0.00206 0.00270  0.98623
+       217  0.03285   233      0      5   0.96610 0.011780  0.95213  0.97610 0.034486 0.72045 0.70363 0.01780 0.03147  0.95807
+       218  0.09856   228      0      1   0.96186 0.012467  0.94724  0.97255 0.038882 0.06689 0.06448 0.06571 0.09454  0.95919
+       219  0.19713   227      1      0   0.96186 0.012467  0.94724  0.97255 0.038882  .       .       .      0.09454  0.95919
+       220  0.26284   226      0      1   0.95761 0.013119  0.94237  0.96895 0.043316 0.02699 0.02591 0.18070 0.25150  0.95687
+       221  0.29569   225      0      1   0.95335 0.013734  0.93753  0.96532 0.047771 0.13560 0.12956 0.27927 0.28275  0.95624
+       222  0.32855   224      1      0   0.95335 0.013734  0.93753  0.96532 0.047771  .       .       .      0.28275  0.95624
+       223  0.78852   223      0      1   0.94908 0.014322  0.93269  0.96164 0.052265 0.00912 0.00867 0.54211 0.74943  0.95043
+       224  1.21563   222      0      1   0.94480 0.014882  0.92789  0.95793 0.056780 0.01057 0.01001 1.00208 1.15205  0.94770
+       225  4.69825   221      2      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       226  4.96109   219      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       227  5.02680   218      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       228  5.61819   217      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       229  5.78246   216      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       230  5.84817   215      2      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       231  5.97959   213      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       232  6.07815   212      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       233  6.17672   211      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       234  6.20957   210      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       235  6.30814   209      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       236  6.53812   208      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       237  6.57098   207      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       238  6.70240   206      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       239  6.83382   205      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       240  6.89953   204      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       241  6.99809   203      2      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       242  7.26093   201      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       243  7.58948   200      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       244  7.65519   199      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       245  7.68804   198      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       246  7.78661   197      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+       247  8.14801   196      1      0   0.94480 0.014882  0.92789  0.95793 0.056780  .       .       .      1.15205  0.94770
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994   9
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+------------------------------------------------------------- _CATG=3 --------------------------------------------------------------
+                                                            (continued)
+
+        OBS INT_DEAD NUMBER CENSORED DEAD CUM_SURV SE_EXACT CL_LOWER CL_UPPER  CUM_HAZ HAZARD DENSITY MID_INT   LIFE  PROPLIFE
+
+        248   8.2137   195      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        249   8.2794   193      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        250   8.5751   192      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        251   8.6080   191      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        252   8.7723   190      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        253   8.8380   189      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        254   8.8708   187      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        255   8.9365   186      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        256   9.0022   185      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        257   9.1008   184      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        258   9.1337   183      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        259   9.2651   181      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        260   9.3636   180      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        261   9.4622   179      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        262   9.6265   178      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        263   9.6593   177      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        264   9.7579   175      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        265   9.8565   174      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        266   9.9222   173      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        267  10.0536   172      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        268  10.0865   171      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        269  10.1193   170      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        270  10.2179   169      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        271  10.2507   168      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        272  10.3493   166      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        273  10.4479   164      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        274  10.6121   163      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        275  10.7107   162      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        276  10.8093   161      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        277  10.8421   160      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        278  10.9078   159      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        279  10.9407   158      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        280  11.0064   156      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        281  11.0721   155      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        282  11.1050   154      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        283  11.2692   153      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        284  11.3021   152      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        285  11.4006   151      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        286  11.4335   150      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        287  11.4664   149      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        288  11.5321   148      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        289  11.6635   146      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        290  11.8606   145      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        291  12.0249   144      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        292  12.0906   142      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        293  12.1235   141      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        294  12.1892   140      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        295  12.2877   139      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        296  12.4192   138      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        297  12.4520   137      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        298  12.4849   136      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        299  12.5506   135      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        300  12.7806   134      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        301  12.8134   133      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        302  12.8791   132      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        303  12.9777   131      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        304  13.2077   130      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        305  13.2405   129      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        306  13.3062   127      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        307  13.3391   126      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        308  13.5362   125      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        309  13.5691   124      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        310  13.6676   123      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        311  13.8648   122      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        312  13.9962   121      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        313  14.1605   120      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        314  14.2262   118      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        315  14.2590   117      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        316  14.3576   116      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        317  14.4562   115      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        318  14.5547   114      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        319  14.6204   113      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        320  14.6533   112      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        321  14.7190   110      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        322  14.7518   109      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        323  14.8504   108      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        324  14.9161   107      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        325  14.9490   106      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        326  14.9818   104      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        327  15.1133   103      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        328  15.4089   102      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        329  15.4418   101      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        330  15.5075   100      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        331  15.6389    98      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        332  15.8032    96      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        333  15.9346    95      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        334  16.2960    93      2      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+        335  16.3289    91      1      0   0.94480 0.014882  0.92789  0.95793 0.056780    .      .       .    1.15205  0.94770
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994  10
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+------------------------------------------------------------- _CATG=3 --------------------------------------------------------------
+                                                            (continued)
+
+     OBS INT_DEAD NUMBER CENSORED DEAD CUM_SURV SE_EXACT CL_LOWER CL_UPPER  CUM_HAZ   HAZARD   DENSITY  MID_INT   LIFE  PROPLIFE
+
+     336  16.4603   90       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     337  16.5260   89       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     338  16.5589   88       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     339  16.5917   87       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     340  16.6903   86       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     341  16.8874   85       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     342  16.9531   84       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     343  16.9860   83       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     344  17.0188   82       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     345  17.0517   81       2      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     346  17.0845   79       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     347  17.1174   78       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     348  17.1831   77       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     349  17.2488   76       1      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     350  17.5117   75       2      0   0.94480 0.014882  0.92789  0.95793 0.056780 .         .          .       1.1521  0.94770
+     351  17.6759   73       0      1   0.93186 0.019512  0.90956  0.94897 0.070573 .00083798 .00078629 9.44578 16.3842  0.92692
+     352  17.7416   72       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     353  17.8074   71       2      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     354  18.0373   69       2      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     355  18.2673   67       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     356  18.3330   66       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     357  18.3659   65       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     358  18.3987   64       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     359  18.4316   63       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     360  18.5630   62       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     361  18.5959   61       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     362  18.8587   60       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     363  18.9901   59       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     364  19.0558   58       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     365  19.1873   57       2      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     366  19.6144   55       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     367  19.7129   54       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     368  19.8115   53       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     369  20.0086   52       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     370  20.0415   51       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     371  20.1072   50       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     372  20.2386   49       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     373  20.2715   48       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     374  20.3043   47       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     375  20.3700   46       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     376  20.6986   45       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     377  20.9286   44       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     378  20.9614   43       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     379  21.0928   42       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     380  21.2571   41       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     381  21.5528   40       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     382  21.6842   39       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     383  21.7828   38       2      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     384  21.8156   36       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     385  21.8485   35       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     386  22.0785   34       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     387  22.7684   33       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     388  23.0313   32       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     389  23.2284   31       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     390  23.2941   30       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     391  23.5241   29       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     392  23.5898   28       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     393  23.8198   27       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     394  23.8527   26       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     395  23.8855   25       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     396  23.9184   24       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     397  24.0826   23       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     398  24.1812   22       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     399  24.8383   21       2      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     400  25.1011   19       2      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     401  25.9554   17       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     402  26.0868   16       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     403  26.1196   15       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     404  26.1853   14       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     405  26.3496   13       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     406  26.4153   12       2      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     407  27.0396   10       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     408  27.2696    9       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     409  27.5981    8       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     410  28.2224    7       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     411  28.2552    6       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     412  28.3866    5       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     413  29.0109    4       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     414  29.9965    3       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     415  30.5550    2       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+     416  31.0479    1       1      0   0.93186 0.019512  0.90956  0.94897 0.070573 .         .          .      16.3842  0.92692
+                                  ----
+   _CATG                           14                                                                                           
+                                  ====
+                                   40                                                                                           
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994  11
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+-------------------------------------------------------------- ERA=1 ---------------------------------------------------------------
+
+
+                                    OBS     MONTHS    NSURVIV    MSURVIV    MCLLSURV    MCLUSURV
+
+
+                                      1     0.9856       56      0.84856     0.79653     0.89652
+
+                                      2     3.0000       56      0.83672     0.78185     0.88751
+
+                                      3     6.0000       56      0.83118     0.77500     0.88326
+
+                                      4    12.0000       56      0.82676     0.76955     0.87986
+
+                                      5    24.0000       56      0.82325     0.76523     0.87716
+
+                                      6    36.0000       56      0.82155     0.76313     0.87585
+
+                                      7    48.0000       56      0.82048     0.76182     0.87502
+
+                                      8    60.0000       56      0.81972     0.76088     0.87443
+
+                                      9    72.0000       56      0.81914     0.76017     0.87398
+
+                                     10    84.0000       56      0.81868     0.75961     0.87363
+
+                                     11    96.0000       56      0.81830     0.75914     0.87333
+
+
+-------------------------------------------------------------- ERA=2 ---------------------------------------------------------------
+
+                                    OBS     MONTHS    NSURVIV    MSURVIV    MCLLSURV    MCLUSURV
+
+
+                                     12     0.9856      178      0.94554     0.91789     0.96458
+
+                                     13     3.0000      178      0.93994     0.90988     0.96084
+
+                                     14     6.0000      178      0.93726     0.90608     0.95905
+
+                                     15    12.0000      178      0.93511     0.90302     0.95760
+
+                                     16    24.0000      178      0.93338     0.90059     0.95644
+
+                                     17    36.0000      178      0.93254     0.89940     0.95588
+
+                                     18    48.0000      178      0.93201     0.89865     0.95552
+
+                                     19    60.0000      178      0.93164     0.89812     0.95527
+
+                                     20    72.0000      178      0.93135     0.89771     0.95508
+
+                                     21    84.0000      178      0.93112     0.89739     0.95492
+
+                                     22    96.0000      178      0.93093     0.89712     0.95479
+
+
+-------------------------------------------------------------- ERA=3 ---------------------------------------------------------------
+
+                                    OBS     MONTHS    NSURVIV    MSURVIV    MCLLSURV    MCLUSURV
+
+
+                                     23     0.9856      236      0.93600     0.90615     0.95877
+
+                                     24     3.0000      236      0.93003     0.89786     0.95470
+
+                                     25     6.0000      236      0.92719     0.89395     0.95276
+
+                                     26    12.0000      236      0.92491     0.89081     0.95120
+
+                                     27    24.0000      236      0.92309     0.88831     0.94995
+
+                                     28    36.0000      236      0.92220     0.88709     0.94934
+
+                                     29    48.0000      236      0.92164     0.88632     0.94895
+
+                                     30    60.0000      236      0.92124     0.88578     0.94868
+
+                                     31    72.0000      236      0.92094     0.88537     0.94847
+
+                                     32    84.0000      236      0.92070     0.88503     0.94831
+
+                                     33    96.0000      236      0.92050     0.88476     0.94817
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994  12
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+-------------------------------------------------------------- ERA=1 ---------------------------------------------------------------
+
+                                        Plot of MSURVIV*MONTHS.     Symbol is value of ERA.
+                                        Plot of MCLLSURV*MONTHS.    Symbol used is '.'.
+                                        Plot of MCLUSURV*MONTHS.    Symbol used is '.'.
+                                        Plot of CUM_SURV*INT_DEAD.  Symbol used is 'N'.
+                                        Plot of CL_LOWER*INT_DEAD.  Symbol used is '-'.
+                                        Plot of CL_UPPER*INT_DEAD.  Symbol used is '-'.
+
+MSURVIV |
+        |
+    1.0 +          -
+        |          N          -
+        |          .          N          -
+        | 1          .          -          -
+        | 1          .          .          N
+        | 1          .          .          N          -
+        | 1          .          .
+    0.9 + 1          .          ...          -
+        | 1          .            .... .. . . .  .          -
+        | 1          .                               .   .     .     .       .         .          .             .                .                 .          -
+        | 11          .              -                                                   -           -     -     ---- ---- - -- - ---  --    ------- -- --
+        |  1111          .
+        |      1 11 1 1 1  1   1   1     1     1          .          N
+        |                                              1         1          1             1                1                 1          ..
+    0.8 +           .              N                                                   N           N     N     NNNN NNNN N NN N NNN  NN    NNNNNNN NN NN
+        |            ....
+        |               . .. . . .  .   .   .     .          -
+        |                                               .       .         .          .             .                .                 .
+        |              -                                                   -           -     -     ---- ---- - -- - ---  --    ------- -- --
+        |
+        |
+    0.7 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.6 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.5 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.4 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.3 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.2 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.1 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.0 +
+        |
+        --+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0          10          20          30          40          50          60          70          80          90          100
+
+                                                                   MONTHS
+
+NOTE: 303 obs had missing values.  101 obs hidden.                                                                                  
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994  13
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+-------------------------------------------------------------- ERA=2 ---------------------------------------------------------------
+
+                                        Plot of MSURVIV*MONTHS.     Symbol is value of ERA.
+                                        Plot of MCLLSURV*MONTHS.    Symbol used is '.'.
+                                        Plot of MCLUSURV*MONTHS.    Symbol used is '.'.
+                                        Plot of CUM_SURV*INT_DEAD.  Symbol used is 'N'.
+                                        Plot of CL_LOWER*INT_DEAD.  Symbol used is '-'.
+                                        Plot of CL_UPPER*INT_DEAD.  Symbol used is '-'.
+
+MSURVIV |
+        |
+    1.0 +          N          -
+        | 2          .          .          N          -          -
+        | 2          .          ..          N          -          -
+        | 22          .           ..... .. . . .  .   .   .     .     .       .         .          .             .                .                 .          N          -           ---
+        |  22222 22 2          .           NNN          -                ---             -     -      --------------
+        |             2 2  2   2   2     2     2       2         2          2             2                2                 2          ..                NN           --                                                          ------------------ --------
+        |           .....                  N             N     N      NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN NNNNNNNN             -  -
+    0.9 +                 .. . . .  .   .   .     .     .       .         .          .             .                .                 .                 --             -     -      --------------
+        |                                                          ------------------ --------
+        |
+        |
+        |
+        |
+        |
+    0.8 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.7 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.6 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.5 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.4 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.3 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.2 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.1 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.0 +
+        |
+        --+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0          10          20          30          40          50          60          70          80          90          100
+
+                                                                   MONTHS
+
+NOTE: 645 obs had missing values.  415 obs hidden.                                                                                  
+                                                     Arterial Switch Operations                 11:19 Thursday, December 1, 1994  14
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                                     Patient Risk Factors Only
+                  Application of Multivariable Analysis of Death to Create a Risk-Adjusted Curve for Each Patient
+                                                    Stratify By Era of Operation
+
+-------------------------------------------------------------- ERA=3 ---------------------------------------------------------------
+
+                                        Plot of MSURVIV*MONTHS.     Symbol is value of ERA.
+                                        Plot of MCLLSURV*MONTHS.    Symbol used is '.'.
+                                        Plot of MCLUSURV*MONTHS.    Symbol used is '.'.
+                                        Plot of CUM_SURV*INT_DEAD.  Symbol used is 'N'.
+                                        Plot of CL_LOWER*INT_DEAD.  Symbol used is '-'.
+                                        Plot of CL_UPPER*INT_DEAD.  Symbol used is '-'.
+
+MSURVIV |
+        |
+    1.0 +          -
+        | 3          .          N          -          -
+        | 3          .          .          N          -          -
+        | 3          .          ...... .. . . .  .   .   .          N          -           -    ----------------
+        | 33          .                                         .     .       .         .          .             .                .                 .           N    NNNNNNNNNNNNNNNN          -                               -----------------
+        |  33333 33 3 3 3  3   3   3     3     3       3         3          .                               NNNNNNNNNNNNNNNNN           -    ----------------
+        |                                                                   3             3                3                 3          ..                               -----------------
+    0.9 +           ..... ..
+        |                    . . .  .   .   .     .     .       .         .          .             .                .                 .
+        |
+        |
+        |
+        |
+        |
+    0.8 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.7 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.6 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.5 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.4 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.3 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.2 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.1 +
+        |
+        |
+        |
+        |
+        |
+        |
+    0.0 +
+        |
+        --+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-
+          0          10          20          30          40          50          60          70          80          90          100
+
+                                                                   MONTHS
+
+NOTE: 759 obs had missing values.  570 obs hidden.                                                                                  
+

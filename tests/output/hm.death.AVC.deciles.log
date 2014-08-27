@@ -1,0 +1,166 @@
+220
+221    OPTIONS PAGESIZE=100 LINESIZE=132;
+222  *******************************************************************************;
+223  * $hazard/examples/hm.death.AVC.deciles.deciles                                                ;
+224  *                                                                              ;
+225  * Multivariable analysis of death after repair                                 ;
+226  * Decile goodness of fit testing included                                      ;
+227  * NOTE:  we will use just a few of the variables for illustration              ;
+228  *******************************************************************************;
+229  * Bring in data                                                                ;
+230    TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+231    TITLE2 'Example Data Set';
+232    TITLE3 'Multivariable Analysis of Death After Repair';
+233  *______________________________________________________________________________;
+234  *                                                                              ;
+235  * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+236  *        data.  For illustration, a few variables from a data set for repair   ;
+237  *        of atrioventricular septal defects will be read from a "flat file."   ;
+238  *______________________________________________________________________________;
+239  *                                                                              ;
+240    FILENAME INAVC ('$HZEXAMPLES/data/avc');
+241    DATA AVCS; INFILE INAVC MISSOVER;
+242    INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+243          OP_AGE;
+244    LABEL
+245          STUDY    = 'Study number'
+246          STATUS   = 'Clinical status (NYHA I-V)'
+247          INC_SURG = 'Surgical grade of AV valve incompetence'
+248          OPMOS    = 'Date of operation (months since 1/67)'
+249          AGE      = 'Age (months) at repair'
+250          MAL      = 'Important associated cardiac anomaly'
+251          COM_IV   = 'Interventricular communication'
+252          ORIFICE  = 'Accessory left AV valve orifice'
+253          DEAD     = 'Death'
+254          INT_DEAD = 'Followup interval (months) after repair'
+255    ;
+256  *******************************************************************************;
+257  * Data transformations                                                         ;
+258  * Logarithmic:                                                                 ;
+259    LN_AGE=LOG(AGE);
+260    LN_OPMOS=LOG(OPMOS);
+261    LN_INC=.; IF INC_SURG NE . THEN LN_INC=LOG(INC_SURG+1);
+262    LN_NYHA=LOG(STATUS);
+263  * Inverse:                                                                     ;
+264  * Power:                                                                       ;
+265  * Exponential:                                                                 ;
+266  * Categorizations:                                                             ;
+267  * New variables:                                                               ;
+268  *______________________________________________________________________________;
+269  *                                                                              ;
+270  * NOTE:  These transformations would normally be suggested by some logistic    ;
+271  *        or Gompertz plots such as in lg.death.AVC.deciles.deciles                             ;
+272  *______________________________________________________________________________;
+273  *                                                                              ;
+274  *******************************************************************************;
+275  * Interactions                                                                 ;
+276  * OP_AGE=OPMOS*AGE; /* Interaction term already is on the input file */
+277  *______________________________________________________________________________;
+278  *                                                                              ;
+279  * NOTE:  From a medical standpoint, important interactions with the two types  ;
+280  *        a AV canal (complete and partial, as embodies in COM_IV) would be     ;
+281  *        important.  This was done with separate analyses, and no interactions ;
+282  *        were, in fact, identified.                                            ;
+283  *______________________________________________________________________________;
+284  *                                                                              ;
+285  *******************************************************************************;
+286  * Standardize variables with missing values                                    ;
+
+NOTE: The infile INAVC is:
+      File Name=/home/jehrling/seminar/examples/data/avc,
+      Owner Name=jehrling,Group Name=ctsurg,
+      Access Permission=r-xr-xr-x,
+      File Size (bytes)=16394
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.38 seconds
+      cpu time            0.06 seconds
+
+
+287    PROC STANDARD DATA=AVCS OUT=AVCS REPLACE; VAR INC_SURG LN_INC;
+288  *______________________________________________________________________________;
+289  *                                                                              ;
+290  *               F I N A L   M U L T I V A R I A B L  E   M O D E L             ;
+291  *______________________________________________________________________________;
+292  *                                                                              ;
+293    %HAZARD(
+294    PROC HAZARD DATA=AVCS P CONSERVE OUTHAZ=OUTEST CONDITION=14
+295                  QUASI;
+296         TIME INT_DEAD;
+297         EVENT DEAD;
+298         PARMS MUE=0.3504743 THALF=0.1905077 NU=1.437416 M=1 FIXM
+299               MUC=4.391673E-07;
+300         EARLY AGE=-0.03205774, COM_IV=1.336675, MAL=0.6872028,
+301               OPMOS=-0.01963377, OP_AGE=0.0002086689, STATUS=0.5169533;
+302         CONSTANT INC_SURG=1.375285, ORIFICE=3.11765, STATUS=1.054988;
+303    );
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 15 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.13 seconds
+      cpu time            0.01 seconds
+
+
+WARNING: The argument to macro function %SYSGET is not defined as a system variable.
+
+Note: Procedure HAZARD (C-Version 4.037)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: There were 41 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.OUTEST has 41 observations and 38 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+304  *______________________________________________________________________________;
+305  *                                                                              ;
+306  *     D E C I L E   A N A L Y S I S   O F   G O O D N E S S   O F   F I T      ;
+307  *______________________________________________________________________________;
+308  *                                                                              ;
+309  * Bring in decile macro                                                        ;
+310  * At 10-year point, test for sum of curves and deciles                         ;
+311    FILENAME DECILES ('$macros/deciles.hazard');
+312    %INC DECILES;
+394     %DECILES(IN=AVCS, EVENT=DEAD, INTERVAL=INT_DEAD, TIME=120, GROUPS=5,
+395              VARS=AGE COM_IV MAL OPMOS STATUS ORIFICE INC_SURG,
+396              OUTEST=OUTEST);
+hazrc 0
+
+NOTE: There were 310 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.DECILES has 310 observations and 27 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 310 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.DECILES has 310 observations and 29 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+
+
+430   *******************************************************************************;
+431     RUN;
+
+NOTE: Deleting WORK.DECILES (memtype=DATA).
+NOTE: Deleting WORK.DECILE1 (memtype=DATA).
+NOTE: Deleting WORK.DECILE2 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+
+

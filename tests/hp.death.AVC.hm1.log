@@ -1,0 +1,249 @@
+78     OPTIONS PAGESIZE=100 LINESIZE=132;
+79   *******************************************************************************;
+
+80   * !HZEXAMPLES/hp.death.AVC.hm1                                                 ;
+
+81   *                                                                              ;
+
+82   * Multivariable analysis of death after repair of atrioventricular canals      ;
+
+83   *                                                                              ;
+
+84   * Exploration of strength of risk factors.  A major strength of completely     ;
+
+85   * parametric models is that once parameter estimates are available, the        ;
+
+86   * resulting equation can be solved for any given set of risk factors.  This    ;
+
+87   * permits, for example, solving the equation for the time-related survival     ;
+
+88   * of an individual patient by "plugging in" that patients specific risk        ;
+
+89   * factors (patient-specific prediction).                                       ;
+
+90   *                                                                              ;
+
+91   * In this example, we exploit the parametric model by exploring the shape      ;
+
+92   * of risk factors.  Here, for a given set of risk factors, we compare survival ;
+
+93   * in two otherwise similar patients, except that one has an additional         ;
+
+94   * major cardiac anomaly.                                                       ;
+
+95   *******************************************************************************;
+
+96     TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+97     TITLE2 'Example Data Set';
+98     TITLE3 'Multivariable Analysis of Death After Repair';
+99     TITLE4 'Solve Multivariable Equation for Survival and Hazard';
+100    TITLE5 'In Complete Canal With and Without Associated Anomalies';
+101    TITLE6 'For a 6-month Old Infant in the Current Era';
+102  *______________________________________________________________________________;
+
+103  *                                                                              ;
+
+104  * Model:                                                                       ;
+
+105  * Early Hazard Phase:                                                          ;
+
+106  *   AGE COM_IV MAL OPMOS OP_AGE STATUS                                         ;
+
+107  * Constant Hazard Phase:                                                       ;
+
+108  *   INC_SURG ORIFICE STATUS                                                    ;
+
+109  *______________________________________________________________________________;
+
+110  *                                                                              ;
+
+111  * Set values for standard model incremental risk factors variables.            ;
+
+112    DATA DESIGN;
+113    AGE=6;         /* Six months of age                                         */
+
+114    COM_IV=1;      /* Interventricular communication present                    */
+
+115  * MAL=0;         /* Major associated cardiac anomaly                          */
+
+116    ORIFICE=0;     /* Accessory left AV valve orifice                           */
+
+117    INC_SURG=0;    /* Degree of AV valve incompetence pre-repair                */
+
+118    STATUS=3;      /* Clinical status (NYHA I-IV)                               */
+
+119    OPMOS=180;     /* Current data (1982)                                       */
+
+120  * MONTHS=6;      /* Time of observation (months)                              */
+
+121  *______________________________________________________________________________;
+
+122  *                                                                              ;
+
+123  * Transformations of variables                                                 ;
+
+124    OPYEAR=1967 + OPMOS/12;
+125    OP_AGE=OPMOS*AGE;
+126  * YEARS=MONTHS/12;
+127  *******************************************************************************;
+
+128  * Generate "isobars" of risk factors here, but check for possible              ;
+
+129  * transformations that may be needed.                                          ;
+
+130    DO MAL=0,1;
+131      OUTPUT;
+132    END;
+
+NOTE: The data set WORK.DESIGN has 2 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+
+
+133    PROC PRINT;
+134  *******************************************************************************;
+
+135  * Generate and output points                                                   ;
+
+
+NOTE: There were 2 observations read from the data set WORK.DESIGN.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+136    DATA PREDICT; SET DESIGN; DIGITAL=0;
+137    MAX=180; LN_MAX=LOG(MAX); INC=(5+LN_MAX)/99.9;
+138    DO LN_TIME=-5 TO LN_MAX BY INC,LN_MAX;
+139      MONTHS=EXP(LN_TIME);
+140      OUTPUT;
+141    END;
+142    DROP MAX LN_MAX INC LN_TIME;
+143
+
+NOTE: There were 2 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.PREDICT has 202 observations and 11 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+144    DATA DIGITAL; SET DESIGN; DIGITAL=1;
+145    DTY=12/365.2425;
+146    DO MONTHS=1*DTY,2*DTY,3*DTY,4*DTY,5*DTY,6*DTY,7*DTY,14*DTY,30*DTY,
+147              1,2,3,6,12,18,24 TO 180 BY 12;
+148      OUTPUT;
+149    END;
+150    DROP DTY;
+151
+
+NOTE: There were 2 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DIGITAL has 58 observations and 11 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+152    DATA PREDICT; SET PREDICT DIGITAL;
+153    YEARS=MONTHS/12;
+154  *******************************************************************************;
+
+155  * Do predictions                                                               ;
+
+
+NOTE: There were 202 observations read from the data set WORK.PREDICT.
+NOTE: There were 58 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.PREDICT has 260 observations and 12 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+156    PROC SORT DATA=PREDICT; BY MAL;
+157    LIBNAME EXAMPLES '!HZEXAMPLES/sasest';
+NOTE: Libref EXAMPLES was successfully assigned as follows:
+      Engine:        V8
+      Physical Name: c:\hazard\examples\sasest
+158    %HAZPRED (
+159    PROC HAZPRED DATA=PREDICT INHAZ=EXAMPLES.HMDEATH OUT=PREDICT;
+160         TIME MONTHS; ID MAL;
+161    );
+
+NOTE: There were 260 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 260 observations and 12 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X13
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 260 observations read from the data set HZRCALL.HZRCALL.
+NOTE: The data set WORK.PREDICT has 260 observations and 24 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+162  *******************************************************************************;
+
+163  * Printer plot survival and hazard                                             ;
+
+164    PROC PLOT DATA=PREDICT; PLOT _SURVIV*YEARS=MAL
+165                 _CLLSURV*YEARS='.' _CLUSURV*YEARS='.'
+166                 /OVERLAY VAXIS=0 TO 1 BY 0.1;
+167                            PLOT _HAZARD*YEARS=MAL
+168                 _CLLHAZ*YEARS='.' _CLUHAZ*YEARS='.'
+169                 /OVERLAY VAXIS=0 TO 0.1 BY 0.01;
+170  *******************************************************************************;
+
+171  * Digital nomogram                                                             ;
+
+
+NOTE: There were 260 observations read from the data set WORK.PREDICT.
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+172    DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: There were 260 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.DIGITAL has 58 observations and 24 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+173    PROC SORT; BY MAL;
+
+NOTE: There were 58 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.DIGITAL has 58 observations and 24 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+174    PROC PRINT D; BY MAL; VAR MONTHS YEARS
+175         OPYEAR OPMOS AGE COM_IV MAL INC_SURG ORIFICE STATUS
+176         _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ;
+177  *******************************************************************************;
+
+178  RUN;
+
+NOTE: There were 58 observations read from the data set WORK.DIGITAL.
+NOTE: PROCEDURE PRINT used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+

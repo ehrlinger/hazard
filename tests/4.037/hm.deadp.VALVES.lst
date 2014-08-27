@@ -1,0 +1,517 @@
+                                                      Primary Valve Operations                  13:44 Monday, September 18, 2000   1
+
+                                                     (1975 - July 1979; n=1533)
+                                                  Multivariable Analysis of Death
+
+                          T H R E E   P H A S E   P A R A M E T R I C   H A Z A R D   P R O C E D U R E
+
+    Initial Summary:
+    ================
+
+      There are  1533 observations available for analysis with:
+                            338 events
+                           1195 Right Censored Observations
+                           1533 Total Subjects
+
+                                     Variable   Label                                          Min            Max
+                -----------------------------------------------------------------------------------------------------
+                Time:                INT_DEAD   Followup Interval (months) After Repair        0.00068       80.19877
+                Event:               DEAD       Death                                                0              1
+                -----------------------------------------------------------------------------------------------------
+
+   *------*
+   | Note |
+   *------*
+
+      in 1195 observation(s) RCENSOR has been changed from 0 to 1
+
+
+
+
+    Concomitant Information:
+    ========================
+
+
+         Phase     Variable      Label                                          Mean           Min          Max
+         -----------------------------------------------------------------------------------------------------------
+         Early:    AGE_COP       Age (years) at current operation              54.77219       8.23289      84.69168
+                   BLACK         Black race                                   0.1154599             0             1
+                   MALE          Male patient                                 0.6190476             0             1
+                   NYHA          Augmented NYHA functional class               2.909389             1             5
+                   AO_PINC       Pure aortic incompetence                     0.2367906             0             1
+                   I_PATH        Ischemic mitral pathology                   0.02348337             0             1
+                   NVE           Native valve endocarditis                   0.04370515             0             1
+                   MITRAL        Mitral valve replacement only                0.3118069             0             1
+                   DOUBLE        Multiple valve replacement                   0.1389432             0             1
+                   MECHVALV      Mechanic prosthesis inserted                 0.7090672             0             1
+                   BIO           Bioprosthesis inserted                       0.3124592             0             2
+                   -------------------------------------------------------------------------------------------------
+         Constant: AGE_COP       Age (years) at current operation              54.77219       8.23289      84.69168
+                   BLACK         Black race                                   0.1154599             0             1
+                   MALE          Male patient                                 0.6190476             0             1
+                   NYHA          Augmented NYHA functional class               2.909389             1             5
+                   AO_PINC       Pure aortic incompetence                     0.2367906             0             1
+                   I_PATH        Ischemic mitral pathology                   0.02348337             0             1
+                   NVE           Native valve endocarditis                   0.04370515             0             1
+                   MITRAL        Mitral valve replacement only                0.3118069             0             1
+                   DOUBLE        Multiple valve replacement                   0.1389432             0             1
+                   MECHVALV      Mechanic prosthesis inserted                 0.7090672             0             1
+                   BIO           Bioprosthesis inserted                       0.3124592             0             2
+         -----------------------------------------------------------------------------------------------------------
+
+
+    Model Specifications:
+    =====================
+
+                                       Initial Parameter Values
+                                       ------------------------                                                    Starting
+          Phase        Parameter       Specified        Used       |  Theta                          Estimated?    Value
+          -------------------------------------------------------------------------------------------------------------------
+          Early:       DELTA                    0             0    |  E1                             No
+                       THALF            0.6781774     0.6781774    |  E2                             No
+                        (RHO                           2.668966)   |
+                       NU                       0             0    |  E3                             No
+                       M                 -2.15596      -2.15596    |  E4                             No
+                       MUE             0.09596854    0.09596854 *  |  E0 = Ln(muE)                   Yes             -2.34373
+                       ------------------------------------------------------------------------------------------------------
+          Constant:    MUC             0.00349094    0.00349094    |  C0 = Ln(muC)                   Yes             -5.65758
+          -------------------------------------------------------------------------------------------------------------------
+    * The value used is different from the value specified.
+
+    Based on the values used, the following flags and equations have been set:
+          *-------------------------------------------------*
+          |  Early:                                         |
+          |        Delta = 0                Yes             |
+          |        M*Nu = |1|               No              |
+          |        M<0, Nu=0, Exponential equations 15 - 17 |
+          |  Constant:                                      |
+          |        Equations 24 - 25                        |
+          *-------------------------------------------------*
+
+
+    Computational Methods:
+    ======================
+
+      Optimization: Newton method using analytic derivatives
+                    initiated using an initial hessian matrix
+
+      Conservation of events: Invoked initially
+                                                      Primary Valve Operations                  13:44 Monday, September 18, 2000   2
+
+                                                     (1975 - July 1979; n=1533)
+                                                  Multivariable Analysis of Death
+
+    Results:
+    ========
+
+                                                    Forward Stepwise Selection
+
+    * During variable selection steps, variances are approximate because shaping parameter covariances are ignored.
+
+*----------------------------------------------------------------------------------*
+|Step 0.  Intercepts, included variables, and non-fixed shaping parameters entered.|
+*----------------------------------------------------------------------------------*
+
+
+
+        Optimization terminated after    1 iterations and     3 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =    0.2527101
+        Number of events conserved =          338
+
+        Log likelihood =     -1864.76
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -2.34373    0.09482807       -24.716        <.0001
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -5.65759    0.07707623       -73.402        <.0001
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE_COP   Age (years) at current operation            0.01917056   0.006768183         2.832        0.0046     1
+             BLACK     Black race                                   0.4683784     0.3157953         1.483        0.1380     1
+             MALE      Male patient                                 -0.391429     0.1931479        -2.027        0.0427     1
+             NYHA      Augmented NYHA functional class               1.294454     0.1433068         9.033        <.0001     1
+             AO_PINC   Pure aortic incompetence                      0.435186      0.224371         1.940        0.0524     1
+             I_PATH    Ischemic mitral pathology                     7.574753     0.9684101         7.822        <.0001     1
+             NVE       Native valve endocarditis                     2.208199     0.5910279         3.736        0.0002     1
+             MITRAL    Mitral valve replacement only                0.5617005     0.2065128         2.720        0.0065     1
+             DOUBLE    Multiple valve replacement                    1.211735     0.2934533         4.129        <.0001     1
+             MECHVALV  Mechanic prosthesis inserted                 0.4104361     0.2031455         2.020        0.0433     1
+             BIO       Bioprosthesis inserted                       -0.265333     0.1847371        -1.436        0.1509     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE_COP   Age (years) at current operation            0.01655338   0.005483286         3.019        0.0025     1
+             BLACK     Black race                                    1.224857     0.2646994         4.627        <.0001     1
+             MALE      Male patient                                 0.1855687     0.1579853         1.175        0.2402     1
+             NYHA      Augmented NYHA functional class              0.6243912     0.1148707         5.436        <.0001     1
+             AO_PINC   Pure aortic incompetence                     0.3066064     0.1809151         1.695        0.0901     1
+             I_PATH    Ischemic mitral pathology                     8.102301      1.051827         7.703        <.0001     1
+             NVE       Native valve endocarditis                     1.350817     0.4923163         2.744        0.0061     1
+             MITRAL    Mitral valve replacement only                0.3222709     0.1732138         1.861        0.0628     1
+             DOUBLE    Multiple valve replacement                   0.1127465     0.2757332         0.409        0.6826     1
+             MECHVALV  Mechanic prosthesis inserted                 -0.167668     0.1698738        -0.987        0.3236     1
+             BIO       Bioprosthesis inserted                       0.2493525      0.158535         1.573        0.1158     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+*----------------------------------------------------------*
+|Step   1. NYHA     added to EARLY PHASE                   |
+|                   with Z =       9.033 and P = <.0001    |
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    5 iterations and     7 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     2.663037
+        Number of events conserved =          338
+
+        Log likelihood =     -1827.19
+
+        -2(Difference in log likelihood) =      75.1363
+                                 P(diff) = <.0001
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -6.00454     0.4702939       -12.768        <.0001
+             NYHA      Augmented NYHA functional class               1.155591     0.1303536         8.865        <.0001     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -5.65175    0.07670628       -73.680        <.0001
+  --------------------------------------------------------------------------------------------------------------------------------
+                                                      Primary Valve Operations                  13:44 Monday, September 18, 2000   3
+
+                                                     (1975 - July 1979; n=1533)
+                                                  Multivariable Analysis of Death
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE_COP   Age (years) at current operation            0.01171745   0.006782432         1.728        0.0841     1
+             BLACK     Black race                                   0.2078417     0.2861001         0.726        0.4676     1
+             MALE      Male patient                                 -0.245208     0.1897021        -1.293        0.1962     1
+             AO_PINC   Pure aortic incompetence                      0.210355     0.2214306         0.950        0.3421     1
+             I_PATH    Ischemic mitral pathology                     2.547481     0.6109012         4.170        <.0001     1
+             NVE       Native valve endocarditis                    0.2563787     0.3483408         0.736        0.4617     1
+             MITRAL    Mitral valve replacement only                0.5259866     0.2021632         2.602        0.0093     1
+             DOUBLE    Multiple valve replacement                   0.7531254     0.2628078         2.866        0.0042     1
+             MECHVALV  Mechanic prosthesis inserted                 0.3602699     0.2054902         1.753        0.0796     1
+             BIO       Bioprosthesis inserted                       -0.244351     0.1813367        -1.348        0.1778     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE_COP   Age (years) at current operation            0.01487801   0.005401695         2.754        0.0059     1
+             BLACK     Black race                                    1.149704     0.2622673         4.384        <.0001     1
+             MALE      Male patient                                 0.2018346     0.1569318         1.286        0.1984     1
+             NYHA      Augmented NYHA functional class              0.3915832     0.1109753         3.529        0.0004     1
+             AO_PINC   Pure aortic incompetence                     0.3435995     0.1789033         1.921        0.0548     1
+             I_PATH    Ischemic mitral pathology                     7.026424      1.006165         6.983        <.0001     1
+             NVE       Native valve endocarditis                    0.7982712     0.4367139         1.828        0.0676     1
+             MITRAL    Mitral valve replacement only                 0.249281     0.1714332         1.454        0.1459     1
+             DOUBLE    Multiple valve replacement                  0.08280722     0.2696161         0.307        0.7587     1
+             MECHVALV  Mechanic prosthesis inserted                 -0.150501     0.1691654        -0.890        0.3736     1
+             BIO       Bioprosthesis inserted                       0.2424635     0.1582338         1.532        0.1254     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+*----------------------------------------------------------*
+|Step   2. I_PATH   added to CONSTANT PHASE                |
+|                   with Z =       6.983 and P = <.0001    |
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    4 iterations and     8 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     2.608235
+        Number of events conserved =     337.9988
+
+        Log likelihood =     -1819.85
+
+        -2(Difference in log likelihood) =     14.68322
+                                 P(diff) =     0.0001
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -6.04064     0.4779525       -12.639        <.0001
+             NYHA      Augmented NYHA functional class               1.159904     0.1322776         8.769        <.0001     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -5.68931    0.07848598       -72.488        <.0001
+             I_PATH    Ischemic mitral pathology                      1.58791     0.3168259         5.012        <.0001     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE_COP   Age (years) at current operation            0.01175928   0.006878192         1.710        0.0873     1
+             BLACK     Black race                                   0.2289951     0.2913582         0.786        0.4319     1
+             MALE      Male patient                                 -0.280926     0.1925658        -1.459        0.1446     1
+             AO_PINC   Pure aortic incompetence                     0.2567183     0.2247386         1.142        0.2533     1
+             I_PATH    Ischemic mitral pathology                     2.368605     0.8006464         2.958        0.0031     1
+             NVE       Native valve endocarditis                    0.2924378     0.3523753         0.830        0.4066     1
+             MITRAL    Mitral valve replacement only                0.4594491     0.2069774         2.220        0.0264     1
+             DOUBLE    Multiple valve replacement                   0.8114586     0.2664586         3.045        0.0023     1
+             MECHVALV  Mechanic prosthesis inserted                 0.3780391     0.2081153         1.816        0.0693     1
+             BIO       Bioprosthesis inserted                       -0.254539     0.1837067        -1.386        0.1659     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE_COP   Age (years) at current operation            0.01376886   0.005479682         2.513        0.0120     1
+             BLACK     Black race                                    1.149263      0.261763         4.390        <.0001     1
+             MALE      Male patient                                 0.1854484     0.1567189         1.183        0.2367     1
+             NYHA      Augmented NYHA functional class              0.3493021     0.1121113         3.116        0.0018     1
+             AO_PINC   Pure aortic incompetence                     0.4141189     0.1829554         2.263        0.0236     1
+             NVE       Native valve endocarditis                    0.8857342     0.4476009         1.979        0.0478     1
+             MITRAL    Mitral valve replacement only                0.1048485     0.1764627         0.594        0.5524     1
+             DOUBLE    Multiple valve replacement                   0.1378262     0.2763847         0.499        0.6180     1
+             MECHVALV  Mechanic prosthesis inserted                 -0.184533     0.1691035        -1.091        0.2752     1
+             BIO       Bioprosthesis inserted                       0.2763516     0.1587092         1.741        0.0816     1
+  --------------------------------------------------------------------------------------------------------------------------------
+                                                      Primary Valve Operations                  13:44 Monday, September 18, 2000   4
+
+                                                     (1975 - July 1979; n=1533)
+                                                  Multivariable Analysis of Death
+
+
+
+*----------------------------------------------------------*
+|Step   3. BLACK    added to CONSTANT PHASE                |
+|                   with Z =       4.390 and P = <.0001    |
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    4 iterations and     6 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     2.583134
+        Number of events conserved =     337.9999
+
+        Log likelihood =     -1812.54
+
+        -2(Difference in log likelihood) =     14.61679
+                                 P(diff) =     0.0001
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -6.05578     0.4827641       -12.544        <.0001
+             NYHA      Augmented NYHA functional class               1.160498     0.1335723         8.688        <.0001     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -5.79727    0.08652395       -67.002        <.0001
+             BLACK     Black race                                   0.7838542     0.1862192         4.209        <.0001     1
+             I_PATH    Ischemic mitral pathology                     1.591521     0.3167046         5.025        <.0001     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE_COP   Age (years) at current operation             0.0136577   0.006968144         1.960        0.0500     1
+             BLACK     Black race                                  -0.0552173     0.3058332        -0.181        0.8567     1
+             MALE      Male patient                                 -0.284261     0.1941567        -1.464        0.1432     1
+             AO_PINC   Pure aortic incompetence                     0.2097701     0.2271652         0.923        0.3558     1
+             I_PATH    Ischemic mitral pathology                     2.465683     0.8089928         3.048        0.0023     1
+             NVE       Native valve endocarditis                    0.2910645     0.3582278         0.813        0.4165     1
+             MITRAL    Mitral valve replacement only                0.4662739     0.2085099         2.236        0.0253     1
+             DOUBLE    Multiple valve replacement                   0.7705819     0.2698166         2.856        0.0043     1
+             MECHVALV  Mechanic prosthesis inserted                 0.4179421     0.2103187         1.987        0.0469     1
+             BIO       Bioprosthesis inserted                        -0.29833     0.1862227        -1.602        0.1092     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  AGE_COP   Age (years) at current operation            0.01722458   0.005361932         3.212        0.0013     1
+             MALE      Male patient                                 0.1994657     0.1556407         1.282        0.2000     1
+             NYHA      Augmented NYHA functional class              0.3378189     0.1110917         3.041        0.0024     1
+             AO_PINC   Pure aortic incompetence                     0.1850137      0.185128         0.999        0.3176     1
+             NVE       Native valve endocarditis                    0.5760848     0.4118698         1.399        0.1619     1
+             MITRAL    Mitral valve replacement only                0.1186133     0.1758848         0.674        0.5001     1
+             DOUBLE    Multiple valve replacement                   0.1493991     0.2698506         0.554        0.5798     1
+             MECHVALV  Mechanic prosthesis inserted                -0.0386763     0.1690129        -0.229        0.8190     1
+             BIO       Bioprosthesis inserted                       0.1256703     0.1558723         0.806        0.4201     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+*----------------------------------------------------------*
+|Step   4. AGE_COP  added to CONSTANT PHASE                |
+|                   with Z =       3.212 and P =     0.0013|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    3 iterations and     5 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     5.114103
+        Number of events conserved =     337.9999
+
+        Log likelihood =     -1807.13
+
+        -2(Difference in log likelihood) =     10.82729
+                                 P(diff) =     0.0010
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -6.01729     0.4862645       -12.375        <.0001
+             NYHA      Augmented NYHA functional class               1.149157     0.1347707         8.527        <.0001     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                       -6.8464     0.3495228       -19.588        <.0001
+             AGE_COP   Age (years) at current operation            0.01858688   0.005827402         3.190        0.0014     1
+             BLACK     Black race                                   0.9142379     0.1895149         4.824        <.0001     1
+             I_PATH    Ischemic mitral pathology                     1.465132     0.3220015         4.550        <.0001     1
+  --------------------------------------------------------------------------------------------------------------------------------
+                                                      Primary Valve Operations                  13:44 Monday, September 18, 2000   5
+
+                                                     (1975 - July 1979; n=1533)
+                                                  Multivariable Analysis of Death
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE_COP   Age (years) at current operation            0.01044163   0.007042506         1.483        0.1382     1
+             BLACK     Black race                                  -0.0335539     0.3055136        -0.110        0.9125     1
+             MALE      Male patient                                 -0.274957     0.1944563        -1.414        0.1574     1
+             AO_PINC   Pure aortic incompetence                     0.2516698     0.2288296         1.100        0.2714     1
+             I_PATH    Ischemic mitral pathology                      2.86249     0.8524539         3.358        0.0008     1
+             NVE       Native valve endocarditis                    0.2979219     0.3608679         0.826        0.4090     1
+             MITRAL    Mitral valve replacement only                0.4719221     0.2090606         2.257        0.0240     1
+             DOUBLE    Multiple valve replacement                    0.799633     0.2699842         2.962        0.0031     1
+             MECHVALV  Mechanic prosthesis inserted                 0.4392408     0.2106601         2.085        0.0371     1
+             BIO       Bioprosthesis inserted                       -0.311165     0.1861283        -1.672        0.0946     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  MALE      Male patient                                 0.1512254     0.1573286         0.961        0.3364     1
+             NYHA      Augmented NYHA functional class              0.2984993     0.1150706         2.594        0.0095     1
+             AO_PINC   Pure aortic incompetence                     0.2925535     0.1936252         1.511        0.1308     1
+             NVE       Native valve endocarditis                     1.012563     0.4653379         2.176        0.0296     1
+             MITRAL    Mitral valve replacement only                0.2290363     0.1827714         1.253        0.2102     1
+             DOUBLE    Multiple valve replacement                   0.3112843     0.2902812         1.072        0.2836     1
+             MECHVALV  Mechanic prosthesis inserted               -0.00227624     0.1674063        -0.014        0.9892     1
+             BIO       Bioprosthesis inserted                       0.1070521     0.1562778         0.685        0.4933     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+*----------------------------------------------------------*
+|Step   5. I_PATH   added to EARLY PHASE                   |
+|                   with Z =       3.358 and P =     0.0008|
+*----------------------------------------------------------*
+
+
+
+        Optimization terminated after    5 iterations and     8 function evaluations
+        Normal exit: Convergence attained
+        Log base 10 of condition code =     5.127663
+        Number of events conserved =     337.9999
+
+        Log likelihood =     -1804.78
+
+        -2(Difference in log likelihood) =     4.694245
+                                 P(diff) =     0.0303
+
+
+    *** Stopping after maximum steps specified.
+
+                                                  Summary of Variables in the Model
+                                                  ---------------------------------
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     E0                                                      -5.95722     0.4906013       -12.143        <.0001
+             NYHA      Augmented NYHA functional class               1.121142     0.1368579         8.192        <.0001     1
+             I_PATH    Ischemic mitral pathology                    0.9513664     0.3615844         2.631        0.0085     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  C0                                                      -6.86746     0.3508747       -19.572        <.0001
+             AGE_COP   Age (years) at current operation            0.01897221   0.005842519         3.247        0.0012     1
+             BLACK     Black race                                   0.9266753     0.1899791         4.878        <.0001     1
+             I_PATH    Ischemic mitral pathology                     1.243374     0.3660115         3.397        0.0007     1
+  --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                   Summary of Variables not in the Model (Based on Q Statistics)
+
+                                                                                                                         Moves
+  Phase      Variable  Label                                      Estimate      Std error            Z        Prob>|Z|   Remaining
+  --------------------------------------------------------------------------------------------------------------------------------
+  Early:     AGE_COP   Age (years) at current operation           0.009036191   0.007173625         1.260        0.2078     1
+             BLACK     Black race                                   0.0127973     0.3102826         0.041        0.9671     1
+             MALE      Male patient                                 -0.299498      0.194447        -1.540        0.1235     1
+             AO_PINC   Pure aortic incompetence                     0.3361646     0.2355978         1.427        0.1536     1
+             NVE       Native valve endocarditis                    0.3859107     0.3735796         1.033        0.3016     1
+             MITRAL    Mitral valve replacement only                0.3742011     0.2176114         1.720        0.0855     1
+             DOUBLE    Multiple valve replacement                    0.896404     0.2777221         3.228        0.0012     1
+             MECHVALV  Mechanic prosthesis inserted                 0.4324697     0.2087476         2.072        0.0383     1
+             BIO       Bioprosthesis inserted                       -0.307322     0.1858719        -1.653        0.0982     1
+             ---------------------------------------------------------------------------------------------------------------------
+  Constant:  MALE      Male patient                                   0.14535     0.1579406         0.920        0.3574     1
+             NYHA      Augmented NYHA functional class              0.3053019     0.1154878         2.644        0.0082     1
+             AO_PINC   Pure aortic incompetence                       0.28909     0.1935942         1.493        0.1354     1
+             NVE       Native valve endocarditis                     1.032967     0.4660262         2.217        0.0267     1
+             MITRAL    Mitral valve replacement only                 0.234904     0.1827397         1.285        0.1986     1
+             DOUBLE    Multiple valve replacement                   0.3228004     0.2906276         1.111        0.2667     1
+             MECHVALV  Mechanic prosthesis inserted                0.01240993     0.1683134         0.074        0.9412     1
+             BIO       Bioprosthesis inserted                      0.09538188     0.1570017         0.608        0.5435     1
+  --------------------------------------------------------------------------------------------------------------------------------
+                                                      Primary Valve Operations                  13:44 Monday, September 18, 2000   6
+
+                                                     (1975 - July 1979; n=1533)
+                                                  Multivariable Analysis of Death
+
+
+
+    Final Results:
+    ==============
+
+
+                                                  Parameter Estimate Summary
+
+    Phase      Parameter   Label                                       Estimate       Std error             Z          Prob>|Z|
+    --------------------------------------------------------------------------------------------------------------------------------
+    Early:     E0                                                         -5.95722      0.4906013        -12.143          <.0001
+               NYHA        Augmented NYHA functional class                1.121142      0.1368579          8.192          <.0001
+               I_PATH      Ischemic mitral pathology                     0.9513664      0.3615844          2.631          0.0085
+               ---------------------------------------------------------------------------------------------------------------------
+    Constant:  C0                                                         -6.86746      0.3508747        -19.572          <.0001
+               AGE_COP     Age (years) at current operation             0.01897221    0.005842519          3.247          0.0012
+               BLACK       Black race                                    0.9266753      0.1899791          4.878          <.0001
+               I_PATH      Ischemic mitral pathology                      1.243374      0.3660115          3.397          0.0007
+    --------------------------------------------------------------------------------------------------------------------------------
+
+
+                                                  Estimates for Model Parameters
+
+                                          Phase       Parameter     Fixed?     Estimate
+                                          ------------------------------------------------
+                                          Early:      DELTA         Yes                  0
+                                                      THALF         Yes          0.6781774
+                                                       (RHO                       2.668966)
+                                                      NU            Yes                  0
+                                                      M             Yes           -2.15596
+                                                      MUE                      0.002587094
+                                                      ------------------------------------
+                                          Constant:   MUC                      0.001041117
+                                          ------------------------------------------------

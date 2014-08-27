@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3c.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+  <head>
+    <title>Hazard Function Installation</title>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+      <!-- Required by xhtml to define the default character set. -->
+      <meta http-equiv="Content-type" content="text/html; charset=iso-8859-1" />
+
+  </head>
+
+  <body>
+    <h1>Hazard Function Installation</h1>
+    <p>
+      This documents the steps required to install the Hazard package on
+      to your computer system. There are four basic steps to getting the
+      system up and running on your system. 
+    </p>	
+    <ol>
+      <li>
+	<a href="#sas">Verify your SAS installation.</a>
+      </li>	
+      <li>
+	<a href="#compile">Compile the source code.</a>
+      </li>	
+      <li>
+	<a href="#installation">Install the binary executables.</a>
+      </li>		
+      <li>
+	<a href="#setup">Setup the system and SAS environments.</a>
+      </li>	
+    </ol>
+    
+    <p>
+      Throughout the document, we will note platform specific steps by either
+      <strong>Windows</strong> or <strong>UNIX</strong>. Our 
+      <strong>UNIX</strong> experience is taken from the Solaris platform,
+      but should be useful for all <strong>UNIX</strong> variants.
+      Our <strong>Windows</strong> experience is taken from Windows 2000,
+      other versions are noted where possible.
+    </p>
+    <a id="sas" name="sas"></a>
+    <h2>Verify your SAS installation.</h2>
+    <p>
+      The Hazard package requires SAS for pre and post processing of data 
+      and result sets. Hazard has been successfully run on many versions of
+      the SAS system. Hazard Version 4.1.x has been tested on SAS V 6.12 and
+      V 8.
+    </p>
+    <p>
+      You can test your version of SAS by simply executing the SAS command.
+    </p>
+    <dl>
+      <dt><strong>UNIX</strong>: From the command line, issue the SAS 
+	command.
+      </dt>
+      <dd></dd>
+      <dt><strong>Windows</strong>: From the <tt>start</tt> menu go to
+	<tt>Programs</tt> and look for the <tt>SAS</tt> or 
+	<tt>SAS Institute</tt> program group and open the <tt>SAS</tt>
+	program.
+      </dt>
+      <dd></dd>
+    </dl>
+    <a id="compile" name="compile"></a>
+    <h2>Compile the source code.</h2>
+    <p>
+      If you downloaded the platform specific pre-compiled versions of the
+      package, currently available for the 
+      <a href="hazard.win32.zip">Windows</a> and
+      <a href="hazard.solaris.tar.gz">Solaris</a> platforms, you can skip to 
+      the
+      <a href="#installation">next section</a>.
+    </p>
+    <p>
+      If you are running a platform besides Windows or Solaris, you must 
+      compile your own executables from the source code distribution. 
+    </p>
+    <p>
+      The HAZARD package written entirely in ANSI standard C, and uses lex
+      and yacc for parsing its input commands.  You must have equivalent 
+      compilers installed on your system before attempting to install 
+      HAZARD. Fortunately, all the tools required are available for many
+      platforms from through the GNU project. The GCC C / compiler
+      system can be downloaded from 
+      <a href="http://gcc.gnu.org/">gcc.gnu.org</a>. You can also
+      download the flex lexer and bison parser to perform the lex and yacc
+      functions from <a href="http://www.gnu.org">www.gnu.org</a>.
+    </p>
+    <p>
+      Compiling the source code has been greatly simplified in Version 
+      4.1.x of the Hazard package. We are now using the autoconf package 
+      to automate the compile and install process. The steps are described
+      in the INSTALL file in the root of the distribution. The basic steps
+      are as follows:
+    </p>
+    <ol>
+      <li>Decide where to install the executables. By default they will be
+	installed in the /usr/local/hazard directory.
+      </li>
+      <li>Issue the <tt>./configure</tt> command. If you want to move
+	the installation directory, issue the command as 
+	<tt>configure --prefix=/install/directory/</tt>.
+	An example install directory could be $HOME/hazard. The 
+	configure will build the make files required to compile the package.
+	It will find required tools and environment to (hopefully)
+	successfully build the system.
+      </li>
+      <li>Issue the <tt>make</tt> command to compile the code.
+      </li>
+      <li>Issue the <tt>make install</tt> command to completly install
+	the package into your install directory.
+      </li>
+    </ol>
+    <p>
+      <strong>UNIX</strong>: If you have compiled the system on a platform
+      besides Windows or Solaris, we would like to hear about your 
+      experiences. Please contact us at
+      <a href="mailto:hazard@bio.ri.ccf.org">hazard@bio.ri.ccf.org</a>.
+      Pleas include the platform you are working on. If you would like to
+      contribute a binary distribution kit, contact us for instructions on
+      building the necessary files.
+    </p>
+    <p>
+      At this point, you can skip to the <a href="#setup">Hazard setup</a> 
+      section.
+    </p>
+    <p>
+      <strong>Windows</strong>: A note about the Windows system is in
+      order here. The Windows executables have been compiled from the same
+      source code as the Unix versions. We accomplished this by using the
+      CYGWIN tools. They are also freely available and can be downloaded 
+      from 
+      <a href="http://sources.redhat.com/cygwin/">sources.redhat.com/cygwin</a>. 
+      If you install the full distribution, you do not need to install any
+      other tools. Once you install these tools, you can compile the
+      sources into executables using the instructions given here.
+    </p>
+    <p>
+      The recommended installation directory under CYGWIN is c:\hazard. The
+      configure command to install the program in this location is:
+    </p>
+    <pre>
+      <tt>./configure --prefix=//c/hazard</tt>
+    </pre>
+    <a id="installation" name="installation"></a>
+    <h2>Install the binary executables.</h2>
+    <p>
+      Now that the programs have been compiled and linked into an 
+      executable form, you need to install the package. 
+    </p>
+    <p>
+      If you compiled your own executable, the <tt>make install</tt>
+      command completes this process. You can then proceed to the 
+      <a href="#setup">setup</a> section.
+    </p>
+    <a id="binary" name="binary"></a>
+    <p>
+      From the Binary packages, follow the instructions for your 
+      specific platform.
+    </p>
+    <p>
+      <strong>UNIX</strong>: You may need root access to complete the 
+      installation if you do not have permission to write to the 
+      installation directory.
+    </p>
+    <dl>
+      <dt>Change to the parent of your installation directory and unpack
+	the binary kit.
+      </dt>
+      <dd>If you want the package installed in the hazard directory under
+	your user home, cd to $HOME
+      </dd>
+      <dt>Unpack the binary distribution.
+      </dt>
+      <dd>Use the following command to unpack the distribution.
+	<pre>
+gzip -d < /path/to/distribution/hazard.PLATFORM.tar.gz | tar -xvf -
+	</pre>
+      </dd>
+    </dl>
+    <p>
+      <strong>Windows</strong>: We use the winzip package to unzip windows
+      distributions. It is available at
+      <a href="http://www.winzip.com/ddchomea.htm">winzip</a>. 
+    </p>
+    <p>
+      Once you've installed Winzip, the 
+      <a href="hazard.win32.zip">Windows</a> 
+      link will automatically launch the winzip application. You must 
+      "extract" the files to your installation directory. We recommend
+      placing them inthe <tt>c:\</tt> directory.
+    </p>
+    <p>
+      The distribution for any platform will create the <tt>hazard</tt> 
+      directory containing the standard hazard directory structure.
+    </p>
+    <a id="setup" name="setup"></a>
+    <h2>Setting up the system and SAS environments</h2>
+    <p>
+      The hazard package requires some environment variables to be set so 
+      that the macros that run the system know where to find the package 
+      directories. Different operating systems require different methods of
+      setting these variables. 
+    </p>
+    <ul>
+     <li><a href="#Unix_setup">Unix Setup</a></li>
+       <li><a href="#Win_setup">Windows Setup</a></li>
+   </ul>
+
+    <a id="Unix_setup" name="Unix_setup"></a>
+    <h3>Unix Setup</h3>
+    <p>
+      For Unix, the environment can be set in your startup files. If you are
+      using ksh, bash or sh, use the export command from a 
+      <tt>.profile</tt> file.
+    </p>
+    <p>
+      <tt>export VARIABLE=value</tt>
+    </p>
+    <p>
+      for csh and it's variants use the setenv command in your
+      <tt>.cshrc</tt> file
+    </p>
+    <p>
+      <tt>setenv VARIABLE value</tt>
+    </p>
+    <p>
+      If you need help setting these up correctly, contact your system 
+      administrator.
+    </p>
+    <table border="1" summary="Unix environment variables">
+      <caption align="bottom">
+	Hazard Environment variables for Unix platforms
+      </caption>
+      
+      <tr>
+	<th>
+	  VARIABLE
+	</th>
+	<th width="30%">
+	  Recommended value
+	</th>
+	<th>
+	  Description
+	</th>
+      </tr>
+      <tr>
+	<td>
+	  HAZARD
+	</td>
+	<td>
+	  /usr/local/hazard or<br />
+	    $HOME/hazard
+	</td>
+	<td>
+	  The root of the hazard installation
+	</td>
+      </tr>
+      <tr>
+	<td>
+	  HAZAPPS
+	</td>
+	<td>
+	  $HAZARD/bin
+	</td>
+	<td>
+	  Executable files
+	</td>
+      </tr>
+      <tr>
+	<td>
+	  HZEXAMPLES
+	</td>
+	<td>
+	  $HAZARD/examples
+	</td>
+	<td>
+	  Examples sas jobs and data sets
+	</td>
+      </tr>
+      <tr>
+	<td>
+	  MACROS
+	</td>
+	<td>
+	  $HAZARD/macros
+	</td>
+	<td>
+	  Example SAS macros used by $HZEXAMPLE files
+	</td>
+      </tr>
+    </table>
+    <a id="Win_setup" name="Win_setup"></a>
+    <h3>Windows Setup</h3>
+    <p>
+      In Windows, From the <tt>Start</tt> menu choose
+      <tt>Settings</tt> and <tt>Control Panels</tt>. Select the 
+      <tt>System</tt> control panel and go to the <tt>Advanced</tt> tab to
+      set the <tt>Environment Variables...</tt>.
+    </p>
+    <p>
+      We added our the variables to the 
+      <tt>User variables for <i>username</i></tt>" using the
+      <tt>New...</tt> button in the upper section of the panel. If you hav 
+      administration privledge, you could add them to the 
+      <tt>System variables</tt> so all users on the machine would not have
+      to individually set their own environment.
+    </p>
+    <p>
+      In Windows 9X/ME, edit the Autoexec.bat file on your System Disk,
+      usually the C: drive. Add a line of the following form for each
+      environment variable:
+    </p>
+    <p>
+      <tt>set VARIABLE=value</tt>
+    </p>
+    <p>
+      The following variables should be defined, they are case sensitive.
+    </p>
+    <table border="1" summary="Windows environment variables">
+      <caption align="bottom">
+	Hazard Environment variables for Windows platforms
+      </caption>
+      <tr>
+	<th>
+	  VARIABLE
+	</th>
+	<th width="30%">
+	  Recommended Variable Value
+	</th>
+	<th>
+	  Description
+	</th>
+      </tr>
+      <tr>
+	<td>
+	  TMPDIR
+	</td>
+	<td>
+	  %TEMP%
+	</td>
+	<td>
+	  The location the Hazard package stores temporary files.
+	</td>
+      </tr>	
+      <tr>
+	<td>
+	  HAZARD
+	</td>
+	<td>
+	  c:\hazard
+	</td>
+	<td>
+	  The root of the hazard installation
+	</td>
+      </tr>
+      <tr>
+	<td>
+	  HAZAPPS
+	</td>
+	<td>
+	  %HAZARD%\bin
+	</td>
+	<td>
+	  Executable files
+	</td>
+      </tr>
+      <tr>
+	<td>
+	  HZEXAMPLES
+	</td>
+	<td>
+	  %HAZARD%\examples
+	</td>
+	<td>
+	  Examples sas jobs and data sets
+	</td>
+      </tr>
+      <tr>
+	<td>
+	  MACROS
+	</td>
+	<td>
+	  %HAZARD%\macros
+	</td>
+	<td>
+	  Example SAS macros used by %HZEXAMPLE% files
+	</td>
+      </tr>
+    </table>
+    <p>
+      You may need to restart you machine for the environment to be correctly
+      setup.
+    </p>
+    <p>
+      You can now proceed to setting up your 
+      <a href="#SAS_setup">SAS environment</a>.
+    </p>
+    <a id="SAS_setup" name="SAS_setup"></a>
+    <h3>SAS Setup</h3>
+    <p>
+      Finally, you need to SAS where to find the hazard and hazpred 
+      macros. Our versions of SAS the config file is named sasv8.cfg, you
+      should find a similar file for your release of SAS.
+    </p>
+    <p>
+      <strong>UNIX</strong>:On the unix platform, your personal version
+      is located in your home directory (<tt>~/sasv?.cfg</tt>). 
+    </p>
+    <p>
+      <strong>Windows</strong>: On Windows, it is either in the 
+      <tt>c:\Program Files\Sas Institute\SAS\V8</tt> directory or under
+      your personal directory <tt>My Documents\My SAS Files\V8</tt>. The
+      best way to find it is to do a seach for <tt>sas*.cfg</tt>.
+    </p>
+    <p>
+      Edit your config file, and find the sasautos command and add the
+      HAZAPPS environment variable to it. The ! character tells SAS to
+      interpret the following name as an environment variable in a
+      platform independent manner:
+    </p>
+    <p>
+      <strong>UNIX</strong>: Our unix sasautos command look like this:
+    </p>
+    <p>
+      <tt>-sasautos ( '!SASROOT8/sasautos' '!HAZAPPS')</tt>
+    </p>
+    <p>
+      <strong>Windows</strong>: On the Windows platform:
+    </p>
+    <pre>
+  /* Setup the SAS System autocall library definition */
+	  -SET SASAUTOS  (
+	       "!sasroot\core\sasmacro"
+	       "!sasext0\graph\sasmacro"
+	       "!sasext0\stat\sasmacro"
+	       "!HAZAPPS"
+	  )
+    </pre>
+    <p>
+      <strong>Windows</strong>: On the Windows platform, add the
+      following line to your sas config file
+    </p>
+    <pre>
+    /* Allow external commands to exit automatically */
+	  -noxwait
+    </pre>
+    <p>
+      By default, SAS causes externally run programs to automatically open a
+      DOS command window. The default behavior of the window requires you to
+      type exit at the command prompt to close each window. The -noxwait 
+      command changes the behavior so that the window will close
+      automatically.
+    </p>
+    <h2>Testing Hazard Installation</h2>
+    <p>
+      The easiest way to test your Hazard installation is to run one of the
+      Hazard example programs. Go to your !HZEXAMPLES directory and try
+      running any/all of the example programs there. Documentation
+      for the examples is located on the 
+      <a href="./examples.html">Examples page</a>.
+    </p>
+    <p>
+      Further documentation of the hazard system is available on our 
+      <a href="./documentation.html">Documentation page</a>.
+    </p>
+    <h2>Contact Information</h2>
+    <p>
+      If you experience any difficulties with the installation or use of
+      the HAZARD package, please contact us.  The e-mail address is:
+    </p>
+    <address>
+      <a href="mailto:hazard@bio.ri.ccf.org">hazard@bio.ri.ccf.org</a>
+    </address>
+    <p>
+      Or, our daytime phone number is (216) 444-6712.  We would appreciate
+      any feedback about your positive and negative experiences with the
+      package, as well.
+    </p>
+    
+    <hr />
+      <address>
+	<a href="http://validator.w3.org/check/referer" target="_top">
+	  <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" align="right" border="0" /></a>
+	<a href="mailto:hazard@bio.ri.ccf.org">hazard@bio.ri.ccf.org</a>
+      </address>
+
+  </body>
+</html>

@@ -1,0 +1,35 @@
+*******************************************************************************;
+* <2003-10-17>                                                                 ;            
+*______________________________________________________________________________;
+* Chi-square P-values based on observed vs. expected proportions of            ;
+* events.  NOTE:  all proportions given in percentages                         ;
+* 2/24/97:  Change test statistic to reflect t-score rather than z-score       ;
+  %MACRO CHISQGF(N=N, OBSERVED=OBSERVED, EXPECTED=EXPECTED, PROB_OBS=PROB_OBS,
+                 PROB_EXP=PROB_EXP, ZVALUE=ZVALUE, PVALUE=PVALUE);
+*______________________________________________________________________________;
+*                                                                              ;
+* DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+*                                                                              ;
+* INPUT                                                                        ;
+*   N        = Denominator (sample size)         N                             ;
+*   OBSERVED = Number of observed events         OBSERVED                      ;
+*   EXPECTED = Number of expected events         EXPECTED                      ;
+*                                                                              ;
+* OUTPUT                                                                       ;
+*   PROB_OBS = Proportion observed               PROB_OBS                      ;
+*   PROB_EXP = Proportion expected               PROB_EXP                      ;
+*   ZVALUE   = Z(t)-value for difference         ZVALUE                        ;
+*   PVALUE   = P-value for difference            PVALUE                        ;
+*______________________________________________________________________________;
+*                                                                              ;
+  &PROB_OBS = &OBSERVED*100/&N;
+  &PROB_EXP = &EXPECTED*100/&N;
+  OBS_Y = &N - &OBSERVED;
+  EXP_Y = &N - &EXPECTED;
+  Z = SQRT((((&OBSERVED-&EXPECTED)**2)/&EXPECTED)
+    + (((OBS_Y-EXP_Y)**2)/EXP_Y));
+  &ZVALUE = Z; IF &OBSERVED<&EXPECTED THEN &ZVALUE=-Z;
+* &PVALUE = 2*(1 - PROBNORM(Z));
+  &PVALUE=.; IF &N>1 THEN &PVALUE = 2*(1 - PROBT(Z, (&N-1)));
+  %MEND CHISQGF;
+*******************************************************************************;

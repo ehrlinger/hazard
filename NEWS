@@ -1,0 +1,28 @@
+hazard -- History of visible changes.
+
+Copyright (C) 2000, The Cleveland Clinic Foundation <hazard@bio.ri.ccf.org>
+See the end for copying conditions.
+
+Please send hazard bug reports to hazard@bio.ri.ccf.org.
+
+Version 4.1
+
+We have posted Hazard to a new distribution site at 
+www.clevelandclinic.org/heartcenter/hazard. We have packaged the source code
+using autoconf to make compiling and installing the package easier to use.
+
+-------------------------------------------------------
+Copying information:
+
+Copyright (C) 2000, The Cleveland Clinic Foundation <hazard@bio.ri.ccf.org>
+
+   Permission is granted to anyone to make or distribute verbatim copies
+   of this document as received, in any medium, provided that the
+   copyright notice and this permission notice are preserved,
+   thus giving the recipient permission to redistribute in turn.
+
+   Permission is granted to distribute modified versions
+   of this document, or of portions of it,
+   under the above conditions, provided also that they
+   carry prominent notices stating who last changed them.
+

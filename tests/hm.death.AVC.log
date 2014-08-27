@@ -1,0 +1,324 @@
+122    OPTIONS PAGESIZE=100 LINESIZE=132;
+123  *******************************************************************************;
+
+124  * !HZEXAMPLES/hm.death.AVC                                                     ;
+
+125  *                                                                              ;
+
+126  * Multivariable analysis of death after repair                                 ;
+
+127  * NOTE:  we will use just a few of the variables for illustration              ;
+
+128  *******************************************************************************;
+
+129  * Bring in data                                                                ;
+
+130    TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+131    TITLE2 'Example Data Set';
+132    TITLE3 'Multivariable Analysis of Death After Repair';
+133  *______________________________________________________________________________;
+
+134  *                                                                              ;
+
+135  * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+
+136  *        data.  For illustration, a few variables from a data set for repair   ;
+
+137  *        of atrioventricular septal defects will be read from a "flat file."   ;
+
+138  *______________________________________________________________________________;
+
+139  *                                                                              ;
+
+140    FILENAME INAVC ('!HZEXAMPLES/data/avc');
+141    DATA AVCS; INFILE INAVC MISSOVER;
+142    INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+
+143          OP_AGE;
+144    LABEL
+145          STUDY    = 'Study number'
+146          STATUS   = 'Clinical status (NYHA I-V)'
+147          INC_SURG = 'Surgical grade of AV valve incompetence'
+148          OPMOS    = 'Date of operation (months since 1/67)'
+149          AGE      = 'Age (months) at repair'
+150          MAL      = 'Important associated cardiac anomaly'
+151          COM_IV   = 'Interventricular communication'
+152          ORIFICE  = 'Accessory left AV valve orifice'
+153          DEAD     = 'Death'
+154          INT_DEAD = 'Followup interval (months) after repair'
+155    ;
+156  *******************************************************************************;
+
+157  * Data transformations                                                         ;
+
+158  * Logarithmic:                                                                 ;
+
+159    LN_AGE=LOG(AGE);
+160    LN_OPMOS=LOG(OPMOS);
+161    LN_INC=.; IF INC_SURG NE . THEN LN_INC=LOG(INC_SURG+1);
+162    LN_NYHA=LOG(STATUS);
+163  * Inverse:                                                                     ;
+
+164  * Power:                                                                       ;
+
+165  * Exponential:                                                                 ;
+
+166  * Categorizations:                                                             ;
+
+167  * New variables:                                                               ;
+
+168  *______________________________________________________________________________;
+
+169  *                                                                              ;
+
+170  * NOTE:  These transformations would normally be suggested by some logistic    ;
+
+171  *        or Gompertz plots such as in lg.death.AVC                             ;
+
+172  *______________________________________________________________________________;
+
+173  *                                                                              ;
+
+174  *******************************************************************************;
+
+175  * Interactions                                                                 ;
+
+176  * OP_AGE=OPMOS*AGE; /* Interaction term already is on the input file */
+177  *______________________________________________________________________________;
+
+178  *                                                                              ;
+
+179  * NOTE:  From a medical standpoint, important interactions with the two types  ;
+
+180  *        a AV canal (complete and partial, as embodies in COM_IV) would be     ;
+
+181  *        important.  This was done with separate analyses, and no interactions ;
+
+182  *        were, in fact, identified.                                            ;
+
+183  *______________________________________________________________________________;
+
+184  *                                                                              ;
+
+185  *******************************************************************************;
+
+186  * Standardize variables with missing values                                    ;
+
+
+NOTE: The infile INAVC is:
+      File Name=c:\hazard\examples\data\avc,
+      RECFM=V,LRECL=256
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.10 seconds
+      cpu time            0.10 seconds
+
+
+187    PROC STANDARD DATA=AVCS OUT=AVCS REPLACE; VAR INC_SURG LN_INC;
+188  *______________________________________________________________________________;
+
+189  *                                                                              ;
+
+190  * NOTE:  What to do about the few missing values we have?  Here we suggest     ;
+
+191  *        standardizing to the mean of the entire group of patients.            ;
+
+192  *______________________________________________________________________________;
+
+193  *                                                                              ;
+
+194  * Stepwise analysis                                                            ;
+
+195    %HAZARD(
+196    PROC HAZARD DATA=AVCS NOCOV NOCOR CONDITION=14;
+197         TIME INT_DEAD;
+198         EVENT DEAD;
+199         PARMS MUE=0.2361697 THALF=0.1511909 NU=1.438631 M=1 FIXM
+200               FIXTHALF FIXNU
+201               MUC=0.0005437256;
+202  *______________________________________________________________________________;
+
+203  *                                                                              ;
+
+204  * Notice that we fix the shaping parameters during the analysis process.  This ;
+
+205  * greatly (by an order of magnitude, at least) accelerates the optimization and;
+
+206  * avoids many problems.  After the analysis, one will want to fit all the      ;
+
+207  * model parameters.                                                            ;
+
+208  *______________________________________________________________________________;
+
+209  *                                                                              ;
+
+210         SELECTION SLE=0.2 SLS=0.1;
+211  *______________________________________________________________________________;
+
+212  *                                                                              ;
+
+213  * Notice that we try to group the variables in some medically rational way.    ;
+
+214  * Indeed, organizing the variables, evaluating them individually, and          ;
+
+215  * discovering their interrelations are necessary prior to any multivariable    ;
+
+216  * analysis.  Also, this is a plain stepwise foreward variable selection.       ;
+
+217  * You may wish to try ORDER options, MOVE options, MAXVARS, MAXSTEPS, RESTRICT ;
+
+218  * and other options.                                                           ;
+
+219  *______________________________________________________________________________;
+
+220  *                                                                              ;
+
+221         EARLY
+222    /* Demographic variables */
+223           AGE,
+224    /* Clinical variables */
+225           STATUS,
+226    /* Morphologic variables */
+227           COM_IV/S, ORIFICE, MAL/I, INC_SURG,
+228    /* Surgical experience variables */
+229           OPMOS,
+230    /* Interaction terms */
+231           OP_AGE
+232         ;
+233  *______________________________________________________________________________;
+
+234  *                                                                              ;
+
+235  * Notice that there is a comma separating the variables.  This is necessary    ;
+
+236  * so that we can add variable control directly to each variable, such as       ;
+
+237  * COM_IV/S to indicate starting with this variable in the model, and MAL/I     ;
+
+238  * meaning that we are including this variable in the model.                    ;
+
+239  *______________________________________________________________________________;
+
+240  *                                                                              ;
+
+241         CONSTANT
+242    /* Demographic variables */
+243           AGE,
+244    /* Clinical variables */
+245           STATUS,
+246    /* Morphologic variables */
+247           COM_IV/E, ORIFICE/S, MAL/S, INC_SURG/I,
+248    /* Surgical experience variables */
+249           OPMOS,
+250    /* Interaction terms */
+251           OP_AGE/S
+252         ;
+253  *______________________________________________________________________________;
+
+254  *                                                                              ;
+
+255  * ORIFICE and OP_AGE get flagged as having poorly defined Q-statistics.  So    ;
+
+256  * the way to test that out is simply to use the /S stating variable option     ;
+
+257  * and try them in the model.  COM_IV causes singularity or attains a large     ;
+
+258  * negative value in the constant hazard phase.  This is an interesting         ;
+
+259  * phenomenon, but we have few events attributable to this phase.  It could     ;
+
+260  * indeed be a large negative risk factor, and should be "forced in" to the     ;
+
+261  * model no matter what, particularly since it is associated with a P-value     ;
+
+262  * of .002 (which in this case may be associate with a single death).           ;
+
+263  *______________________________________________________________________________;
+
+264  *                                                                              ;
+
+265    );
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 15 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.14 seconds
+      cpu time            0.14 seconds
+
+
+Running hazard c:\hazard\bin\hazard.bat on Windows with data C:\WINNT\TEMP\hzr.J1572.X7
+
+Note: Procedure HAZARD (C-Version 4.1.0)
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+266  *______________________________________________________________________________;
+
+267  *                                                                              ;
+
+268  *               F I N A L   M U L T I V A R I A B L  E   M O D E L             ;
+
+269  *______________________________________________________________________________;
+
+270  *                                                                              ;
+
+271    %HAZARD(
+272    PROC HAZARD DATA=AVCS P CONSERVE OUTHAZ=OUTEST CONDITION=14
+273                  QUASI;
+274         TIME INT_DEAD;
+275         EVENT DEAD;
+276         PARMS MUE=0.3504743 THALF=0.1905077 NU=1.437416 M=1 FIXM
+277               MUC=4.391673E-07;
+278         EARLY AGE=-0.03205774, COM_IV=1.336675, MAL=0.6872028,
+279               OPMOS=-0.01963377, OP_AGE=0.0002086689, STATUS=0.5169533;
+280         CONSTANT INC_SURG=1.375285, ORIFICE=3.11765, STATUS=1.054988;
+281    );
+Running hazard c:\hazard\bin\hazard.bat on Windows with data C:\WINNT\TEMP\hzr.J1572.X13
+
+Note: Procedure HAZARD (C-Version 4.1.0)
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+282    PROC PRINT DATA=OUTEST;
+ERROR: File WORK.OUTEST.DATA does not exist.
+283    LIBNAME EXAMPLES ('!HZEXAMPLES/sasest');
+NOTE: Libref EXAMPLES was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V8
+      Physical Name(1): c:\hazard\examples\sasest
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+
+
+
+284    DATA EXAMPLES.HMDEATH (TYPE=HAZ);
+285         SET OUTEST;
+ERROR: File WORK.OUTEST.DATA does not exist.
+286  *******************************************************************************;
+
+287
+288    RUN;
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set EXAMPLES.HMDEATH may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set EXAMPLES.HMDEATH was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+

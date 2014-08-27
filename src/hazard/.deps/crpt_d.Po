@@ -1,0 +1,7 @@
+crpt_d.o: crpt_d.c ../../src/common/hzfxpc.h cput_v.h cput_d.h
+
+../../src/common/hzfxpc.h:
+
+cput_v.h:
+
+cput_d.h:

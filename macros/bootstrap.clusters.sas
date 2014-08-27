@@ -1,0 +1,86 @@
+* <2003-10-24>                                                                 ;
+*______________________________________________________________________________;
+*                                                                              ;
+*         B O O T S T R A P   B A G G I N G   C L U S T E R I N G
+*______________________________________________________________________________;
+*                                                                              ;
+  %macro cluster(in=in, out=out, cluster=cluster, clname=cluster name,
+         print=1, list=);
+*______________________________________________________________________________;
+*                                                                              ;
+* Bootstrap bagging clustering algorithm.                                      ;
+* The purpose is to look for variables in a list of highly correlated variables;
+* (a cluster) and determine 1) how often each varible appeared (variable name  :
+* cluster), and 2) how often at least one variable in the cluster appears      :
+* (variable name ncluster)                                                     :
+*______________________________________________________________________________:
+*                                                                              ;
+* DEFINITIONS OF CALLING ARGUMENTS:                      DEFAULT:              ;
+*                                                                              ;
+*   IN       = Bootstrap estimates                       IN                    ;
+*   OUT      = Clustering output  (complete data)        OUT                   ;
+*              To the input dataset are added                                  ;
+*              CLUSTER = cluster appeared (1) or not (0)                       ;
+*              NCLUSTER = Number of multiple appearances                       ;
+*                         of a cluster name                                    ;
+*                                                                              ;
+*   CLUSTER  = Summary clustering                        CLUSTER               ;
+*              Frequency of cluster appearance                                 ;
+*                (PCTCLUST) and of multiple
+*                appearances of variables (NCLUSTER)                           ;
+*                                                                              ;
+*   CLNAME   = Cluster name                              cluster name          ;
+*   PRINT    = Printed output                            1 (0 for none)        ;
+*   LIST     = Variables included in cluster             none                  ;
+*              varname_1 varname_2 ... varname_n                               ;
+*______________________________________________________________________________;
+*                                                                              ;
+* Programming:                                                                 ;
+*                                                                              ;
+*   Original idea Jennifer White 1999                                          ;
+*   Completely rewritten using SAS web site suggestions and logic              ;
+*______________________________________________________________________________;
+*                                                                              ;
+  data &out; set &in;
+*______________________________________________________________________________;
+*                                                                              ;
+* Cluster counting                                                             ;
+*______________________________________________________________________________;
+*                                                                              ;
+* Initialize                                                                   ;
+  data &out; set &out;
+  cluster=0; ncluster=0; 
+  %local count word;
+  %let count=1;
+*******************************************************************************;
+* Get first variable word                                                      ;
+  %let word=%trim(%upcase(%qscan(&list,&count,%str( ))));
+  %put &word;
+*******************************************************************************;
+* Now loop through list to get comparisons with _name_ in input data set       ;
+  %do %while(&word ne);
+    if &word ne . then do;
+      cluster=1;
+      ncluster=ncluster+1;
+    end;
+    %let count=%eval(&count+1);
+    %let word=%trim(%upcase(%qscan(&list,&count,%str( ))));
+  %end;
+*______________________________________________________________________________;
+*                                                                              ;
+* Cluster summarization                                                        ;
+*______________________________________________________________________________;
+*                                                                              ;
+  data clust; set &out; keep cluster ncluster;
+  proc freq data=clust noprint; tables ncluster/out=&cluster;
+  data &cluster; set &cluster;
+  length clname $ 16; 
+  clname="&clname";
+  pctclust=.;
+  if ncluster=0 then pctclust=100-percent;
+  if ncluster=. then pctclust=0;
+  %if &print=1 %then %do;
+    proc print data=&cluster noobs; var clname ncluster count percent pctclust;
+  %end;
+  %mend cluster;
+*******************************************************************************;

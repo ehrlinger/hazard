@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3c.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+  <head>
+    <title>Hazard Function Macros</title>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+      <!-- Required by xhtml to define the default character set. -->
+      <meta http-equiv="Content-type" content="text/html; charset=iso-8859-1" />
+  </head>
+  <body>
+    <h1>Hazard Utility Macros</h1>
+    <p>
+      Included in '!HAZARD/macros' are also a number of MACROS that we
+      have found useful.
+    </p>
+    <dl>
+      <dt><strong>bootstrap.hazard.sas</strong></dt>
+      <dd>
+	<p>
+	  This macro implements for the hazard procedure bootstrap so-called 
+	  "bagging" for variable selection.  In its use, you will find that 
+	  one of the most important features of the hazard variable selection 
+	  is the RESTRICT statement.  This allows you to identify closely
+	  linked variables (such as transformations of age, all variables 
+	  related to patient size, and so forth), such that only one of each
+	  kind of variable is selected.  Then, a count, either manually or by
+	  machine, can be made of the unique occurrences of variables.
+	</p>
+      </dd>
+      <dt><strong>chisqgf.sas</strong></dt>
+      <dd>
+	<p>
+	  This is a Chi-square goodness-of-fit macro for comparing expected
+	  and observed events.  It is called by hazard simulation jobs that we
+	  have designated as hs. in the examples.
+	</p>
+      </dd>
+      <dt><strong>deciles.hazard.sas</strong></dt>
+      <dd>
+	<p>
+	  This macro sorts patients according to survival at a given point in
+	  time specified by the TIME= variable, and then examines expected and
+	  observed events within groups specified in number by the variable
+	  GROUPS=.  This routine is useful in examining goodness-of-fit of
+	  multivariable models.
+	</p>
+      </dd>
+      <dt><strong>hazplot.sas</strong></dt>
+      <dd>
+	<p>
+	  This macro is useful for determining the goodness-of-fit of your
+	  hazard function to the distribution of times to the event.  We use
+	  the Kaplan-Meier method as an independent verification tool.  The 
+	  macro uses various transformations of scale to examine early and 
+	  late time frames to indicate the correspondence between the 
+	  parametric and nonparametric estimates.  In addition, it compares
+	  observed and predicted numbers of deaths and the departure of these
+	  from one another.  This is perhaps one of the best clues to lack of 
+	  fit.  It also indicates how many events are associated with each
+	  hazard phase so that you can avoid overdetermined models for each 
+	  hazard phase.
+	</p>
+      </dd>
+      <dt><strong>kaplan.sas</strong></dt>
+      <dd>
+	<p>
+	  This is a Kaplan-Meier life table analysis macro.  Its only
+	  difference from most packaged Kaplan-Meier programs is in its
+	  calculation of confidence limits.  The confidence limits used in
+	  this program are more exact than using the Greenwood formula.
+	</p>
+      </dd>
+      <dt><strong>logit.sas</strong></dt>
+      <dd>
+	<p>
+	  This macro is one of two that is useful in calibrating continuous or
+	  ordinal variables to the event.  It is useful for logistic 
+	  regression as well as time-related analyses.  It groups the patients
+	  in roughly equal numbers, examines the number of events, and displays
+	  these on the scale of risk that is appropriate for your analysis. 
+	  Ideally, if there is an association between the variable and risk,
+	  it should align nicely and linearly on the scale of risk.  We 
+	  usually examine a number of different transformations of scale of 
+	  the variable to see which aligns best.  
+	</p>
+      </dd>
+      <dt><strong>logitgr.sas</strong></dt>
+      <dd>
+	<p>
+	  This macro is similar to logit.sas except that, instead of dividing
+	  the groups into equal numbers, it divides the groups according to a
+	  specified grouping variable.  Otherwise, the information is similar.
+	</p>
+      </dd>
+      <dt><strong>nelsonl.sas</strong></dt>
+      <dd>
+	<p>
+	  This macro calculates nonparametric estimates for weighted repeated
+	  events according to the algorithm of Wayne Nelson.  Unlike the
+	  Kaplan-Meier estimator, the Nelson estimator is defined in the
+	  cumulative hazard domain.  The latter is particularly more suited to
+	  repeated events and specifically to weighted events (Nelson calls it
+	  the cost function).
+	</p>
+      </dd>
+      <dt><strong>nelsont.sas</strong></dt>
+      <dd>
+	<p>
+	  This macro is a companion to kaplan.sas, with identical outputs and 
+	  naming of variables.  However, it calculates the life table by the
+	  method of Wayne Nelson, rather than by the method of Kaplan and 
+	  Meier.  In this method, an event that plunges the life table
+	  calculated by Kaplan and Meier to zero is instead set to a value
+	  commensurate with the cumulative hazard function.  
+	</p>
+      </dd>
+      <dt><strong>plot.sas</strong></dt>
+      <dd>
+	<p>
+	  This is a big macro for making "pretty plots".  Because of changes 
+	  made in some of the SAS&reg; graph modules between version 6 and
+	  version 8, we do not recommend as yet its use for version 8.  We are
+	  working on redoing those sections of the macro that have been 
+	  changed in version 8. 
+	</p>
+      </dd>
+    </dl> 
+
+    <hr />
+      <address>
+	<a href="http://validator.w3.org/check/referer" target="_top">
+	  <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" align="right" border="0" /></a>
+	<a href="mailto:hazard@bio.ri.ccf.org">hazard@bio.ri.ccf.org</a>
+      </address>
+      
+  </body>
+</html>

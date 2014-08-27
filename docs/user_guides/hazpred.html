@@ -1,0 +1,1846 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=us-ascii">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List href="./hazpred_files/filelist.xml">
+<link rel=Edit-Time-Data href="./hazpred_files/editdata.mso">
+<link rel=OLE-Object-Data href="./hazpred_files/oledata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+<title>The HAZPRED Procedure</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>John W. Kirklin, M.D.</o:Author>
+  <o:LastAuthor>jehrling</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>9</o:TotalTime>
+  <o:LastPrinted>1995-07-20T14:10:00Z</o:LastPrinted>
+  <o:Created>2001-01-17T16:54:00Z</o:Created>
+  <o:LastSaved>2001-01-17T16:54:00Z</o:LastSaved>
+  <o:Pages>10</o:Pages>
+  <o:Words>2029</o:Words>
+  <o:Characters>11569</o:Characters>
+  <o:Company>CCF</o:Company>
+  <o:Lines>96</o:Lines>
+  <o:Paragraphs>23</o:Paragraphs>
+  <o:CharactersWithSpaces>14207</o:CharactersWithSpaces>
+  <o:Version>9.3821</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:DoNotHyphenateCaps/>
+  <w:DrawingGridHorizontalSpacing>6 pt</w:DrawingGridHorizontalSpacing>
+  <w:DrawingGridVerticalSpacing>6 pt</w:DrawingGridVerticalSpacing>
+  <w:DisplayVerticalDrawingGridEvery>0</w:DisplayVerticalDrawingGridEvery>
+  <w:UseMarginsForDrawingGridOrigin/>
+  <w:DoNotShadeFormData/>
+  <w:Compatibility>
+   <w:BalanceSingleByteDoubleByteWidth/>
+   <w:DoNotLeaveBackslashAlone/>
+   <w:ULTrailSpace/>
+   <w:DoNotExpandShiftReturn/>
+   <w:UsePrinterMetrics/>
+   <w:WW6BorderRules/>
+   <w:FootnoteLayoutLikeWW8/>
+   <w:ShapeLayoutLikeWW8/>
+   <w:AlignTablesRowByRow/>
+   <w:ForgetLastTabAlignment/>
+   <w:AutoSpaceLikeWord95/>
+   <w:LayoutRawTableWidth/>
+   <w:LayoutTableRowsApart/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:15.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:20.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-font-kerning:14.0pt;
+	mso-bidi-font-weight:normal;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:16.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-bidi-font-weight:normal;}
+h3
+	{mso-style-next:Normal;
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-bidi-font-weight:normal;}
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+	{mso-style-next:Normal;
+	margin-top:.25in;
+	margin-right:0in;
+	margin-bottom:.25in;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	tab-stops:right 6.5in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:11.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	text-transform:uppercase;
+	font-weight:bold;
+	mso-bidi-font-weight:normal;
+	text-decoration:underline;
+	text-underline:single;}
+p.MsoToc2, li.MsoToc2, div.MsoToc2
+	{mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:12.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:right 6.5in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:11.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	font-variant:small-caps;
+	font-weight:bold;
+	mso-bidi-font-weight:normal;}
+p.MsoToc3, li.MsoToc3, div.MsoToc3
+	{mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:24.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:right 6.5in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:11.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	font-variant:small-caps;}
+p.MsoToc4, li.MsoToc4, div.MsoToc4
+	{mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:right 6.5in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:11.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoToc5, li.MsoToc5, div.MsoToc5
+	{mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:48.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:right 6.5in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:11.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoToc6, li.MsoToc6, div.MsoToc6
+	{mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:60.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:right 6.5in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:11.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoToc7, li.MsoToc7, div.MsoToc7
+	{mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:right 6.5in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:11.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoToc8, li.MsoToc8, div.MsoToc8
+	{mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:84.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:right 6.5in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:11.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoToc9, li.MsoToc9, div.MsoToc9
+	{mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:96.0pt;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:right 6.5in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:11.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoFootnoteText, li.MsoFootnoteText, div.MsoFootnoteText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:center 3.0in right 6.0in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:center 3.0in right 6.0in;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoTof, li.MsoTof, div.MsoTof
+	{mso-style-next:Normal;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:24.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-24.0pt;
+	mso-pagination:widow-orphan;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+span.MsoFootnoteReference
+	{vertical-align:super;}
+p.MsoList2, li.MsoList2, div.MsoList2
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	mso-pagination:widow-orphan;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoListBullet2, li.MsoListBullet2, div.MsoListBullet2
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	mso-pagination:widow-orphan;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoBodyText, li.MsoBodyText, div.MsoBodyText
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+p.MsoBodyTextIndent, li.MsoBodyTextIndent, div.MsoBodyTextIndent
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	mso-pagination:widow-orphan;
+	mso-layout-grid-align:none;
+	punctuation-wrap:simple;
+	text-autospace:none;
+	font-size:12.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+ /* Page Definitions */
+@page
+	{mso-facing-pages:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-page-numbers:1;
+	mso-even-header:url("./hazpred_files/header.htm") eh1;
+	mso-header:url("./hazpred_files/header.htm") h1;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
+style='font-size:28.0pt;mso-bidi-font-size:10.0pt'>The HAZPRED Procedure<o:p></o:p></span></b></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The Cleveland Clinic Foundation.<a style='mso-footnote-id:
+ftn1' href="#_ftn1" name="_ftnref1" title=""><span class=MsoFootnoteReference><span
+style='mso-special-character:footnote'><![if !supportFootnotes]>[1]<![endif]></span></span></a></p>
+
+<span style='font-size:12.0pt;mso-bidi-font-size:10.0pt;font-family:"Times New Roman";
+mso-fareast-font-family:"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:
+EN-US;mso-bidi-language:AR-SA'><br clear=all style='mso-special-character:line-break;
+page-break-before:always'>
+</span>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h1><a name="_Toc504366640">TABLE OF CONTENTS</a></h1>
+
+<p class=MsoToc1><!--[if supportFields]><span style='text-transform:none;
+font-weight:normal'><span style='mso-element:field-begin'></span><span
+style="mso-spacerun: yes">&nbsp;</span>TOC \o &quot;1-3&quot; \h \z <span
+style='mso-element:field-separator'></span></span><![endif]--><span
+class=MsoHyperlink><a href="#_Toc504366640"><span style='mso-bidi-font-size:
+20.0pt'>TABLE OF CONTENTS</span><span style='color:windowtext;display:none;
+mso-hide:screen'><span style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-element:
+field-begin'></span></span><span style='color:windowtext;display:none;
+mso-hide:screen'> PAGEREF _Toc504366640 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>2</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340030000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc504366641"><span
+style='mso-bidi-font-size:20.0pt'>ABSTRACT</span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-element:
+field-begin'></span></span><span style='color:windowtext;display:none;
+mso-hide:screen'> PAGEREF _Toc504366641 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>4</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340031000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc504366642"><span
+style='mso-bidi-font-size:20.0pt'>INTRODUCTION</span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-tab-count:1'>&nbsp;&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-element:
+field-begin'></span></span><span style='color:windowtext;display:none;
+mso-hide:screen'> PAGEREF _Toc504366642 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>4</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340032000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc504366643"><span
+style='mso-bidi-font-size:20.0pt'>SYNTAX</span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-element:
+field-begin'></span></span><span style='color:windowtext;display:none;
+mso-hide:screen'> PAGEREF _Toc504366643 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>4</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340033000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc504366644"><span
+style='mso-bidi-font-size:20.0pt'>SPECIFICATIONS</span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-element:
+field-begin'></span></span><span style='color:windowtext;display:none;
+mso-hide:screen'> PAGEREF _Toc504366644 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>4</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340034000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366645"><span style='mso-bidi-font-size:
+16.0pt'>The PROC HAZPRED Statement</span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366645 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>5</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340035000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal;font-weight:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366646">PROC HAZPRED <i
+style='mso-bidi-font-style:normal'>options;</i><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-tab-count:1'> </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366646 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>5</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340036000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366647"><span style='mso-bidi-font-size:
+16.0pt'>The TIME Statement</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366647 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>6</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340037000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal;font-weight:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366648">TIME <i style='mso-bidi-font-style:
+normal'>variable_name;</i><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-tab-count:1'> </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366648 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>6</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340038000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc504366649"><span
+style='mso-bidi-font-size:20.0pt'>CAUTIONS</span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-element:
+field-begin'></span></span><span style='color:windowtext;display:none;
+mso-hide:screen'> PAGEREF _Toc504366649 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>7</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600340039000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366650"><span style='mso-bidi-font-size:
+16.0pt'>Time Zero</span><span style='color:windowtext;display:none;mso-hide:
+screen;text-decoration:none;text-underline:none'><span style='mso-tab-count:
+1'>&nbsp;&nbsp; </span></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-begin'></span></span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'> PAGEREF
+_Toc504366650 \h </span><span style='color:windowtext;display:none;mso-hide:
+screen;text-decoration:none;text-underline:none'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>7</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350030000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal;font-weight:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366651"><span style='mso-bidi-font-size:
+16.0pt'>Conflicting SAS Variable Names</span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366651 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>7</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350031000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal;font-weight:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc504366652"><span
+style='mso-bidi-font-size:20.0pt'>DETAILS</span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-element:
+field-begin'></span></span><span style='color:windowtext;display:none;
+mso-hide:screen'> PAGEREF _Toc504366652 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>7</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350032000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366653"><span style='mso-bidi-font-size:
+16.0pt'>Missing Values</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366653 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>7</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350033000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal;font-weight:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366654"><span style='mso-bidi-font-size:
+16.0pt'>Structure of Input Data Set of Estimates</span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366654 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>7</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350034000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal;font-weight:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc504366655"><span
+style='mso-bidi-font-size:20.0pt'>COMPUTATIONAL METHOD</span><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-tab-count:
+1'>&nbsp;&nbsp; </span></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen'> PAGEREF _Toc504366655 \h
+</span><span style='color:windowtext;display:none;mso-hide:screen'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>8</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350035000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366656"><span style='mso-bidi-font-size:
+16.0pt'>Point Estimates</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366656 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>8</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350036000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal;font-weight:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366657"><span style='mso-bidi-font-size:
+16.0pt'>Confidence Limits Around Point Estimates</span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366657 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>9</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350037000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal;font-weight:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366658">Survivorship Function<span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-tab-count:1'>&nbsp;&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366658 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>9</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350038000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><span style='font-variant:normal;
+text-transform:uppercase'><a href="#_Toc504366659">Hazard Function<span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-tab-count:1'>&nbsp;&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'><span style='mso-element:field-begin'></span></span><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'> PAGEREF _Toc504366659 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen;text-decoration:none;
+text-underline:none'>10</span><span style='color:windowtext;display:none;
+mso-hide:screen;text-decoration:none;text-underline:none'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600350039000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen;text-decoration:none;text-underline:none'><span
+style='mso-element:field-end'></span></span><![endif]--></a></span></span><span
+style='font-size:12.0pt;font-variant:normal'><o:p></o:p></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc504366660"><span
+style='mso-bidi-font-size:20.0pt'>EXAMPLES</span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-element:
+field-begin'></span></span><span style='color:windowtext;display:none;
+mso-hide:screen'> PAGEREF _Toc504366660 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>10</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600360030000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc504366661"><span
+style='mso-bidi-font-size:20.0pt'>REFERENCES</span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-tab-count:1'>&nbsp; </span></span><!--[if supportFields]><span
+style='color:windowtext;display:none;mso-hide:screen'><span style='mso-element:
+field-begin'></span></span><span style='color:windowtext;display:none;
+mso-hide:screen'> PAGEREF _Toc504366661 \h </span><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-separator'></span></span><![endif]--><span
+style='color:windowtext;display:none;mso-hide:screen'>10</span><span
+style='color:windowtext;display:none;mso-hide:screen'><!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F0054006F0063003500300034003300360036003600360031000000</w:data>
+</xml><![endif]--></span><!--[if supportFields]><span style='color:windowtext;
+display:none;mso-hide:screen'><span style='mso-element:field-end'></span></span><![endif]--></a></span><span
+style='font-size:12.0pt;text-transform:none;font-weight:normal;text-decoration:
+none;text-underline:none'><o:p></o:p></span></p>
+
+<p class=MsoNormal><!--[if supportFields]><b style='mso-bidi-font-weight:normal'><u><span
+style='font-size:11.0pt;mso-bidi-font-size:10.0pt;text-transform:uppercase'><span
+style='mso-element:field-end'></span></span></u></b><![endif]--><br clear=all
+style='mso-special-character:line-break;page-break-before:always'>
+<![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h1><a name="_Toc504366641">ABSTRACT</a></h1>
+
+<p class=MsoNormal><span style='font-size:14.0pt;mso-bidi-font-size:10.0pt'>PROC
+HAZPRED</span> is a procedure for calculation of time-related estimates
+(predictions) from a parametric equation previously established by PROC HAZARD.</p>
+
+<h1><a name="_Toc504366642">INTRODUCTION</a></h1>
+
+<p class=MsoNormal>The HAZPRED procedure uses an estimates data set produced by
+the OUTHAZ option in PROC HAZARD and an input data set of values for variables
+to generate predictions from that parametric equation specification in the form
+of an output data set.<span style="mso-spacerun: yes">&nbsp; </span>The
+estimates data set contains equation specifications, parameter estimates,
+status flags, and the variance-covariance matrix.<span style="mso-spacerun:
+yes">&nbsp; </span>By input of specific values for the time variable and for each
+of the covariables that may be defined in the equation, PROC HAZPRED calculates
+maximum-likelihood survivorship and hazard function estimates and their
+confidence limits.<span style="mso-spacerun: yes">&nbsp; </span>In addition,
+survivorship and hazard function estimates are provided in the output data set
+for each hazard phase.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>With both survivorship and hazard function estimates
+available, other survival functions may be calculated subsequently, such as the
+death density function, cumulative hazard function, lifetime function, and
+cumulative incidence functions (for competing risks of events).</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'>There is no printed
+output from PROC HAZPRED.<o:p></o:p></b></p>
+
+<h1><a name="_Toc310760127"></a><a name="_Toc504366643"><span style='mso-bookmark:
+_Toc310760127'>SYNTAX</span></a></h1>
+
+<p class=MsoNormal>Since PROC HAZPRED is now an external program, rather than
+integrated into SAS<span style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";
+mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:
+Symbol'><span style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>&Ograve;</span></span>
+by means of its Toolkit, the procedure must be enclosed within a macro calling
+sequence as follows:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'>%HAZPRED(<o:p></o:p></b></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'>PROC HAZPRED etc;<o:p></o:p></b></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'>);<o:p></o:p></b></p>
+
+<h1><a name="_Toc504366644">SPECIFICATIONS</a></h1>
+
+<p class=MsoNormal>The following statements can be used with the HAZPRED
+procedure:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'>PROC HAZPRED <i
+style='mso-bidi-font-style:normal'>options</i>;<o:p></o:p></b></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>TIME
+<i style='mso-bidi-font-style:normal'>variable_name</i>;<o:p></o:p></b></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The <b style='mso-bidi-font-weight:normal'>TIME</b>
+statement is required.</p>
+
+<h2><a name="_Toc504366645">The PROC HAZPRED Statement</a></h2>
+
+<h3><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><a
+name="_Toc504366646">PROC HAZPRED <i style='mso-bidi-font-style:normal'>options;</i></a><i
+style='mso-bidi-font-style:normal'><o:p></o:p></i></h3>
+
+<p class=MsoNormal>This statement invokes the procedure.<span
+style="mso-spacerun: yes">&nbsp; </span>The following options are available:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<table border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;
+ mso-padding-alt:0in 9.0pt 0in 9.0pt'>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal align=right style='text-align:right'><b style='mso-bidi-font-weight:
+  normal'>CLIMITS = <i style='mso-bidi-font-style:normal'>value<o:p></o:p></i></b></p>
+  <p class=MsoNormal align=right style='margin-bottom:6.0pt;text-align:right'><b
+  style='mso-bidi-font-weight:normal'>CL=<i style='mso-bidi-font-style:normal'>value</i><o:p></o:p></b></p>
+  </td>
+  <td width=568 colspan=3 valign=top style='width:340.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal style='margin-bottom:6.0pt'>specifies a value between 0
+  and 1 for the asymptotic confidence coefficient.<span style="mso-spacerun:
+  yes">&nbsp; </span>The default value is 0.683..., representing the equivalent
+  of one standard deviation (roughly 70% confidence limits).<span
+  style="mso-spacerun: yes">&nbsp; </span>For 95% confidence limits, specify
+  the value 0.95.<span style="mso-spacerun: yes">&nbsp; </span>If NOCL is
+  specified CL is ignored.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal align=right style='margin-bottom:6.0pt;text-align:right'><b
+  style='mso-bidi-font-weight:normal'>DATA = SASdataset<o:p></o:p></b></p>
+  </td>
+  <td width=568 colspan=3 valign=top style='width:340.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal style='margin-bottom:6.0pt'>names the SAS data set
+  containing variables to be used for prediction.<span style="mso-spacerun:
+  yes">&nbsp; </span>Each observation in the data set must define TIME (see
+  below) and a value for each concomitant variable specified in the model.<span
+  style="mso-spacerun: yes">&nbsp; </span>If DATA= is omitted, the most
+  recently created SAS data set is used.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal align=right style='margin-bottom:6.0pt;text-align:right'><b
+  style='mso-bidi-font-weight:normal'>ID=<i style='mso-bidi-font-style:normal'>variable_name</i><o:p></o:p></b></p>
+  </td>
+  <td width=568 colspan=3 valign=top style='width:340.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal style='margin-bottom:6.0pt'>informs procedure that all
+  consecutive observations with the same ID value have identical concomitant
+  information, and only the calculations for time will be performed.<span
+  style="mso-spacerun: yes">&nbsp; </span>There is no verification that this
+  assumption is valid.<span style="mso-spacerun: yes">&nbsp; </span>It is
+  recommended that the data set be sorted according to <i style='mso-bidi-font-style:
+  normal'>variable_name</i> (which may be numeric or character) since complete
+  calculations always occur when the procedure detects a different ID
+  value.<span style="mso-spacerun: yes">&nbsp; </span>This option is used
+  primarily to accelerate computations.<span style="mso-spacerun: yes">&nbsp;
+  </span>By default, if ID is not specified, complete calculations are done on
+  each observation.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal align=right style='margin-bottom:6.0pt;text-align:right'><a
+  name="DDE_LINK3"><b style='mso-bidi-font-weight:normal'>INHAZ = SASdataset<o:p></o:p></b></a></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK3'></span>
+  <td width=568 colspan=3 valign=top style='width:340.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal style='margin-bottom:6.0pt'><span style='mso-bookmark:
+  DDE_LINK3'>names the SAS data set containing the model specification,
+  parameter estimates, and variance-covariance matrix.<span
+  style="mso-spacerun: yes">&nbsp; </span>See S<b style='mso-bidi-font-weight:
+  normal'>tructure of Input Data Set of Estimates</b> later in this chapter for
+  details of the structure of this estimates data set variables to be used for
+  prediction.<span style="mso-spacerun: yes">&nbsp; </span>The INHAZ data set
+  must be named or the procedure will terminate without performing any
+  predictions.</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK3'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><a name="DDE_LINK1"><b
+  style='mso-bidi-font-weight:normal'>NOCL<o:p></o:p></b></a></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK1'></span>
+  <td width=568 colspan=3 valign=top style='width:340.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK1'>suppresses default
+  calculation of confidence limits for the estimates.<span style="mso-spacerun:
+  yes">&nbsp; </span>_CLLSURV, _CLUSURV, _CLLHAZ, and _CLUHAZ are set to
+  missing.</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK1'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='margin-bottom:0in;margin-bottom:.0001pt;
+  text-align:right'><span style='mso-bookmark:DDE_LINK1'><b style='mso-bidi-font-weight:
+  normal'>NOHAZ<o:p></o:p></b></span></p>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK1'><b style='mso-bidi-font-weight:normal'>NOH<o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK1'></span>
+  <td width=568 colspan=3 valign=top style='width:340.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK1'>suppresses default
+  calculation of the hazard function, its confidence limits, and its phase
+  components.<span style="mso-spacerun: yes">&nbsp; </span>_HAZARD, _CLLHAZ,
+  _CLUHAZ, _EARLYH, CONSTH, and _LATEH are set to missing.</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK1'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='margin-bottom:0in;margin-bottom:.0001pt;
+  text-align:right'><b style='mso-bidi-font-weight:normal'>NOSURV<o:p></o:p></b></p>
+  <p class=MsoBodyText align=right style='text-align:right'><b
+  style='mso-bidi-font-weight:normal'>NOS<o:p></o:p></b></p>
+  </td>
+  <td width=568 colspan=3 valign=top style='width:340.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText>suppresses default calculation of the survivorship
+  function, its confidence limits, and its phase components.<span
+  style="mso-spacerun: yes">&nbsp; </span>_SURVIV, _CLLSURV, _CLUSURV, _EARLYS,
+  CONSTS, and _LATES are set to missing.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal align=right style='margin-bottom:6.0pt;text-align:right'><b
+  style='mso-bidi-font-weight:normal'>OUT = SASdataset<o:p></o:p></b></p>
+  </td>
+  <td width=568 colspan=3 valign=top style='width:340.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoNormal style='margin-bottom:6.0pt'>names the output SAS data set
+  that contains the prediction variables and all the input variables.<span
+  style="mso-spacerun: yes">&nbsp; </span>If an output data set is not
+  specified, the predictions are added to the data set specified in the DATA=
+  statement.<span style="mso-spacerun: yes">&nbsp; </span>The variable names
+  added to the data set are as follows:</p>
+  </td>
+ </tr>
+ <tr style='mso-row-margin-right:9.0pt'>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><a
+  name="DDE_LINK9"></a>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_SURVIV</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=413 valign=top style='width:247.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>survivorship
+  function</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'>
+  <td style='mso-cell-special:placeholder;border:none;padding:0in 0in 0in 0in'
+  width=15><p class='MsoNormal'>&nbsp;</td>
+  </span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_CLLSURV</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>lower confidence limit
+  of survivorship function</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_CLUSURV</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>upper confidence
+  limit of survivorship function</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_EARLYS</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>early hazard phase
+  conditional survivorship function</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_CONSTS</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>constant hazard
+  phase conditional survivorship function</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_LATES</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>late hazard phase
+  conditional survivorship function</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_HAZARD</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>hazard function</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_CLLHAZ</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>lower confidence
+  limit of hazard function</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_CLUHAZ</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>upper confidence
+  limit of hazard function</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_EARLYH</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>hazard function for
+  early hazard phase</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_CONSTH</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>hazard function for
+  constant hazard phase</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'><span
+  style='mso-bookmark:DDE_LINK9'></span>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><span
+  style='mso-bookmark:DDE_LINK9'><b style='mso-bidi-font-weight:normal'><o:p></o:p></b></span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=140 valign=top style='width:84.0pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><span
+  style='mso-bookmark:DDE_LINK9'>_LATEH</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+  <td width=428 colspan=2 valign=top style='width:256.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText><span style='mso-bookmark:DDE_LINK9'>hazard function for
+  late hazard phase</span></p>
+  </td>
+  <span style='mso-bookmark:DDE_LINK9'></span>
+ </tr>
+ <tr>
+  <td width=243 valign=top style='width:145.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText align=right style='text-align:right'><![if !supportEmptyParas]>&nbsp;<![endif]><b
+  style='mso-bidi-font-weight:normal'><o:p></o:p></b></p>
+  </td>
+  <td width=568 colspan=3 valign=top style='width:340.5pt;padding:0in 9.0pt 0in 9.0pt'>
+  <p class=MsoBodyText>Any of these variables that are not applicable to the
+  model or that are not calculated based upon user selection options are set to
+  missing values.</p>
+  </td>
+ </tr>
+</table>
+
+<h2><a name="_Toc504366647">The TIME Statement</a></h2>
+
+<h3><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><a
+name="_Toc504366648">TIME <i style='mso-bidi-font-style:normal'>variable_name;</i></a></h3>
+
+<p class=MsoNormal>The TIME statement names a variable in the input data set
+that contains values for the time of the event.<span style="mso-spacerun:
+yes">&nbsp; </span>It must be expressed in the same units of time that were
+used in PROC HAZARD for the data analysis.<span style="mso-spacerun:
+yes">&nbsp; </span>(The time of event variable can be any other positive-valued
+variable whose distribution was modeled parametrically).<span
+style="mso-spacerun: yes">&nbsp; </span>The values must be positive numbers,
+greater than zero, otherwise calculations are not performed and missing values
+are generated for all variables output from PROC HAZPRED.</p>
+
+<h1><a name="_Toc504366649">CAUTIONS</a></h1>
+
+<h2><a name="_Toc504366650">Time Zero</a></h2>
+
+<p class=MsoNormal>The model is defined within the interval zero to infinity,
+but at exactly zero or infinity the model is defined only by limits.<span
+style="mso-spacerun: yes">&nbsp; </span>The survivorship function is 1.0 at <i
+style='mso-bidi-font-style:normal'>t=0</i>.<span style="mso-spacerun:
+yes">&nbsp; </span>However, the hazard function will be exactly zero or
+infinity in many cases, although certain combinations of parameters will
+generate finite values, as might also occur with the inclusion of the constant
+hazard phase.<span style="mso-spacerun: yes">&nbsp; </span>Consequently, PROC
+HAZPRED outputs missing values for the hazard function when <i
+style='mso-bidi-font-style:normal'>t=0</i>.</p>
+
+<h2><a name="_Toc504366651">Conflicting SAS Variable Names</a></h2>
+
+<p class=MsoNormal>The variable names output by PROC HAZARD have been selected
+to avoid conflict with usual SAS variable naming conventions.<span
+style="mso-spacerun: yes">&nbsp; </span>You should consider these HAZPRED names
+as restricted ones.<span style="mso-spacerun: yes">&nbsp; </span>In particular,
+if predictions are generated for a data set that has already been processed by
+HAZPRED, these names will be flagged as being duplicate</p>
+
+<h1><a name="_Toc504366652">DETAILS</a></h1>
+
+<h2><a name="_Toc504366653">Missing Values</a></h2>
+
+<p class=MsoNormal>The HAZPRED procedure does not perform calculations if an
+observation has missing or inadmissible values for variables contained in the
+model or in the TIME statement.<span style="mso-spacerun: yes">&nbsp;
+</span>For such observations, missing values for variables generated by PROC
+HAZPRED are output.</p>
+
+<h2><a name="_Toc504366654">Structure of Input Data Set of Estimates</a></h2>
+
+<p class=MsoNormal>The input data set of parameter estimates and fixed values,
+model specifiers, and variance-covariance elements is output by PROC HAZARD and
+is structure as follows:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Observations
+1 through 6:<span style="mso-spacerun: yes">&nbsp; </span>Model Specification
+Flags<o:p></o:p></b></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>G1FLAG<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>early
+phase equation flag</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>FIXDEL0<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>DELTA
+is to be fixed at zero (default)</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>FIXMNU1<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>|NU<span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>&times;</span></span>M|=1
+flag</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>G3FLAG<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>late
+phase equation flag</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>FIXGE2<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>GAMMA<span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>&times;</span></span>ETA=2
+flag</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>FIXGAE2<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>(GAMMA<span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>&times;</span></span>ETA)/ALPHA=2
+flag</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b
+style='mso-bidi-font-weight:normal'>Observations 7 through 14:<span
+style="mso-spacerun: yes">&nbsp; </span>Shaping Model Parameter Estimates<o:p></o:p></b></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></b>This
+includes parameter estimates (_EST_) and a status flag (_STATUS_) set to 1 if
+estimated and 0 if the parameter was fixed or not in the model, followed by the
+variance-covariance matrix components.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>DELTA</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>THALF</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>NU</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>M</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>TAU</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>GAMMA</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>ALPHA</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>ETA</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b
+style='mso-bidi-font-weight:normal'>Observations 15 through (17 + 3<i
+style='mso-bidi-font-style:normal'>p</i>):<span style="mso-spacerun:
+yes">&nbsp; </span>Intercepts and Covariables (<i style='mso-bidi-font-style:
+normal'>p</i> unique variables)<o:p></o:p></b></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></b>Each
+variable is followed by its estimate (_EST_), status flag (_STATUS_) for each
+of the phases, and variance-covariance components.<span style="mso-spacerun:
+yes">&nbsp; </span>The number of unique variables is found by adding all
+variables with a different <i style='mso-bidi-font-style:normal'>variable_name</i>
+in all hazard phases.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>E0</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Concomitant
+information variable 1 (<a name="DDE_LINK10"><i style='mso-bidi-font-style:
+normal'>variable_name</i> used)</a></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Concomitant
+information variable <i style='mso-bidi-font-style:normal'>p</i> (<i
+style='mso-bidi-font-style:normal'>variable_name</i> used)</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>C0</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Concomitant
+information variable 1 (uses C01 as <i style='mso-bidi-font-style:normal'>variable_name</i>)</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>C02</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>C0(<i
+style='mso-bidi-font-style:normal'>p</i>-1)</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Concomitant
+information variable<i style='mso-bidi-font-style:normal'> p</i> (used C0<i
+style='mso-bidi-font-style:normal'>p</i> as <i style='mso-bidi-font-style:normal'>variable_name</i>)</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>L0</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Concomitant
+information variable 1 (uses L01 as <i style='mso-bidi-font-style:normal'>variable_name</i>)</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>L02</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>L0(<i
+style='mso-bidi-font-style:normal'>p</i>-1)</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Concomitant
+information variable <i style='mso-bidi-font-style:normal'>p</i> (used L0<i
+style='mso-bidi-font-style:normal'>p</i> as <i style='mso-bidi-font-style:normal'>variable_name</i>)</p>
+
+<h1><a name="_Toc504366655">COMPUTATIONAL METHOD</a></h1>
+
+<h2><a name="_Toc504366656">Point Estimates</a></h2>
+
+<p class=MsoNormal>Point estimates (predictions) are obtained by direct
+algebraic solution of the cumulative hazard and hazard function equations cited
+in the introductory section of this document, <b style='mso-bidi-font-weight:
+normal'>Parametric Analysis of Time-Related Events</b>.<span
+style="mso-spacerun: yes">&nbsp; </span>The survivorship function is obtained
+by exponential transformation of the cumulative hazard function.<span
+style="mso-spacerun: yes">&nbsp; </span>When concomitant information is taken
+into account, so-called risk-adjusted and patient-specific estimates are
+formed.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Other
+useful functions can be calculated from the point estimates provided, including
+death density function, lifetime function, and cumulative incidence function
+for competing risk problems.<span style="mso-spacerun: yes">&nbsp; </span>In
+addition, various goodness-of-fit statistics can be generated using the
+estimates for individual patients in the study group.<span style="mso-spacerun:
+yes">&nbsp; </span>We have provided a SAS<span style='font-family:Symbol;
+mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:"Times New Roman";
+mso-char-type:symbol;mso-symbol-font-family:Symbol'><span style='mso-char-type:
+symbol;mso-symbol-font-family:Symbol'>&Ograve;</span></span> macro for accomplishing
+some of these (%MACRO HAZPLOT) as part of the available software for downloading.<span
+style="mso-spacerun: yes">&nbsp; </span>In addition, we have programs or macros
+available for looking at differences between survival and hazard functions, at
+internal verification of time-related shape for recognizable subsets, for
+bootstrapping, and so forth.<span style="mso-spacerun: yes">&nbsp; </span>Make
+inquiries, and if we have done it, we will provide examples.</p>
+
+<h2><a name="_Toc504366657">Confidence Limits Around Point Estimates</a></h2>
+
+<p class=MsoNormal>Confidence limits for these point estimates are estimated
+using the method of statistical differentials (Ku, 1966).<span
+style="mso-spacerun: yes">&nbsp; </span>The formulation is made separately for
+the confidence limits of survivorship and hazard function estimates, based on
+transformations to an unbounded scale.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h3><a name="DDE_LINK4"></a><a name="_Toc504366658"><span style='mso-bookmark:
+DDE_LINK4'>Survivorship Function</span></a><span style='mso-bookmark:DDE_LINK4'></span></h3>
+
+<p class=MsoNormal><span style='mso-bookmark:DDE_LINK4'>For confidence limits
+of the survivorship function <i style='mso-bidi-font-style:normal'>S(t,</i></span><span
+style='mso-bookmark:DDE_LINK4'><b style='mso-bidi-font-weight:normal'><i
+style='mso-bidi-font-style:normal'><span style='font-family:Symbol;mso-ascii-font-family:
+"Times New Roman";mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;
+mso-symbol-font-family:Symbol'><span style='mso-char-type:symbol;mso-symbol-font-family:
+Symbol'>Q</span></span></i></b><i style='mso-bidi-font-style:normal'>)</i>, a
+logistic </span>transformation is used (NOTE:<span style="mso-spacerun:
+yes">&nbsp; </span>we will abbreviate <i style='mso-bidi-font-style:normal'>Z(t,</i><b
+style='mso-bidi-font-weight:normal'><i style='mso-bidi-font-style:normal'><span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>Q</span></span></i></b><i
+style='mso-bidi-font-style:normal'>)</i> as <i style='mso-bidi-font-style:normal'>Z</i>
+as originally suggested by Hazelrig and colleagues (1982) to simplify
+notation):<sub><!--[if gte vml 1]><v:shapetype id="_x0000_t75" coordsize="21600,21600"
+ o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f"
+ stroked="f">
+ <v:stroke joinstyle="miter"/>
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+  <v:f eqn="sum @0 1 0"/>
+  <v:f eqn="sum 0 0 @1"/>
+  <v:f eqn="prod @2 1 2"/>
+  <v:f eqn="prod @3 21600 pixelWidth"/>
+  <v:f eqn="prod @3 21600 pixelHeight"/>
+  <v:f eqn="sum @0 0 1"/>
+  <v:f eqn="prod @6 1 2"/>
+  <v:f eqn="prod @7 21600 pixelWidth"/>
+  <v:f eqn="sum @8 21600 0"/>
+  <v:f eqn="prod @7 21600 pixelHeight"/>
+  <v:f eqn="sum @10 21600 0"/>
+ </v:formulas>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+ <o:lock v:ext="edit" aspectratio="t"/>
+</v:shapetype><v:shape id="_x0000_i1025" type="#_x0000_t75" style='width:9pt;
+ height:16.2pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image001.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=12 height=22
+src="./hazpred_files/image002.gif" v:shapes="_x0000_i1025"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1025"
+  DrawAspect="Content" ObjectID="_1041237649">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1026" type="#_x0000_t75" style='width:79.2pt;height:30pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image003.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=106 height=40
+src="./hazpred_files/image004.gif" v:shapes="_x0000_i1026"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1026"
+  DrawAspect="Content" ObjectID="_1041237650">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>or</p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1027" type="#_x0000_t75" style='width:82.2pt;height:30pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image005.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=110 height=40
+src="./hazpred_files/image006.gif" v:shapes="_x0000_i1027"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1027"
+  DrawAspect="Content" ObjectID="_1041237651">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>where <i style='mso-bidi-font-style:normal'>P(t,</i><b
+style='mso-bidi-font-weight:normal'><i style='mso-bidi-font-style:normal'><span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>Q</span></span></i></b><i
+style='mso-bidi-font-style:normal'>)=1</i><i style='mso-bidi-font-style:normal'><span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>-</span></span>S(t,</i><b
+style='mso-bidi-font-weight:normal'><i style='mso-bidi-font-style:normal'><span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>Q</span></span></i></b><i
+style='mso-bidi-font-style:normal'>)</i>.<span style="mso-spacerun: yes">&nbsp;
+</span>Then, in terms of cumulative hazard <i style='mso-bidi-font-style:normal'><span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>L</span></span>(t,</i><b
+style='mso-bidi-font-weight:normal'><i style='mso-bidi-font-style:normal'><span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>Q</span></span></i></b><i
+style='mso-bidi-font-style:normal'>)</i>:</p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1028" type="#_x0000_t75" style='width:106.2pt;height:18pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image007.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=142 height=24
+src="./hazpred_files/image008.gif" v:shapes="_x0000_i1028"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1028"
+  DrawAspect="Content" ObjectID="_1041237652">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>and</p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1029" type="#_x0000_t75" style='width:87pt;height:21pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image009.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=116 height=28
+src="./hazpred_files/image010.gif" v:shapes="_x0000_i1029"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1029"
+  DrawAspect="Content" ObjectID="_1041237653">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>Partial derivatives of Z with respect to the parameter
+vector theta required for the statistical differential are:</p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1030" type="#_x0000_t75" style='width:127.8pt;height:31.2pt'
+ o:ole="">
+ <v:imagedata src="./hazpred_files/image011.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=170 height=41
+src="./hazpred_files/image012.gif" v:shapes="_x0000_i1030"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1030"
+  DrawAspect="Content" ObjectID="_1041237654">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>The first order approximation to the variance of <i
+style='mso-bidi-font-style:normal'>Z</i>, <i style='mso-bidi-font-style:normal'>Var(Z)</i>,
+is </p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1031" type="#_x0000_t75" style='width:175.2pt;height:36pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image013.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=234 height=48
+src="./hazpred_files/image014.gif" v:shapes="_x0000_i1031"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1031"
+  DrawAspect="Content" ObjectID="_1041237656">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>Then the confidence limits of <i style='mso-bidi-font-style:
+normal'>Z</i> are:</p>
+
+<p class=MsoNormal align=center style='text-align:center'><a name="DDE_LINK2"><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1032" type="#_x0000_t75" style='width:117pt;height:19.2pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image015.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=156 height=25
+src="./hazpred_files/image016.gif" v:shapes="_x0000_i1032"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1032"
+  DrawAspect="Content" ObjectID="_1041237657">
+ </o:OLEObject>
+</xml><![endif]--></a></p>
+
+<span style='mso-bookmark:DDE_LINK2'></span>
+
+<p class=MsoNormal>and</p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1033" type="#_x0000_t75" style='width:115.8pt;height:19.2pt'
+ o:ole="">
+ <v:imagedata src="./hazpred_files/image017.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=154 height=25
+src="./hazpred_files/image018.gif" v:shapes="_x0000_i1033"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1033"
+  DrawAspect="Content" ObjectID="_1041237658">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>where <sub><!--[if gte vml 1]><v:shape id="_x0000_i1034"
+ type="#_x0000_t75" style='width:25.8pt;height:16.8pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image019.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=35 height=23
+src="./hazpred_files/image020.gif" v:shapes="_x0000_i1034"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1034"
+  DrawAspect="Content" ObjectID="_1041237659">
+ </o:OLEObject>
+</xml><![endif]--><span style="mso-spacerun: yes">&nbsp;</span>is the inverse
+normal of the confidence coefficient <span style='font-family:Symbol;
+mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:"Times New Roman";
+mso-char-type:symbol;mso-symbol-font-family:Symbol'><span style='mso-char-type:
+symbol;mso-symbol-font-family:Symbol'>a</span></span>.<span
+style="mso-spacerun: yes">&nbsp; </span>Finally, <i style='mso-bidi-font-style:
+normal'>Z<sup>-</sup></i> and <i style='mso-bidi-font-style:normal'>Z<sup>+</sup></i>
+are transformed to <i style='mso-bidi-font-style:normal'>S(t,</i><b
+style='mso-bidi-font-weight:normal'><i style='mso-bidi-font-style:normal'><span
+style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:Symbol'><span
+style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>Q</span></span></i></b><i
+style='mso-bidi-font-style:normal'>)<sup>+</sup></i> and <i style='mso-bidi-font-style:
+normal'>S(t,</i><b style='mso-bidi-font-weight:normal'><i style='mso-bidi-font-style:
+normal'><span style='font-family:Symbol;mso-ascii-font-family:"Times New Roman";
+mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:
+Symbol'><span style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>Q</span></span></i></b><i
+style='mso-bidi-font-style:normal'>)<sup>-</sup></i>, respectively.<span
+style="mso-spacerun: yes">&nbsp; </span></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>These survivorship confidence limits are generally
+asymmetrical except at <i style='mso-bidi-font-style:normal'>S(t)=0.5</i>.<span
+style="mso-spacerun: yes">&nbsp; </span>They converge to 1.0 as time <i
+style='mso-bidi-font-style:normal'>t</i> approaches zero, and to 0.0 as<i
+style='mso-bidi-font-style:normal'> t</i> approaches infinity.<span
+style="mso-spacerun: yes">&nbsp; </span>Also, they are consistent in width
+above and below <i style='mso-bidi-font-style:normal'>S(t)=0.5</i> in that the
+confidence limits for the same variance of <i style='mso-bidi-font-style:normal'>Z</i>
+are the same as for <i style='mso-bidi-font-style:normal'>S(t)</i> and <i
+style='mso-bidi-font-style:normal'>1-S(t)</i>.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<h3><a name="_Toc504366659">Hazard Function</a></h3>
+
+<p class=MsoNormal>For confidence limits of the hazard function <i
+style='mso-bidi-font-style:normal'><span style='font-family:Symbol;mso-ascii-font-family:
+"Times New Roman";mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;
+mso-symbol-font-family:Symbol'><span style='mso-char-type:symbol;mso-symbol-font-family:
+Symbol'>l</span></span>(t,</i><b style='mso-bidi-font-weight:normal'><i
+style='mso-bidi-font-style:normal'><span style='font-family:Symbol;mso-ascii-font-family:
+"Times New Roman";mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;
+mso-symbol-font-family:Symbol'><span style='mso-char-type:symbol;mso-symbol-font-family:
+Symbol'>Q</span></span></i></b><i style='mso-bidi-font-style:normal'>)</i>, a
+logarithmic transformation is used:</p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1035" type="#_x0000_t75" style='width:61.2pt;height:18pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image021.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=82 height=24
+src="./hazpred_files/image022.gif" v:shapes="_x0000_i1035"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1035"
+  DrawAspect="Content" ObjectID="_1041237660">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>and</p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1036" type="#_x0000_t75" style='width:75pt;height:18pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image023.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=100 height=24
+src="./hazpred_files/image024.gif" v:shapes="_x0000_i1036"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1036"
+  DrawAspect="Content" ObjectID="_1041237661">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>The partial derivatives of Z with respect to the parameter
+vector theta are</p>
+
+<p class=MsoNormal align=center style='text-align:center'><sub><!--[if gte vml 1]><v:shape
+ id="_x0000_i1037" type="#_x0000_t75" style='width:109.8pt;height:33pt' o:ole="">
+ <v:imagedata src="./hazpred_files/image025.wmz" o:title=""/>
+</v:shape><![endif]--><![if !vml]><img width=146 height=44
+src="./hazpred_files/image026.gif" v:shapes="_x0000_i1037"><![endif]></sub><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.2" ShapeID="_x0000_i1037"
+  DrawAspect="Content" ObjectID="_1041237662">
+ </o:OLEObject>
+</xml><![endif]--></p>
+
+<p class=MsoNormal>The general scheme used for the survivorship estimates is
+then followed.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>The
+transformation guarantees that the upper and lower confidence limits of the
+hazard function are always positive and asymmetric.<span style="mso-spacerun:
+yes">&nbsp; </span>The confidence limits are not consistent between the hazard
+and the survivorship functions, since the calculations use different
+transformations and asymptotic approximations.<span style="mso-spacerun:
+yes">&nbsp; </span>However, the results are reasonably consistent for data set
+with approximately one hundred or more observations.</p>
+
+<h1><a name="_Toc504366660">EXAMPLES</a></h1>
+
+<p class=MsoNormal>Several examples are available in the accompanying data
+file.</p>
+
+<h1><a name="_Toc504366661">REFERENCES</a></h1>
+
+<p class=MsoList2 style='margin-left:.25in'>Hazelrig JB, Turner ME Jr,
+Blackstone EH. Parametric survival analysis combining longitudinal and
+cross-sectional-censored and interval-censored data with concomitant
+information.<span style="mso-spacerun: yes">&nbsp; </span>Biometrics
+1982;39:1-15.</p>
+
+<p class=MsoList2 style='margin-left:.25in'>Ku HH.<span style="mso-spacerun:
+yes">&nbsp; </span>Notes on the use of propagation of error formulas.<span
+style="mso-spacerun: yes">&nbsp; </span>Journal of Research of the National
+Bureau of Standards 1966;70C:263-73</p>
+
+</div>
+
+<div style='mso-element:footnote-list'><![if !supportFootnotes]><br clear=all>
+
+<hr align=left size=1 width="33%">
+
+<![endif]>
+
+<div style='mso-element:footnote' id=ftn1>
+
+<p class=MsoFootnoteText><a style='mso-footnote-id:ftn1' href="#_ftnref1"
+name="_ftn1" title=""><span class=MsoFootnoteReference><span style='mso-special-character:
+footnote'><![if !supportFootnotes]>[1]<![endif]></span></span></a>Inquiries
+concerning this procedure should be directed to Eugene H. Blackstone, MD at
+(216) 444-6712. Our general e-mail address for inquiries about program
+availability, installation or functioning is <i style='mso-bidi-font-style:
+normal'><a href="mailto:hazard@bio.ri.ccf.org">hazard@bio.ri.ccf.org</a>.</i><span
+style="mso-spacerun: yes">&nbsp; </span>Mail to that address is simultaneously
+received by Dr. Blackstone and Mr. John Ehrlinger, the programmer currently
+supporting the procedures. The procedures, along with this documentation,
+examples, and useful macros, are available on the Internet at <i><a
+href="http://www.clevelandclinic.org/heartcenter/hazard">www.clevelandclinic.org/heartcenter/hazard</a></i>.
+Specific data application questions are welcomed, directed either to Dr.
+Blackstone at <i style='mso-bidi-font-style:normal'><a
+href="mailto:blackse@ccf.org">blackse@ccf.org</a></i> or to hazard support at <i><a
+href="mailto:hazard@bio.ri.ccf.org">hazard@bio.ri.ccf.org</a></i>.</p>
+
+<p class=MsoFootnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+</div>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+#include <math.h>
+
+#include <common.h>
+#include "normal.h"
+
+double PDLIKE(double llike1,double llike2,long df)
+
+     /***********************************************************************
+
+  P-VALUE FOR DIFFERENCE IN TWO LOG LIKELIHOOD VALUES
+
+   PURPOSE
+     TO CALCULATE THE P-VALUE FOR THE DIFFERENCE IN TWO LOG
+     LIKELIHOOD VALUES
+
+   DESCRIPTION OF PARAMETERS
+     INPUT
+       LLIKE1 - REAL*8  ONE LOG LIKELIHOOD VALUE
+       LLIKE2 - REAL*8  ANOTHER LOG LIKELIHOOD VALUE
+       DF     - INTEGER DEGREES OF FREEDOM
+
+     OUTPUT
+       PDLIKE - REAL*8  TWO-TAILED P-VALUE FOR THE DIFFERENCE
+
+   REMARKS
+     1.  IF THERE IF ONLY 1 DEGREE OF FREEDOM, THEN THE SIMPLE
+         APPROXIMATION TO THE NORMAL DISTRIBUTION IS USED.  OTHERWISE
+         THE CHISQUARE TEST IS USED.
+
+     2.  NOTE:  IN THIS VERSION WE HAVE NOT AS YET PROGRAMMED A
+         CHISQUARE TEST.
+
+   SUBPROGRAMS REQUIRED
+     NORMAL - PROGRAM TO CALCULATE NORMAL DISTRIBUTION
+     CHISQ  - PROGRAM TO CALCULATE CHISQUARE DISTRIBUTION
+
+   METHOD
+     THE TEST STATISTIC IS TWICE THE DIFFERENCE BETWEEN THE TWO
+     LOG LIKELIHOOD VALUES.  IF THERE IS ONE DEGREE OF FREEDOM
+     THEN THE SQUARE ROOT OF THIS QUANTITY IS USED AS THE TEST
+     STATISTIC.
+
+   IMPLEMENTATION
+     E.H. BLACKSTONE, MD     APRIL 1986
+
+   LATEST REVISION
+     NONE
+
+   VERIFICATION
+     APRIL 17,1986 - TEST AGAINST NORMAL TABLE
+     October 1993  - Converted to HZRCOR C-version 4.0(0)
+
+***********************************************************************/
+
+{
+  double diff,z;
+
+  /* INITIALIZE */
+  if(df<1)
+    return ZERO;
+
+  /* GET TWICE THE DIFFERENCE IN LOG LIKELIHOOD VALUES */
+  diff = TWO*(llike1-llike2);
+
+  /* IF ONE DEGREE OF FREEDOM, USE NORMAL DISTRIBUTION */
+  if(df!=1)
+    /* return CHISQ(diff,df);  Some day... */
+    return ZERO;
+  else {
+    z = sqrt(fabs(diff));
+    return TWO*NORMAL(z);
+  }
+}

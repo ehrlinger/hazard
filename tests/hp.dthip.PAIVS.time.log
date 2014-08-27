@@ -1,0 +1,347 @@
+4574     OPTIONS PS=100 LS=132;
+4575   *______________________________________________________________________________;
+
+4576   *                                                                              ;
+
+4577   * !HZEXAMPLES/hp.dthip.PAIVS.time                                              ;
+
+4578   *                                                                              ;
+
+4579   * Survival after initial for pulmonary atresia with intact ventricular septum  ;
+
+4580   *                                                                              ;
+
+4581   * Time-related survival after various operations at several Zs for TV          ;
+
+4582   *                                                                              ;
+
+4583   * Birth weight 3.1 kg (median), date of admission 1991.                        ;
+
+4584   *______________________________________________________________________________;
+
+4585   *                                                                              ;
+
+4586     TITLE1 "Pulmonary Atresia with Intact Ventricular Septum";
+4587     TITLE2 "(Congenital Heart Surgeons Society; 1987 to Oct 1993)";
+4588     TITLE3 "Death After Initial Achieved Procedure";
+4589     TITLE4 "Time-Related Survival After Various Treatment Strategies";
+4590   *______________________________________________________________________________;
+
+4591   *                                                                              ;
+
+4592   * Model:                                                                       ;
+
+4593   *   Early Hazard Phase
+4594   *    LN_WTBRT MISSBTHW RVDEPCC NCANOM RVNSTVSE ATBDPV BAS
+4595   *    SHAS1GRP PVS1GRP TAP1GZ2T TAPS1ZMT PV1Z2TV
+4596   *   Constant Hazard Phase
+4597   *    RVSP RVENL TVINC_SE RAE APCOL SHNT1GRP SHAS1GRP PVS1GRP
+4598   *    TAPS1GRP TAPS1ZMT
+4599   *______________________________________________________________________________;
+
+4600   *                                                                              ;
+
+4601   * Set values for standard model incremental risk factors variables.            ;
+
+4602     DATA DESIGN;
+4603     WT_BIRTH=3.1;  /* Birth weight (kg)                                 */
+4604     MISSBTHW=0;    /* Missing birth weight                              */
+4605     RVDEPCC=0;     /* RV dependent coronary circulation                 */
+4606     NCANOM=0;      /* Noncardiac anomaly                                */
+4607     TVINC_SE=0;    /* TV incompetence (severe)                          */
+4608     RVENL=0;       /* RV enlarged                                       */
+4609     RAE=0;         /* Large right atrium                                */
+4610     APCOL=0;       /* Large AP colateral arteries                       */
+4611     ATBDPV=0;      /* Previous attempted balloon valvotomy              */
+4612     BAS=0;         /* Previous balloon atrial septostomy                */
+4613     SHAS1GRP=0;    /* Shunt + atrial septectomy group                   */
+4614     TAP1GRP=0;     /* Surgical TAP without a shunt                      */
+4615     TAPS1GRP=0;    /* Surgical TAP with a shunt                         */
+4616     SHNT1GRP=0;    /* Shunt only                                        */
+4617     PVS1GRP=0;     /* Surgical pulmonary valvotomy with a shunt         */
+4618     PV1GRP=0;      /* Surgical pulmonary valvotomy without a shunt      */
+4619     ZMTVECHO=-2;   /* Dimension (Z) of tricuspid valve                  */
+4620     RVSP=110;      /* RV peak systolic pressure                         */
+4621     MONTHS=6;      /* Time of observation (months)                      */
+4622   *******************************************************************************;
+
+4623   * Transformations of variables                                                 ;
+
+4624     RVNS=0; IF TAP1GRP=1 OR PV1GRP=1 THEN RVNS=1;
+4625     PV1=0; IF PV1GRP=1 OR PVS1GRP=1 THEN PV1=1;
+4626   * Logarithpic:                                                                 ;
+
+4627     LN_WTBRT=LOG(WT_BIRTH);
+4628   * Power:                                                                       ;
+
+4629     Z2MTVECH=ZMTVECHO**2;
+4630   * Interaction:                                                                 ;
+
+4631     RVNSTVSE=TVINC_SE*RVNS;
+4632     TAP1GZ2T=TAP1GRP*Z2MTVECH;
+4633     TAPS1ZMT=TAPS1GRP*ZMTVECHO;
+4634     PV1Z2TV=PV1*Z2MTVECH;
+4635     YEARS=MONTHS/12;
+4636   *******************************************************************************;
+
+4637   * Generate "isobars" of risk factors here, but check for possible              ;
+
+4638   * transformations that may be needed.                                          ;
+
+4639     DO ZMTVECHO=-1, -2, -3, -4;
+4640       MULT=ABS(ZMTVECHO);
+4641       Z2MTVECH=ZMTVECHO**2;
+4642       OUTPUT;
+4643     END;
+
+NOTE: The data set WORK.DESIGN has 4 observations and 29 variables.
+NOTE: DATA statement used:
+      real time           0.16 seconds
+      cpu time            0.16 seconds
+
+
+4644     DATA DESIGN; SET DESIGN;
+4645   * Shunt alone                                                                  ;
+
+4646     SHAS1GRP=0; SHNT1GRP=1; PV1GRP=0; PVS1GRP=0; TAP1GRP=0; TAPS1GRP=0;
+4647       PLOT=2*MULT+1; PLOTLINE=1; PLTCHR='S'; PLTCL='s'; DECISION='Shunt Alone ';
+
+4648       PATIENT=1; OUTPUT;
+4649   * Pulmonary valvotomy without a shunt:                                         ;
+
+4650     SHAS1GRP=0; SHNT1GRP=0; PV1GRP=1; PVS1GRP=0; TAP1GRP=0; TAPS1GRP=0;
+4651       PLOT=2*MULT+1; PLOTLINE=2; PLTCHR='V'; PLTCL='v'; DECISION='Valvot Alone';
+
+4652       PATIENT=2; OUTPUT;
+4653   * Pulmonary valvotomy with a shunt:                                            ;
+
+4654     SHAS1GRP=0; SHNT1GRP=0; PV1GRP=0; PVS1GRP=1; TAP1GRP=0; TAPS1GRP=0;
+4655       PLOT=2*MULT+1; PLOTLINE=3; PLTCHR='W'; PLTCL='w'; DECISION='Valvot+Shunt';
+
+4656       PATIENT=3; OUTPUT;
+4657   * Shunt alone                                                                  ;
+
+4658     SHAS1GRP=0; SHNT1GRP=1; PV1GRP=0; PVS1GRP=0; TAP1GRP=0; TAPS1GRP=0;
+4659       PLOT=2*MULT+2; PLOTLINE=1; PLTCHR='S'; PLTCL='s'; DECISION='Shunt Alone ';
+
+4660       PATIENT=4; OUTPUT;
+4661   * TAP without a shunt:                                                         ;
+
+4662     SHAS1GRP=0; SHNT1GRP=0; PV1GRP=0; PVS1GRP=0; TAP1GRP=1; TAPS1GRP=0;
+4663       PLOT=2*MULT+2; PLOTLINE=2; PLTCHR='T'; PLTCL='t'; DECISION='TAP Alone   ';
+
+4664       PATIENT=5; OUTPUT;
+4665   * TAP with a shunt:                                                            ;
+
+4666     SHAS1GRP=0; SHNT1GRP=0; PV1GRP=0; PVS1GRP=0; TAP1GRP=0; TAPS1GRP=1;
+4667       PLOT=2*MULT+2; PLOTLINE=3; PLTCHR='W'; PLTCL='w'; DECISION='TAP + Shunt ';
+
+4668       PATIENT=6; OUTPUT;
+4669
+
+NOTE: There were 4 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DESIGN has 24 observations and 35 variables.
+NOTE: DATA statement used:
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+
+
+4670     DATA DESIGN; SET DESIGN;
+4671   * Transformations of variables                                                 ;
+
+4672     RVNS=0; IF TAP1GRP=1 OR PV1GRP=1 THEN RVNS=1;
+4673     PV1=0; IF PV1GRP=1 OR PVS1GRP=1 THEN PV1=1;
+4674   * Power:                                                                       ;
+
+4675     Z2MTVECH=ZMTVECHO**2;
+4676   * Interaction:                                                                 ;
+
+4677     RVNSTVSE=TVINC_SE*RVNS;
+4678     TAP1GZ2T=TAP1GRP*Z2MTVECH;
+4679     TAPS1ZMT=TAPS1GRP*ZMTVECHO;
+4680     PV1Z2TV=PV1*Z2MTVECH;
+4681
+
+NOTE: There were 24 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DESIGN has 24 observations and 35 variables.
+NOTE: DATA statement used:
+      real time           0.07 seconds
+      cpu time            0.07 seconds
+
+
+4682     PROC PRINT;
+4683   *******************************************************************************;
+
+4684   * Generate and output points                                                   ;
+
+
+NOTE: There were 24 observations read from the data set WORK.DESIGN.
+NOTE: PROCEDURE PRINT used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+4685     DATA PREDICT; SET DESIGN; DIGITAL=0;
+4686     MAX=84; LN_MAX=LOG(MAX); INC=(5+LN_MAX)/999.9;
+4687     DO LN_TIME=-5 TO LN_MAX BY INC,LN_MAX;
+4688       MONTHS=EXP(LN_TIME); YEARS=MONTHS/12;
+4689       OUTPUT;
+4690     END;
+4691     DROP LN_TIME MAX LN_MAX INC;
+4692
+
+NOTE: There were 24 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.PREDICT has 24024 observations and 36 variables.
+NOTE: DATA statement used:
+      real time           0.94 seconds
+      cpu time            0.17 seconds
+
+
+4693     DATA DIGITAL; SET DESIGN; DIGITAL=1;
+4694     DTY=12/365.2425;
+4695     DO MONTHS=1*DTY,2*DTY,3*DTY,4*DTY,5*DTY,6*DTY,7*DTY,14*DTY,30*DTY,
+4696     1,2,3,6,12 TO 84 BY 12;
+4697       YEARS=MONTHS/12;
+4698       OUTPUT;
+4699     END;
+4700     DROP DTY;
+
+NOTE: There were 24 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DIGITAL has 480 observations and 36 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+4701     DATA PREDICT; SET PREDICT DIGITAL;
+4702   * Stipulate region of available data                                           ;
+
+4703     IF (PATIENT=2 OR PATIENT=3) AND ZMTVECHO<-4.4 THEN DELETE;
+4704     IF PATIENT=5 AND ZMTVECHO<-3.7 THEN DELETE;
+4705     IF PATIENT=6 AND ZMTVECHO<-5.7 THEN DELETE;
+4706   *******************************************************************************;
+
+4707   * Do predictions for atresia                                                   ;
+
+
+NOTE: There were 24024 observations read from the data set WORK.PREDICT.
+NOTE: There were 480 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.PREDICT has 23483 observations and 36 variables.
+NOTE: DATA statement used:
+      real time           1.05 seconds
+      cpu time            0.23 seconds
+
+
+4708     PROC SORT; BY PATIENT;
+4709     LIBNAME CHSPTR94 ('!HZEXAMPLES/sasest');
+NOTE: Libref CHSPTR94 was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V8
+      Physical Name(1): c:\hazard\examples\sasest
+4710     %HAZPRED(
+4711     PROC HAZPRED DATA=PREDICT INHAZ=CHSPTR94.HMDTHIPR OUT=PREDICT;
+4712          TIME MONTHS; ID PATIENT;
+4713     );
+
+NOTE: There were 23483 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 23483 observations and 36 variables.
+NOTE: PROCEDURE SORT used:
+      real time           2.42 seconds
+      cpu time            0.55 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X425
+ERROR: File CHSPTR94.HMDTHIPR.DATA does not exist.
+WARNING: The data set HZRCALL.HZRCALL may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+ERROR: File CHSPTR94.HMDTHIPR.DATA does not exist.
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: EXITING DUE TO infile ERROR
+ERROR: Unrecognized line from print file.
+RULE:     ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
+10        !16 3
+ll=3 bfr=16 code=! lleft=96 bfrlen=2 count=. i=. _ERROR_=1 _N_=10
+4714   *******************************************************************************;
+
+4715   * Printer plot survival and hazard                                             ;
+
+4716     DATA PREDICT; SET PREDICT;
+4717     LABEL _SURVIV  = 'Probability of Survival';
+
+NOTE: Variable _SURVIV is uninitialized.
+NOTE: There were 23483 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 23483 observations and 36 variables.
+NOTE: DATA statement used:
+      real time           1.25 seconds
+      cpu time            0.20 seconds
+
+
+4718     PROC SORT; BY PLOT;
+
+NOTE: There were 23483 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 23483 observations and 36 variables.
+NOTE: PROCEDURE SORT used:
+      real time           1.71 seconds
+      cpu time            0.49 seconds
+
+
+4719     PROC PLOT DATA=PREDICT; BY PLOT;
+4720          PLOT _SURVIV*YEARS=PLTCHR
+ERROR: Variable _SURVIV not found.
+4721              _CLLSURV*YEARS=PLTCL _CLUSURV*YEARS=PLTCL
+ERROR: Variable _CLLSURV not found.
+ERROR: Variable _CLUSURV not found.
+4722               /OVERLAY VAXIS=0 TO 1 BY 0.1;
+NOTE: The previous statement has been deleted.
+4723   *******************************************************************************;
+
+4724   * Digital nomogram                                                             ;
+
+
+NOTE: PROCEDURE PLOT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+4725     DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: There were 23483 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.DIGITAL has 460 observations and 36 variables.
+NOTE: DATA statement used:
+      real time           0.10 seconds
+      cpu time            0.10 seconds
+
+
+4726     PROC SORT; BY PLOT DECISION ZMTVECHO;
+
+NOTE: There were 460 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.DIGITAL has 460 observations and 36 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+4727     PROC PRINT; BY PLOT DECISION ZMTVECHO; VAR MONTHS YEARS
+4728       WT_BIRTH RVDEPCC NCANOM TVINC_SE RVENL RAE APCOL ATBDPV BAS SHAS1GRP RVNS
+
+4729       TAP1GRP TAPS1GRP SHNT1GRP PVS1GRP PV1 ZMTVECHO RVSP
+4730       _SURVIV _CLLSURV _CLUSURV;
+ERROR: Variable _SURVIV not found.
+ERROR: Variable _CLLSURV not found.
+ERROR: Variable _CLUSURV not found.
+4731   *******************************************************************************;
+
+4732   RUN;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+

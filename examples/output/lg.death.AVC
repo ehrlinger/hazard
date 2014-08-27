@@ -1,0 +1,1818 @@
+From cvsrehb Thu Dec  1 11:25:59 1994
+Received: by UABCVSR.cvsr.uab.edu (AIX 3.2/UCB 5.64/4.03)
+          id AA34093; Thu, 1 Dec 1994 11:25:57 -0600
+Date: Thu, 1 Dec 94 11:25:57 -0600
+From: cvsrehb
+Message-ID: <9412011725.AA34093@UABCVSR.cvsr.uab.edu>
+To: cvsrehb
+Subject: 27590.uabcvsr
+
+1                                                          The SAS System                           11:25 Thursday, December 1, 1994
+
+NOTE: Copyright(c) 1989 by SAS Institute Inc., Cary, NC USA. 
+NOTE: SAS (r) Proprietary Software Release 6.09  TS027
+      Licensed to UNIVERSITY OF ALABAMA AT BIRMINGHAM, Site 0001676011.
+
+NOTE: Running on IBM Model RS/6000 Serial Number 000002582E00.
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: AUTOEXEC processing beginning; file is /apps/sasnew/sas609/autoexec.sas.
+
+
+NOTE: AUTOEXEC processing completed.
+
+1            OPTIONS PAGESIZE=100 LINESIZE=132;
+2          *******************************************************************************;
+3          * /programs/hazard/examples/lg.death.AVC                                       ;
+4          *                                                                              ;
+5          * Descriptive analysis of death after repair                                   ;
+6          * Logit relation of continuous variables to risk                               ;
+7          *******************************************************************************;
+8          * Bring in data                                                                ;
+9            TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+10           TITLE2 'Example Data Set';
+11           TITLE3 'Death After Repair';
+12           TITLE4 'Logit Relationships';
+13         *______________________________________________________________________________;
+14         *                                                                              ;
+15         * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+16         *        data.  For illustration, a few variables from a data set for repair   ;
+17         *        of atrioventricular septal defects will be read from a "flat file."   ;
+18         *______________________________________________________________________________;
+19         *                                                                              ;
+20           FILENAME INAVC '/programs/hazard/examples/data/avc';
+21           DATA AVCS; INFILE INAVC MISSOVER;
+22           INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+23                 OP_AGE;
+24           LABEL
+25                 STUDY    = 'Study number'
+26                 STATUS   = 'Clinical status (NYHA I-V)'
+27                 INC_SURG = 'Surgical grade of AV valve incompetence'
+28                 OPMOS    = 'Date of operation (months since 1/67)'
+29                 AGE      = 'Age (months) at repair'
+30                 MAL      = 'Important associated cardiac anomaly'
+31                 COM_IV   = 'Interventricular communication'
+32                 ORIFICE  = 'Accessory left AV valve orifice'
+33                 DEAD     = 'Death'
+34                 INT_DEAD = 'Followup interval (months) after repair'
+35           ;
+36         *******************************************************************************;
+37         * Bring in LOGIT macro                                                         ;
+38           FILENAME LOGIT '/programs/hazard/examples/macros/logit';
+39           FILENAME LOGITGR '/programs/hazard/examples/macros/logitgr';
+40           OPTIONS NOSOURCE; %INC LOGIT LOGITGR; OPTIONS SOURCE;
+154        *______________________________________________________________________________;
+155        *                                                                              ;
+156        *   EVENT    = Event (0/1) indicator             EVENT                         ;
+157        *   VAR      = Variable to be categorized                                      ;
+158        *   GROUPS   = Number of groups (deciles)        10                            ;
+159        *   MEAN     = Mean within each group of VAR     MEAN                          ;
+160        *   MAX      = Max within each group of VAR      MAX                           ;
+161        *   MIN      = Min within each group of VAR      MIN                           ;
+162        *   PROB     = Group probability of event        PROB                          ;
+163        *   LOGIT    = Logit for each group              PROB                          ;
+164        *   N        = Number of observations in decile  N                             ;
+165        *   SUM      = Number of events in decile        EVENTS                        ;
+166        *   IN       = Input data set name                                             ;
+167        *   OUT      = Output data set name              LOGIT                         ;
+168        *   GOMPIT   = Use Gompertz rather than logistic 0 (1 for GOMPIT)              ;
+169        *                                                                              ;
+170        * NOTE:  The output data set consists of GROUP observations from which         ;
+171        *        various plots and relations can be run.                               ;
+172        *______________________________________________________________________________;
+173        *                                                                              ;
+174        * Decile Analysis of AGE                                                       ;
+175          %LOGIT(VAR=AGE, EVENT=DEAD, GROUPS=5, IN=AVCS);
+
+NOTE: The infile INAVC is:
+      File Name=/programs/hazard/examples/data/avc,
+      Owner Name=cvsrehb,Group Name=cvsrgrp,
+      Access Permission=rwxrwxrwx,
+      File Size (bytes)=16394
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 11 variables.
+
+
+NOTE: The data set WORK.LOGIT has 310 observations and 2 variables.
+
+
+2                                                          The SAS System                           11:25 Thursday, December 1, 1994
+
+NOTE: The data set WORK.LOGIT has 310 observations and 3 variables.
+
+
+NOTE: The data set WORK.LOGIT has 6 observations and 13 variables.
+
+176          TITLE5 'Age at Repair';
+
+NOTE: The data set WORK.LOGIT has 5 observations and 7 variables.
+
+177          PROC PRINT DATA=LOGIT;
+
+NOTE: The PROCEDURE PRINT printed page 1.
+
+178          DATA LOGIT; SET LOGIT;
+179          LN_MEAN=LOG(MEAN); IN_MEAN=1/MEAN; IN2MEAN=IN_MEAN*IN_MEAN;
+
+NOTE: The data set WORK.LOGIT has 5 observations and 10 variables.
+
+180          PROC PLOT; PLOT LOGIT*MEAN='*' LOGIT*LN_MEAN='*' LOGIT*IN_MEAN='*'
+181                     LOGIT*IN2MEAN='*';
+182        * Decile Analysis of STATUS                                                    ;
+183          %LOGITGR(VAR=STATUS, EVENT=DEAD, GROUPS=STATUS, IN=AVCS);
+
+NOTE: The PROCEDURE PLOT printed pages 2-5.
+
+
+NOTE: The data set WORK.LOGIT has 310 observations and 11 variables.
+
+
+NOTE: The data set WORK.LOGIT has 310 observations and 4 variables.
+
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      308:147   
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+
+
+NOTE: The data set WORK.LOGIT has 5 observations and 13 variables.
+
+184          TITLE5 'Clinical Status';
+
+NOTE: The data set WORK.LOGIT has 4 observations and 8 variables.
+
+185          PROC PRINT DATA=LOGIT;
+
+NOTE: The PROCEDURE PRINT printed page 6.
+
+186          DATA LOGIT; SET LOGIT;
+187          LN_MEAN=LOG(MEAN); IN_MEAN=1/MEAN; IN2MEAN=IN_MEAN*IN_MEAN;
+
+NOTE: The data set WORK.LOGIT has 4 observations and 11 variables.
+
+188          PROC PLOT; PLOT LOGIT*MEAN='*' LOGIT*LN_MEAN='*' LOGIT*IN_MEAN='*'
+189                     LOGIT*IN2MEAN='*';
+190        * Decile Analysis of INC_SURG                                                 ;
+191          %LOGIT(VAR=INC_SURG, EVENT=DEAD, IN=AVCS);
+
+NOTE: The PROCEDURE PLOT printed pages 7-10.
+
+
+NOTE: The data set WORK.LOGIT has 305 observations and 2 variables.
+
+
+NOTE: The data set WORK.LOGIT has 305 observations and 3 variables.
+
+
+NOTE: The data set WORK.LOGIT has 7 observations and 13 variables.
+
+192          TITLE5 'Surgical Assessment of Grade of AV Valve Incompetence';
+
+NOTE: The data set WORK.LOGIT has 6 observations and 7 variables.
+
+193          PROC PRINT DATA=LOGIT;
+
+NOTE: The PROCEDURE PRINT printed page 11.
+
+194          DATA LOGIT; SET LOGIT;
+195          LN_MEAN=LOG(MEAN+1); IN_MEAN=1/(MEAN+1); IN2MEAN=IN_MEAN*IN_MEAN;
+
+NOTE: The data set WORK.LOGIT has 6 observations and 10 variables.
+
+196          PROC PLOT; PLOT LOGIT*MEAN='*' LOGIT*LN_MEAN='*' LOGIT*IN_MEAN='*'
+197                     LOGIT*IN2MEAN='*';
+198        * Decile Analysis of OPMOS                                                    ;
+199          %LOGIT(VAR=OPMOS, EVENT=DEAD, GROUPS=4, IN=AVCS);
+
+NOTE: The PROCEDURE PLOT printed pages 12-15.
+
+
+NOTE: The data set WORK.LOGIT has 310 observations and 2 variables.
+
+
+NOTE: The data set WORK.LOGIT has 310 observations and 3 variables.
+
+
+NOTE: The data set WORK.LOGIT has 5 observations and 13 variables.
+
+3                                                          The SAS System                           11:25 Thursday, December 1, 1994
+
+200          TITLE5 'Date of Repair (Months Since 1/67)';
+
+NOTE: The data set WORK.LOGIT has 4 observations and 7 variables.
+
+201          PROC PRINT DATA=LOGIT;
+
+NOTE: The PROCEDURE PRINT printed page 16.
+
+202          DATA LOGIT; SET LOGIT;
+203          LN_MEAN=LOG(MEAN); IN_MEAN=1/MEAN; IN2MEAN=IN_MEAN*IN_MEAN;
+
+NOTE: The data set WORK.LOGIT has 4 observations and 10 variables.
+
+204          PROC PLOT; PLOT LOGIT*MEAN='*' LOGIT*LN_MEAN='*' LOGIT*IN_MEAN='*'
+205                     LOGIT*IN2MEAN='*';
+206        *******************************************************************************;
+NOTE: The PROCEDURE PLOT printed pages 17-20.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994   1
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                           Age at Repair
+
+                              OBS      PROB       MEAN      N    SUM      MAX          MIN      LOGIT
+
+                               1     0.37097      6.050    62     23     11.532      0.920    -0.52807
+                               2     0.38710     19.136    62     24     27.828     11.631    -0.45953
+                               3     0.17742     57.259    62     11     85.751     28.124    -1.53393
+                               4     0.08065    130.589    62      5    202.353     86.408    -2.43361
+                               5     0.11290    388.139    62      7    790.981    203.733    -2.06142
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994   2
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                           Age at Repair
+
+                                              Plot of LOGIT*MEAN.  Symbol used is '*'.
+
+        LOGIT |
+              |
+         -0.4 +
+              |
+              |       *
+              |
+              |    *
+              |
+              |
+         -0.6 +
+              |
+              |
+              |
+              |
+              |
+              |
+         -0.8 +
+              |
+              |
+              |
+              |
+              |
+              |
+         -1.0 +
+              |
+              |
+              |
+              |
+              |
+              |
+         -1.2 +
+              |
+              |
+              |
+              |
+              |
+              |
+         -1.4 +
+              |
+              |
+              |
+              |
+              |                 *
+              |
+         -1.6 +
+              |
+              |
+              |
+              |
+              |
+              |
+         -1.8 +
+              |
+              |
+              |
+              |
+              |
+              |
+         -2.0 +
+              |
+              |                                                                                                       *
+              |
+              |
+              |
+              |
+         -2.2 +
+              |
+              |
+              |
+              |
+              |
+              |
+         -2.4 +
+              |                                    *
+              |
+              |
+              |
+              |
+              |
+         -2.6 +
+              |
+              ---+------------+------------+------------+------------+------------+------------+------------+------------+--
+                 0           50           100          150          200          250          300          350          400
+
+                                                                   MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994   3
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                           Age at Repair
+
+                                            Plot of LOGIT*LN_MEAN.  Symbol used is '*'.
+
+ LOGIT |
+       |
+  -0.4 +
+       |
+       |                                        *
+       |
+       |          *
+       |
+       |
+  -0.6 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -0.8 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -1.0 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -1.2 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -1.4 +
+       |
+       |
+       |
+       |
+       |                                                                    *
+       |
+  -1.6 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -1.8 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -2.0 +
+       |
+       |                                                                                                                      *
+       |
+       |
+       |
+       |
+  -2.2 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -2.4 +
+       |                                                                                          *
+       |
+       |
+       |
+       |
+       |
+  -2.6 +
+       |
+       ---+------------+------------+------------+------------+------------+------------+------------+------------+------------+--
+         1.5          2.0          2.5          3.0          3.5          4.0          4.5          5.0          5.5          6.0
+
+                                                                 LN_MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994   4
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                           Age at Repair
+
+                                            Plot of LOGIT*IN_MEAN.  Symbol used is '*'.
+
+ LOGIT |
+       |
+  -0.4 +
+       |
+       |                                    *
+       |
+       |                                                                                                             *
+       |
+       |
+  -0.6 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -0.8 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -1.0 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -1.2 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -1.4 +
+       |
+       |
+       |
+       |
+       |             *
+       |
+  -1.6 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -1.8 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -2.0 +
+       |
+       |    *
+       |
+       |
+       |
+       |
+  -2.2 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -2.4 +
+       |       *
+       |
+       |
+       |
+       |
+       |
+  -2.6 +
+       |
+       ---+------------+------------+------------+------------+------------+------------+------------+------------+------------+--
+        0.00         0.02         0.04         0.06         0.08         0.10         0.12         0.14         0.16         0.18
+
+                                                                 IN_MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994   5
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                           Age at Repair
+
+                                            Plot of LOGIT*IN2MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+ -0.4 +
+      |
+      |             *
+      |
+      |                                                                                                                         *
+      |
+      |
+ -0.6 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -0.8 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -1.0 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -1.2 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -1.4 +
+      |
+      |
+      |
+      |
+      |  *
+      |
+ -1.6 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -1.8 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -2.0 +
+      |
+      | *
+      |
+      |
+      |
+      |
+ -2.2 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -2.4 +
+      | *
+      |
+      |
+      |
+      |
+      |
+ -2.6 +
+      |
+      --+----------+----------+----------+----------+----------+----------+----------+----------+----------+----------+----------+--
+     0.0000     0.0025     0.0050     0.0075     0.0100     0.0125     0.0150     0.0175     0.0200     0.0225     0.0250     0.0275
+
+                                                                  IN2MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994   6
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                          Clinical Status
+
+                              OBS    STATUS      PROB     MEAN     N     SUM    MAX    MIN      LOGIT
+
+                               1        1      0.04478      1      67      3     1      1     -3.06027
+                               2        2      0.17424      2     132     23     2      2     -1.55585
+                               3        3      0.35366      3      82     29     3      3     -0.60300
+                               4        4      0.51724      4      29     15     4      4      0.06899
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994   7
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                          Clinical Status
+
+                                              Plot of LOGIT*MEAN.  Symbol used is '*'.
+
+              0.2 +
+                  |
+                  |
+                  |                                                                                                  *
+                  |
+              0.0 +
+                  |
+                  |
+                  |
+                  |
+             -0.2 +
+                  |
+                  |
+                  |
+                  |
+             -0.4 +
+                  |
+                  |
+                  |
+                  |
+             -0.6 +                                                                  *
+                  |
+                  |
+                  |
+                  |
+             -0.8 +
+                  |
+            LOGIT |
+                  |
+                  |
+             -1.0 +
+                  |
+                  |
+                  |
+                  |
+             -1.2 +
+                  |
+                  |
+                  |
+                  |
+             -1.4 +
+                  |
+                  |
+                  |
+                  |                                  *
+             -1.6 +
+                  |
+                  |
+                  |
+                  |
+             -1.8 +
+                  |
+                  |
+                  |
+                  |
+             -2.0 +
+                  |
+                  |
+                  |
+                  |
+             -2.2 +
+                  |
+                  |
+                  |
+                  |
+             -2.4 +
+                  |
+                  |
+                  |
+                  |
+             -2.6 +
+                  |
+                  |
+                  |
+                  |
+             -2.8 +
+                  |
+                  |
+                  |
+                  |
+             -3.0 +
+                  |
+                  |  *
+                  |
+                  |
+             -3.2 +
+                  ---+-------------------------------+-------------------------------+-------------------------------+--
+                     1                               2                               3                               4
+
+                                                                   MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994   8
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                          Clinical Status
+
+                                            Plot of LOGIT*LN_MEAN.  Symbol used is '*'.
+
+         0.2 +
+             |
+             |
+             |                                                                                                          *
+             |
+         0.0 +
+             |
+             |
+             |
+             |
+        -0.2 +
+             |
+             |
+             |
+             |
+        -0.4 +
+             |
+             |
+             |
+             |
+        -0.6 +                                                                                    *
+             |
+             |
+             |
+             |
+        -0.8 +
+             |
+       LOGIT |
+             |
+             |
+        -1.0 +
+             |
+             |
+             |
+             |
+        -1.2 +
+             |
+             |
+             |
+             |
+        -1.4 +
+             |
+             |
+             |
+             |                                                      *
+        -1.6 +
+             |
+             |
+             |
+             |
+        -1.8 +
+             |
+             |
+             |
+             |
+        -2.0 +
+             |
+             |
+             |
+             |
+        -2.2 +
+             |
+             |
+             |
+             |
+        -2.4 +
+             |
+             |
+             |
+             |
+        -2.6 +
+             |
+             |
+             |
+             |
+        -2.8 +
+             |
+             |
+             |
+             |
+        -3.0 +
+             |
+             |  *
+             |
+             |
+        -3.2 +
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+               0.0            0.2            0.4            0.6            0.8            1.0            1.2            1.4
+
+                                                                 LN_MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994   9
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                          Clinical Status
+
+                                            Plot of LOGIT*IN_MEAN.  Symbol used is '*'.
+
+   0.2 +
+       |
+       |
+       |  *
+       |
+   0.0 +
+       |
+       |
+       |
+       |
+  -0.2 +
+       |
+       |
+       |
+       |
+  -0.4 +
+       |
+       |
+       |
+       |
+  -0.6 +               *
+       |
+       |
+       |
+       |
+  -0.8 +
+       |
+ LOGIT |
+       |
+       |
+  -1.0 +
+       |
+       |
+       |
+       |
+  -1.2 +
+       |
+       |
+       |
+       |
+  -1.4 +
+       |
+       |
+       |
+       |                                         *
+  -1.6 +
+       |
+       |
+       |
+       |
+  -1.8 +
+       |
+       |
+       |
+       |
+  -2.0 +
+       |
+       |
+       |
+       |
+  -2.2 +
+       |
+       |
+       |
+       |
+  -2.4 +
+       |
+       |
+       |
+       |
+  -2.6 +
+       |
+       |
+       |
+       |
+  -2.8 +
+       |
+       |
+       |
+       |
+  -3.0 +
+       |
+       |                                                                                                                       *
+       |
+       |
+  -3.2 +
+       ---+------------+------------+------------+------------+------------+------------+------------+------------+------------+--
+       0.2500       0.3333       0.4167       0.5000       0.5833       0.6667       0.7500       0.8333       0.9167       1.0000
+
+                                                                 IN_MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  10
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                          Clinical Status
+
+                                            Plot of LOGIT*IN2MEAN.  Symbol used is '*'.
+
+  0.2 +
+      |
+      |
+      |          *
+      |
+  0.0 +
+      |
+      |
+      |
+      |
+ -0.2 +
+      |
+      |
+      |
+      |
+ -0.4 +
+      |
+      |
+      |
+      |
+ -0.6 +               *
+      |
+      |
+      |
+      |
+ -0.8 +
+      |
+LOGIT |
+      |
+      |
+ -1.0 +
+      |
+      |
+      |
+      |
+ -1.2 +
+      |
+      |
+      |
+      |
+ -1.4 +
+      |
+      |
+      |
+      |                                *
+ -1.6 +
+      |
+      |
+      |
+      |
+ -1.8 +
+      |
+      |
+      |
+      |
+ -2.0 +
+      |
+      |
+      |
+      |
+ -2.2 +
+      |
+      |
+      |
+      |
+ -2.4 +
+      |
+      |
+      |
+      |
+ -2.6 +
+      |
+      |
+      |
+      |
+ -2.8 +
+      |
+      |
+      |
+      |
+ -3.0 +
+      |
+      |                                                                                                                          *
+      |
+      |
+ -3.2 +
+      ---+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+--
+        0.0         0.1         0.2         0.3         0.4         0.5         0.6         0.7         0.8         0.9         1.0
+
+                                                                  IN2MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  11
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                       Surgical Assessment of Grade of AV Valve Incompetence
+
+                                   OBS      PROB     MEAN     N    SUM    MAX    MIN      LOGIT
+
+                                    1     0.20690      0     29      6     0      0     -1.34373
+                                    2     0.12821      1     39      5     1      1     -1.91692
+                                    3     0.14118      2     85     12     2      2     -1.80555
+                                    4     0.27551      3     98     27     3      3     -0.96684
+                                    5     0.32558      4     43     14     4      4     -0.72824
+                                    6     0.36364      5     11      4     5      5     -0.55962
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  12
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                       Surgical Assessment of Grade of AV Valve Incompetence
+
+                                              Plot of LOGIT*MEAN.  Symbol used is '*'.
+
+          LOGIT |
+                |
+           -0.5 +
+                |
+                |
+                |                                                                                                      *
+                |
+           -0.6 +
+                |
+                |
+                |
+                |
+           -0.7 +
+                |                                                                                  *
+                |
+                |
+                |
+           -0.8 +
+                |
+                |
+                |
+                |
+           -0.9 +
+                |
+                |
+                |                                                              *
+                |
+           -1.0 +
+                |
+                |
+                |
+                |
+           -1.1 +
+                |
+                |
+                |
+                |
+           -1.2 +
+                |
+                |
+                |
+                |
+           -1.3 +
+                |
+                |  *
+                |
+                |
+           -1.4 +
+                |
+                |
+                |
+                |
+           -1.5 +
+                |
+                |
+                |
+                |
+           -1.6 +
+                |
+                |
+                |
+                |
+           -1.7 +
+                |
+                |
+                |
+                |
+           -1.8 +                                          *
+                |
+                |
+                |
+                |
+           -1.9 +
+                |                      *
+                |
+                |
+                |
+           -2.0 +
+                |
+                ---+-------------------+-------------------+-------------------+-------------------+-------------------+--
+                   0                   1                   2                   3                   4                   5
+
+                                                                   MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  13
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                       Surgical Assessment of Grade of AV Valve Incompetence
+
+                                            Plot of LOGIT*LN_MEAN.  Symbol used is '*'.
+
+ LOGIT |
+       |
+  -0.5 +
+       |
+       |
+       |                                                                                                                      *
+       |
+  -0.6 +
+       |
+       |
+       |
+       |
+  -0.7 +
+       |                                                                                                           *
+       |
+       |
+       |
+  -0.8 +
+       |
+       |
+       |
+       |
+  -0.9 +
+       |
+       |
+       |                                                                                            *
+       |
+  -1.0 +
+       |
+       |
+       |
+       |
+  -1.1 +
+       |
+       |
+       |
+       |
+  -1.2 +
+       |
+       |
+       |
+       |
+  -1.3 +
+       |
+       |  *
+       |
+       |
+  -1.4 +
+       |
+       |
+       |
+       |
+  -1.5 +
+       |
+       |
+       |
+       |
+  -1.6 +
+       |
+       |
+       |
+       |
+  -1.7 +
+       |
+       |
+       |
+       |
+  -1.8 +                                                                         *
+       |
+       |
+       |
+       |
+  -1.9 +
+       |                                               *
+       |
+       |
+       |
+  -2.0 +
+       |
+       ---+------------+------------+------------+------------+------------+------------+------------+------------+------------+--
+         0.0          0.2          0.4          0.6          0.8          1.0          1.2          1.4          1.6          1.8
+
+                                                                 LN_MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  14
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                       Surgical Assessment of Grade of AV Valve Incompetence
+
+                                            Plot of LOGIT*IN_MEAN.  Symbol used is '*'.
+
+ LOGIT |
+       |
+  -0.5 +
+       |
+       |
+       |           *
+       |
+  -0.6 +
+       |
+       |
+       |
+       |
+  -0.7 +
+       |               *
+       |
+       |
+       |
+  -0.8 +
+       |
+       |
+       |
+       |
+  -0.9 +
+       |
+       |
+       |                      *
+       |
+  -1.0 +
+       |
+       |
+       |
+       |
+  -1.1 +
+       |
+       |
+       |
+       |
+  -1.2 +
+       |
+       |
+       |
+       |
+  -1.3 +
+       |
+       |                                                                                                                       *
+       |
+       |
+  -1.4 +
+       |
+       |
+       |
+       |
+  -1.5 +
+       |
+       |
+       |
+       |
+  -1.6 +
+       |
+       |
+       |
+       |
+  -1.7 +
+       |
+       |
+       |
+       |
+  -1.8 +                                *
+       |
+       |
+       |
+       |
+  -1.9 +
+       |                                                      *
+       |
+       |
+       |
+  -2.0 +
+       |
+       ---+------------+------------+------------+------------+------------+------------+------------+------------+------------+--
+         0.1          0.2          0.3          0.4          0.5          0.6          0.7          0.8          0.9          1.0
+
+                                                                 IN_MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  15
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                       Surgical Assessment of Grade of AV Valve Incompetence
+
+                                            Plot of LOGIT*IN2MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+ -0.5 +
+      |
+      |
+      |     *
+      |
+ -0.6 +
+      |
+      |
+      |
+      |
+ -0.7 +
+      |       *
+      |
+      |
+      |
+ -0.8 +
+      |
+      |
+      |
+      |
+ -0.9 +
+      |
+      |
+      |          *
+      |
+ -1.0 +
+      |
+      |
+      |
+      |
+ -1.1 +
+      |
+      |
+      |
+      |
+ -1.2 +
+      |
+      |
+      |
+      |
+ -1.3 +
+      |
+      |                                                                                                                          *
+      |
+      |
+ -1.4 +
+      |
+      |
+      |
+      |
+ -1.5 +
+      |
+      |
+      |
+      |
+ -1.6 +
+      |
+      |
+      |
+      |
+ -1.7 +
+      |
+      |
+      |
+      |
+ -1.8 +               *
+      |
+      |
+      |
+      |
+ -1.9 +
+      |                                *
+      |
+      |
+      |
+ -2.0 +
+      |
+      ---+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+--
+        0.0         0.1         0.2         0.3         0.4         0.5         0.6         0.7         0.8         0.9         1.0
+
+                                                                  IN2MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  16
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                 Date of Repair (Months Since 1/67)
+
+                              OBS      PROB       MEAN      N    SUM      MAX        MIN        LOGIT
+
+                               1     0.20779     56.911    77     16     90.187      2.661    -1.33829
+                               2     0.23077    107.314    78     18    120.643     90.417    -1.20397
+                               3     0.17949    135.948    78     14    151.888    121.235    -1.51983
+                               4     0.28571    166.651    77     22    179.946    152.611    -0.91629
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  17
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                 Date of Repair (Months Since 1/67)
+
+                                              Plot of LOGIT*MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+-0.90 +
+      |
+      |                                                                                                                       *
+      |
+      |
+      |
+-0.95 +
+      |
+      |
+      |
+      |
+      |
+-1.00 +
+      |
+      |
+      |
+      |
+      |
+-1.05 +
+      |
+      |
+      |
+      |
+      |
+-1.10 +
+      |
+      |
+      |
+      |
+      |
+-1.15 +
+      |
+      |
+      |
+      |
+      |
+-1.20 +                                                           *
+      |
+      |
+      |
+      |
+      |
+-1.25 +
+      |
+      |
+      |
+      |
+      |
+-1.30 +
+      |
+      |
+      |
+      |
+      |         *
+-1.35 +
+      |
+      |
+      |
+      |
+      |
+-1.40 +
+      |
+      |
+      |
+      |
+      |
+-1.45 +
+      |
+      |
+      |
+      |
+      |
+-1.50 +
+      |
+      |                                                                                        *
+      |
+      |
+      |
+-1.55 +
+      |
+      ---+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+--
+        50        60        70        80        90        100       110       120       130       140       150       160       170
+
+                                                                   MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  18
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                 Date of Repair (Months Since 1/67)
+
+                                            Plot of LOGIT*LN_MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+-0.90 +
+      |
+      |                                                                                                                  *
+      |
+      |
+      |
+-0.95 +
+      |
+      |
+      |
+      |
+      |
+-1.00 +
+      |
+      |
+      |
+      |
+      |
+-1.05 +
+      |
+      |
+      |
+      |
+      |
+-1.10 +
+      |
+      |
+      |
+      |
+      |
+-1.15 +
+      |
+      |
+      |
+      |
+      |
+-1.20 +                                                                      *
+      |
+      |
+      |
+      |
+      |
+-1.25 +
+      |
+      |
+      |
+      |
+      |
+-1.30 +
+      |
+      |
+      |
+      |
+      |      *
+-1.35 +
+      |
+      |
+      |
+      |
+      |
+-1.40 +
+      |
+      |
+      |
+      |
+      |
+-1.45 +
+      |
+      |
+      |
+      |
+      |
+-1.50 +
+      |
+      |                                                                                             *
+      |
+      |
+      |
+-1.55 +
+      |
+      ---+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+--
+        4.0       4.1       4.2       4.3       4.4       4.5       4.6       4.7       4.8       4.9       5.0       5.1       5.2
+
+                                                                  LN_MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  19
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                 Date of Repair (Months Since 1/67)
+
+                                            Plot of LOGIT*IN_MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+-0.90 +
+      |
+      |  *
+      |
+      |
+      |
+-0.95 +
+      |
+      |
+      |
+      |
+      |
+-1.00 +
+      |
+      |
+      |
+      |
+      |
+-1.05 +
+      |
+      |
+      |
+      |
+      |
+-1.10 +
+      |
+      |
+      |
+      |
+      |
+-1.15 +
+      |
+      |
+      |
+      |
+      |
+-1.20 +                                   *
+      |
+      |
+      |
+      |
+      |
+-1.25 +
+      |
+      |
+      |
+      |
+      |
+-1.30 +
+      |
+      |
+      |
+      |
+      |                                                                                                                      *
+-1.35 +
+      |
+      |
+      |
+      |
+      |
+-1.40 +
+      |
+      |
+      |
+      |
+      |
+-1.45 +
+      |
+      |
+      |
+      |
+      |
+-1.50 +
+      |
+      |                *
+      |
+      |
+      |
+-1.55 +
+      |
+      ---+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+--
+       0.006     0.007     0.008     0.009     0.010     0.011     0.012     0.013     0.014     0.015     0.016     0.017     0.018
+
+                                                                  IN_MEAN
+
+                                                                                                                                    
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    11:25 Thursday, December 1, 1994  20
+                                                          Example Data Set
+                                                         Death After Repair
+                                                        Logit Relationships
+                                                 Date of Repair (Months Since 1/67)
+
+                                            Plot of LOGIT*IN2MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+-0.90 +
+      |
+      |      *
+      |
+      |
+      |
+-0.95 +
+      |
+      |
+      |
+      |
+      |
+-1.00 +
+      |
+      |
+      |
+      |
+      |
+-1.05 +
+      |
+      |
+      |
+      |
+      |
+-1.10 +
+      |
+      |
+      |
+      |
+      |
+-1.15 +
+      |
+      |
+      |
+      |
+      |
+-1.20 +                           *
+      |
+      |
+      |
+      |
+      |
+-1.25 +
+      |
+      |
+      |
+      |
+      |
+-1.30 +
+      |
+      |
+      |
+      |
+      |                                                                                                                   *
+-1.35 +
+      |
+      |
+      |
+      |
+      |
+-1.40 +
+      |
+      |
+      |
+      |
+      |
+-1.45 +
+      |
+      |
+      |
+      |
+      |
+-1.50 +
+      |
+      |              *
+      |
+      |
+      |
+-1.55 +
+      |
+      ---+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+--
+     0.000025   0.00005  0.000075   0.0001   0.000125   0.00015  0.000175   0.0002   0.000225   0.00025  0.000275   0.0003  0.000325
+
+                                                                  IN2MEAN
+
+                                                                                                                                    
+

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3c.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+  <head>
+    <title>Hazard Function Downloads</title>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+      <!-- Required by xhtml to define the default character set. -->
+      <meta http-equiv="Content-type" content="text/html; charset=iso-8859-1" />
+  </head>
+  <body>
+    <h1>Hazard Downloads</h1>
+    <h2>The Hazard package</h2>
+    <p>
+      The Hazard Package is a set of programs for the analysis of hazard 
+      functions. Originally developed at the University of Alabama at
+      Birmingham, the package is currently being maintained and developed at
+      The Cleveland Clinic Foundation. The code is being made available in
+      both source code and a small set of pre-compiled packages.
+    </p>
+    <p>
+      The Hazard package is designed to from run within SAS&reg;. Macros and
+      installation instructions are included to integrate the package into 
+      your SAS&reg; installation.
+    </p>
+    <h2>Binary Distributions</h2>
+    <p>
+      You can download a precompiled version of the Hazard package through
+      the following links. The programs included in this package have been
+      successfully compiled, linked, and executed on the following 
+      platforms:
+    </p>
+    <ul>
+      <li>IBM AIX</li>
+      <li><a href="./hazard.solaris.tar.gz">SUN Solaris</a></li>
+      <li><a href="./hazard.win.zip">Microsoft Windows</a>
+      </li>
+    </ul>
+    <p>
+      To install the binary package simply unpack the distribution file in
+      an application parent directory (i.e. /usr/local or c:\). A distribution 
+      file will create the following directory structure: (More detailed 
+      installation instructions are available in the
+      <a href="./installation.html">installation</a> document.)
+    </p>
+    <dl>
+      <dt><strong>hazard</strong></dt>
+      <dd>HAZARD The hazard root</dd>
+      <dt><strong>hazard/bin</strong></dt>
+      <dd>HAZAPPS The executable directory</dd>
+      <dt><strong>hazard/doc</strong></dt>
+      <dd>Documentation for the system</dd>
+      <dt><strong>hazard/examples</strong></dt>
+      <dd>HZEXAMPLES Example programs	</dd>
+      <dt><strong>hazard/examples/data </strong></dt>
+      <dd>Example data</dd>
+      <dt><strong>hazard/examples/output</strong></dt>
+      <dd>Results that we got from the example programs.</dd>
+      <dt><strong>hazard/examples/sasest</strong></dt>
+      <dd>SAS estimate data files</dd>
+      <dt><strong>hazard/examples/sasest/ihd</strong></dt>
+      <dd>A SAS estimate data file</dd>
+      <dt><strong>hazard/macros</strong></dt>
+      <dd>MACROS The utility macro directory.</dd>
+    </dl>
+    <p>
+      Then proceed the appropriate 
+      <a href="./installation.html">installation instructions</a> for
+      <a href="./installation.html#Win_setup">MS Windows</a> or
+      <a href="./installation.html#Unix_setup">Unix</a> based platforms.
+    </p>
+    <p>
+      We have no way of testing these programs, or constructing specific
+      installation instructions, for other systems.  However, we hope
+      that these guidelines below help you decide what should be done 
+      on your own system.  We would very much appreciate any feedback
+      regarding the process you use to install HAZARD. This will enable us
+      to provide that information to others, so that their task will
+      possibly be easier. We would also welcome contributions of packaged
+      executable kits, compiled for different platforms.
+    </p>
+    <h2>Source Code Distribution</h2>
+    <p>
+      Our C code has been ported to other systems, and appears to compile 
+      and run with no problems.  Nevertheless, even in the world of 'standard'
+      C, there may be unexpected incompatibilities between our systems, 
+      particularly with regard to mathematical precision and library function
+      parameters. If you encounter such problems, please let us know.  We can
+      attempt to work around them and make adjustments so that future versions
+      will work on yours and similar systems without special effort.
+    </p>
+    <h4>Requirements</h4>
+    <p>
+      The HAZARD package is written entirely in ANSI standard C, and uses
+      lex and yacc for parsing its input commands.  You must have 
+      equivalent compilers installed on your system before attempting to 
+      install HAZARD. Fortunately, all are freely available on the Internet, 
+      thanks to the GNU project.
+    </p>
+    
+    <p>
+      You can download GCC, a C / C++ compiler, from 
+      <a href="http://gcc.gnu.org/">http://gcc.gnu.org/</a>.
+    </p>
+    <p>
+      Once you have  compiled GCC, you can download the Flex lex program and 
+      Bison, the parser compiler.
+    </p>
+    <dl>
+      <dt>
+	<a href="http://www.gnu.org/software/flex">http://www.gnu.org/software/flex</a>
+      </dt>
+      <dt>
+	<a href="http://www.gnu.org/software/bison/bison.html">http://www.gnu.org/software/bison</a>
+      </dt>
+    </dl>
+    <p>
+      If you would like to compile the program on the Windows platform, we 
+      suggest you use the tools from the Cygwin project, available at 
+      <a href="http://sources.redhat.com/cygwin/">http://sources.redhat.com/cygwin</a>. 
+      This package includes all the tools required to compile the HAZARD
+      system.
+    </p>
+    <p>
+      Then, download the hazard source distribution file.
+    </p>
+    <ul>
+      <li><a href="hazard-latest.tar.gz">UNIX gzipped tar file</a></li>
+    </ul>
+    <p>
+      Now proceed to the 
+      <a href="installation.html">installation instructions</a>.
+    </p>
+    
+    <hr />
+      <address>
+	<a href="http://validator.w3.org/check/referer" target="_top">
+	  <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" align="right" border="0" /></a>
+	<a href="mailto:hazard@bio.ri.ccf.org">hazard@bio.ri.ccf.org</a>
+      </address>  
+
+  </body>
+</html>  <!--  LocalWords:  download precompiled Solaris HAZAPPS HZEXAMPLES
+ -->
+<!--  LocalWords:  http Cygwin cygwin gzipped
+ -->

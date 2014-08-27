@@ -1,0 +1,728 @@
+              Documentation for plot.macro
+                last update 8/22/95
+
+Peculiarities:
+08/22/95  in the Goption statement the placement of commas seperating commands
+would cause an error if the comma did not immediately follow the preceding
+command.
+ie. <command=action>, <command=action> would work, 
+but <command=action> ,<command=action> would not.
+
+Program changes were made to alleviate this problem. 
+
+08/28/95 in the Logo statement, the placement of commas seperating commands
+in the logo statments must directly follow the preceding command and require a 
+space after the comma.  The problem seems to be associated with the NL command.
+ie LOGO1 l="text,NL,l="foo",end;       may not work
+   LOGO1 l="text, NL, l="foo", end;    would work
+
+This has not been fixed, yet.
+
+02/16/96
+Because of the necessity of transforming data step variables to macro variables
+the greatest precision is 8.5.  So take particular care if the X or Y axis 
+scaling requires greater precision.  You probably will not get the desired output
+if you don't observe this limitation.
+
+03/05/96 Depending upon the desired printing characteristics it may be necessary 
+to edit the sas supplied printer driver files. ie. We have 2 print drawers on our
+printer, with blue paper in the top drawer, white paper in the bottom, and we often
+print several plots at a time.  The ljivps driver provided by sas is set up to 
+use only the top drawer and to place a ^D character at the end of the print job.
+We don't want our plots on blue paper, and the effect of the ^D at the end of a
+given plot is to halt any further printing of that file. So to avoid these problems
+we have edited the ljivps driver, as you may need to edit what ever driver you 
+decide to use.
+
+04/12/96 Added color capability.  Use the cgmmppa driver to export color to 
+Power Point.  Set the linewidth for all plot lines to 1, the default is 6
+which tends to look "ratty".  To set linewidth for all lines include the
+following command in the GOPTION statment: linwidth=1 
+Note the command is linwidth, the 'e' is purposely omitted.
+
+*******************************************************************************
+
+We define a call to the plot routine as being made up of a set of 
+command statements. The macro is sensitve to the order in which the statements 
+are listed.  Except for comments, the order of statements must be as follows.
+
+                   GOPTION          (optional)
+                   NOTES            (optional)
+                   ID               (optional)
+                   LABELX           (optional)
+                   LABELY           (optional)
+                   LOGO(n)          (optional)
+                   AXISY            (optional)
+                   AXISX            (optional)
+		   BY               (optional)
+                   /* comments */   (optional)
+                   CONNECT          (optional | any number of tuple statements)
+		   TUPLE   (any number of tuple statements)
+
+
+Syntax for envoking macro:
+The plot call is made up of 1 or more tuple statements, preceded, as required,
+by goption, label, logo, axis, and by statements.
+
+ie.
+%plot( goption-stmnt;
+      /* comment */
+       labelx-stmnt;
+       labely-stmnt;
+       logo-stmnt;
+      /* comment */
+       axisx-stmnt;
+       axisy-stmnt;
+       by-stmnt;
+       connect-stmt;[connect-stmt];
+       tuple-statement;[tuple-statement;]..);
+
+example #1
+This example is specific to the machine cvsr located at 790 LHRB, 
+1919 7th Ave. So., Birmingham AL. and will work when using the qbatch 
+facility on this machine.
+
+Examine the JCL section closely, you will notice that there are additional 
+spool and prtfile commands.  The second spool command(s) sends the graph to
+the postscript queue. (We use postscript because it gives better output).  
+The additional prtfile command names the file that contains the graphs to
+be printed.  The file name in this command must match the filename given in
+the FILENAME GSASFILE statement, wild cards are not permissable.
+
+// JOB 'label'
+   sas label
+   spool print cont to user '$P4039 -l101'
+   prtfile label.l*
+   spool print cont to qprt '-Pps4039 -u1'
+   prtfile  label.pt
+// FILE 'label.sas'
+
+OPTIONS PAGESIZE=80 LINESIZE=132 nomprint nomlogic;
+LIBNAME BORD7 CLEAR; LIBNAME BORD7 "/CVSR/sas/repbord7";
+FILENAME PLT "/programs/sas/macro.library/plot";
+data plotac; 
+  set bord7.foo(where=(index=1)rename=(m_flow=y time=x clu_flo=clu 
+                cll_flo=cll)); 
+data predict; 
+  set bord7.foo(where=(index=2)rename=(time=years m_flow=SURVIV clu_flo=_CLUSURV
+                cll_flo=_CLLSURV));
+run;
+FILENAME GSASFILE 'label.pt';
+OPTIONS NOSOURCE; %INC PLT; OPTIONS SOURCE ;
+
+%plot(goptions device=ljivps, end;
+      labelx  l="Hello",BUL,SUP="-1",end;
+      axisx logbase=3,logstyle=EXPAND,end;
+      tuple set=plotac, symbol=diamond,linepe=0,linecl=0,ebar=1,x=x,y=y,
+            cll=cll,clu=clu,end;
+      tuple set=predict,symbol=circle,linepe=1,x=years,y=SURVIV,
+            cll=_CLLSURV,clu=_CLUSURV,end;
+);
+
+%plot(goptions device=ljivps, end;
+      labelx  l="Hello",BUL,SUP="-1",end;
+      axisx logbase=3,logstyle=EXPAND,end;
+      tuple set=plotac, symbol=diamond,linepe=0,linecl=0,ebar=1,x=x,y=y,
+            cll=cll,clu=clu,end;
+      tuple set=predict,symbol=circle,linepe=1,x=years,y=SURVIV,
+            cll=_CLLSURV,clu=_CLUSURV,end;
+
+example #2
+/* NOT TESTED */
+This example will work when running sas in the interactive mode on a device 
+capable of running a sas graph window.  When the job completes a window will 
+pop up and display the output graph, and the graph can be printed from this
+screen.  This example is for an Xstation display device and a HP laser jet 4
+postscript output device.  This example will work on the machine cvsr located
+at 790 LHRB, 1919 7th Ave. So. Birmingham Al.  Change the GRAFOUT and the
+goptions statement as appropriate for your site.
+
+OPTIONS PAGESIZE=80 LINESIZE=132 nomprint nomlogic;
+LIBNAME BORD7 CLEAR; LIBNAME BORD7 "/CVSR/sas/repbord7";
+FILENAME PLT "/programs/sas/macro.library/plot";
+data plotac;
+  set bord7.foo(where=(index=1)rename=(m_flow=y time=x clu_flo=clu
+                cll_flo=cll));
+data predict;
+  set bord7.foo(where=(index=2)rename=(time=years m_flow=SURVIV clu_flo=_CLUSURV
+                cll_flo=_CLLSURV));
+run;
+FILENAME GSASFILE pipe 'qprt -u1 -Pps4039';
+OPTIONS NOSOURCE; %INC PLT; OPTIONS SOURCE ;
+
+%plot(goptions device=xcolor, target=ljivps, gaccess=gsasfile, gsfmode=replace, end;
+      labelx  l="Hello",BUL,SUP="-1",end;
+      axisx logbase=3,logstyle=EXPAND,end;
+      tuple set=plotac, symbol=diamond,linepe=0,linecl=0,ebar=1,x=x,y=y,
+            cll=cll,clu=clu,end;
+      tuple set=predict,symbol=circle,linepe=1,x=years,y=SURVIV,
+            cll=_CLLSURV,clu=_CLUSURV,end;
+);
+quit;
+
+example #3
+To save your plot file to a catalogue for editing at some later date you can
+try somthing like the following.
+
+Run the first piece of code in batch. It will create, print and then store 
+the plot in a catalogue.
+
+Run the second piece of code run interactively from the SAS editor and then
+click on GLOBALS-> ACCESS-> LIBRARIES .....   Your plot will appear so you 
+can edit it and then print it by clicking on the "print" button in the graph
+editor screen.
+
+Some warninings are in order here, what goes in the goption statement in the 
+second piece of code is dependent upon any settings to the goptions statement
+in the original code(the first piece of code).  What is provided here is as
+close to a default as I can make possible.  As a workaround for this problem 
+the %plot routine will print the goptions statement invoked at the time of 
+execution. 
+
+*************** first piece of code ********************************************
+// JOB 'somthing'
+sas build
+spool print cont to user '-l101 -Y1 $P4039'
+prtfile build.l*
+// FILE 'somthing'
+OPTIONS PAGESIZE=80 LINESIZE=132 nomprint nomlogic;
+LIBNAME BORD7 CLEAR; LIBNAME BORD7 "/CVSR/sas/repbord7";
+LIBNAME TEMP CLEAR; LIBNAME BORD7 "/tmp/tempspace";
+FILENAME PLT "/programs/sas/macro.library/plot";
+data plotac;
+  set bord7.foo(where=(index=1)rename=(m_flow=y time=x clu_flo=clu
+                cll_flo=cll));
+data predict;
+  set bord7.foo(where=(index=2)rename=(time=years m_flow=SURVIV clu_flo=_CLUSURV
+                cll_flo=_CLLSURV));
+run;
+FILENAME GSASFILE pipe 'qprt -u1 -Pps4039';
+OPTIONS NOSOURCE; %INC PLT; OPTIONS SOURCE ;
+
+%plot(goptions device=ljivps, gaccess=gsasfile, gsfmode=replace, 
+               gout=temp.plots, end;
+      labelx  l="Hello",BUL,SUP="-1",end;
+      axisx logbase=3,logstyle=EXPAND,end;
+      tuple set=plotac, symbol=diamond,linepe=0,linecl=0,ebar=1,x=x,y=y,
+            cll=cll,clu=clu,end;
+      tuple set=predict,symbol=circle,linepe=1,x=years,y=SURVIV,
+            cll=_CLLSURV,clu=_CLUSURV,end;
+);
+quit;
+*************** first piece of code ********************************************
+*************** second piece of code *******************************************
+
+LIBNAME TEMP CLEAR; LIBNAME BORD7 "/tmp/tempspace";
+FILENAME GSASFILE pipe 'qprt -u1 -Pps4039';
+
+GOPTIONS reset=all fontres=presentation gunit=in  TARGET=ljivps DEVICE=xcolor 
+htext= 0.24480 csymbol=black rotate=landscape gaccess=gsasfile gsfmode=append 
+ftext=SWISS GEPILOG="" ;
+*************** second piece of code *******************************************
+
+
+                   Basic units
+
+ The base unit of measurement for this macro is the SIZE variable.
+ It is calculated as SIZE=0.045 *  yaxislen where
+	yaxislen is YAXISLEN=YINCHES * 0.64814, 
+	xaxislen is XAXISLEN=yaxislen * XAXISRAT 
+	and YINCHES is the y dimension of the output device returned
+        by the output device driver.
+        Yaxislen, xaxislen, size and yinches are not directly accessable 
+        to the user.  This paragraph is just a discussion of what is 
+        happening internally to the macro.  The variable XAXISRAT is 
+        available to the user within the macros GOPTIONS statement 
+        The size of the axis numbers is set at 0.8 * size;
+        The size of the logo characters is set at 0.8 * size;
+        
+        
+
+ Another important global variable is LINWIDTH, this determines the default
+ linewidth of all lines, ie. axis,tick marks, plot lines, error bars... .
+ The default is LINWIDTH=6, to insure uniform joins at the axis end points
+ avoid using odd integer values for LINWIDTH.
+
+
+                  Command statements
+Currently there are only 9 command statements.  These are goptions, notes, 
+by, labelx, labely, logo, axisx, axisy, and tuple.  
+
+The macro is sensitve to the order in which the commands are invoked.
+Except comments, order of commands must be the same as in the following 
+list.  If order is not followed, output will be unpredictable. 
+
+Statement	Description
+
+GOPTIONS	The valid commands and syntax contain a subset of the 
+		SAS goptions statement along with additional commands 
+                specific to this macro.
+
+NOTES           Turns on note output from sas statements. The default
+                is OPTIONS NONOTES;
+
+ID              Allows the user to include an identifying label that 
+                will appear on the lower left corner of the graph 
+
+LABELX		Label statement which defines the horizontal axis
+
+LABLEY		Label statement which defines the vertical axis
+
+LOGO1 		Positions string text is a specified quadrant of 
+                the data display area 
+
+LOGO2 		Positions string text is a specified quadrant of 
+                the data display area 
+
+LOGO3 		Positions string text is a specified quadrant of 
+                the data display area 
+
+LOGO4 		Positions string text is a specified quadrant of 
+                the data display area 
+
+AXISX		Defines the horizontal axis
+
+AXISY		Defines the vertical axis
+
+/* */           Comments
+
+BY              defines stratification variable within input data 
+                set(s), produces 1 plot for each strata
+
+CONNECT         defines points in a line to be plotted
+
+TUPLE           Defines what and how point estimates are plotted
+
+
+
+
+                     Goption statement
+
+Except where noted commands are described in the manual SAS/GRAPH Software
+Volume 1.
+Some differences are; explicit names, shortened lengths of some command 
+names, additional commands that are not part of the SAS GOPTIONS statement, 
+comma seperation of commands and value pairs, and the terminating END
+command.  Available options are not limited to those listed below.  Any 
+goption command that fits the form <command name>=<value>, where the command
+name length is less than 9 characters, and where the value does not contain
+embedded commas, should work(not guaranteed).   IT IS REQUIRED that the 
+following commands are addressed exactly as stated below, spellings must
+be identical, no abbreviations etc.
+
+Command				Description 
+
+CSYMBOL=<color>		 	See manual SAS/GRAPH Software Volume 1, pg 96.
+				Color of text symbols
+
+CBACK=<color>		 	See manual SAS/GRAPH Software Volume 1, pg 96.
+				Color of text symbols
+
+CTEXT=<color>		 	See manual SAS/GRAPH Software Volume 1, pg 96.
+				Color of text symbols
+
+CTEXT=<color>		 	See manual SAS/GRAPH Software Volume 1, pg 96.
+				Color of text symbols
+
+CSYMBOL=<color>		 	See manual SAS/GRAPH Software Volume 1, pg 96.
+				Color of text symbols
+
+DEVICE=<device name>	        See manual SAS/GRAPH Software Volume 1, pg 99.
+				Selects output device 
+
+FTEXT=<font name>		See manual SAS/GRAPH Software Volume 1, pg 106.
+				Sets default font.  If problems occur with text
+                                try setting this to NONE. i.e. FTEXT=NONE 
+
+FONTRES=<option>	        NORMAL | PRESENTATION 
+				See Tech Bulletin 242 p.106.  Sets resolution
+				of text output, only applicable for SAS 
+				Bitstream fonts ie. swiss.(I can't see any
+				difference) 
+
+GACCESS=<option>	 	See manual SAS/GRAPH Software Volume 1, pg 107
+
+GSFMODE=<option>	 	See manual SAS/GRAPH Software Volume 1, pg 116
+
+GUNIT=<option>		        See manual SAS/GRAPH Software Volume 1, pg 119.
+				Sets basic graphics unit
+
+HTEXT=<integer>		        See manual SAS/GRAPH Software Volume 1, pg 124.
+				positive number multiple of SIZE, sets default 
+				height for all symbols and text in the macro.  
+
+LINWIDTH=<integer>	        Not part of SAS, sets default line width for
+				axis, error bars, plot lines, etc.  
+				Currently this is 6.
+
+RESET=<option>			See manual SAS/GRAPH Software Volume 1, pg 141.
+				Resets all options
+
+ROTATE=<option>			See manual SAS/GRAPH Software Volume 1, pg 141.
+				Rotates output ie, portrait or landscape 
+
+TARGET=<device name>		See manual SAS/GRAPH Software Volume 1, pg 147.
+				Target device for output stream used in 
+				conjunction with DEVICE.
+
+XAXISRAT=<number>               This is not available as a SAS GOPTIONS statement.
+                                XAXISRAT is specific to this macro, it sets the
+				size of the x axis as a multiple of the y axis
+				length. The default value is 1.5 .  The y axis
+				length is a fixed percent of the y axis
+				graphical output area as retrieved, internal to
+				this macro, from the output driver.
+
+END             terminating command
+
+
+                        Notes statement
+Disables the default sas options statement OPTIONS NONOTES along with providing 
+some additional trouble shooting output.  The syntax is the command NOTES 
+followed by a semicolon;
+
+       NOTES ;
+
+                        ID statement
+Allows user to insert a string of text to the lower right corner of the graph.
+It has one command and automatically appends the date to the string;
+
+Command		Description
+
+L="<text>"	Text to be printed using current font and height 	 
+
+Ex.       ID l="STRING", END;
+
+                        By statement
+This defines a variable, that is common accross all data sets, and that is 
+to be used to stratify the data.  A single plot will be created for each 
+stratum.  The syntax is the command BY followed by the variable name, followed
+by the command END and terminated with a semicolon.
+
+       BY <varname>,END;
+
+
+
+                        Label[X|Y] statements
+These define labels for the axis. There is no limit to the order or number 
+of times each command is invoked.  This command creates a SAS note 
+statement.  Other commands to the note statement having the syntax 
+COMMAND=<value> should work as long as <value> has no quotes or spaces. 
+The U(underline) command is a good example of this. 
+
+Command		Description
+
+COLOR=<color>   Set the color of all logo text that follows after
+                this command.  WHERE you place this command in the
+                label statement is important$$   RED GREEN YELLOW
+                BROWN ORANGE BLUE BLACK are valid. BLACK is the
+                default. This can also be changed by the CTEXT
+                command in the GOPTION statement 
+
+L="<text>"	Text to be printed using current font and height 	 
+
+F=<font>	Sets current font, default is swissb.  Sets the font of
+                all text that follows after this command. WHERE you place
+                this command in the label statement is important$$ 
+
+H=<pos number>	Sets height of text as a multiple of SIZE
+
+U=<linewidth>   This command is used in pairs, which surround the text
+                that is to be underlined.  The first call specifies the
+                desired linewidth, an integer greater than zero, and the
+                second call sets the linewidth to zero, which turns off
+                the underline function.  See SAS/GRAPH Software Volume 1.
+                
+		The SUB and SUP commands only effect the text assigned
+		to them.  The height and placement will be returned to 
+		the same setting as that prior the invokation of the SUB
+		or SUP command.
+
+SUB="<text>"	Subscript command, text that follows is subscripted
+
+SUP="<text>"	Superscript command, text that follows is superscripted
+
+BUL		Prints a bullet at current font and height, cannot be
+		used in SUP or SUB.  To obtain a bullet in a SUP or 
+		SUB command change the font to 'special' and specify
+		a 'J' as the text portion of these commands.
+                ie.      LABELX F=special,SUP="J",F=SWISS,END; 
+
+NL              New line command
+
+END             Terminates the label statement.
+
+LABELX F=SWISSB,H=2,L="HELLO",SUP="-1",BUL,L=" THERE",SUB="GOODBY",END;
+
+
+                        Logo statements
+These define logos for the plot.  Logos can be directed to any of 4 quadrants
+within the bounds of the x and y axis.  There is no limit to the order or number
+of times each command is invoked.  The logo statement is based on the SAS note 
+statement. Other commands to the note statement having the syntax 
+COMMAND=<value> should work as long as <value> has no quotes or spaces. The 
+U(underline) command is a good example of this. 
+                                                       2 : 1
+LOGO[1->4]      Which quadrant to place text string.   .....
+                                                       3 : 4
+
+Command		Description
+
+COLOR=<color>   Set the color of all logo text that follows after
+                this command.  WHERE you place this command in the
+                logo statement is important$$   RED GREEN YELLOW
+                BROWN ORANGE BLUE BLACK are valid.  Black is the
+                default.  This can also be changed by the CTEXT
+                command in the GOPTION statement 
+
+L="<text>"	Text to be printed using current font and height 	 
+
+F=<font>	Sets current font, default is swissb.  Sets the font of
+                all text that follows after this command. WHERE you place
+                this command in the logo statement is important$$ 
+
+H=<pos number>	Sets height of text as a multiple of SIZE
+
+U=<linewidth>   This command is used in pairs, which surround the text
+                that is to be underlined.  The first call specifies the
+                desired linewidth, an integer greater than zero, and the
+                second call sets the linewidth to zero, which turns off
+                the underline function.  See SAS/GRAPH Software Volume 1.
+                
+		The SUB and SUP commands only effect the text assigned
+		to them.  The height and placement will be returned to 
+		the same setting as that prior the invokation of the SUB
+		or SUP command.
+
+SUB="<text>"	Subscript command, text that follows is subscripted
+
+SUP="<text>"	Superscript command, text that follows is superscripted
+
+BUL		Prints a bullet at current font and height, cannot be
+		used in SUP or SUB.  To obtain a bullet in a SUP or 
+		SUP command change the font to 'special' and specify
+		a 'J' as the text portion of these commands.
+                ie.      LABELX F=special,SUP="J",END; 
+
+NL              New line command
+
+END             Terminates the label statement.
+
+LOGO1 F=SWISSB,H=2,L="HELLO",SUP="-1",BUL,L=" THERE",SUB="GOODBY",END;
+
+
+
+
+			Axis[X|Y] Statements
+These define the x and y axis. See the SAS/Graph Software Manual Vol.1
+Version 6 definitions for the axis statement.  Commands must be entered 
+exactly as listed.
+
+Command				Description
+
+COLOR=<color>                   Set the color of all axis components, RED GREEN 
+				YELLOW BROWN ORANGE BLUE BLACK are valid.
+
+LOGSTYLE=<option>		See manual SAS/Graph Software Manual Vol.1 pg 222
+
+LOGBASE=<option>		See manual SAS/Graph Software Manual Vol.1 pg 222
+
+ORDER=<option>			See manual SAS/Graph Software Manual Vol.1 pg 224
+                                SPECIAL CONSIDERATIONS$$$. If you use the order
+				statement ie. order=(1 2 3 4 5) or order=('a' 'b' 
+				'c' 'd') take care not to imbed blanks or 
+				parenthesis within the strings and make sure that
+				the individual values are seperated by blank
+				spaces only.
+
+WIDTH=<pos integer>		See manual,  SAS/Graph Software Manual Vol.1 pg 228
+				default is LINWIDTH
+
+		For the following commands the NUMBER, HEIGHT and WIDTH
+                commands must be spelled out completely.
+                ie. major=(height=3,width=4)
+
+VALUE=(<option>)		See manual SAS/Graph Software Manual Vol.1 pg 227. 
+				If height option is specified the 
+				full word must be given.  Determines the size 
+				of the major tick mark values.  
+				Label height=HEIGHT*0.8*SIZE.  
+				Default HEIGHT= 1;
+
+MAJOR=(<option>)		See manual.  SAS/Graph Software Manual Vol.1 pg 223
+                                MINOR=(NUMBER=3,HEIGHT=3,WIDTH=2) or
+                                MINOR=NONE.
+				Options include HEIGHT, WIDTH, NUMBER, NONE.
+				Default height=1.  Default width=LINWIDTH.
+	               		Valid range is a positive number, which is a
+				multiple of SIZE. 
+				ie. tickmark-height is SIZE*height*0.5
+                   
+MINOR=(<option>)		See manual.  SAS/Graph Software Manual Vol.1 pg 223
+                                MINOR=(NUMBER=3,HEIGHT=3,WIDTH=2) or
+                                MINOR=NONE.
+				Options include HEIGHT, WIDTH, NUMBER, NONE.
+				Default height=1.  Default width=LINWIDTH.
+	               		Valid range is a positive number, which is a
+				multiple of SIZE. 
+				ie. tickmark-height is SIZE*height*0.25
+                   
+
+AXISX LOGSTYLE=,LOGBASE=3,MINOR=(NUMBER=2),VALUE=(HEIGHT=2),
+      ORDER=(1 to 27 by 3),WIDTH=2,END;
+
+The ORDER, MAJOR, and MINOR commands provide similar control over axis
+tick marks as YMIN, YMAX, MAJORY, XMIN, XMAX, MAJORX commands in the 
+CVPLOT routine used at UAB.  In the example above, the plotted data 
+would be limited to those points whose x coordinate fall between 1 and 27.
+Major tick marks would start at 1 and at multiples of three, and there
+would be 2 minor tick marks between each major.  Alternatively, the MAJOR
+command option NUMBER could be used to specify the number of major tick
+marks with out limiting the range of the plotted points.  The ORDER
+command supercedes the MAJOR commands NUMBER option.
+
+                     Connect statements
+Each connect statement defines the characteristics of a line generated via
+the annotate procedure in conjunction with the gplot routine.  I suppose
+a person could create a fairly complex line with this function, but I
+couldn't imagine a very good reason for doing so.  This command is best 
+suited for lines defined by no more then two points.  Reasons; This statement 
+does not interact with most all other commands and vice versa. ; This 
+command has tremendous overhead in comparison to the other means available.
+NOTE:$$ 
+The sequence of commands in the connect statement is important.
+You may omit COLOR,LINE, or WIDTH, BUT THEY MUST APPEAR BEFORE THE POINTS() COMMAND
+if you choose to use them in the connect statement.
+ie. connect line=1,width=2,points=(),end;
+Additionally each connect statement should contain no more then one POINTS
+command. For multiple lines use multiple connect statements.
+
+Command				Description
+
+COLOR=<color>                   Sets the color of all components.  RED GREEN YELLOW
+                                BROWN ORANGE BLUE BLACK are valid. There may be 
+				others that work too.  BLACK is the default. This 
+				can also be changed by the CSYMBOL command in the
+			 	GOPTION statement 
+
+LINE=(integer)                  Line type as defined in the SAS/Graph Software 
+                                Manual Vol.1 pg 429  default is 1.
+
+WIDTH=<pos integer>		See manual,  SAS/Graph Software Manual Vol.1 pg 228
+				default is LINWIDTH.  The width of the line will
+                                be WIDTH*LINWIDTH.
+
+POINTS=(integer,integer,integer,integer.....)
+                                The first pair of integers defines the starting 
+                                point of a line, each additional pair of integers
+                                is a point on that line.
+ie. 
+CONNECT LINE=1,WIDTH=2,POINTS=(x1,y1,x2,y2...),end;
+ 
+
+
+                     Tuple statements
+Each tuple statement defines the characteristics of a plot describing 
+a sequence of point estimates.  Since point estimates can have associated
+confidence limits, a tuple contains the three characteristics of the point 
+estimate,(hence the name); the variable containing the point estimate, the 
+variable containing the lower confidence limit, and the variable 
+containing the upper confidence limit.  To print a sequence of point 
+estimates sans confidence limits do not assign values to cll and clu. 
+
+The macro transforms the tuple command statements into appropriate symbol and
+proc gplot statements. 
+
+This macro recognizes the following commands within tuple statements.
+
+Command		Description
+COLOR=<color>   Sets the color of all tuple components.  RED GREEN YELLOW 
+                BROWN ORANGE BLUE BLACK are valid. There may be others that 
+                work to.  BLACK is the default. This can also be changed by 
+                the CSYMBOL command in the GOPTION statement 
+
+SET=<valid sas data set name>
+			defines sas data set containing a sequence of 
+			point estimates
+			Must be defined.
+
+X=<valid sas variable name>
+			defines variable by which point estimates are 
+			related
+			Must be defined.
+
+Y=<valid sas variable name>
+			defines variable containing point estimate(PE) 
+			Must be defined.
+
+CLL=<valid sas variable name>
+			defines variable containing lower confidence 
+			limit of the PE
+
+CLU=<valid sas variable name>
+			defines variable containing upper confidence 
+			limit of the PE
+
+LINEPE=<0-46>		defines line type of line connecting the 
+			sequence of PE 
+			Default=1.   An entry of 0 means no line 
+
+LINECL=<0-46>		defines line type of line connecting the 
+			sequence of CL 
+			Default=2.
+
+SYMBOL=<option>		defines what symbol to use when plotting a PE. 
+			See manual SAS/GRAPH Software Volume 1, 
+			Version 6, pg 421. Options are identical to the 
+			symbol statement's value command.
+			Default=none.
+
+SYMBSIZE=<pos number>	defines size of the PE symbol, multiplied by the 
+			SIZE.
+               		IE. the plot symbol size is SYMBSIZE*SIZE*0.5*SIZE
+			Default=0 (no symbol).
+
+WIDTH=<pos integer>    	defines width of plot lines, acts as a multiplier
+                        of the base LINWIDTH.
+			Default:WIDTH=1
+
+EBAR=<0 or 1>		defines whether or not to connect PEs to CLs 
+			with error bars.  
+			0 = no error bars, 1 = create error bars.
+			Default=0.
+
+EBARWIDTH               defines width of the lines that make up the error bars
+                        default is 2/3 of plot line width
+
+EBARSIZE=<pos number>	defines width of the error bar caps also as a
+			multiple of SIZE variable.    EBARSIZE*0.5*SIZE
+			Default=1.
+
+STEP=<L R N>		defines whether or not to connect the sequence of PEs 
+			with a step plot and if it should connect to the left 
+			or right.  L,R or N where L(eft)R(ight)N(none)	
+			Default=N (no step)	
+
+END             	terminating command
+
+syntax for envoking tuple statement
+Command		Valid Range of Values		Default
+COLOR           RED,GREEN,ORANGE,BLUE,BLACK     BLACK set by CSYMBOL
+                YELLOW and possibly others...
+SET		treat as a SAS set statement	Must be given
+X		valid sas var			Must be given
+Y		valid sas var			Must be given
+CLL		valid sas var			None
+CLU		valid sas var			None
+LINEPE		integers 0-46			1 (solid line)
+LINECL		integers 0-46			2 (dotted line)
+SYMBOL		see pg. 421 SAS/GRAPH		circle
+SYMBSIZE	positve number 		    	0 
+WIDTH           positve integer                 LINWIDTH
+ERBAR		integers 0-1			0 (no bar)
+EBARSIZE	positve number				1
+STEP		L,R or N where L(eft)R(ight)N(none)	N (no step)	
+END             
+
+TUPLE SET=INDATA,X=TIME,Y=SURV,CLL=S_CLL,CLU=S_CLU,LINEPE=4,LINECL=1,
+      SYMBOL=DIAMOND,SYMBSIZE=3,WIDTH=2,ERBAR=0,STEP=L,END;

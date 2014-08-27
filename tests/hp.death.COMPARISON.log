@@ -1,0 +1,724 @@
+4241   *______________________________________________________________________________;
+
+4242   *                                                                              ;
+
+4243   * !HZEXAMPLES/hp.death.COMPARISON                                              ;
+
+4244   *______________________________________________________________________________;
+
+4245   *                                                                              ;
+
+4246   * This is an example of comparison of different treatment strategies based     ;
+
+4247   * on patient-specific estimates.                                               ;
+
+4248   *                                                                              ;
+
+4249   * Here we explore simple survival differences.                                 ;
+
+4250   *                                                                              ;
+
+4251   * In the macros directory, macros are included that also do hazard ratio       ;
+
+4252   * comparisons and differences in lifetime between strategies.                  ;
+
+4253   *______________________________________________________________________________;
+
+4254   *                                                                              ;
+
+4255   * Comparison of primary CABG (KUL) vs primary PTCA (MHI) vs VA medical for:
+
+4256   * Left main disease and 1, 2, and 3 system disease
+4257   *
+4258   * Other factors: Age 65, male, no proximal LAD (GE 50%), distal RCA (70%),
+
+4259   *                or posterolateral 95% disease, angina class 2 (severe, stable,
+
+4260   *                chronic angina), 1 previous MI, no acute evolving infarct,
+
+4261   *                hemodynamically stable, EF=55%, no LVH, no ischemic mitral
+
+4262   *                incompetence, no peripheral vascular disease, no small
+4263   *                coronaries, no hypertension, no diabetes, normal pulmonary
+
+4264   *                function, smoker, triglycerides 175, HDL of 40
+4265   *
+4266   *   PTCA-specific: elective PTCA, 11 years after start of experience,
+4267   *                PTCA of left main for left main disease, no dilation of
+4268   *                chronic occlusion.
+4269   *
+4270   *   CABG-specific: not Surgeon #1, complete revascularization, no sequentials,
+
+4271   *                IMA used, no endarterectomy,
+4272   *
+4273   *   Medical-specific: weight/height ratio = 0.43
+4274   *______________________________________________________________________________;
+
+4275   *                                                                              ;
+
+4276     OPTIONS PAGESIZE=100 LINESIZE=132;
+4277     TITLE1 "Percutaneous Transluminal Coronary Angioplasty";
+4278     TITLE2 "MHI; June 1980 - July 1991";
+4279     TITLE3 "Primary PTCA Without Previous CABG";
+4280     TITLE4 "Multivariable Analysis of Death";
+4281     TITLE5 "Patient, Procedure and Experience Risk Factors";
+4282     TITLE6 "Comparison of CABG (KUL) and PTCA";
+4283     TITLE7 "Left Main Stenosis, 1, 2, and 3 system disease";
+4284   *______________________________________________________________________________;
+
+4285   *                                                                              ;
+
+4286   *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+
+4287   *                        P T C A   (M H I)                                     ;
+
+4288   *                                                                              ;
+
+4289   * Early Hazard Phase:                                                          ;
+
+4290   *   FEMALE IN_AGE LN_CREAT ANGMMS2 AMI_TM URGENT EFC2 DVES _PLAD50 _RPLAT95    ;
+
+4291   *   _MRCA50 RCA_DIST OCCLNDIL IMP_BLUE PTCA_LM LN_YRS                          ;
+
+4292   * Constant Hazard Phase:                                                       ;
+
+4293   *   AGE2 IN_AGE LN_CREAT IN_CREAT HISTSMOK DIABETRX CAC0NRMI ANGREST EFC2 DVES ;
+
+4294   *   PTCA_LM PTOTDLAD                                                           ;
+
+4295   * Late Hazard Phase:                                                           ;
+
+4296   *   FEMALE IN_AGE HYPERTEN DIABETRX LN_CREAT AMI_SEND _PLADOC                  ;
+
+4297   *______________________________________________________________________________;
+
+4298   *                                                                              ;
+
+4299   *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+
+4300   *                        C A B G   (K U L)                                     ;
+
+4301   *                                                                              ;
+
+4302   * Early Hazard Phase:                                                          ;
+
+4303   *   AGE LMAIN_90 EF LVH ANGCLS HEMO2CLS VASCPATH MM1_DIST DIABETES             ;
+
+4304   *   EXP1SECP OPYRS SURGEON1 ENDART_N SEQUENTL                                  ;
+
+4305   * Constant Hazard Phase:                                                       ;
+
+4306   *   EF VASCPATH MITRAL_I UNST_ANG ANG_NO HDL INCOMPL                           ;
+
+4307   * Late Hazard Phase:                                                           ;
+
+4308   *   AGE EF VASCPATH MM1_DIST DIABETES EXP1SECP VESSDIS LTRIGL IMA_NO           ;
+
+4309   *   LN_AGE                                                                     ;
+
+4310   *______________________________________________________________________________;
+
+4311   *                                                                              ;
+
+4312   *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+
+4313   *       I N I T I A L   M E D I C A L   T H E R A P Y   (V A S T U D Y)        ;
+
+4314   *                                                                              ;
+
+4315   * Early Hazard Phase:                                                          ;
+
+4316   *   NYHAB LVNLM_50 LV_LM_50                                                    ;
+
+4317   * Constant Hazard Phase:                                                       ;
+
+4318   *   IN_WTHT LM_50 LV_NVD_E NUMPRVMI ANG_SV HISTHYP                             ;
+
+4319   * Late Hazard Phase:                                                           ;
+
+4320   *   WT_HT                                                                      ;
+
+4321   *______________________________________________________________________________;
+
+4322   *                                                                              ;
+
+4323   * Set values for standard model incremental risk factors variables.            ;
+
+4324     DATA DESIGN;
+4325   * Demographic                                                                  ;
+
+4326     FEMALE=0;      /* Sex                                               */
+4327     AGE=65;        /* Age (years) at time zero                          */
+4328     WT_HT=0.43;    /* Weight-height ratio (kg/cm)                       */
+4329   * Coronary disease                                                             ;
+
+4330     IMP_BLUE=0     /* Dummy imputation variable--set to zero            */
+4331   * VESSDIS=2;     /* Number of systems diseased (1-3): 50% criterion   */
+4332   * LMCA=0;        /* Percent stenosis of left main coronary artery     */
+4333     _PLAD50=0;     /* Proximal LAD disease (50% criterion)              */
+4334     _PLADOC=0;     /* Occludid proximal LAD                             */
+4335     _MRCA50=0;     /* Mid-RCA disease (50% criterion)                   */
+4336     RCA_DIST=0;    /* % Distal RCA disease                              */
+4337     _RPLAT95=0;    /* Right posterolateral disease (95% criterion)      */
+4338   * Angina                                                                       ;
+
+4339     ANGCLS=2;      /* Angina grade according to KUL                     */
+4340                    /*   0 = No anginal symptoms (11% KUL)               */
+4341                    /*   1 = Minimal anginal symptoms (9% KUL)           */
+4342                    /*       (probably grade I-II of CCS)                */
+4343                    /*   2 = Moderate angina (at normal activities),     */
+4344                    /*       the usual "chronic stable angina" (41% LUL) */
+4345                    /*       (probably grade III of CCS)                 */
+4346                    /*   3 = Severe anginal symptoms at night/rest       */
+4347                    /*       (21% KUL; probably grade IV of CCS)         */
+4348                    /*   4 = Unstable angina or acute myocardial infarct */
+4349                    /*       (18% KUL)                                   */
+4350     UNST_MED=0;    /* On medications for unstable angina at operation   */
+4351   * Myocardial infarction                                                        ;
+
+4352     NUMPRVMI=1;    /* Number of previous myocardial infarcts            */
+4353     ACUTE_MI=0;    /* Acute myocardial infarction (0,1) (within 24 hrs  */
+4354                    /*       of revascularizaton in the KUL experience)  */
+4355     AMI_TM=0;      /* Acute evolving transmural myocardial infarction   */
+4356     HEMO_UNS=0;    /* Hemodynamically unstable (this includes acute     */
+4357                    /*       cardiac failure with unstable angina, the   */
+4358                    /*       acute (hours) phase of myocardial infarct   */
+4359                    /*       and cardiogenic shock)                      */
+4360     SHOCK=0;       /* Cardiogenic shock                                 */
+4361     URGENT=0;      /* Urgent PTCA                                       */
+4362   * LV function                                                                  ;
+
+4363     EF=0.55;       /* Ejection fraction (0 to 1)                        */
+4364     LVH=0;         /* LV Hypertrophy (0,1)                              */
+4365     MITRAL_I=0;    /* Important, but untreated, ischemic mitral incomp. */
+4366   * Aggressiveness of atherosclerotic process                                    ;
+
+4367     VASCPATH=0;    /* Peripheral vascular disease (0,1)                 */
+4368     MM1_DIST=0;    /* Normalized # of distals 1 mm or less in diameter  */
+4369   * Coexisting conditions                                                        ;
+
+4370     HYPERTEN=0;    /* History of hypertension                           */
+4371     DIABETES=0;    /* Diabetic patient (in KUL this is insulin treated) */
+4372     DIABETRX=0;    /* Diabetic patient (insulin or  is insulin treated) */
+4373     EXP1SECP=100;  /* One second expired volume (% of normal)           */
+4374     CREAT=1.1;     /* Serum creatinine                                  */
+4375     HISTSMOK=1;    /* History of smoking                                */
+4376   * Hyperlipidemia                                                               ;
+
+4377     TRIGLYC=175;   /* Triglyceride level                                */
+4378     HDL=40;        /* High density lipoprotein level                    */
+4379   * Procedural factors: CABG                                                     ;
+
+4380     INCOMPL=0;     /* Incomplete revascularization (0,1)                */
+4381     ENDART_N=0;    /* Number of endarterectomized vessels               */
+4382     SEQUENTL=1;    /* Ratio of distals to conduits                      */
+4383     IMA=1;         /* Use of IMA                                        */
+4384   * Procedural factors: PTCA                                                     ;
+
+4385   * PTCA_LM=1;     /* PTCA of left main stenosis                        */
+4386     PTOTDLAD=0;    /* PTCA of occluded distal LAD                       */
+4387     OCCLNDIL=0;    /* Chronic occlusion not dilated                     */
+4388   * Experience factors                                                           ;
+
+4389     PTCAYRS=11;    /* Date of operation (years from 6/1/80)             */
+4390     SURGEON1=0;    /* High-risk surgeon                                 */
+4391   * MONTHS=6;      /* Time of observation (months)                      */
+4392   *******************************************************************************;
+
+4393   * Generate isobars for various variables                                       ;
+
+4394     PPLOT=1; VESSDIS=2; LMCA=90; PTCA_LM=1; OUTPUT;
+4395     PPLOT=2; VESSDIS=1; LMCA=0; PTCA_LM=0; OUTPUT;
+4396     PPLOT=3; VESSDIS=2; LMCA=0; PTCA_LM=0; OUTPUT;
+4397     PPLOT=4; VESSDIS=3; LMCA=0; PTCA_LM=0; OUTPUT;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      1 at 4331:1
+NOTE: The data set WORK.DESIGN has 4 observations and 42 variables.
+NOTE: DATA statement used:
+      real time           0.11 seconds
+      cpu time            0.11 seconds
+
+
+4398     DATA DESIGN; SET DESIGN;
+4399   *******************************************************************************;
+
+4400   * Transformations of variables into those needed for the various               ;
+
+4401   * predictions:                                                                 ;
+
+4402     LN_AGE=LOG(AGE);
+4403     IN_AGE=50/AGE;
+4404     AGE2=(AGE/50)**2;
+4405     IN_WTHT=1/WT_HT;
+4406
+4407     IMP_LVC=0; IF EF LE 0.5 THEN IMP_LVC=1;
+4408
+4409     LMAIN_90=(LMCA GE 90);
+4410     LM_50=(LMCA GE 50);
+4411     DVES=VESSDIS;
+4412     NVD_50=VESSDIS;
+4413     NVD_EXP=EXP(NVD_50);
+4414     IF LM_50 THEN DO;
+4415       NVD_50=0;
+4416       NVD_EXP=0;
+4417     END;
+4418     LV_NVD_E=IMP_LVC*NVD_EXP;
+4419     LV_LM_50=IMP_LVC*LM_50;
+4420     LVNLM_50=(1-IMP_LVC)*LM_50;
+4421
+4422     ACUTEMI=ACUTE_MI;
+4423     AMI_SEND=0; IF ACUTEMI=1 AND AMI_TM=0 THEN AMI_SEND=1;
+4424
+4425     HEMO2CLS=HEMO_UNS; IF ACUTE_MI OR UNST_MED THEN HEMO2CLS=1;
+4426       IF SHOCK THEN HEMO2CLS=4;
+4427     IF ANGCLS=0 THEN ANG_NO=1; ELSE ANG_NO=0;
+4428     IF ANGCLS=3 THEN DO; NITE_ANG=1; ANGREST=1; END;
+4429       ELSE DO; NITE_ANG=0; ANGREST=0; END;
+4430     IF ACUTE_MI=0 AND ANGCLS=4 THEN UNST_ANG=1; ELSE UNST_ANG=0;
+4431     ANGMMS=ANGCLS; IF ACUTEMI=1 THEN ANGMMS=0;
+4432     NYHAB=ANGCLS; IF ANGCLS>1 THEN NYHAB=ANGCLS+1;
+4433     ANG_SV=ANGCLS > 2;
+4434     CAC0NRMI=0; IF ANGCLS=0 AND ACUTEMI=0 AND NUMPRVMI=0 THEN CAC0NRMI=1;
+4435
+4436     LTRIGL=LOG(TRIGLYC);
+4437     LN_CREAT=LOG(CREAT);
+4438     IN_CREAT=1/CREAT;
+4439     ANGMMS2=ANGMMS*ANGMMS;
+4440     OPYRS=PTCAYRS + 9.4156622;
+4441     LN_YRS=LOG(PTCAYRS);
+4442     EFC=(1-EF)/1; EFC2=EFC*EFC;
+4443
+4444     HISTHYP=HYPERTEN;
+4445
+4446     IMA_NO=(IMA=0);
+
+NOTE: There were 4 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DESIGN has 4 observations and 76 variables.
+NOTE: DATA statement used:
+      real time           0.08 seconds
+      cpu time            0.08 seconds
+
+
+4447     PROC PRINT DATA=DESIGN;
+4448   *______________________________________________________________________________;
+
+4449   * Generate horizontal axis                                                     ;
+
+
+NOTE: There were 4 observations read from the data set WORK.DESIGN.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+4450     DATA PREDICT; SET DESIGN; DIGITAL=0;
+4451     MAX=LOG(120); MIN=-5; INC=(MAX-MIN)/999.9;
+4452                          *INC=(MAX-MIN)/9.9;
+4453     DO LN_TIME=MIN TO MAX BY INC, MAX;
+4454       MONTHS=EXP(LN_TIME);
+4455       YEARS=MONTHS/12;
+4456       OUTPUT;
+4457     END;
+4458     DROP LN_TIME MIN MAX INC;
+4459   * and for digital nomogram                                                     ;
+
+
+NOTE: There were 4 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.PREDICT has 4004 observations and 79 variables.
+NOTE: DATA statement used:
+      real time           0.08 seconds
+      cpu time            0.06 seconds
+
+
+4460     DATA DIGITAL; SET DESIGN; DIGITAL=1;
+4461     DO MONTHS=30*12/365.2425, 12, 60, 120, 180, 240;
+4462       YEARS=MONTHS/12;
+4463       OUTPUT;
+4464     END;
+4465   * then put them together                                                       ;
+
+
+NOTE: There were 4 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DIGITAL has 24 observations and 79 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+
+
+4466     DATA PREDICT; SET PREDICT DIGITAL;
+4467   *______________________________________________________________________________;
+
+4468   *                                                                              ;
+
+4469   *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+
+4470   *                        P T C A   (M H I)                                     ;
+
+4471   *                                                                              ;
+
+4472   *                      P R E D I C T I O N S                                   ;
+
+4473   *______________________________________________________________________________;
+
+4474   *                                                                              ;
+
+4475     LIBNAME PTCAMHI v6 ('!HZEXAMPLES/sasest');
+NOTE: Libref PTCAMHI was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V6
+      Physical Name(1): c:\hazard\examples\sasest
+4476     %HAZPRED(
+4477     PROC HAZPRED DATA=PREDICT INHAZ=PTCAMHI.HMPDTHE3 OUT=PREDICT;
+4478          TIME MONTHS;
+4479     );
+
+NOTE: There were 4004 observations read from the data set WORK.PREDICT.
+NOTE: There were 24 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.PREDICT has 4028 observations and 79 variables.
+NOTE: DATA statement used:
+      real time           0.14 seconds
+      cpu time            0.14 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X401
+ERROR: File PTCAMHI.HMPDTHE3.DATA does not exist.
+WARNING: The data set HZRCALL.HZRCALL may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+ERROR: File PTCAMHI.HMPDTHE3.DATA does not exist.
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: EXITING DUE TO infile ERROR
+ERROR: Unrecognized line from print file.
+RULE:     ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
+10        !16 3
+ll=3 bfr=16 code=! lleft=93 bfrlen=2 count=. i=. _ERROR_=1 _N_=10
+4480     TITLE6 'PTCA Equation';
+4481   * Rename variables for the comparison                                          ;
+
+4482     DATA PREDICT; SET PREDICT;
+4483     _SURVIVP=_SURVIV; CLLPSURV=_CLLSURV; CLUPSURV=_CLUSURV;
+4484     DROP _SURVIV _CLLSURV _CLUSURV _EARLYS _CONSTS _LATES _HAZARD _CLLHAZ
+4485          _CLUHAZ _EARLYH _CONSTH _LATEH;
+4486   *______________________________________________________________________________;
+
+4487   *                                                                              ;
+
+4488   *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+
+4489   *                        C A B G   (K U L)                                     ;
+
+4490   *                                                                              ;
+
+4491   *                      P R E D I C T I O N S                                   ;
+
+4492   *______________________________________________________________________________;
+
+4493   *                                                                              ;
+
+4494     LIBNAME CABGKUL v6 ('!HZEXAMPLES/sasest');
+NOTE: Libref CABGKUL was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V6
+      Physical Name(1): c:\hazard\examples\sasest
+4495     %HAZPRED(
+4496     PROC HAZPRED DATA=PREDICT INHAZ=CABGKUL.HMDEADP OUT=PREDICT;
+4497          TIME MONTHS;
+4498     );
+
+NOTE: Variable _SURVIV is uninitialized.
+NOTE: Variable _CLLSURV is uninitialized.
+NOTE: Variable _CLUSURV is uninitialized.
+WARNING: The variable _EARLYS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATES in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _HAZARD in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLLHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLUHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _EARLYH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATEH in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: There were 4028 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 4028 observations and 82 variables.
+NOTE: DATA statement used:
+      real time           0.14 seconds
+      cpu time            0.14 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X409
+ERROR: File CABGKUL.HMDEADP.DATA does not exist.
+WARNING: The data set HZRCALL.HZRCALL may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+ERROR: File CABGKUL.HMDEADP.DATA does not exist.
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: EXITING DUE TO infile ERROR
+ERROR: Unrecognized line from print file.
+RULE:     ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
+10        !16 3
+ll=3 bfr=16 code=! lleft=94 bfrlen=2 count=. i=. _ERROR_=1 _N_=10
+4499     TITLE6 'KUL Equation';
+4500   * Rename variables for comparison                                              ;
+
+4501     DATA PREDICT; SET PREDICT;
+4502     _SURVIVC=_SURVIV; CLLCSURV=_CLLSURV; CLUCSURV=_CLUSURV;
+4503     DROP _SURVIV _CLLSURV _CLUSURV _EARLYS _CONSTS _LATES _HAZARD _CLLHAZ
+4504          _CLUHAZ _EARLYH _CONSTH _LATEH;
+4505   *______________________________________________________________________________;
+
+4506   *                                                                              ;
+
+4507   *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+
+4508   *       I N I T I A L   M E D I C A L   T H E R A P Y   (V A S T U D Y)        ;
+
+4509   *                                                                              ;
+
+4510   *                      P R E D I C T I O N S                                   ;
+
+4511   *______________________________________________________________________________;
+
+4512   *                                                                              ;
+
+4513     LIBNAME VAMEDCBG v6 ('!HZEXAMPLES/sasest/ihd');
+ERROR: No libraries specified in the concatenated library VAMEDCBG exist.
+ERROR: Error in the LIBNAME statement.
+4514     %HAZPRED(
+4515     PROC HAZPRED DATA=PREDICT INHAZ=VAMEDCBG.HMDEATH OUT=PREDICT;
+4516          TIME MONTHS;
+4517     );
+
+NOTE: Variable _SURVIV is uninitialized.
+NOTE: Variable _CLLSURV is uninitialized.
+NOTE: Variable _CLUSURV is uninitialized.
+WARNING: The variable _EARLYS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATES in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _HAZARD in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLLHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLUHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _EARLYH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATEH in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: There were 4028 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 4028 observations and 85 variables.
+NOTE: DATA statement used:
+      real time           0.14 seconds
+      cpu time            0.14 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X417
+ERROR: Libname VAMEDCBG is not assigned.
+WARNING: The data set HZRCALL.HZRCALL may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+ERROR: Libname VAMEDCBG is not assigned.
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: EXITING DUE TO infile ERROR
+ERROR: Unrecognized line from print file.
+RULE:     ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
+10        !16 3
+ll=3 bfr=16 code=! lleft=94 bfrlen=2 count=. i=. _ERROR_=1 _N_=10
+4518     TITLE6 'VA Medical Equation';
+4519   * Rename variables for comparison                                              ;
+
+4520     DATA PREDICT; SET PREDICT;
+4521     _SURVIVM=_SURVIV; CLLMSURV=_CLLSURV; CLUMSURV=_CLUSURV;
+4522     DROP _SURVIV _CLLSURV _CLUSURV _EARLYS _CONSTS _LATES _HAZARD _CLLHAZ
+4523          _CLUHAZ _EARLYH _CONSTH _LATEH;
+4524   *______________________________________________________________________________;
+
+4525   *                                                                              ;
+
+4526   * Generate survivorship differences                                            ;
+
+4527   * Bring in analysis macro:                                                     ;
+
+4528     FILENAME SURDIFP ('!MACROS/surdifp.sas');
+4529     OPTIONS NOSOURCE; %INC SURDIFP; OPTIONS SOURCE;
+WARNING: Physical file does not exist, c:\hazard\macros\surdifp.sas.
+ERROR: Cannot open %INCLUDE file SURDIFP.
+4530   * PTCA vs. CABG                                                                ;
+
+NOTE: SCL source line.
+4531     %SURDIFP(IN=PREDICT, PVALUES=1, CUMSURVS=_SURVIVC, CUMSURVM=_SURVIVP,
+         -
+         180
+WARNING: Apparent invocation of macro SURDIFP not resolved.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+4532              CLLSSURV=CLLCSURV, CLUSSURV=CLUCSURV, CLLMSURV=CLLPSURV,
+4533              CLUMSURV=CLUPSURV, CUMSURVD=CUMSURPC, CLLDSURV=CLLDSUPC,
+4534              CLUDSURV=CLUDSUPC, CUMSURVP=CUMSVPPC);
+4535   * CABG vs. VA Medical                                                          ;
+
+NOTE: SCL source line.
+4536     %SURDIFP(IN=PREDICT, PVALUES=1, CUMSURVS=_SURVIVC, CUMSURVM=_SURVIVM,
+         -
+         180
+WARNING: Apparent invocation of macro SURDIFP not resolved.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+4537              CLLSSURV=CLLCSURV, CLUSSURV=CLUCSURV, CLLMSURV=CLLMSURV,
+4538              CLUMSURV=CLUMSURV, CUMSURVD=CUMSURCM, CLLDSURV=CLLDSUCM,
+4539              CLUDSURV=CLUDSUCM, CUMSURVP=CUMSVPCM);
+4540   * PTCA vs. VA Medical                                                          ;
+
+NOTE: SCL source line.
+4541     %SURDIFP(IN=PREDICT, PVALUES=1, CUMSURVS=_SURVIVP, CUMSURVM=_SURVIVM,
+         -
+         180
+WARNING: Apparent invocation of macro SURDIFP not resolved.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+4542              CLLSSURV=CLLPSURV, CLUSSURV=CLUPSURV, CLLMSURV=CLLMSURV,
+4543              CLUMSURV=CLUMSURV, CUMSURVD=CUMSURPM, CLLDSURV=CLLDSUPM,
+4544              CLUDSURV=CLUDSUPM, CUMSURVP=CUMSVPPM);
+4545   *******************************************************************************;
+
+4546   * Printer plot                                                                 ;
+
+4547   * Survivorship Functions                                                       ;
+
+
+WARNING: The variable _EARLYS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATES in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _HAZARD in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLLHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLUHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _EARLYH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATEH in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.PREDICT may be incomplete.  When this step was stopped there were 0 observations and 88 variables.
+WARNING: Data set WORK.PREDICT was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.09 seconds
+      cpu time            0.09 seconds
+
+
+
+4548     PROC SORT DATA=PREDICT; BY PPLOT;
+
+NOTE: There were 4028 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 4028 observations and 85 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.23 seconds
+      cpu time            0.23 seconds
+
+
+4549     PROC PLOT DATA=PREDICT; BY PPLOT;
+4550          PLOT _SURVIVP*YEARS='P' CLLPSURV*YEARS='.' CLUPSURV*YEARS='.'
+4551               _SURVIVC*YEARS='C' CLLCSURV*YEARS='-' CLUCSURV*YEARS='-'
+4552               _SURVIVM*YEARS='M' CLLMSURV*YEARS='+' CLUMSURV*YEARS='+'
+ERROR: Variable _SURVIVM not found.
+ERROR: Variable CLLMSURV not found.
+ERROR: Variable CLUMSURV not found.
+4553               /OVERLAY VAXIS=0 TO 1 BY 0.1;
+NOTE: The previous statement has been deleted.
+4554   * Comparative Benefit:  Survivorship Difference                                ;
+
+
+NOTE: PROCEDURE PLOT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+4555     PROC PLOT DATA=PREDICT; BY PPLOT;
+4556          PLOT CUMSURPC*YEARS='C' CLLDSUPC*YEARS='.' CLUDSUPC*YEARS='.'
+ERROR: Variable CUMSURPC not found.
+ERROR: Variable CLLDSUPC not found.
+ERROR: Variable CLUDSUPC not found.
+4557               /OVERLAY VAXIS=-0.5 to 0.5 by 0.1;
+NOTE: The previous statement has been deleted.
+4558          PLOT CUMSURCM*YEARS='M' CLLDSUCM*YEARS='.' CLUDSUCM*YEARS='.'
+ERROR: Variable CUMSURCM not found.
+ERROR: Variable CLLDSUCM not found.
+ERROR: Variable CLUDSUCM not found.
+4559               /OVERLAY VAXIS=-0.5 to 0.5 by 0.1;
+NOTE: The previous statement has been deleted.
+4560          PLOT CUMSURPM*YEARS='P' CLLDSUPM*YEARS='.' CLUDSUPM*YEARS='.'
+ERROR: Variable CUMSURPM not found.
+ERROR: Variable CLLDSUPM not found.
+ERROR: Variable CLUDSUPM not found.
+4561               /OVERLAY VAXIS=-0.5 to 0.5 by 0.1;
+NOTE: The previous statement has been deleted.
+4562   * Comparative Benefit:  Survivorship Difference P-value                        ;
+
+
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+4563     PROC PLOT DATA=PREDICT; BY PPLOT;
+4564          PLOT CUMSVPPC*YEARS='C' CUMSVPCM*YEARS='M' CUMSVPPM*YEARS='P'
+ERROR: Variable CUMSVPPC not found.
+ERROR: Variable CUMSVPCM not found.
+ERROR: Variable CUMSVPPM not found.
+4565               /OVERLAY;
+NOTE: The previous statement has been deleted.
+4566   *******************************************************************************;
+
+4567   * Digital nomogram                                                             ;
+
+
+NOTE: PROCEDURE PLOT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+4568     DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: There were 4028 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.DIGITAL has 24 observations and 85 variables.
+NOTE: DATA statement used:
+      real time           0.05 seconds
+      cpu time            0.05 seconds
+
+
+4569     PROC SORT DATA=DIGITAL; BY PPLOT;
+
+NOTE: There were 24 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.DIGITAL has 24 observations and 85 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+4570     PROC PRINT D DATA=DIGITAL; VAR MONTHS YEARS _SURVIVC _SURVIVP _SURVIVM
+4571          CUMSURPC CUMSVPPC CUMSURCM CUMSVPCM CUMSURPM CUMSVPPM; BY PPLOT;
+ERROR: Variable _SURVIVM not found.
+ERROR: Variable CUMSURPC not found.
+ERROR: Variable CUMSVPPC not found.
+ERROR: Variable CUMSURCM not found.
+ERROR: Variable CUMSVPCM not found.
+ERROR: Variable CUMSURPM not found.
+ERROR: Variable CUMSVPPM not found.
+4572   *******************************************************************************;
+
+4573   RUN;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+

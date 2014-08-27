@@ -1,0 +1,11 @@
+4.1.beta2	12-19-2000 
+	Fix the RESTRICT statement - (first attempt)
+	
+4.1.0 
+	Setup the Hazard package with autoconf. This simplifies the 
+	installation process on all platforms, and hopefully makes it more
+	platform independent.
+
+4.3.0 2012/02/26
+	Correct the likelihood function when using weighting. Update all
+	macros to latest versions from the CCF production set.

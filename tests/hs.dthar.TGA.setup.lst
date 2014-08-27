@@ -1,0 +1,200 @@
+                                                     Arterial Switch Operations                  14:29 Friday, November 10, 2000  49
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                      Patient, Procedure, Support, and Experience Risk Factors
+                                                Output Predictions For Each Patient
+
+                                                       The CONTENTS Procedure
+
+                          Data Set Name: ARTSWT.HSDTARXC                          Observations:         24
+                          Member Type:   DATA                                     Variables:            2
+                          Engine:        V8                                       Indexes:              0
+                          Created:       14:40 Friday, November 10, 2000          Observation Length:   16
+                          Last Modified: 14:40 Friday, November 10, 2000          Deleted Observations: 0
+                          Protection:                                             Compressed:           NO
+                          Data Set Type:                                          Sorted:               NO
+                          Label:
+
+
+                                            -----Engine/Host Dependent Information-----
+
+                               Data Set Page Size:         4096
+                               Number of Data Set Pages:   1
+                               First Data Page:            1
+                               Max Obs per Page:           252
+                               Obs in First Data Page:     24
+                               Number of Data Set Repairs: 0
+                               File Name:                  c:\hazard\examples\data\hsdtarxc.sas7bdat
+                               Release Created:            8.0101M0
+                               Host Created:               WIN_PRO
+
+
+                                       -----Alphabetic List of Variables and Attributes-----
+
+                                                #    Variable    Type    Len    Pos
+                                                ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                                1    CUM_HAZ     Num       8      0
+                                                2    PROB        Num       8      8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                             avc.hp.death.AVC hazard   10NOV00    14:29
+                                                     Arterial Switch Operations                  14:29 Friday, November 10, 2000  50
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                      Patient, Procedure, Support, and Experience Risk Factors
+                                                Output Predictions For Each Patient
+
+                                                       The CONTENTS Procedure
+
+                         Data Set Name: ARTSWT.HSDTARXP                          Observations:         1488
+                         Member Type:   DATA                                     Variables:            2
+                         Engine:        V8                                       Indexes:              0
+                         Created:       14:40 Friday, November 10, 2000          Observation Length:   16
+                         Last Modified: 14:40 Friday, November 10, 2000          Deleted Observations: 0
+                         Protection:                                             Compressed:           NO
+                         Data Set Type:                                          Sorted:               NO
+                         Label:
+
+
+                                            -----Engine/Host Dependent Information-----
+
+                               Data Set Page Size:         4096
+                               Number of Data Set Pages:   7
+                               First Data Page:            1
+                               Max Obs per Page:           252
+                               Obs in First Data Page:     177
+                               Number of Data Set Repairs: 0
+                               File Name:                  c:\hazard\examples\data\hsdtarxp.sas7bdat
+                               Release Created:            8.0101M0
+                               Host Created:               WIN_PRO
+
+
+                                       -----Alphabetic List of Variables and Attributes-----
+
+                                                #    Variable    Type    Len    Pos
+                                                ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
+                                                1    DIGITAL     Num       8      0
+                                                2    MONTHS      Num       8      8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                             avc.hp.death.AVC hazard   10NOV00    14:29

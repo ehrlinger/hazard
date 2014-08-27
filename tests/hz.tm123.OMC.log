@@ -1,0 +1,352 @@
+7737   *______________________________________________________________________________;
+
+7738   *                                                                              ;
+
+7739   * !HZEXAMPLES/hz.tm123.OMC                                                     ;
+
+7740   *                                                                              ;
+
+7741   * Hazard function for permanent morbidity from thromboembolic events.          ;
+
+7742   * Morbidity index:  0=no permanent morbidity                                   ;
+
+7743   *                   1=mild permanent morbidity                                 ;
+
+7744   *                   2=moderate permanent morbidity                             ;
+
+7745   *                   3=severe permanent morbidity                               ;
+
+7746   *                   4=death                                                    ;
+
+7747   *______________________________________________________________________________;
+
+7748   *                                                                              ;
+
+7749     OPTIONS PAGESIZE=100 LINESIZE=132;
+7750     TITLE1 "Primary Isolated Mitral Commissurotomy";
+7751     TITLE2 "Permanent Morbidity Analysis from Repeated Thromboembolic Events";
+
+7752   *******************************************************************************;
+
+7753   * Bring in data                                                                ;
+
+7754     FILENAME INOMC ('!HZEXAMPLES/data/omc');
+7755     DATA PRIMISOL; INFILE INOMC MISSOVER;
+7756     INPUT STUDY $ 1-10 TE1 12 TE2 14 TE3 16 TE1DJUL 18-25 TE2DJUL 27-33 TE3DJUL
+
+7757           35-41 AVP_RP1 $ 43 AVP_RP2 $ 45 AVP_RP3 $ 47 MVP_RP1 $ 49 MVP_RP2 $ 51
+
+7758           MVP_RP3 $ 53 TVP_RP1 $ 55 TVP_RP2 $ 57 TVP_RP3 $ 59 RP1DJUL 61-67
+7759           RP2DJUL 69-75 RP3DJUL 77-83 REOP1DAT $ 85-92 REOP2DAT $ 94-101 REOP3DAT
+
+7760           $ 103-110 INT_DEAD 111-120 5 OPDJUL 122-128 DEAD 130 FUPDJUL 132-138
+
+7761           TE1GRADE 140 TE2GRADE 142 TE3GRADE 144;
+7762
+7763     LABEL
+7764           STUDY    = 'Study number'
+7765           TE1      = 'First TE'
+7766           TE2      = 'Second TE'
+7767           TE3      = 'Third TE'
+7768           TE1DJUL  = 'First TE Julian date'
+7769           TE2DJUL  = 'Second TE Julian date'
+7770           TE3DJUL  = 'Third TE Julian date'
+7771           AVP_RP1  = 'Aortc Replacement'
+7772           AVP_RP2  = 'Aortc Replacement'
+7773           AVP_RP3  = 'Aortc Replacement'
+7774           MVP_RP1  = 'Mitral Replacement'
+7775           MVP_RP2  = 'Mitral Replacement'
+7776           MVP_RP3  = 'Mitral Replacement'
+7777           TVP_RP1  = 'Tricuspid Replacement'
+7778           TVP_RP2  = 'Tricuspid Replacement'
+7779           TVP_RP3  = 'Tricuspid Replacement'
+7780           RP1DJUL  = 'First reop Julian date'
+7781           RP2DJUL  = 'Second reop Julian date'
+7782           RP3DJUL  = 'Thrid reop Julian date'
+7783           DEAD     = 'Death'
+7784           INT_DEAD = 'Followup interval (months) after repair'
+7785           FUPDJUL  = 'Followup Julian date'
+7786     ;
+7787   *******************************************************************************;
+
+7788   * Prepare a separate observation for each intra-embolic interval               ;
+
+7789     IF TE1=1 AND TE1DJUL=. THEN DELETE;
+7790     IF TE1=. THEN TE1=0; IF TE2=. THEN TE2=0; IF TE3=. THEN TE3=0;
+7791     IF AVP_RP3='R' OR MVP_RP3='R' OR TVP_RP3='R' THEN DO;
+7792       REPL=1; REPLDJUL=RP3DJUL; REPLDATE=REOP3DAT; END;
+7793     IF AVP_RP2='R' OR MVP_RP2='R' OR TVP_RP2='R' THEN DO;
+7794       REPL=1; REPLDJUL=RP2DJUL; REPLDATE=REOP2DAT; END;
+7795     IF AVP_RP1='R' OR MVP_RP1='R' OR TVP_RP1='R' THEN DO;
+7796       REPL=1; REPLDJUL=RP1DJUL; REPLDATE=REOP1DAT; END;
+7797     IF REPL=. THEN REPL=0;
+7798     IF REPL=0 THEN REPLDJUL=FUPDJUL;
+7799
+7800     IF REPL=1 THEN DO ;
+7801       IF TE1=1 THEN DO; IF TE1DJUL GE REPLDJUL THEN TE1=0; END;
+7802       IF TE2=1 THEN DO; IF TE2DJUL GE REPLDJUL THEN TE2=0; END;
+7803       IF TE3=1 THEN DO; IF TE3DJUL GE REPLDJUL THEN TE3=0; END;
+7804     END;
+7805
+7806     INT_REPL=INT_DEAD;
+7807     IF REPL=1 THEN INT_REPL=(REPLDJUL-OPDJUL)*12/365.2425;
+7808
+7809     CENSORED=1; INT_TE=INT_REPL; TE=0; STARTTME=0; MORBID=0;
+7810     IF TE1=1 THEN STARTTME=12*(TE1DJUL-OPDJUL)/365.2425;
+7811         /* 2 patients had embolic events in the hospital */
+7812       IF STUDY='039' THEN STARTTME=(3/24)*12/365.2425;
+7813       IF STUDY='096' THEN STARTTME=(2/24)*12/365.2425;
+7814         /* 1 patient died on same day as te */
+7815    /*    IF STUDY='173' THEN DO; STARTTME=0; TE=1; END; */
+7816   * The previous statement is an effort to remove a zero censored interval, but
+
+7817   * it is placed incorrectly and produces and error (TE is remodulated at wrong
+
+7818   * level). ;
+7819     IF TE2=1 THEN STARTTME=12*(TE2DJUL-OPDJUL)/365.2425;
+7820     IF TE3=1 THEN STARTTME=12*(TE3DJUL-OPDJUL)/365.2425;
+7821     OUTPUT;
+7822
+7823     IF TE1=1 /* AND STUDY NE '173' */ THEN DO;
+7824   * See previous comment about study # 173;
+7825       STARTTME=0; INT_TE=12*(TE1DJUL-OPDJUL)/365.2425;
+7826       /* 2 patients had embolic events in the hospital */
+7827       IF STUDY='039' THEN INT_TE=(3/24)*12/365.2425;
+7828       IF STUDY='096' THEN INT_TE=(2/24)*12/365.2425;
+7829       CENSORED=0; TE=1;
+7830       MORBID=TE1GRADE; IF TE1GRADE=. THEN MORBID=1.70;
+7831       OUTPUT;
+7832     END;
+7833
+7834     IF TE2=1 THEN DO;
+7835       STARTTME=12*(TE1DJUL-OPDJUL)/365.2425;
+7836       IF STUDY='039' THEN STARTTME=(3/24)*12/365.2425;
+7837       IF STUDY='096' THEN STARTTME=(2/24)*12/365.2425;
+7838       INT_TE=12*(TE2DJUL-OPDJUL)/365.2425;
+7839       CENSORED=0; TE=1;
+7840       MORBID=TE2GRADE; IF TE2GRADE=. THEN MORBID=2.17;
+7841       OUTPUT;
+7842     END;
+7843
+7844     IF TE3=1 THEN DO;
+7845       STARTTME=12*(TE2DJUL-OPDJUL)/365.2425;
+7846       INT_TE=12*(TE3DJUL-OPDJUL)/365.2425;
+7847       CENSORED=0; TE=1;
+7848       MORBID=TE3GRADE; IF TE3GRADE=. THEN MORBID=4.00;
+7849       OUTPUT;
+7850     END;
+7851     KEEP STUDY TE1 TE2 TE3 INT_TE STARTTME CENSORED TE MORBID;
+7852   *******************************************************************************;
+
+7853   * Estimate parameters of the distribution of the event                         ;
+
+7854     %HAZARD(
+7855     PROC HAZARD DATA=PRIMISOL CONSERVE P OUTHAZ=OUTEST
+7856          STEEPEST QUASI CONDITION=14;
+7857          LCENSOR STARTTME;
+7858          TIME INT_TE;
+7859          RCENSOR CENSORED;
+7860          WEIGHT MORBID;
+7861          EVENT TE;
+7862          PARMS MUE=0.018568 THALF=0.0109 NU=1 FIXNU M=1.0E-6 FIXM
+7863                MUL=0.0002495 TAU=1 FIXTAU ALPHA=1 FIXALPHA GAMMA=1 FIXGAMMA
+7864                ETA=1.4112   WEIBULL;
+7865   *      PARMS MUE=0.01777599 THALF=0.05927402 NU=1 M=1
+7866                MUC=0.0009970977;
+7867     );
+
+NOTE: The infile INOMC is:
+      File Name=c:\hazard\examples\data\omc,
+      RECFM=V,LRECL=256
+
+NOTE: 339 records were read from the infile INOMC.
+      The minimum record length was 144.
+      The maximum record length was 144.
+NOTE: The data set WORK.PRIMISOL has 383 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.18 seconds
+      cpu time            0.18 seconds
+
+
+Running hazard c:\hazard\bin\hazard.bat on Windows with data C:\WINNT\TEMP\hzr.J1660.X562
+
+Note: Procedure HAZARD (C-Version 4.1.0)
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: 1 observation(s) with inadmissible values.
+Note: 1 total observation(s) deleted.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: There were 17 observations read from the data set HZRCALL.HZRCALL.
+NOTE: The data set WORK.OUTEST has 17 observations and 14 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+7868   *******************************************************************************;
+
+7869   * Bring in Nelson life table method for repeating, morbid events               ;
+
+7870     FILENAME NELSONL ('!MACROS/nelsonl.sas');
+7871     OPTIONS NOSOURCE; %INC NELSONL; OPTIONS SOURCE;
+7989   *______________________________________________________________________________;
+
+7990   *                                                                              ;
+
+7991   * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+
+7992   *                                                                              ;
+
+7993   *   INTERVAL = Time variable                     INTERVAL                      ;
+
+7994   *   EVENT    = Event (0/1) indicator             EVENT                         ;
+
+7995   *   CENSORED = Censorer (0/1) indicator          CENSORED                      ;
+
+7996   *   STRATIFY = Stratification variable           'ALL'                         ;
+
+7997   *   CLEVEL   = Confidence coefficient            0.68268948 (1 sd)             ;
+
+7998   *   IN       = Input data set name                                             ;
+
+7999   *   OUT      = Output data set name              EVENT                         ;
+
+8000   *   CUMDIST  = Cumulative hazard function        CUMDIST                       ;
+
+8001   *   WEIGHT   = Severity level of event           1                             ;
+
+8002   *                                                                              ;
+
+8003   *______________________________________________________________________________;
+
+8004   *                                                                              ;
+
+8005     %NELSONL(INTERVAL=INT_TE, EVENT=TE, CENSORED=CENSORED, IN=PRIMISOL,
+8006              OUT=NELOUT, CUMDIST=CUMDIST, WEIGHT=MORBID);
+
+NOTE: There were 383 observations read from the data set WORK.PRIMISOL.
+NOTE: The data set WORK.PRIMISOL has 383 observations and 16 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: There were 383 observations read from the data set WORK.PRIMISOL.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      18:139
+NOTE: There were 1 observations read from the data set WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 383 observations read from the data set WORK.PRIMISOL.
+NOTE: The data set WORK.DATA1 has 376 observations and 9 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.04 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: There were 376 observations read from the data set WORK.DATA1.
+NOTE: The data set WORK.M1 has 1 observations and 4 variables.
+NOTE: PROCEDURE MEANS used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+NOTE: There were 376 observations read from the data set WORK.DATA1.
+NOTE: There were 1 observations read from the data set WORK.M1.
+NOTE: The data set WORK.NELOUT has 376 observations and 30 variables.
+NOTE: DATA statement used:
+      real time           0.05 seconds
+      cpu time            0.05 seconds
+
+
+
+NOTE: There were 376 observations read from the data set WORK.NELOUT.
+NOTE: The data set WORK.NELOUT has 376 observations and 19 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+8007     PROC PRINT; VAR INT_TE TE CENSORED WEIGHT NRISK NUMRISK CUMDIST
+8008                     SE_CEF CLL_CEF CLU_CEF;
+8009   *******************************************************************************;
+
+8010   * Calculate parametric estimates of survivorship and hazard functions          ;
+
+8011     %HAZPRED(
+8012     PROC HAZPRED DATA=NELOUT INHAZ=OUTEST OUT=PREDICT; TIME INT_TE;);
+
+NOTE: There were 376 observations read from the data set WORK.NELOUT.
+NOTE: PROCEDURE PRINT used:
+      real time           0.05 seconds
+      cpu time            0.05 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X571
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 376 observations read from the data set HZRCALL.HZRCALL.
+NOTE: The data set WORK.PREDICT has 376 observations and 31 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+8013     DATA PREDICT; SET PREDICT;
+8014     _CUMHAZ=-LOG(_SURVIV); _CLLCUMH=-LOG(_CLUSURV); _CLUCUMH=-LOG(_CLLSURV);
+
+8015     D_CUMHAZ=CUMDIST-_CUMHAZ;
+8016   *******************************************************************************;
+
+8017   * Plot various survival functions                                              ;
+
+
+NOTE: There were 376 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 376 observations and 35 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+8018     PROC PLOT;
+8019          PLOT CUMDIST*INT_TE='*' CLL_CEF*INT_TE='-' CLU_CEF*INT_TE='-'
+8020               _CUMHAZ*INT_TE='P' _CLLCUMH*INT_TE='.' _CLUCUMH*INT_TE='.'
+8021               /OVERLAY;
+8022          PLOT D_CUMHAZ*INT_TE='*';
+8023   *******************************************************************************;
+
+8024   RUN;
+
+NOTE: There were 376 observations read from the data set WORK.PREDICT.
+NOTE: PROCEDURE PLOT used:
+      real time           17.98 seconds
+      cpu time            0.04 seconds
+
+

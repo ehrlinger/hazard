@@ -1,0 +1,623 @@
+1                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.15 seconds
+      cpu time            0.07 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1            OPTIONS PAGESIZE=100 LINESIZE=132;
+2          *******************************************************************************;
+3          * !HZEXAMPLES/ac.death.AVC                                                     ;
+4          *                                                                              ;
+5          * Life table for death after repair of atrioventricular septal defects         ;
+6          *******************************************************************************;
+7          * Bring in data                                                                ;
+8            TITLE1 "Repair of Atrioventricular Septal (A-V Canal) Defects";
+9            TITLE2 "Example Data Set";
+10           TITLE3 "Life Table For Death After Repair";
+11         *______________________________________________________________________________;
+12         *                                                                              ;
+13         * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+14         *        data.  For illustration, a few variables from a data set for repair   ;
+15         *        of atrioventricular septal defects will be read from a "flat file."   ;
+16         *______________________________________________________________________________;
+17         *                                                                              ;
+18           FILENAME INAVC ('!HZEXAMPLES/data/avc');
+19           DATA AVCS; INFILE INAVC MISSOVER;
+20           INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+21                 OP_AGE;
+22           LABEL
+23                 STUDY    = 'Study number'
+24                 STATUS   = 'Clinical status (NYHA I-V)'
+25                 INC_SURG = 'Surgical grade of AV valve incompetence'
+26                 OPMOS    = 'Date of operation (months since 1/67)'
+27                 AGE      = 'Age (months) at repair'
+28                 MAL      = 'Important associated cardiac anomaly'
+29                 COM_IV   = 'Interventricular communication'
+30                 ORIFICE  = 'Accessory left AV valve orifice'
+31                 DEAD     = 'Death'
+32                 INT_DEAD = 'Followup interval (months) after repair'
+33           ;
+34           KEEP INT_DEAD DEAD COM_IV;
+35         *******************************************************************************;
+36         * Bring in actuarial macros                                                    ;
+37           FILENAME KAPLAN ('!MACROS/kaplan.sas');
+38           FILENAME NELSON ('!MACROS/nelsont.sas');
+39           OPTIONS NOSOURCE; %INC KAPLAN NELSON; OPTIONS SOURCE;
+440        *______________________________________________________________________________;
+441        *                                                                              ;
+442        * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+443        *                                                                              ;
+444        *   INTERVAL = Time variable                     INTERVAL                      ;
+445        *   EVENT    = Number of events                  EVENT                         ;
+446        *   RCENSOR  = Number of censored cases          0                             ;
+447        *   STRATIFY = Stratification variable           'ALL'                         ;
+448        *   OTHSUMS  = Other variables to be summed      none                          ;
+449        *   ID       = Variables retained in data set    none                          ;
+450        *   CLEVEL   = Confidence coefficient            0.68268948 (1 sd)             ;
+451        *   IN       = Input data set name                                             ;
+452        *   OUT      = Output data set name              EVENT                         ;
+453        *   HLABEL   = Label for time axis of plots      Years After Operation         ;
+454        *   ELABEL   = Label for the event               Death                         ;
+455        *   NOPRINT  = No printed output                 0 (1 for no printing)         ;
+456        *   NOLIST   = Only plotter output, no lists     0 (1 for no lists)            ;
+457        *   PEVENT   = Print only the events             1 (0 for censored also)       ;
+458        *   OEVENT   = Output only the events            1 (0 for censored also)       ;
+459        *   PLOTS    = Plot survival                     1 (0 to skip)                 ;
+460        *   PLOTC    = Plot cumulative hazard            1 (0 to skip)                 ;
+461        *   PLOTH    = Plot hazard                       0 (1 to plot)                 ;
+462        *   PLOTL    = Plot integrated survivorship      0 (1 to plot)                 ;
+463        *______________________________________________________________________________;
+464        *                                                                              ;
+465          %KAPLAN(IN=AVCS, INTERVAL=INT_DEAD, EVENT=DEAD, PLOTH=1, PLOTL=1,
+466                  HLABEL=Months After Repair);
+
+NOTE: The infile INAVC is:
+      File Name=/home/jehrling/hazard-4.1/examples/data/avc,
+      Owner Name=jehrling,Group Name=ctsurg,
+2                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+      Access Permission=rwxr-xr-x,
+      File Size (bytes)=16394
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.16 seconds
+      cpu time            0.11 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK._REFINE_ has 310 observations and 4 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 310 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      766:195   
+NOTE: There were 1 observations read from the dataset WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.S1 has 1 observations and 8 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 1 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.S1 has 1 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 1 observations read from the dataset WORK.S1.
+NOTE: The PROCEDURE PRINT printed page 1.
+NOTE: PROCEDURE PRINT used:
+      real time           0.09 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 1 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.NSET has 1 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.BASIC1 has 273 observations and 7 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.BASIC1.
+NOTE: The data set WORK.BASIC has 273 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+3                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.BASIC.
+NOTE: There were 1 observations read from the dataset WORK.NSET.
+NOTE: The data set WORK.KAPLAN has 273 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.05 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.PRINT has 44 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 44 observations read from the dataset WORK.PRINT.
+NOTE: The PROCEDURE PRINT printed page 2.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.PLOT has 273 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.PLOT.
+NOTE: The PROCEDURE PLOT printed pages 3-11.
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: Deleting WORK.OUTTEST (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.EVENT has 44 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 44 observations read from the dataset WORK.EVENT.
+NOTE: The data set WORK.EVENT has 44 observations and 14 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+467          %NELSONT(IN=AVCS, INTERVAL=INT_DEAD, EVENT=DEAD, PLOTH=1, PLOTL=1,
+468                  HLABEL=Months After Repair);
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK._REFINE_ has 310 observations and 4 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 310 observations and 7 variables.
+NOTE: DATA statement used:
+4                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      468:125   
+NOTE: There were 1 observations read from the dataset WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.S1 has 1 observations and 8 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 1 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.S1 has 1 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 1 observations read from the dataset WORK.S1.
+NOTE: The PROCEDURE PRINT printed page 12.
+NOTE: PROCEDURE PRINT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.S1 has 1 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.BASIC1 has 273 observations and 7 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.BASIC1.
+NOTE: The data set WORK.BASIC1 has 273 observations and 7 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.BASIC1.
+NOTE: There were 1 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.EVENT has 273 observations and 36 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.EVENT.
+NOTE: The data set WORK.PRINT has 44 observations and 36 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 44 observations read from the dataset WORK.PRINT.
+NOTE: The PROCEDURE PRINT printed page 13.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.EVENT.
+NOTE: The data set WORK.PLOT has 273 observations and 40 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+5                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.PLOT.
+NOTE: The PROCEDURE PLOT printed pages 14-21.
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: There were 273 observations read from the dataset WORK.EVENT.
+NOTE: The data set WORK.EVENT has 44 observations and 36 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+469          %KAPLAN(IN=AVCS, INTERVAL=INT_DEAD, EVENT=DEAD, PLOTH=1, PLOTL=1,
+470                  HLABEL=Months After Repair, STRATIFY=COM_IV);
+
+NOTE: There were 44 observations read from the dataset WORK.EVENT.
+NOTE: The data set WORK.EVENT has 44 observations and 19 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK._REFINE_ has 310 observations and 4 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 310 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      1094:195   
+NOTE: There were 1 observations read from the dataset WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The PROCEDURE LIFETEST printed pages 22-23.
+NOTE: PROCEDURE LIFETEST used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.S1 has 2 observations and 8 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 2 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.S1 has 2 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 2 observations read from the dataset WORK.S1.
+NOTE: The PROCEDURE PRINT printed page 24.
+NOTE: PROCEDURE PRINT used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 2 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.NSET has 2 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+6                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+      
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.BASIC1 has 282 observations and 7 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.BASIC1.
+NOTE: The data set WORK.BASIC has 282 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      470:232   
+NOTE: There were 282 observations read from the dataset WORK.BASIC.
+NOTE: There were 2 observations read from the dataset WORK.NSET.
+NOTE: The data set WORK.KAPLAN has 282 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.05 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.PRINT has 49 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 49 observations read from the dataset WORK.PRINT.
+NOTE: The PROCEDURE PRINT printed page 25.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.PLOT has 282 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.PLOT.
+NOTE: The PROCEDURE PLOT printed pages 26-34.
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: Deleting WORK.OUTTEST (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 282 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.EVENT has 49 observations and 29 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+7                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 49 observations read from the dataset WORK.EVENT.
+NOTE: The data set WORK.EVENT has 49 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+471        *******************************************************************************;
+472        RUN;
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           7.48 seconds
+      cpu time            1.14 seconds
+      

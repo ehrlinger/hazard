@@ -1,0 +1,82 @@
+                                                     Arterial Switch Operations                  12:47 Friday, November 10, 2000   1
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                      Patient, Procedure, Support, and Experience Risk Factors
+                                                Output Predictions For Each Patient
+
+                                                       The CONTENTS Procedure
+
+                         Data Set Name: ARTSWT.HSDTARXC                           Observations:         4 
+                         Member Type:   DATA                                      Variables:            2 
+                         Engine:        V6                                        Indexes:              0 
+                         Created:       13:23 Monday, September 25, 2000          Observation Length:   16
+                         Last Modified: 13:23 Monday, September 25, 2000          Deleted Observations: 0 
+                         Protection:                                              Compressed:           NO
+                         Data Set Type:                                           Sorted:               NO
+                         Label:                                                                           
+
+
+                                            -----Engine/Host Dependent Information-----
+
+                           Data Set Page Size:         8192                                              
+                           Number of Data Set Pages:   1                                                 
+                           First Data Page:            1                                                 
+                           Max Obs per Page:           507                                               
+                           Obs in First Data Page:     4                                                 
+                           Number of Data Set Repairs: 0                                                 
+                           File Name:                  /home/jehrling/hazard/examples/data/hsdtarxc.ssd01
+                           Release Created:            8.00.00M                                          
+                           Host Created:               SunOS                                             
+                           Inode Number:               863476                                            
+                           Access Permission:          rw-r--r--                                         
+                           Owner Name:                 jehrling                                          
+                           File Size (bytes):          16384                                             
+
+
+                                       -----Alphabetic List of Variables and Attributes-----
+ 
+                                                #    Variable    Type    Len    Pos
+                                                -----------------------------------
+                                                1    CUM_HAZ     Num       8      0
+                                                2    PROB        Num       8      8
+                                                     Arterial Switch Operations                  12:47 Friday, November 10, 2000   2
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                      Patient, Procedure, Support, and Experience Risk Factors
+                                                Output Predictions For Each Patient
+
+                                                       The CONTENTS Procedure
+
+                         Data Set Name: ARTSWT.HSDTARXP                           Observations:         248
+                         Member Type:   DATA                                      Variables:            2  
+                         Engine:        V6                                        Indexes:              0  
+                         Created:       13:23 Monday, September 25, 2000          Observation Length:   16 
+                         Last Modified: 13:23 Monday, September 25, 2000          Deleted Observations: 0  
+                         Protection:                                              Compressed:           NO 
+                         Data Set Type:                                           Sorted:               NO 
+                         Label:                                                                            
+
+
+                                            -----Engine/Host Dependent Information-----
+
+                           Data Set Page Size:         8192                                              
+                           Number of Data Set Pages:   1                                                 
+                           First Data Page:            1                                                 
+                           Max Obs per Page:           507                                               
+                           Obs in First Data Page:     248                                               
+                           Number of Data Set Repairs: 0                                                 
+                           File Name:                  /home/jehrling/hazard/examples/data/hsdtarxp.ssd01
+                           Release Created:            8.00.00M                                          
+                           Host Created:               SunOS                                             
+                           Inode Number:               863458                                            
+                           Access Permission:          rw-r--r--                                         
+                           Owner Name:                 jehrling                                          
+                           File Size (bytes):          16384                                             
+
+
+                                       -----Alphabetic List of Variables and Attributes-----
+ 
+                                                #    Variable    Type    Len    Pos
+                                                -----------------------------------
+                                                1    DIGITAL     Num       8      0
+                                                2    MONTHS      Num       8      8

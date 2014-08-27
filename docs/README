@@ -1,0 +1,67 @@
+Hazard Documentation                                       -*- text -*-
+*****************
+
+This directory contains various documentation related to the Hazard in
+assorted formats.
+
+Install
+	Installation instructions for the Hazard system. 
+
+
+overview.???
+	`Overview of Procedures: Parametric Analysis of Time-Related Events'
+
+	Two SAS-interfaced procedures, PROC HAZARD and PROC HAZPRED, are
+	described.  These procedures constitute an analysis system for
+ 	generalized completely parametric censored-data analysis and display.  
+	They utilize the scheme of decomposition of the distribution of times
+	to an event (or of any positive variable) into up to 3 overlapping 
+	phases of hazard (competing risks), each phase scaled by a parametric
+ 	function of concomitant variables. The equations and general methods 
+	for using the procedures are given in this overview, while details of 
+	syntax are given in the subsequent two documents specifying the 
+	procedures
+    
+	overview.doc        --- Microsoft Word Document format.
+	overview.ps         --- Postscript Format
+	overview.pdf        --- Adobe PDF format
+	html/overview.html  --- HTML format. Suitable for viewing with a HTML
+				browser, such as Mozilla, Netscape or Internet
+				Explorer.
+
+
+hazard.???
+	`The HAZARD Procedure'
+
+	PROC HAZARD is a procedure for parametric analysis of time-related 
+	events.  However, you may use it to model arbitrary distributions of 
+	positive valued variables substituted for the TIME variable name.  A 
+	detailed description of the model has been given in the overview 
+	document, Parametric Analysis of Time-Related Events:  Procedures.
+    
+	hazard.doc        --- Microsoft Word Document format.
+	hazard.ps         --- Postscript Format
+	hazard.pdf        --- Adobe PDF format
+	html/hazard.html  --- HTML format. Suitable for viewing with a HTML
+				browser, such as Mozilla, Netscape or Internet
+				Explorer.
+
+hazpred.???
+	`The HAZPRED Procedure'
+
+	PROC HAZPRED is a procedure for calculation of time-related estimates 
+	(predictions) from a parametric equation previously established by 
+	PROC HAZARD.
+    
+	hazpred.doc        --- Microsoft Word Document format.
+	hazpred.ps         --- Postscript Format
+	hazpred.pdf        --- Adobe PDF format
+	html/hazpred.html  --- HTML format. Suitable for viewing with a HTML
+				browser, such as Mozilla, Netscape or Internet
+				Explorer.
+
+
+
+
+If you are unable to reproduce the documentation from one of these formats,
+please contact us and we will attempt to arrange for hardcopy.

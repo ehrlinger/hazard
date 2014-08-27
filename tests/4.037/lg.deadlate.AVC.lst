@@ -1,0 +1,1543 @@
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000   1
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+                                                                  
+                                                        Age at Repair (AGE)
+
+                              Obs      PROB       MEAN      N    SUM      MAX        MIN        LOGIT
+
+                               1     0.10000      7.207    50     5      14.818      1.051    -5.53280
+                               2     0.09804     28.644    51     5      50.597     15.245    -6.09519
+                               3     0.04000     76.315    50     2     100.733     53.586    -7.29240
+                               4     0.03922    157.759    51     2     213.524    101.226    -7.36645
+                               5     0.08000    426.619    50     4     790.981    217.499    -6.66758
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000   2
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                                        Age at Repair (AGE)
+
+                                              Plot of LOGIT*MEAN.  Symbol used is '*'.
+
+ LOGIT |
+       |
+  -5.4 +
+       |
+       |
+       |
+       |
+       |    *
+       |
+  -5.6 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -5.8 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -6.0 +
+       |
+       |
+       |         *
+       |
+       |
+       |
+  -6.2 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -6.4 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -6.6 +
+       |
+       |                                                                                                                 *
+       |
+       |
+       |
+       |
+  -6.8 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -7.0 +
+       |
+       |
+       |
+       |
+       |
+       |
+  -7.2 +
+       |
+       |
+       |                      *
+       |
+       |
+       |                                           *
+  -7.4 +
+       |
+       ---+------------+------------+------------+------------+------------+------------+------------+------------+------------+--
+          0           50           100          150          200          250          300          350          400          450
+
+                                                          Age (months) at repair
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000   3
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                                        Age at Repair (AGE)
+
+                                            Plot of LOGIT*LN_MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+ -5.4 +
+      |
+      |
+      |
+      |
+      |             *
+      |
+ -5.6 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -5.8 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -6.0 +
+      |
+      |
+      |                                               *
+      |
+      |
+      |
+ -6.2 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -6.4 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -6.6 +
+      |
+      |                                                                                                               *
+      |
+      |
+      |
+      |
+ -6.8 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -7.0 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -7.2 +
+      |
+      |
+      |                                                                      *
+      |
+      |
+      |                                                                                       *
+ -7.4 +
+      |
+      ---+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+--
+        1.5         2.0         2.5         3.0         3.5         4.0         4.5         5.0         5.5         6.0         6.5
+
+                                                                  LN_MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000   4
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                                        Age at Repair (AGE)
+
+                                            Plot of LOGIT*IN_MEAN.  Symbol used is '*'.
+
+       LOGIT |
+             |
+        -5.4 +
+             |
+             |
+             |
+             |
+             |                                                                                                          *
+             |
+        -5.6 +
+             |
+             |
+             |
+             |
+             |
+             |
+        -5.8 +
+             |
+             |
+             |
+             |
+             |
+             |
+        -6.0 +
+             |
+             |
+             |                            *
+             |
+             |
+             |
+        -6.2 +
+             |
+             |
+             |
+             |
+             |
+             |
+        -6.4 +
+             |
+             |
+             |
+             |
+             |
+             |
+        -6.6 +
+             |
+             |    *
+             |
+             |
+             |
+             |
+        -6.8 +
+             |
+             |
+             |
+             |
+             |
+             |
+        -7.0 +
+             |
+             |
+             |
+             |
+             |
+             |
+        -7.2 +
+             |
+             |
+             |            *
+             |
+             |
+             |       *
+        -7.4 +
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+              0.00           0.02           0.04           0.06           0.08           0.10           0.12           0.14
+
+                                                                 IN_MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000   5
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                                        Age at Repair (AGE)
+
+                                            Plot of LOGIT*IN2MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+ -5.4 +
+      |
+      |
+      |
+      |
+      |                                                                                                                      *
+      |
+ -5.6 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -5.8 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -6.0 +
+      |
+      |
+      |         *
+      |
+      |
+      |
+ -6.2 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -6.4 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -6.6 +
+      |
+      |  *
+      |
+      |
+      |
+      |
+ -6.8 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -7.0 +
+      |
+      |
+      |
+      |
+      |
+      |
+ -7.2 +
+      |
+      |
+      |   *
+      |
+      |
+      |  *
+ -7.4 +
+      |
+      ---+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+--
+       0.000       0.002       0.004       0.006       0.008       0.010       0.012       0.014       0.016       0.018       0.020
+
+                                                                  IN2MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000   6
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+                                                                  
+                                                      Clinical Status (STATUS)
+
+                              Obs    STATUS      PROB     MEAN     N     SUM    MAX    MIN      LOGIT
+
+                               1        1      0.03077      1      65     2      1      1     -7.53802
+                               2        2      0.03636      2     110     4      2      2     -7.30821
+                               3        3      0.13559      3      59     8      3      3     -5.71293
+                               4        4      0.22222      4      18     4      4      4     -4.98140
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000   7
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                                      Clinical Status (STATUS)
+
+                                              Plot of LOGIT*MEAN.  Symbol used is '*'.
+
+            LOGIT |
+             -4.8 +
+                  |
+                  |
+                  |
+                  |
+                  |                                                                                                  *
+             -5.0 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -5.2 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -5.4 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -5.6 +
+                  |
+                  |
+                  |                                                                  *
+                  |
+                  |
+             -5.8 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -6.0 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -6.2 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -6.4 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -6.6 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -6.8 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -7.0 +
+                  |
+                  |
+                  |
+                  |
+                  |
+             -7.2 +
+                  |
+                  |
+                  |                                  *
+                  |
+                  |
+             -7.4 +
+                  |
+                  |
+                  |
+                  |  *
+                  |
+             -7.6 +
+                  ---+-------------------------------+-------------------------------+-------------------------------+--
+                     1                               2                               3                               4
+
+                                                        Clinical status (NYHA I-V)
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000   8
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                                      Clinical Status (STATUS)
+
+                                            Plot of LOGIT*LN_MEAN.  Symbol used is '*'.
+
+       LOGIT |
+        -4.8 +
+             |
+             |
+             |
+             |
+             |                                                                                                          *
+        -5.0 +
+             |
+             |
+             |
+             |
+             |
+        -5.2 +
+             |
+             |
+             |
+             |
+             |
+        -5.4 +
+             |
+             |
+             |
+             |
+             |
+        -5.6 +
+             |
+             |
+             |                                                                                    *
+             |
+             |
+        -5.8 +
+             |
+             |
+             |
+             |
+             |
+        -6.0 +
+             |
+             |
+             |
+             |
+             |
+        -6.2 +
+             |
+             |
+             |
+             |
+             |
+        -6.4 +
+             |
+             |
+             |
+             |
+             |
+        -6.6 +
+             |
+             |
+             |
+             |
+             |
+        -6.8 +
+             |
+             |
+             |
+             |
+             |
+        -7.0 +
+             |
+             |
+             |
+             |
+             |
+        -7.2 +
+             |
+             |
+             |                                                      *
+             |
+             |
+        -7.4 +
+             |
+             |
+             |
+             |  *
+             |
+        -7.6 +
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+               0.0            0.2            0.4            0.6            0.8            1.0            1.2            1.4
+
+                                                                 LN_MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000   9
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                                      Clinical Status (STATUS)
+
+                                            Plot of LOGIT*IN_MEAN.  Symbol used is '*'.
+
+ LOGIT |
+  -4.8 +
+       |
+       |
+       |
+       |
+       |  *
+  -5.0 +
+       |
+       |
+       |
+       |
+       |
+  -5.2 +
+       |
+       |
+       |
+       |
+       |
+  -5.4 +
+       |
+       |
+       |
+       |
+       |
+  -5.6 +
+       |
+       |
+       |               *
+       |
+       |
+  -5.8 +
+       |
+       |
+       |
+       |
+       |
+  -6.0 +
+       |
+       |
+       |
+       |
+       |
+  -6.2 +
+       |
+       |
+       |
+       |
+       |
+  -6.4 +
+       |
+       |
+       |
+       |
+       |
+  -6.6 +
+       |
+       |
+       |
+       |
+       |
+  -6.8 +
+       |
+       |
+       |
+       |
+       |
+  -7.0 +
+       |
+       |
+       |
+       |
+       |
+  -7.2 +
+       |
+       |
+       |                                         *
+       |
+       |
+  -7.4 +
+       |
+       |
+       |
+       |                                                                                                                       *
+       |
+  -7.6 +
+       ---+------------+------------+------------+------------+------------+------------+------------+------------+------------+--
+       0.2500       0.3333       0.4167       0.5000       0.5833       0.6667       0.7500       0.8333       0.9167       1.0000
+
+                                                                 IN_MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  10
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                                      Clinical Status (STATUS)
+
+                                            Plot of LOGIT*IN2MEAN.  Symbol used is '*'.
+
+LOGIT |
+ -4.8 +
+      |
+      |
+      |
+      |
+      |          *
+ -5.0 +
+      |
+      |
+      |
+      |
+      |
+ -5.2 +
+      |
+      |
+      |
+      |
+      |
+ -5.4 +
+      |
+      |
+      |
+      |
+      |
+ -5.6 +
+      |
+      |
+      |               *
+      |
+      |
+ -5.8 +
+      |
+      |
+      |
+      |
+      |
+ -6.0 +
+      |
+      |
+      |
+      |
+      |
+ -6.2 +
+      |
+      |
+      |
+      |
+      |
+ -6.4 +
+      |
+      |
+      |
+      |
+      |
+ -6.6 +
+      |
+      |
+      |
+      |
+      |
+ -6.8 +
+      |
+      |
+      |
+      |
+      |
+ -7.0 +
+      |
+      |
+      |
+      |
+      |
+ -7.2 +
+      |
+      |
+      |                                *
+      |
+      |
+ -7.4 +
+      |
+      |
+      |
+      |                                                                                                                          *
+      |
+ -7.6 +
+      ---+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+--
+        0.0         0.1         0.2         0.3         0.4         0.5         0.6         0.7         0.8         0.9         1.0
+
+                                                                  IN2MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  11
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+                                                                  
+                                  Surgical Assessment of Grade of AV Valve Incompetence (INC_SURG)
+
+                                   Obs      PROB     MEAN     N    SUM    MAX    MIN      LOGIT
+
+                                    1     0.04167      0     24     1      0      0     -7.25764
+                                    2     0.02941      1     34     1      1      1     -7.79243
+                                    3     0.01389      2     72     1      2      2     -8.23718
+                                    4     0.09091      3     77     7      3      3     -6.15037
+                                    5     0.17647      4     34     6      4      4     -5.54355
+                                    6     0.25000      5      8     2      5      5     -4.78505
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  12
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                  Surgical Assessment of Grade of AV Valve Incompetence (INC_SURG)
+
+                                              Plot of LOGIT*MEAN.  Symbol used is '*'.
+
+          LOGIT |
+          -4.75 +
+                |                                                                                                      *
+                |
+                |
+                |
+                |
+          -5.00 +
+                |
+                |
+                |
+                |
+                |
+          -5.25 +
+                |
+                |
+                |
+                |
+                |
+          -5.50 +
+                |                                                                                  *
+                |
+                |
+                |
+                |
+          -5.75 +
+                |
+                |
+                |
+                |
+                |
+          -6.00 +
+                |
+                |
+                |
+                |                                                              *
+                |
+          -6.25 +
+                |
+                |
+                |
+                |
+                |
+          -6.50 +
+                |
+                |
+                |
+                |
+                |
+          -6.75 +
+                |
+                |
+                |
+                |
+                |
+          -7.00 +
+                |
+                |
+                |
+                |
+                |
+          -7.25 +  *
+                |
+                |
+                |
+                |
+                |
+          -7.50 +
+                |
+                |
+                |
+                |
+                |
+          -7.75 +
+                |                      *
+                |
+                |
+                |
+                |
+          -8.00 +
+                |
+                |
+                |
+                |
+                |
+          -8.25 +                                          *
+                ---+-------------------+-------------------+-------------------+-------------------+-------------------+--
+                   0                   1                   2                   3                   4                   5
+
+                                                  Surgical grade of AV valve incompetence
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  13
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                  Surgical Assessment of Grade of AV Valve Incompetence (INC_SURG)
+
+                                            Plot of LOGIT*LN_MEAN.  Symbol used is '*'.
+
+ LOGIT |
+ -4.75 +
+       |                                                                                                                      *
+       |
+       |
+       |
+       |
+ -5.00 +
+       |
+       |
+       |
+       |
+       |
+ -5.25 +
+       |
+       |
+       |
+       |
+       |
+ -5.50 +
+       |                                                                                                           *
+       |
+       |
+       |
+       |
+ -5.75 +
+       |
+       |
+       |
+       |
+       |
+ -6.00 +
+       |
+       |
+       |
+       |                                                                                            *
+       |
+ -6.25 +
+       |
+       |
+       |
+       |
+       |
+ -6.50 +
+       |
+       |
+       |
+       |
+       |
+ -6.75 +
+       |
+       |
+       |
+       |
+       |
+ -7.00 +
+       |
+       |
+       |
+       |
+       |
+ -7.25 +  *
+       |
+       |
+       |
+       |
+       |
+ -7.50 +
+       |
+       |
+       |
+       |
+       |
+ -7.75 +
+       |                                               *
+       |
+       |
+       |
+       |
+ -8.00 +
+       |
+       |
+       |
+       |
+       |
+ -8.25 +                                                                         *
+       ---+------------+------------+------------+------------+------------+------------+------------+------------+------------+--
+         0.0          0.2          0.4          0.6          0.8          1.0          1.2          1.4          1.6          1.8
+
+                                                                 LN_MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  14
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                  Surgical Assessment of Grade of AV Valve Incompetence (INC_SURG)
+
+                                            Plot of LOGIT*IN_MEAN.  Symbol used is '*'.
+
+ LOGIT |
+ -4.75 +
+       |           *
+       |
+       |
+       |
+       |
+ -5.00 +
+       |
+       |
+       |
+       |
+       |
+ -5.25 +
+       |
+       |
+       |
+       |
+       |
+ -5.50 +
+       |               *
+       |
+       |
+       |
+       |
+ -5.75 +
+       |
+       |
+       |
+       |
+       |
+ -6.00 +
+       |
+       |
+       |
+       |                      *
+       |
+ -6.25 +
+       |
+       |
+       |
+       |
+       |
+ -6.50 +
+       |
+       |
+       |
+       |
+       |
+ -6.75 +
+       |
+       |
+       |
+       |
+       |
+ -7.00 +
+       |
+       |
+       |
+       |
+       |
+ -7.25 +                                                                                                                       *
+       |
+       |
+       |
+       |
+       |
+ -7.50 +
+       |
+       |
+       |
+       |
+       |
+ -7.75 +
+       |                                                      *
+       |
+       |
+       |
+       |
+ -8.00 +
+       |
+       |
+       |
+       |
+       |
+ -8.25 +                                *
+       ---+------------+------------+------------+------------+------------+------------+------------+------------+------------+--
+         0.1          0.2          0.3          0.4          0.5          0.6          0.7          0.8          0.9          1.0
+
+                                                                 IN_MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  15
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                  Surgical Assessment of Grade of AV Valve Incompetence (INC_SURG)
+
+                                            Plot of LOGIT*IN2MEAN.  Symbol used is '*'.
+
+LOGIT |
+-4.75 +
+      |     *
+      |
+      |
+      |
+      |
+-5.00 +
+      |
+      |
+      |
+      |
+      |
+-5.25 +
+      |
+      |
+      |
+      |
+      |
+-5.50 +
+      |       *
+      |
+      |
+      |
+      |
+-5.75 +
+      |
+      |
+      |
+      |
+      |
+-6.00 +
+      |
+      |
+      |
+      |          *
+      |
+-6.25 +
+      |
+      |
+      |
+      |
+      |
+-6.50 +
+      |
+      |
+      |
+      |
+      |
+-6.75 +
+      |
+      |
+      |
+      |
+      |
+-7.00 +
+      |
+      |
+      |
+      |
+      |
+-7.25 +                                                                                                                          *
+      |
+      |
+      |
+      |
+      |
+-7.50 +
+      |
+      |
+      |
+      |
+      |
+-7.75 +
+      |                                *
+      |
+      |
+      |
+      |
+-8.00 +
+      |
+      |
+      |
+      |
+      |
+-8.25 +               *
+      ---+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+--
+        0.0         0.1         0.2         0.3         0.4         0.5         0.6         0.7         0.8         0.9         1.0
+
+                                                                  IN2MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  16
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+                                                                  
+                                             Date of Repair (Months Since 1/67) (OPMOS)
+
+                              Obs      PROB       MEAN      N    SUM      MAX        MIN        LOGIT
+
+                               1     0.07937     54.619    63     5      89.398      2.661    -7.19275
+                               2     0.04762    106.113    63     3     119.888     89.595    -7.07510
+                               3     0.04762    133.936    63     3     148.636    119.920    -6.49292
+                               4     0.11111    165.221    63     7     176.562    149.358    -4.37196
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  17
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                             Date of Repair (Months Since 1/67) (OPMOS)
+
+                                              Plot of LOGIT*MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+ -4.2 +
+      |
+      |
+      |
+      |                                                                                                                     *
+ -4.4 +
+      |
+      |
+      |
+      |
+ -4.6 +
+      |
+      |
+      |
+      |
+ -4.8 +
+      |
+      |
+      |
+      |
+ -5.0 +
+      |
+      |
+      |
+      |
+ -5.2 +
+      |
+      |
+      |
+      |
+ -5.4 +
+      |
+      |
+      |
+      |
+ -5.6 +
+      |
+      |
+      |
+      |
+ -5.8 +
+      |
+      |
+      |
+      |
+ -6.0 +
+      |
+      |
+      |
+      |
+ -6.2 +
+      |
+      |
+      |
+      |
+ -6.4 +
+      |
+      |                                                                                      *
+      |
+      |
+ -6.6 +
+      |
+      |
+      |
+      |
+ -6.8 +
+      |
+      |
+      |
+      |
+ -7.0 +
+      |
+      |                                                          *
+      |
+      |
+ -7.2 +       *
+      |
+      ---+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+--
+        50        60        70        80        90        100       110       120       130       140       150       160       170
+
+                                                   Date of operation (months since 1/67)
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  18
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                             Date of Repair (Months Since 1/67) (OPMOS)
+
+                                            Plot of LOGIT*LN_MEAN.  Symbol used is '*'.
+
+LOGIT |
+      |
+ -4.2 +
+      |
+      |
+      |
+      |                                                                                                                 *
+ -4.4 +
+      |
+      |
+      |
+      |
+ -4.6 +
+      |
+      |
+      |
+      |
+ -4.8 +
+      |
+      |
+      |
+      |
+ -5.0 +
+      |
+      |
+      |
+      |
+ -5.2 +
+      |
+      |
+      |
+      |
+ -5.4 +
+      |
+      |
+      |
+      |
+ -5.6 +
+      |
+      |
+      |
+      |
+ -5.8 +
+      |
+      |
+      |
+      |
+ -6.0 +
+      |
+      |
+      |
+      |
+ -6.2 +
+      |
+      |
+      |
+      |
+ -6.4 +
+      |
+      |                                                                                            *
+      |
+      |
+ -6.6 +
+      |
+      |
+      |
+      |
+ -6.8 +
+      |
+      |
+      |
+      |
+ -7.0 +
+      |
+      |                                                                    *
+      |
+      |
+ -7.2 +  *
+      |
+      ---+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+--
+        4.0       4.1       4.2       4.3       4.4       4.5       4.6       4.7       4.8       4.9       5.0       5.1       5.2
+
+                                                                  LN_MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  19
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                             Date of Repair (Months Since 1/67) (OPMOS)
+
+                                            Plot of LOGIT*IN_MEAN.  Symbol used is '*'.
+
+       LOGIT |
+             |
+        -4.2 +
+             |
+             |
+             |
+             |  *
+        -4.4 +
+             |
+             |
+             |
+             |
+        -4.6 +
+             |
+             |
+             |
+             |
+        -4.8 +
+             |
+             |
+             |
+             |
+        -5.0 +
+             |
+             |
+             |
+             |
+        -5.2 +
+             |
+             |
+             |
+             |
+        -5.4 +
+             |
+             |
+             |
+             |
+        -5.6 +
+             |
+             |
+             |
+             |
+        -5.8 +
+             |
+             |
+             |
+             |
+        -6.0 +
+             |
+             |
+             |
+             |
+        -6.2 +
+             |
+             |
+             |
+             |
+        -6.4 +
+             |
+             |             *
+             |
+             |
+        -6.6 +
+             |
+             |
+             |
+             |
+        -6.8 +
+             |
+             |
+             |
+             |
+        -7.0 +
+             |
+             |                            *
+             |
+             |
+        -7.2 +                                                                                              *
+             |
+             ---+--------------+--------------+--------------+--------------+--------------+--------------+--------------+--
+              0.006          0.008          0.010          0.012          0.014          0.016          0.018          0.020
+
+                                                                 IN_MEAN
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    13:43 Monday, September 18, 2000  20
+                                                          Example Data Set
+                                                 Death Beyond 30 Days After Repair
+
+                                             Date of Repair (Months Since 1/67) (OPMOS)
+
+                                            Plot of LOGIT*IN2MEAN.  Symbol used is '*'.
+
+ LOGIT |
+       |
+  -4.2 +
+       |
+       |
+       |
+       |      *
+  -4.4 +
+       |
+       |
+       |
+       |
+  -4.6 +
+       |
+       |
+       |
+       |
+  -4.8 +
+       |
+       |
+       |
+       |
+  -5.0 +
+       |
+       |
+       |
+       |
+  -5.2 +
+       |
+       |
+       |
+       |
+  -5.4 +
+       |
+       |
+       |
+       |
+  -5.6 +
+       |
+       |
+       |
+       |
+  -5.8 +
+       |
+       |
+       |
+       |
+  -6.0 +
+       |
+       |
+       |
+       |
+  -6.2 +
+       |
+       |
+       |
+       |
+  -6.4 +
+       |
+       |             *
+       |
+       |
+  -6.6 +
+       |
+       |
+       |
+       |
+  -6.8 +
+       |
+       |
+       |
+       |
+  -7.0 +
+       |
+       |                         *
+       |
+       |
+  -7.2 +                                                                                                                  *
+       |
+       ---+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--
+      0.000025  0.00005 0.000075  0.0001  0.000125  0.00015 0.000175  0.0002  0.000225  0.00025 0.000275  0.0003  0.000325  0.00035
+
+                                                                 IN2MEAN

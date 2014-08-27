@@ -1,0 +1,901 @@
+6022   *______________________________________________________________________________;
+
+6023   *                                                                              ;
+
+6024   * !HZEXAMPLES/hs.dthar.TGA.setup                                               ;
+
+6025   *                                                                              ;
+
+6026   * Arterial Switch Repairs                                                      ;
+
+6027   *                                                                              ;
+
+6028   * Multivariable analysis of risk factors for death after operation             ;
+
+6029   * Patient, Procedure, Support, and Experience risk factors                     ;
+
+6030   *                                                                              ;
+
+6031   * Predict survivorship curve for each experience in the data set.              ;
+
+6032   *                                                                              ;
+
+6033   * Create the dataset that will subsequently be used to form subgroups          ;
+
+6034   * from these curves.                                                           ;
+
+6035   *______________________________________________________________________________;
+
+6036   *                                                                              ;
+
+6037     OPTIONS PAGESIZE=100 LINESIZE=132;
+6038     TITLE1 "Arterial Switch Operations";
+6039     TITLE2 "Death After Operation";
+6040     TITLE3 "Multivariable Analysis of Risk Factors";
+6041     TITLE4 "Patient, Procedure, Support, and Experience Risk Factors";
+6042     TITLE5 "Output Predictions For Each Patient";
+6043   *******************************************************************************;
+
+6044   * Bring in data                                                                ;
+
+6045     FILENAME INTGA ('!HZEXAMPLES/data/tga');
+6046     DATA ARTSW; INFILE INTGA MISSOVER;
+6047     INPUT STUDY $ 1-10 SIMPLE 12 DEXTROIN 14 CA_1RL2C 16 HYAAPROC 18 NO_TCA 20
+
+6048         TCA_TIME 22-31 5 AGE_DAYS 33-42 5 ARCIOPYR 44-51 5 DEAD 53 INT_DEAD
+6049         55-64 5 SOURCE $ 66-75 CA1_2_L 77 OPYEAR 79-88 5;
+6050     LABEL
+6051           SIMPLE   = 'Simple TGA'
+6052           DEXTROIN = 'Dextrocardia'
+6053           HYAAPROC = 'Procedure for hypoplastic arch'
+6054           NO_TCA   = 'No TCA'
+6055           TCA_TIME = 'TCA time'
+6056           AGE_DAYS = 'Age at operation'
+6057           INT_DEAD = 'Followup Interval (months) After Repair'
+6058           DEAD     = 'Death'
+6059           OPYEAR   = 'Year of Operation'
+6060     ;
+6061   *______________________________________________________________________________;
+
+6062   *                                                                              ;
+
+6063   * Risk factor model:                                                           ;
+
+6064   *   Early: SIMPLE DEXTROIN CA_1RL2C CA1_2_L HYAAPROC NO_TCA LN_TCAT SIMIAGP1
+
+6065   *          ARCIOPYR
+6066   *______________________________________________________________________________;
+
+6067   *                                                                              ;
+
+6068   * Data transformations                                                         ;
+
+
+NOTE: The infile INTGA is:
+      File Name=c:\hazard\examples\data\tga,
+      RECFM=V,LRECL=256
+
+NOTE: 470 records were read from the infile INTGA.
+      The minimum record length was 88.
+      The maximum record length was 88.
+NOTE: The data set WORK.ARTSW has 470 observations and 14 variables.
+NOTE: DATA statement used:
+      real time           0.17 seconds
+      cpu time            0.17 seconds
+
+
+6069     DATA ARTSW; SET ARTSW;
+6070     LN_TCAT=.; IF TCA_TIME NE . THEN LN_TCAT=LOG(TCA_TIME+1);
+6071     IN_AGEP1=.; IF AGE_DAYS NE . THEN IN_AGEP1=1/((AGE_DAYS + 1)*12/365.2425);
+
+6072   *******************************************************************************;
+
+6073   * Standardize for missing values                                               ;
+
+
+NOTE: There were 470 observations read from the data set WORK.ARTSW.
+NOTE: The data set WORK.ARTSW has 470 observations and 16 variables.
+NOTE: DATA statement used:
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+
+
+6074     PROC STANDARD DATA=ARTSW OUT=ARTSW REPLACE; VAR TCA_TIME LN_TCAT;
+6075   *******************************************************************************;
+
+6076   * Interaction terms                                                            ;
+
+
+NOTE: There were 470 observations read from the data set WORK.ARTSW.
+NOTE: The data set WORK.ARTSW has 470 observations and 16 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.05 seconds
+      cpu time            0.05 seconds
+
+
+6077     DATA ARTSW; SET ARTSW;
+6078     SIMIAGP1=SIMPLE*IN_AGEP1;
+6079   *******************************************************************************;
+
+6080   * Generate expected vs observed deaths                                         ;
+
+6081     LIBNAME TGASW v6 ('!HZEXAMPLES/sasest');
+NOTE: Libref TGASW was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V6
+      Physical Name(1): c:\hazard\examples\sasest
+6082     %HAZPRED(
+6083     PROC HAZPRED DATA=ARTSW INHAZ=TGASW.HMDTHRI1 OUT=DESIGN NOHAZ;
+6084          TIME INT_DEAD;
+6085     );
+
+NOTE: There were 470 observations read from the data set WORK.ARTSW.
+NOTE: The data set WORK.ARTSW has 470 observations and 17 variables.
+NOTE: DATA statement used:
+      real time           0.08 seconds
+      cpu time            0.07 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X486
+ERROR: File TGASW.HMDTHRI1.DATA does not exist.
+WARNING: The data set HZRCALL.HZRCALL may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+ERROR: File TGASW.HMDTHRI1.DATA does not exist.
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: EXITING DUE TO infile ERROR
+ERROR: Unrecognized line from print file.
+RULE:     ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
+10        !16 3
+ll=3 bfr=16 code=! lleft=95 bfrlen=2 count=. i=. _ERROR_=1 _N_=10
+6086     DATA DESIGN; SET DESIGN;
+6087     CUM_HAZ=-LOG(_SURVIV);
+6088     PROB=1-_SURVIV;
+6089     KEEP STUDY SIMPLE DEXTROIN CA_1RL2C HYAAPROC NO_TCA TCA_TIME AGE_DAYS ARCIOPYR
+
+6090          DEAD INT_DEAD SOURCE CA1_2_L LN_TCAT IN_AGEP1 SIMIAGP1 CUM_HAZ PROB
+
+6091     ;
+6092     LIBNAME ARTSWT ('!HZEXAMPLES/data');
+NOTE: Libref ARTSWT was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V8
+      Physical Name(1): c:\hazard\examples\data
+
+NOTE: Variable _SURVIV is uninitialized.
+WARNING: The variable STUDY in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable SIMPLE in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable DEXTROIN in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable CA_1RL2C in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable HYAAPROC in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable NO_TCA in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable TCA_TIME in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable AGE_DAYS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable ARCIOPYR in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable DEAD in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable INT_DEAD in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable SOURCE in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable CA1_2_L in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable LN_TCAT in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable IN_AGEP1 in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable SIMIAGP1 in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      48 at 6087:12   24 at 6088:9
+NOTE: There were 24 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DESIGN has 24 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.14 seconds
+      cpu time            0.14 seconds
+
+
+6093     DATA ARTSWT.HSDTARXC; SET DESIGN;
+
+NOTE: There were 24 observations read from the data set WORK.DESIGN.
+NOTE: The data set ARTSWT.HSDTARXC has 24 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+6094     PROC CONTENTS DATA=ARTSWT.HSDTARXC;
+6095   *******************************************************************************;
+
+6096   * Calculate parametric estimates of survivorship for each experience              ;
+
+
+NOTE: PROCEDURE CONTENTS used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+
+
+6097     DATA DESIGN; SET DESIGN;
+6098     KEEP STUDY SOURCE SIMPLE DEXTROIN CA_1RL2C CA1_2_L HYAAPROC NO_TCA LN_TCAT
+
+6099          SIMIAGP1 ARCIOPYR;
+
+WARNING: The variable STUDY in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable SOURCE in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable SIMPLE in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable DEXTROIN in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable CA_1RL2C in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable CA1_2_L in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable HYAAPROC in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable NO_TCA in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable LN_TCAT in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable SIMIAGP1 in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable ARCIOPYR in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: There were 24 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DESIGN has 24 observations and 0 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+6100     DATA PREDICT; SET DESIGN; DIGITAL=0;
+6101     MAX0=96; LN_MAX0=LOG(MAX0); INC0=(5+LN_MAX0)/49.9; /* However many points */
+
+6102     DO LN_TIME=-5 TO LN_MAX0 BY INC0, LN_MAX0;
+6103       MONTHS=EXP(LN_TIME);
+6104       OUTPUT;
+6105     END;
+6106     DROP LN_TIME LN_MAX0 INC0 MAX0;
+
+NOTE: There were 24 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.PREDICT has 1224 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+6107     DATA DIGITAL; SET DESIGN; DIGITAL=1;
+6108     DO MONTHS=(12*30/365.2425), 3, 6, 12 TO 96 BY 12;
+6109       OUTPUT;
+6110     END;
+
+NOTE: There were 24 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DIGITAL has 264 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+6111     DATA PREDICT; SET PREDICT DIGITAL;
+6112     %HAZPRED(
+6113     PROC HAZPRED DATA=PREDICT INHAZ=TGASW.HMDTHRI1 OUT=PREDICT; TIME MONTHS;
+
+6114     );
+
+NOTE: There were 1224 observations read from the data set WORK.PREDICT.
+NOTE: There were 264 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.PREDICT has 1488 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1660.X494
+ERROR: File TGASW.HMDTHRI1.DATA does not exist.
+WARNING: The data set HZRCALL.HZRCALL may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+ERROR: File TGASW.HMDTHRI1.DATA does not exist.
+
+Note: Procedure HAZPRED (C-Version 4.1.0)
+      DEBUGGING VERSION
+      The Cleveland Clinic Foundation
+      9500 Euclid Avenue
+      Cleveland, Ohio 44195
+      Phone: (216) 444-6712
+      Email: hazard@bio.ri.ccf.org
+Note: EXITING DUE TO infile ERROR
+ERROR: Unrecognized line from print file.
+RULE:     ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
+10        !16 3
+ll=3 bfr=16 code=! lleft=95 bfrlen=2 count=. i=. _ERROR_=1 _N_=10
+6115     DATA ARTSWT.HSDTARXP; SET PREDICT;
+6116     KEEP STUDY SOURCE MONTHS _SURVIV _CLLSURV _CLUSURV DIGITAL;
+
+WARNING: The variable STUDY in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable SOURCE in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _SURVIV in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLLSURV in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLUSURV in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: There were 1488 observations read from the data set WORK.PREDICT.
+NOTE: The data set ARTSWT.HSDTARXP has 1488 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+6117     PROC CONTENTS DATA=ARTSWT.HSDTARXP;
+6118   *******************************************************************************;
+
+6119   RUN;
+
+NOTE: PROCEDURE CONTENTS used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+6120   *______________________________________________________________________________;
+
+6121   *                                                                              ;
+
+6122   * !HZEXAMPLES/hs.dthar.TGA.hs1                                                 ;
+
+6123   *                                                                              ;
+
+6124   * NOTE:  YOU MUST RUN hs.dthar.TGA.setup BEFORE RUNNING THIS JOB!!!            ;
+
+6125   *                                                                              ;
+
+6126   * Arterial Switch Operations                                                   ;
+
+6127   *                                                                              ;
+
+6128   * Multivariable analysis of risk factors for death after operation             ;
+
+6129   * Patient risk factors                                                         ;
+
+6130   *                                                                              ;
+
+6131   * Average survivorship curves for each experience in the data set, generated   ;
+
+6132   * from the multivariable equation for death.                                   ;
+
+6133   *                                                                              ;
+
+6134   * The estimates have been put to the plot disk by hs.dthar.TGA.setup           ;
+
+6135   *                                                                              ;
+
+6136   * Stratification by Era of Operation                                           ;
+
+6137   *______________________________________________________________________________;
+
+6138   *                                                                              ;
+
+6139     OPTIONS PAGESIZE=100 LINESIZE=132;
+6140     TITLE1 "Arterial Switch Operations";
+6141     TITLE2 "Death After Operation";
+6142     TITLE3 "Multivariable Analysis of Risk Factors";
+6143     TITLE4 "Patient Risk Factors Only";
+6144     TITLE5 "Application of Multivariable Analysis of Death to Create a
+6145    Risk-Adjusted Curve for Each Patient";
+6146     TITLE6 "Stratify By Era of Operation";
+6147   *******************************************************************************;
+
+6148   * Bring in data                                                                ;
+
+6149     FILENAME INTGA ('!HZEXAMPLES/data/tga');
+6150     DATA ARTSW; INFILE INTGA MISSOVER;
+6151     INPUT STUDY $ 1-10 SIMPLE 12 DEXTROIN 14 CA_1RL2C 16 HYAAPROC 18 NO_TCA 20
+
+6152         TCA_TIME 22-31 5 AGE_DAYS 33-42 5 ARCIOPYR 44-51 5 DEAD 53 INT_DEAD
+6153         55-64 5 SOURCE $ 66-75 CA1_2_L 77 OPYEAR 79-88 5;
+6154     LABEL
+6155           SIMPLE   = 'Simple TGA'
+6156           DEXTROIN = 'Dextrocardia'
+6157           HYAAPROC = 'Procedure for hypoplastic arch'
+6158           NO_TCA   = 'No TCA'
+6159           TCA_TIME = 'TCA time'
+6160           AGE_DAYS = 'Age at operation'
+6161           INT_DEAD = 'Followup Interval (months) After Repair'
+6162           DEAD     = 'Death'
+6163     ;
+6164   *******************************************************************************;
+
+6165   * Stratifying variable                                                         ;
+
+6166     ERA=.; IF OPYEAR<1986 THEN ERA=1;
+6167            IF OPYEAR>1985 AND OPYEAR<1989 THEN ERA=2;
+6168            IF OPYEAR>1988 THEN ERA=3;
+6169   *******************************************************************************;
+
+6170   * Form groupings                                                               ;
+
+6171     KEEP STUDY SOURCE ERA;
+
+NOTE: The infile INTGA is:
+      File Name=c:\hazard\examples\data\tga,
+      RECFM=V,LRECL=256
+
+NOTE: 470 records were read from the infile INTGA.
+      The minimum record length was 88.
+      The maximum record length was 88.
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+
+
+6172     PROC SORT; BY SOURCE STUDY;
+6173     LIBNAME ARTSWT ('!HZEXAMPLES/data');
+NOTE: Libref ARTSWT was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V8
+      Physical Name(1): c:\hazard\examples\data
+
+NOTE: There were 470 observations read from the data set WORK.ARTSW.
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+
+
+6174     DATA EST; SET ARTSWT.HSDTARXC;
+
+NOTE: There were 24 observations read from the data set ARTSWT.HSDTARXC.
+NOTE: The data set WORK.EST has 24 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+6175     PROC SORT; BY SOURCE STUDY;
+ERROR: Variable SOURCE not found.
+ERROR: Variable STUDY not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+6176     DATA ARTSW; MERGE ARTSW EST; BY SOURCE STUDY;
+
+ERROR: BY variable SOURCE is not on input data set WORK.EST.
+ERROR: BY variable STUDY is not on input data set WORK.EST.
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.ARTSW may be incomplete.  When this step was stopped there were 0 observations and 5 variables.
+WARNING: Data set WORK.ARTSW was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+6177     DATA ARTSW; SET ARTSW;
+6178     IF ERA=. THEN DELETE;
+
+NOTE: There were 470 observations read from the data set WORK.ARTSW.
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+6179     PROC SORT; BY ERA;
+
+NOTE: There were 470 observations read from the data set WORK.ARTSW.
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+6180     PROC MEANS N MEAN STD MIN MAX SUM; BY ERA;
+6181   *******************************************************************************;
+
+6182   * Observed v. expected deaths.                                                 ;
+
+
+ERROR: Statistics requested for printing, but no VAR statement has been specified. No printed output will be produced.
+ERROR: Neither the PRINT option nor a valid output statement has been given.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE MEANS used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+6183     PROC SUMMARY; BY ERA; VAR
+6184     SIMPLE DEXTROIN CA_1RL2C CA1_2_L HYAAPROC NO_TCA LN_TCAT SIMIAGP1 ARCIOPYR
+
+ERROR: Variable SIMPLE not found.
+ERROR: Variable DEXTROIN not found.
+ERROR: Variable CA_1RL2C not found.
+ERROR: Variable CA1_2_L not found.
+ERROR: Variable HYAAPROC not found.
+ERROR: Variable NO_TCA not found.
+ERROR: Variable LN_TCAT not found.
+ERROR: Variable SIMIAGP1 not found.
+6185     DEAD INT_DEAD PROB CUM_HAZ;
+ERROR: Variable ARCIOPYR not found.
+ERROR: Variable DEAD not found.
+ERROR: Variable INT_DEAD not found.
+ERROR: Variable PROB not found.
+ERROR: Variable CUM_HAZ not found.
+6186         OUTPUT OUT=OUTEXP MEAN= SUM(PROB CUM_HAZ DEAD)=PEXPECT EXPECTED
+ERROR: Variable PROB not found.
+ERROR: Variable CUM_HAZ not found.
+ERROR: Variable DEAD not found.
+6187           ACTUAL N(DEAD)=N;
+ERROR: Variable DEAD not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.OUTEXP may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set WORK.OUTEXP was not replaced because this step was stopped.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+
+
+
+6188     DATA OUTEXP; SET OUTEXP;
+6189     FILENAME CHISQGF ('!MACROS/chisqgf.sas');
+6190     OPTIONS NOSOURCE; %INC CHISQGF; OPTIONS SOURCE;
+6224   *______________________________________________________________________________;
+
+6225   *                                                                              ;
+
+6226   * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+
+6227   *                                                                              ;
+
+6228   *   N        = Denominator (sample size)         N                             ;
+
+6229   *   OBSERVED = Number of observed events         OBSERVED                      ;
+
+6230   *   EXPECTED = Number of expected events         EXPECTED                      ;
+
+6231   *   PROB_OBS = Proportion observed               PROB_OBS                      ;
+
+6232   *   PROB_EXP = Proportion expected               PROB_OBS                      ;
+
+6233   *   ZVALUE   = Z-value for difference            Z-VALUE                       ;
+
+6234   *   PVALUE   = P-value for difference            P-VALUE                       ;
+
+6235   *______________________________________________________________________________;
+
+6236   *                                                                              ;
+
+6237   * Statistics                                                                   ;
+
+6238     %CHISQGF(N=N, OBSERVED=ACTUAL, EXPECTED=EXPECTED);
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      2 at 7:158   2 at 7:184   2 at 7:203   2 at 7:251   2 at 1:1     2 at 1:1     2 at 9:6     2 at 9:13    2 at 9:17
+      1 at 9:79
+NOTE: There were 2 observations read from the data set WORK.OUTEXP.
+NOTE: The data set WORK.OUTEXP has 2 observations and 25 variables.
+NOTE: DATA statement used:
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+
+
+6239     PROC PRINT D DATA=OUTEXP; VAR
+6240          SIMPLE DEXTROIN CA_1RL2C CA1_2_L HYAAPROC NO_TCA LN_TCAT SIMIAGP1 ARCIOPYR
+
+ERROR: Variable SIMPLE not found.
+ERROR: Variable DEXTROIN not found.
+ERROR: Variable CA_1RL2C not found.
+ERROR: Variable CA1_2_L not found.
+ERROR: Variable HYAAPROC not found.
+ERROR: Variable NO_TCA not found.
+ERROR: Variable LN_TCAT not found.
+ERROR: Variable SIMIAGP1 not found.
+6241          PROB CUM_HAZ DEAD PEXPECT EXPECTED ACTUAL N PVALUE;
+ERROR: Variable ARCIOPYR not found.
+6242   *******************************************************************************;
+
+6243   * Stratified actuarial analysis                                                ;
+
+6244     FILENAME KAPLAN ('!MACROS/kaplan.sas');
+6245     OPTIONS NOSOURCE; %INC KAPLAN; OPTIONS SOURCE;
+6437   *______________________________________________________________________________;
+
+6438   *                                                                              ;
+
+6439   * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+
+6440   *                                                                              ;
+
+6441   *   INTERVAL = Time variable                     INTERVAL                      ;
+
+6442   *   EVENT    = Event (0/1) indicator             EVENT                         ;
+
+6443   *   STRATIFY = Stratification variable           'ALL'                         ;
+
+6444   *   CLEVEL   = Confidence coefficient            0.68268948 (1 sd)             ;
+
+6445   *   IN       = Input data set name                                             ;
+
+6446   *   OUT      = Output data set name              EVENT                         ;
+
+6447   *   HLABEL   = Label for time axis of plots      Years After Operation         ;
+
+6448   *   ELABEL   = Label for the event               Death                         ;
+
+6449   *   PEVENT   = Print only the events             1 (0 for censored also)       ;
+
+6450   *   OEVENT   = Output only the events            1 (0 for censored also)       ;
+
+6451   *   PLOTS    = Plot survival                     1 (0 to skip)                 ;
+
+6452   *   PLOTC    = Plot cumulative hazard            1 (0 to skip)                 ;
+
+6453   *   PLOTH    = Plot hazard                       0 (1 to plot)                 ;
+
+6454   *   PLOTL    = Plot integrated survivorship      0 (1 to plot)                 ;
+
+6455   *______________________________________________________________________________;
+
+6456   *                                                                              ;
+
+6457     %KAPLAN(IN=ARTSW, OUT=PLOUT, INTERVAL=INT_DEAD, EVENT=DEAD, PEVENT=0,
+6458             OEVENT=0, PLOTS=0, PLOTC=0, STRATIFY=ERA,
+6459             HLABEL=Months After Operation);
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.09 seconds
+      cpu time            0.09 seconds
+
+
+
+
+NOTE: Variable DEAD is uninitialized.
+NOTE: Variable INT_DEAD is uninitialized.
+NOTE: There were 470 observations read from the data set WORK.ARTSW.
+NOTE: The data set WORK._REFINE_ has 0 observations and 6 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+NOTE: There were 0 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 0 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: No observations in data set WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 0 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      57715:195
+NOTE: There were 0 observations read from the data set WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 0 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+WARNING: Apparent symbolic reference TEST not resolved.
+ERROR: A character operand was found in the %EVAL function or %IF condition where a numeric operand is required. The condition was:
+       &TEST>0
+ERROR: The macro KAPLAN will stop executing.
+6460   *******************************************************************************;
+
+6461   * Time-related nomograms                                                       ;
+
+6462     DATA ARTSW; SET ARTSW;
+6463     KEEP STUDY SOURCE ERA;
+
+NOTE: There were 470 observations read from the data set WORK.ARTSW.
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+6464     PROC SORT DATA=ARTSW; BY SOURCE STUDY;
+
+NOTE: There were 470 observations read from the data set WORK.ARTSW.
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+6465     DATA PREDICT; SET ARTSWT.HSDTARXP;
+
+NOTE: There were 1488 observations read from the data set ARTSWT.HSDTARXP.
+NOTE: The data set WORK.PREDICT has 1488 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+6466     PROC SORT DATA=PREDICT; BY SOURCE STUDY;
+ERROR: Variable SOURCE not found.
+ERROR: Variable STUDY not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+6467     DATA PREDICT; MERGE ARTSW PREDICT; BY SOURCE STUDY;
+6468     IF ERA=. THEN DELETE;
+6469   *******************************************************************************;
+
+6470   * Digital nomogram                                                             ;
+
+
+ERROR: BY variable SOURCE is not on input data set WORK.PREDICT.
+ERROR: BY variable STUDY is not on input data set WORK.PREDICT.
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.PREDICT may be incomplete.  When this step was stopped there were 0 observations and 5 variables.
+WARNING: Data set WORK.PREDICT was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+6471     DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: There were 1488 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.DIGITAL has 264 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+6472     PROC SORT DATA=DIGITAL; BY ERA;
+ERROR: Variable ERA not found.
+6473   * Mean curve                                                                   ;
+
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+6474     PROC SUMMARY DATA=DIGITAL NWAY; BY ERA;
+ERROR: Variable ERA not found.
+6475          CLASS MONTHS; VAR _SURVIV _CLLSURV _CLUSURV;
+ERROR: Variable _SURVIV not found.
+ERROR: Variable _CLLSURV not found.
+ERROR: Variable _CLUSURV not found.
+6476          OUTPUT OUT=MEANS MEAN=MSURVIV MCLLSURV MCLUSURV
+6477            N=NSURVIV NCLLSURV NCLUSURV;
+6478   * Print the results                                                            ;
+
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.MEANS may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set WORK.MEANS was not replaced because this step was stopped.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+
+6479     PROC SORT DATA=MEANS; BY ERA MONTHS;
+ERROR: Variable ERA not found.
+ERROR: Variable MONTHS not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+6480     PROC PRINT D; BY ERA; VAR MONTHS NSURVIV MSURVIV MCLLSURV MCLUSURV;
+ERROR: Variable ERA not found.
+6481   *******************************************************************************;
+
+6482   * Calculate parametric survivorship curves for each subgroup                   ;
+
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+
+
+
+6483     DATA PREDICT; SET PREDICT; IF DIGITAL=0;
+
+NOTE: There were 1488 observations read from the data set WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 1224 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+
+6484     PROC SORT DATA=PREDICT; BY ERA;
+ERROR: Variable ERA not found.
+6485   * Mean curve                                                                   ;
+
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+6486     PROC SUMMARY DATA=PREDICT NWAY; BY ERA;
+ERROR: Variable ERA not found.
+6487          CLASS MONTHS; VAR _SURVIV _CLLSURV _CLUSURV;
+ERROR: Variable _SURVIV not found.
+ERROR: Variable _CLLSURV not found.
+ERROR: Variable _CLUSURV not found.
+6488          OUTPUT OUT=MEANS MEAN=MSURVIV MCLLSURV MCLUSURV
+6489            N=NSURVIV NCLLSURV NCLUSURV;
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.MEANS may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set WORK.MEANS was not replaced because this step was stopped.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+
+6490     PROC DELETE DATA=PREDICT;
+6491   * Compare survivorships with stratified actuarial estimates                    ;
+
+
+NOTE: Deleting WORK.PREDICT (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+6492     DATA PLOT; SET MEANS PLOUT;
+6493     IF DEAD=1 THEN DO; PLTCHR='N'; PLTCL='-'; END;
+6494     IF DEAD=0 THEN DO; PLTCHR='.'; PLTCL=' '; END;
+
+NOTE: There were 0 observations read from the data set WORK.MEANS.
+NOTE: There were 282 observations read from the data set WORK.PLOUT.
+NOTE: The data set WORK.PLOT has 282 observations and 17 variables.
+NOTE: DATA statement used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+
+
+6495     PROC SORT; BY ERA;
+ERROR: Variable ERA not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+
+
+
+6496     PROC PLOT; BY ERA;
+ERROR: Variable ERA not found.
+6497          PLOT MSURVIV*MONTHS=ERA (MCLLSURV MCLUSURV)*MONTHS='.'
+ERROR: Variable MSURVIV not found.
+ERROR: Variable MONTHS not found.
+ERROR: Variable ERA not found.
+ERROR: Variable MCLLSURV not found.
+ERROR: Variable MCLUSURV not found.
+ERROR: Variable MONTHS not found.
+6498               CUM_SURV*INT_DEAD='N' (CL_LOWER CL_UPPER)*INT_DEAD='-'
+6499               /OVERLAY VAXIS=0 TO 1 BY 0.1;
+NOTE: The previous statement has been deleted.
+6500   *******************************************************************************;
+
+6501   RUN;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PLOT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+
+

@@ -1,0 +1,586 @@
+1                                        The SAS System           14:09 Friday, November 10, 2000
+
+NOTE: Copyright (c) 1999-2000 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Release 8.1 (TS1M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0008874001.
+NOTE: This session is executing on the WIN_PRO  platform.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.68 seconds
+      cpu time            0.35 seconds
+      
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * !HZEXAMPLES/hp.death.COMPARISON                                              ;
+4          *______________________________________________________________________________;
+5          *                                                                              ;
+6          * This is an example of comparison of different treatment strategies based     ;
+7          * on patient-specific estimates.                                               ;
+8          *                                                                              ;
+9          * Here we explore simple survival differences.                                 ;
+10         *                                                                              ;
+11         * In the macros directory, macros are included that also do hazard ratio       ;
+12         * comparisons and differences in lifetime between strategies.                  ;
+13         *______________________________________________________________________________;
+14         *                                                                              ;
+15         * Comparison of primary CABG (KUL) vs primary PTCA (MHI) vs VA medical for:
+16         * Left main disease and 1, 2, and 3 system disease
+17         *
+18         * Other factors: Age 65, male, no proximal LAD (GE 50%), distal RCA (70%),
+19         *                or posterolateral 95% disease, angina class 2 (severe, stable,
+20         *                chronic angina), 1 previous MI, no acute evolving infarct,
+21         *                hemodynamically stable, EF=55%, no LVH, no ischemic mitral
+22         *                incompetence, no peripheral vascular disease, no small
+23         *                coronaries, no hypertension, no diabetes, normal pulmonary
+24         *                function, smoker, triglycerides 175, HDL of 40
+25         *
+26         *   PTCA-specific: elective PTCA, 11 years after start of experience,
+27         *                PTCA of left main for left main disease, no dilation of
+28         *                chronic occlusion.
+29         *
+30         *   CABG-specific: not Surgeon #1, complete revascularization, no sequentials,
+31         *                IMA used, no endarterectomy,
+32         *
+33         *   Medical-specific: weight/height ratio = 0.43
+34         *______________________________________________________________________________;
+35         *                                                                              ;
+36           OPTIONS PAGESIZE=100 LINESIZE=132;
+37           TITLE1 "Percutaneous Transluminal Coronary Angioplasty";
+38           TITLE2 "MHI; June 1980 - July 1991";
+39           TITLE3 "Primary PTCA Without Previous CABG";
+40           TITLE4 "Multivariable Analysis of Death";
+41           TITLE5 "Patient, Procedure and Experience Risk Factors";
+42           TITLE6 "Comparison of CABG (KUL) and PTCA";
+43           TITLE7 "Left Main Stenosis, 1, 2, and 3 system disease";
+44         *______________________________________________________________________________;
+45         *                                                                              ;
+46         *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+47         *                        P T C A   (M H I)                                     ;
+48         *                                                                              ;
+49         * Early Hazard Phase:                                                          ;
+50         *   FEMALE IN_AGE LN_CREAT ANGMMS2 AMI_TM URGENT EFC2 DVES _PLAD50 _RPLAT95    ;
+51         *   _MRCA50 RCA_DIST OCCLNDIL IMP_BLUE PTCA_LM LN_YRS                          ;
+52         * Constant Hazard Phase:                                                       ;
+53         *   AGE2 IN_AGE LN_CREAT IN_CREAT HISTSMOK DIABETRX CAC0NRMI ANGREST EFC2 DVES ;
+54         *   PTCA_LM PTOTDLAD                                                           ;
+55         * Late Hazard Phase:                                                           ;
+56         *   FEMALE IN_AGE HYPERTEN DIABETRX LN_CREAT AMI_SEND _PLADOC                  ;
+57         *______________________________________________________________________________;
+58         *                                                                              ;
+59         *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+60         *                        C A B G   (K U L)                                     ;
+61         *                                                                              ;
+62         * Early Hazard Phase:                                                          ;
+63         *   AGE LMAIN_90 EF LVH ANGCLS HEMO2CLS VASCPATH MM1_DIST DIABETES             ;
+64         *   EXP1SECP OPYRS SURGEON1 ENDART_N SEQUENTL                                  ;
+65         * Constant Hazard Phase:                                                       ;
+66         *   EF VASCPATH MITRAL_I UNST_ANG ANG_NO HDL INCOMPL                           ;
+67         * Late Hazard Phase:                                                           ;
+68         *   AGE EF VASCPATH MM1_DIST DIABETES EXP1SECP VESSDIS LTRIGL IMA_NO           ;
+69         *   LN_AGE                                                                     ;
+70         *______________________________________________________________________________;
+71         *                                                                              ;
+72         *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+73         *       I N I T I A L   M E D I C A L   T H E R A P Y   (V A S T U D Y)        ;
+74         *                                                                              ;
+75         * Early Hazard Phase:                                                          ;
+76         *   NYHAB LVNLM_50 LV_LM_50                                                    ;
+77         * Constant Hazard Phase:                                                       ;
+78         *   IN_WTHT LM_50 LV_NVD_E NUMPRVMI ANG_SV HISTHYP                             ;
+79         * Late Hazard Phase:                                                           ;
+80         *   WT_HT                                                                      ;
+81         *______________________________________________________________________________;
+82         *                                                                              ;
+83         * Set values for standard model incremental risk factors variables.            ;
+84           DATA DESIGN;
+85         * Demographic                                                                  ;
+86           FEMALE=0;      /* Sex                                               */
+87           AGE=65;        /* Age (years) at time zero                          */
+2                                                          The SAS System                            14:09 Friday, November 10, 2000
+
+88           WT_HT=0.43;    /* Weight-height ratio (kg/cm)                       */
+89         * Coronary disease                                                             ;
+90           IMP_BLUE=0     /* Dummy imputation variable--set to zero            */
+91         * VESSDIS=2;     /* Number of systems diseased (1-3): 50% criterion   */
+92         * LMCA=0;        /* Percent stenosis of left main coronary artery     */
+93           _PLAD50=0;     /* Proximal LAD disease (50% criterion)              */
+94           _PLADOC=0;     /* Occludid proximal LAD                             */
+95           _MRCA50=0;     /* Mid-RCA disease (50% criterion)                   */
+96           RCA_DIST=0;    /* % Distal RCA disease                              */
+97           _RPLAT95=0;    /* Right posterolateral disease (95% criterion)      */
+98         * Angina                                                                       ;
+99           ANGCLS=2;      /* Angina grade according to KUL                     */
+100                         /*   0 = No anginal symptoms (11% KUL)               */
+101                         /*   1 = Minimal anginal symptoms (9% KUL)           */
+102                         /*       (probably grade I-II of CCS)                */
+103                         /*   2 = Moderate angina (at normal activities),     */
+104                         /*       the usual "chronic stable angina" (41% LUL) */
+105                         /*       (probably grade III of CCS)                 */
+106                         /*   3 = Severe anginal symptoms at night/rest       */
+107                         /*       (21% KUL; probably grade IV of CCS)         */
+108                         /*   4 = Unstable angina or acute myocardial infarct */
+109                         /*       (18% KUL)                                   */
+110          UNST_MED=0;    /* On medications for unstable angina at operation   */
+111        * Myocardial infarction                                                        ;
+112          NUMPRVMI=1;    /* Number of previous myocardial infarcts            */
+113          ACUTE_MI=0;    /* Acute myocardial infarction (0,1) (within 24 hrs  */
+114                         /*       of revascularizaton in the KUL experience)  */
+115          AMI_TM=0;      /* Acute evolving transmural myocardial infarction   */
+116          HEMO_UNS=0;    /* Hemodynamically unstable (this includes acute     */
+117                         /*       cardiac failure with unstable angina, the   */
+118                         /*       acute (hours) phase of myocardial infarct   */
+119                         /*       and cardiogenic shock)                      */
+120          SHOCK=0;       /* Cardiogenic shock                                 */
+121          URGENT=0;      /* Urgent PTCA                                       */
+122        * LV function                                                                  ;
+123          EF=0.55;       /* Ejection fraction (0 to 1)                        */
+124          LVH=0;         /* LV Hypertrophy (0,1)                              */
+125          MITRAL_I=0;    /* Important, but untreated, ischemic mitral incomp. */
+126        * Aggressiveness of atherosclerotic process                                    ;
+127          VASCPATH=0;    /* Peripheral vascular disease (0,1)                 */
+128          MM1_DIST=0;    /* Normalized # of distals 1 mm or less in diameter  */
+129        * Coexisting conditions                                                        ;
+130          HYPERTEN=0;    /* History of hypertension                           */
+131          DIABETES=0;    /* Diabetic patient (in KUL this is insulin treated) */
+132          DIABETRX=0;    /* Diabetic patient (insulin or  is insulin treated) */
+133          EXP1SECP=100;  /* One second expired volume (% of normal)           */
+134          CREAT=1.1;     /* Serum creatinine                                  */
+135          HISTSMOK=1;    /* History of smoking                                */
+136        * Hyperlipidemia                                                               ;
+137          TRIGLYC=175;   /* Triglyceride level                                */
+138          HDL=40;        /* High density lipoprotein level                    */
+139        * Procedural factors: CABG                                                     ;
+140          INCOMPL=0;     /* Incomplete revascularization (0,1)                */
+141          ENDART_N=0;    /* Number of endarterectomized vessels               */
+142          SEQUENTL=1;    /* Ratio of distals to conduits                      */
+143          IMA=1;         /* Use of IMA                                        */
+144        * Procedural factors: PTCA                                                     ;
+145        * PTCA_LM=1;     /* PTCA of left main stenosis                        */
+146          PTOTDLAD=0;    /* PTCA of occluded distal LAD                       */
+147          OCCLNDIL=0;    /* Chronic occlusion not dilated                     */
+148        * Experience factors                                                           ;
+149          PTCAYRS=11;    /* Date of operation (years from 6/1/80)             */
+150          SURGEON1=0;    /* High-risk surgeon                                 */
+151        * MONTHS=6;      /* Time of observation (months)                      */
+152        *******************************************************************************;
+153        * Generate isobars for various variables                                       ;
+154          PPLOT=1; VESSDIS=2; LMCA=90; PTCA_LM=1; OUTPUT;
+155          PPLOT=2; VESSDIS=1; LMCA=0; PTCA_LM=0; OUTPUT;
+156          PPLOT=3; VESSDIS=2; LMCA=0; PTCA_LM=0; OUTPUT;
+157          PPLOT=4; VESSDIS=3; LMCA=0; PTCA_LM=0; OUTPUT;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      1 at 91:1   
+NOTE: The data set WORK.DESIGN has 4 observations and 42 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+158          DATA DESIGN; SET DESIGN;
+159        *******************************************************************************;
+160        * Transformations of variables into those needed for the various               ;
+161        * predictions:                                                                 ;
+162          LN_AGE=LOG(AGE);
+163          IN_AGE=50/AGE;
+164          AGE2=(AGE/50)**2;
+165          IN_WTHT=1/WT_HT;
+166        
+167          IMP_LVC=0; IF EF LE 0.5 THEN IMP_LVC=1;
+168        
+169          LMAIN_90=(LMCA GE 90);
+170          LM_50=(LMCA GE 50);
+171          DVES=VESSDIS;
+172          NVD_50=VESSDIS;
+173          NVD_EXP=EXP(NVD_50);
+174          IF LM_50 THEN DO;
+175            NVD_50=0;
+3                                                          The SAS System                            14:09 Friday, November 10, 2000
+
+176            NVD_EXP=0;
+177          END;
+178          LV_NVD_E=IMP_LVC*NVD_EXP;
+179          LV_LM_50=IMP_LVC*LM_50;
+180          LVNLM_50=(1-IMP_LVC)*LM_50;
+181        
+182          ACUTEMI=ACUTE_MI;
+183          AMI_SEND=0; IF ACUTEMI=1 AND AMI_TM=0 THEN AMI_SEND=1;
+184        
+185          HEMO2CLS=HEMO_UNS; IF ACUTE_MI OR UNST_MED THEN HEMO2CLS=1;
+186            IF SHOCK THEN HEMO2CLS=4;
+187          IF ANGCLS=0 THEN ANG_NO=1; ELSE ANG_NO=0;
+188          IF ANGCLS=3 THEN DO; NITE_ANG=1; ANGREST=1; END;
+189            ELSE DO; NITE_ANG=0; ANGREST=0; END;
+190          IF ACUTE_MI=0 AND ANGCLS=4 THEN UNST_ANG=1; ELSE UNST_ANG=0;
+191          ANGMMS=ANGCLS; IF ACUTEMI=1 THEN ANGMMS=0;
+192          NYHAB=ANGCLS; IF ANGCLS>1 THEN NYHAB=ANGCLS+1;
+193          ANG_SV=ANGCLS > 2;
+194          CAC0NRMI=0; IF ANGCLS=0 AND ACUTEMI=0 AND NUMPRVMI=0 THEN CAC0NRMI=1;
+195        
+196          LTRIGL=LOG(TRIGLYC);
+197          LN_CREAT=LOG(CREAT);
+198          IN_CREAT=1/CREAT;
+199          ANGMMS2=ANGMMS*ANGMMS;
+200          OPYRS=PTCAYRS + 9.4156622;
+201          LN_YRS=LOG(PTCAYRS);
+202          EFC=(1-EF)/1; EFC2=EFC*EFC;
+203        
+204          HISTHYP=HYPERTEN;
+205        
+206          IMA_NO=(IMA=0);
+
+NOTE: There were 4 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DESIGN has 4 observations and 76 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+207          PROC PRINT DATA=DESIGN;
+208        *______________________________________________________________________________;
+209        * Generate horizontal axis                                                     ;
+
+NOTE: There were 4 observations read from the data set WORK.DESIGN.
+NOTE: The PROCEDURE PRINT printed page 1.
+NOTE: PROCEDURE PRINT used:
+      real time           0.16 seconds
+      cpu time            0.03 seconds
+      
+
+210          DATA PREDICT; SET DESIGN; DIGITAL=0;
+211          MAX=LOG(120); MIN=-5; INC=(MAX-MIN)/999.9;
+212                               *INC=(MAX-MIN)/9.9;
+213          DO LN_TIME=MIN TO MAX BY INC, MAX;
+214            MONTHS=EXP(LN_TIME);
+215            YEARS=MONTHS/12;
+216            OUTPUT;
+217          END;
+218          DROP LN_TIME MIN MAX INC;
+219        * and for digital nomogram                                                     ;
+
+NOTE: There were 4 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.PREDICT has 4004 observations and 79 variables.
+NOTE: DATA statement used:
+      real time           0.07 seconds
+      cpu time            0.07 seconds
+      
+
+220          DATA DIGITAL; SET DESIGN; DIGITAL=1;
+221          DO MONTHS=30*12/365.2425, 12, 60, 120, 180, 240;
+222            YEARS=MONTHS/12;
+223            OUTPUT;
+224          END;
+225        * then put them together                                                       ;
+
+NOTE: There were 4 observations read from the data set WORK.DESIGN.
+NOTE: The data set WORK.DIGITAL has 24 observations and 79 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+226          DATA PREDICT; SET PREDICT DIGITAL;
+227        *______________________________________________________________________________;
+228        *                                                                              ;
+229        *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+230        *                        P T C A   (M H I)                                     ;
+231        *                                                                              ;
+232        *                      P R E D I C T I O N S                                   ;
+233        *______________________________________________________________________________;
+234        *                                                                              ;
+235          LIBNAME PTCAMHI v6 ('!HZEXAMPLES/sasest');
+NOTE: Libref PTCAMHI was successfully assigned as follows: 
+      Levels:           1
+      Engine(1):        V6 
+      Physical Name(1): c:\hazard\examples\sasest
+236          %HAZPRED(
+237          PROC HAZPRED DATA=PREDICT INHAZ=PTCAMHI.HMPDTHE3 OUT=PREDICT;
+4                                                          The SAS System                            14:09 Friday, November 10, 2000
+
+238               TIME MONTHS;
+239          );
+
+NOTE: There were 4004 observations read from the data set WORK.PREDICT.
+NOTE: There were 24 observations read from the data set WORK.DIGITAL.
+NOTE: The data set WORK.PREDICT has 4028 observations and 79 variables.
+NOTE: DATA statement used:
+      real time           0.45 seconds
+      cpu time            0.16 seconds
+      
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1880.X7
+ERROR: File PTCAMHI.HMPDTHE3.DATA does not exist.ERROR: File PTCAMHI.HMPDTHE3.DATA does not exist.ERROR: File PTCAMHI.HMPDTHE3.DATA does not exist.
+WARNING: The data set HZRCALL.HZRCALL may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+ERROR: File PTCAMHI.HMPDTHE3.DATA does not exist.ERROR: File PTCAMHI.HMPDTHE3.DATA does not exist.ERROR: File PTCAMHI.HMPDTHE3.DATA does not exist.
+240          TITLE6 'PTCA Equation';
+241        * Rename variables for the comparison                                          ;
+242          DATA PREDICT; SET PREDICT;
+243          _SURVIVP=_SURVIV; CLLPSURV=_CLLSURV; CLUPSURV=_CLUSURV;
+244          DROP _SURVIV _CLLSURV _CLUSURV _EARLYS _CONSTS _LATES _HAZARD _CLLHAZ
+245               _CLUHAZ _EARLYH _CONSTH _LATEH;
+246        *______________________________________________________________________________;
+247        *                                                                              ;
+248        *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+249        *                        C A B G   (K U L)                                     ;
+250        *                                                                              ;
+251        *                      P R E D I C T I O N S                                   ;
+252        *______________________________________________________________________________;
+253        *                                                                              ;
+254          LIBNAME CABGKUL v6 ('!HZEXAMPLES/sasest');
+NOTE: Libref CABGKUL was successfully assigned as follows: 
+      Levels:           1
+      Engine(1):        V6 
+      Physical Name(1): c:\hazard\examples\sasest
+255          %HAZPRED(
+256          PROC HAZPRED DATA=PREDICT INHAZ=CABGKUL.HMDEADP OUT=PREDICT;
+257               TIME MONTHS;
+258          );
+
+WARNING: The variable _EARLYS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATES in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _HAZARD in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLLHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLUHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _EARLYH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATEH in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: The data set WORK.PREDICT has 0 observations and 82 variables.
+WARNING: Data set WORK.PREDICT was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1880.X15
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+ERROR: File CABGKUL.HMDEADP.DATA does not exist.ERROR: File CABGKUL.HMDEADP.DATA does not exist.ERROR: File CABGKUL.HMDEADP.DATA does not exist.
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+ERROR: File CABGKUL.HMDEADP.DATA does not exist.ERROR: File CABGKUL.HMDEADP.DATA does not exist.ERROR: File CABGKUL.HMDEADP.DATA does not exist.
+259          TITLE6 'KUL Equation';
+260        * Rename variables for comparison                                              ;
+261          DATA PREDICT; SET PREDICT;
+262          _SURVIVC=_SURVIV; CLLCSURV=_CLLSURV; CLUCSURV=_CLUSURV;
+263          DROP _SURVIV _CLLSURV _CLUSURV _EARLYS _CONSTS _LATES _HAZARD _CLLHAZ
+264               _CLUHAZ _EARLYH _CONSTH _LATEH;
+265        *______________________________________________________________________________;
+266        *                                                                              ;
+267        *    M U L T I V A R I A B L E   M O D E L   F O R   D E A T H   A F T E R     ;
+268        *       I N I T I A L   M E D I C A L   T H E R A P Y   (V A S T U D Y)        ;
+269        *                                                                              ;
+270        *                      P R E D I C T I O N S                                   ;
+271        *______________________________________________________________________________;
+272        *                                                                              ;
+273          LIBNAME VAMEDCBG v6 ('!HZEXAMPLES/sasest/ihd');
+ERROR: No libraries specified in the concatenated library VAMEDCBG exist.ERROR: No libraries specified in the concatenated library VAMEDCBG exist.ERROR: No libraries specified in the concatenated library VAMEDCBG exist.
+ERROR: Error in the LIBNAME statement.ERROR: Error in the LIBNAME statement.ERROR: Error in the LIBNAME statement.
+274          %HAZPRED(
+275          PROC HAZPRED DATA=PREDICT INHAZ=VAMEDCBG.HMDEATH OUT=PREDICT;
+276               TIME MONTHS;
+277          );
+
+WARNING: The variable _EARLYS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATES in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _HAZARD in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLLHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLUHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _EARLYH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATEH in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: The data set WORK.PREDICT has 0 observations and 82 variables.
+WARNING: Data set WORK.PREDICT was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+5                                                          The SAS System                            14:09 Friday, November 10, 2000
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1880.X23
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+ERROR: Libname VAMEDCBG is not assigned.ERROR: Libname VAMEDCBG is not assigned.ERROR: Libname VAMEDCBG is not assigned.
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+ERROR: Libname VAMEDCBG is not assigned.ERROR: Libname VAMEDCBG is not assigned.ERROR: Libname VAMEDCBG is not assigned.
+278          TITLE6 'VA Medical Equation';
+279        * Rename variables for comparison                                              ;
+280          DATA PREDICT; SET PREDICT;
+281          _SURVIVM=_SURVIV; CLLMSURV=_CLLSURV; CLUMSURV=_CLUSURV;
+282          DROP _SURVIV _CLLSURV _CLUSURV _EARLYS _CONSTS _LATES _HAZARD _CLLHAZ
+283               _CLUHAZ _EARLYH _CONSTH _LATEH;
+284        *______________________________________________________________________________;
+285        *                                                                              ;
+286        * Generate survivorship differences                                            ;
+287        * Bring in analysis macro:                                                     ;
+288          FILENAME SURDIFP ('!MACROS/surdifp.sas');
+289          OPTIONS NOSOURCE; %INC SURDIFP; OPTIONS SOURCE;
+WARNING: Physical file does not exist, c:\hazard\macros\surdifp.sas.
+ERROR: Cannot open %INCLUDE file SURDIFP.ERROR: Cannot open %INCLUDE file SURDIFP.ERROR: Cannot open %INCLUDE file SURDIFP.
+290        * PTCA vs. CABG                                                                ;
+291          %SURDIFP(IN=PREDICT, PVALUES=1, CUMSURVS=_SURVIVC, CUMSURVM=_SURVIVP,             _             _             _
+             180             180             180
+WARNING: Apparent invocation of macro SURDIFP not resolved.
+ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+292                   CLLSSURV=CLLCSURV, CLUSSURV=CLUCSURV, CLLMSURV=CLLPSURV,
+293                   CLUMSURV=CLUPSURV, CUMSURVD=CUMSURPC, CLLDSURV=CLLDSUPC,
+294                   CLUDSURV=CLUDSUPC, CUMSURVP=CUMSVPPC);
+295        * CABG vs. VA Medical                                                          ;
+296          %SURDIFP(IN=PREDICT, PVALUES=1, CUMSURVS=_SURVIVC, CUMSURVM=_SURVIVM,             _             _             _
+             180             180             180
+WARNING: Apparent invocation of macro SURDIFP not resolved.
+ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+297                   CLLSSURV=CLLCSURV, CLUSSURV=CLUCSURV, CLLMSURV=CLLMSURV,
+298                   CLUMSURV=CLUMSURV, CUMSURVD=CUMSURCM, CLLDSURV=CLLDSUCM,
+299                   CLUDSURV=CLUDSUCM, CUMSURVP=CUMSVPCM);
+300        * PTCA vs. VA Medical                                                          ;
+301          %SURDIFP(IN=PREDICT, PVALUES=1, CUMSURVS=_SURVIVP, CUMSURVM=_SURVIVM,             _             _             _
+             180             180             180
+WARNING: Apparent invocation of macro SURDIFP not resolved.
+ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+302                   CLLSSURV=CLLPSURV, CLUSSURV=CLUPSURV, CLLMSURV=CLLMSURV,
+303                   CLUMSURV=CLUMSURV, CUMSURVD=CUMSURPM, CLLDSURV=CLLDSUPM,
+304                   CLUDSURV=CLUDSUPM, CUMSURVP=CUMSVPPM);
+305        *******************************************************************************;
+306        * Printer plot                                                                 ;
+307        * Survivorship Functions                                                       ;
+
+WARNING: The variable _EARLYS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTS in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATES in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _HAZARD in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLLHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CLUHAZ in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _EARLYH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _CONSTH in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable _LATEH in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.PREDICT may be incomplete.  When this step was stopped there were 0 observations and 82 variables.
+WARNING: Data set WORK.PREDICT was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+308          PROC SORT DATA=PREDICT; BY PPLOT;
+
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+309          PROC PLOT DATA=PREDICT; BY PPLOT;
+310               PLOT _SURVIVP*YEARS='P' CLLPSURV*YEARS='.' CLUPSURV*YEARS='.'
+ERROR: Variable _SURVIVP not found.ERROR: Variable _SURVIVP not found.ERROR: Variable _SURVIVP not found.
+ERROR: Variable CLLPSURV not found.ERROR: Variable CLLPSURV not found.ERROR: Variable CLLPSURV not found.
+ERROR: Variable CLUPSURV not found.ERROR: Variable CLUPSURV not found.ERROR: Variable CLUPSURV not found.
+311                    _SURVIVC*YEARS='C' CLLCSURV*YEARS='-' CLUCSURV*YEARS='-'
+ERROR: Variable _SURVIVC not found.ERROR: Variable _SURVIVC not found.ERROR: Variable _SURVIVC not found.
+ERROR: Variable CLLCSURV not found.ERROR: Variable CLLCSURV not found.ERROR: Variable CLLCSURV not found.
+ERROR: Variable CLUCSURV not found.ERROR: Variable CLUCSURV not found.ERROR: Variable CLUCSURV not found.
+312                    _SURVIVM*YEARS='M' CLLMSURV*YEARS='+' CLUMSURV*YEARS='+'
+ERROR: Variable _SURVIVM not found.ERROR: Variable _SURVIVM not found.ERROR: Variable _SURVIVM not found.
+ERROR: Variable CLLMSURV not found.ERROR: Variable CLLMSURV not found.ERROR: Variable CLLMSURV not found.
+ERROR: Variable CLUMSURV not found.ERROR: Variable CLUMSURV not found.ERROR: Variable CLUMSURV not found.
+313                    /OVERLAY VAXIS=0 TO 1 BY 0.1;
+314        * Comparative Benefit:  Survivorship Difference                                ;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PLOT used:
+      real time           0.22 seconds
+      cpu time            0.02 seconds
+      
+
+
+6                                                          The SAS System                            14:09 Friday, November 10, 2000
+
+315          PROC PLOT DATA=PREDICT; BY PPLOT;
+316               PLOT CUMSURPC*YEARS='C' CLLDSUPC*YEARS='.' CLUDSUPC*YEARS='.'
+ERROR: Variable CUMSURPC not found.ERROR: Variable CUMSURPC not found.ERROR: Variable CUMSURPC not found.
+ERROR: Variable CLLDSUPC not found.ERROR: Variable CLLDSUPC not found.ERROR: Variable CLLDSUPC not found.
+ERROR: Variable CLUDSUPC not found.ERROR: Variable CLUDSUPC not found.ERROR: Variable CLUDSUPC not found.
+317                    /OVERLAY VAXIS=-0.5 to 0.5 by 0.1;
+318               PLOT CUMSURCM*YEARS='M' CLLDSUCM*YEARS='.' CLUDSUCM*YEARS='.'
+ERROR: Variable CUMSURCM not found.ERROR: Variable CUMSURCM not found.ERROR: Variable CUMSURCM not found.
+ERROR: Variable CLLDSUCM not found.ERROR: Variable CLLDSUCM not found.ERROR: Variable CLLDSUCM not found.
+ERROR: Variable CLUDSUCM not found.ERROR: Variable CLUDSUCM not found.ERROR: Variable CLUDSUCM not found.
+319                    /OVERLAY VAXIS=-0.5 to 0.5 by 0.1;
+320               PLOT CUMSURPM*YEARS='P' CLLDSUPM*YEARS='.' CLUDSUPM*YEARS='.'
+ERROR: Variable CUMSURPM not found.ERROR: Variable CUMSURPM not found.ERROR: Variable CUMSURPM not found.
+ERROR: Variable CLLDSUPM not found.ERROR: Variable CLLDSUPM not found.ERROR: Variable CLLDSUPM not found.
+ERROR: Variable CLUDSUPM not found.ERROR: Variable CLUDSUPM not found.ERROR: Variable CLUDSUPM not found.
+321                    /OVERLAY VAXIS=-0.5 to 0.5 by 0.1;
+322        * Comparative Benefit:  Survivorship Difference P-value                        ;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PLOT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+323          PROC PLOT DATA=PREDICT; BY PPLOT;
+324               PLOT CUMSVPPC*YEARS='C' CUMSVPCM*YEARS='M' CUMSVPPM*YEARS='P'
+ERROR: Variable CUMSVPPC not found.ERROR: Variable CUMSVPPC not found.ERROR: Variable CUMSVPPC not found.
+ERROR: Variable CUMSVPCM not found.ERROR: Variable CUMSVPCM not found.ERROR: Variable CUMSVPCM not found.
+ERROR: Variable CUMSVPPM not found.ERROR: Variable CUMSVPPM not found.ERROR: Variable CUMSVPPM not found.
+325                    /OVERLAY;
+326        *******************************************************************************;
+327        * Digital nomogram                                                             ;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PLOT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+328          DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: The data set WORK.DIGITAL has 0 observations and 79 variables.
+WARNING: Data set WORK.DIGITAL was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+329          PROC SORT DATA=DIGITAL; BY PPLOT;
+
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+330          PROC PRINT D DATA=DIGITAL; VAR MONTHS YEARS _SURVIVC _SURVIVP _SURVIVM
+ERROR: Variable _SURVIVC not found.ERROR: Variable _SURVIVC not found.ERROR: Variable _SURVIVC not found.
+ERROR: Variable _SURVIVP not found.ERROR: Variable _SURVIVP not found.ERROR: Variable _SURVIVP not found.
+331               CUMSURPC CUMSVPPC CUMSURCM CUMSVPCM CUMSURPM CUMSVPPM; BY PPLOT;
+ERROR: Variable _SURVIVM not found.ERROR: Variable _SURVIVM not found.ERROR: Variable _SURVIVM not found.
+ERROR: Variable CUMSURPC not found.ERROR: Variable CUMSURPC not found.ERROR: Variable CUMSURPC not found.
+ERROR: Variable CUMSVPPC not found.ERROR: Variable CUMSVPPC not found.ERROR: Variable CUMSVPPC not found.
+ERROR: Variable CUMSURCM not found.ERROR: Variable CUMSURCM not found.ERROR: Variable CUMSURCM not found.
+ERROR: Variable CUMSVPCM not found.ERROR: Variable CUMSVPCM not found.ERROR: Variable CUMSVPCM not found.
+ERROR: Variable CUMSURPM not found.ERROR: Variable CUMSURPM not found.ERROR: Variable CUMSURPM not found.
+ERROR: Variable CUMSVPPM not found.ERROR: Variable CUMSVPPM not found.ERROR: Variable CUMSVPPM not found.
+332        *******************************************************************************;
+333        RUN;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+ERROR: Errors printed on pages 4,5,6.ERROR: Errors printed on pages 4,5,6.ERROR: Errors printed on pages 4,5,6.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           5.68 seconds
+      cpu time            1.54 seconds
+      

@@ -1,0 +1,190 @@
+1                                                          The SAS System                           13:12 Monday, September 25, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.12 seconds
+      cpu time            0.07 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * !HZEXAMPLES/hm.death.patient.sas
+4          *
+5          * Primary valve replacement
+6          *
+7          * Multivariable analysis of death
+8          *
+9          * Patient variables only
+10         *______________________________________________________________________________;
+11         *                                                                              ;
+12           OPTIONS PAGESIZE=80 LINESIZE=132;
+13           TITLE1 'Primary Valve Operations';
+14           TITLE2 '(UAB; 1975 - July 1979; n=1533)';
+15           TITLE3 'Multivariable Analysis of Death (Original Equation)';
+16         *******************************************************************************;
+17         * Bring in data                                                                ;
+18           FILENAME INVALV ('!HZEXAMPLES/data/valves');
+19           DATA VALVES; INFILE INVALV MISSOVER;
+20           INPUT AGE_COP 1-10 5 NYHA 12 MITRAL 14 DOUBLE 16 AO_PINC 18 BLACK 20
+21               I_PATH 22 NVE 24 MECHVALV 26 MALE 28 INT_DEAD 30-39 5 DEAD 41 INT_PVE
+22               43-52 5 PVE 54 BIO 56 INT_RDG 58-67 5 REOP_DG 69 INT_REOP 71-80 5
+23               REOP 82;
+24           LABEL
+25                 AGE_COP  = 'Age (years) at current operation'
+26                 NYHA     = 'Augmented NYHA functional class'
+27                 MITRAL   = 'Mitral valve replacement only'
+28                 DOUBLE   = 'Multiple valve replacement'
+29                 AO_PINC  = 'Pure aortic incompetence'
+30                 BLACK    = 'Black race'
+31                 I_PATH   = 'Ischemic mitral pathology'
+32                 NVE      = 'Native valve endocarditis'
+33                 MECHVALV = 'Mechanic prosthesis inserted'
+34                 MALE     = 'Male patient'
+35                 MALE     = 'Male patient'
+36                 INT_DEAD = 'Followup Interval (months) After Repair'
+37                 DEAD     = 'Death'
+38                 INT_PVE  = 'Interval (months) to first PVE'
+39                 PVE      = 'Prosthetic Valve Endocarditis (event)'
+40                 BIO      = 'Bioprosthesis inserted'
+41                 INT_RDG  = 'Interval (months) to Bio degeneration'
+42                 REOP_DG  = 'Reoperation for Bio degeneration'
+43                 INT_REOP = 'Interval (months) to and reoperation'
+44                 REOP     = 'First Reoperation'
+45           ;
+46         *******************************************************************************;
+47         * Standardize for missing values                                               ;
+
+NOTE: The infile INVALV is:
+      File Name=/home/jehrling/development/hazard-4.1/examples/data/valves,
+2                                                          The SAS System                           13:12 Monday, September 25, 2000
+
+      Owner Name=jehrling,Group Name=ctsurg,
+      Access Permission=rwxr-xr-x,
+      File Size (bytes)=127239
+
+NOTE: 1533 records were read from the infile INVALV.
+      The minimum record length was 82.
+      The maximum record length was 82.
+NOTE: The data set WORK.VALVES has 1533 observations and 19 variables.
+NOTE: DATA statement used:
+      real time           0.07 seconds
+      cpu time            0.08 seconds
+      
+
+48           PROC STANDARD DATA=VALVES OUT=VALVES REPLACE; VAR NYHA;
+49         *******************************************************************************;
+50         * Data transformations                                                         ;
+
+NOTE: There were 1533 observations read from the dataset WORK.VALVES.
+NOTE: The data set WORK.VALVES has 1533 observations and 19 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+51           DATA VALVES; SET VALVES;
+52           MV_NYHA=MITRAL*NYHA;
+53           MV_INCNI=(MV_INC=1 AND I_PATH=0);
+54           run;
+
+NOTE: Variable MV_INC is uninitialized.
+NOTE: There were 1533 observations read from the dataset WORK.VALVES.
+NOTE: The data set WORK.VALVES has 1533 observations and 22 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+55         *______________________________________________________________________________;
+56         *                                                                              ;
+57         *               F I N A L   M Uls T I V A R I A B L  E   M O D E L             ;
+58         *______________________________________________________________________________;
+59         *                                                                              ;
+60           %HAZARD(
+61           PROC HAZARD DATA=VALVES OUTHAZ=OUTEST CONSERVE CONDITION=14 P;
+62                TIME INT_DEAD; EVENT DEAD;
+63                PARMS MUE=0.0008955212 THALF=3.894791 NU=1.958339 M=1 FIXM
+64                      MUC=0.001145244;
+65                EARLY
+66                  AGE_COP=0.02485742, NYHA=0.9373906, MV_NYHA=0.3270209, DOUBLE=1.040199,
+67                  AO_PINC=0.7010022 ;
+68                CONSTANT
+69                  AGE_COP=0.01439241, BLACK=0.9098664, I_PATH=1.45418;
+70            );
+
+Note: Procedure HAZARD (C-Version 4.037)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: There were 38 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.OUTEST has 38 observations and 35 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+71            libname est ('!HZEXAMPLES');
+NOTE: Libref EST was successfully assigned as follows: 
+      Levels:           1
+      Engine(1):        V8 
+      Physical Name(1): /home/jehrling/development/hazard-4.1/examples
+72            data est.hmdeadp (type=haz);
+73                 set outest;
+74            run;
+3                                                          The SAS System                           13:12 Monday, September 25, 2000
+
+
+NOTE: There were 38 observations read from the dataset WORK.OUTEST.
+NOTE: The data set EST.HMDEADP has 38 observations and 35 variables.
+NOTE: DATA statement used:
+      real time           0.52 seconds
+      cpu time            0.02 seconds
+      
+
+75            libname out xport '!HZEXAMPLES/hmdeadp.xport';
+NOTE: Libref OUT was successfully assigned as follows: 
+      Engine:        XPORT 
+      Physical Name: /home/jehrling/development/hazard-4.1/examples/hmdeadp.xport
+76            data out.out; set est.hmdeadp; run;
+
+NOTE: There were 38 observations read from the dataset EST.HMDEADP.
+NOTE: The data set OUT.OUT has 38 observations and 35 variables.
+NOTE: DATA statement used:
+      real time           0.15 seconds
+      cpu time            0.02 seconds
+      
+
+77         *******************************************************************************;
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           10.82 seconds
+      cpu time            0.51 seconds
+      

@@ -1,0 +1,349 @@
+From cvsrehb Thu Dec  1 08:11:26 1994
+Received: by UABCVSR.cvsr.uab.edu (AIX 3.2/UCB 5.64/4.03)
+          id AA28539; Thu, 1 Dec 1994 08:11:25 -0600
+Date: Thu, 1 Dec 94 08:11:25 -0600
+From: cvsrehb
+Message-ID: <9412011411.AA28539@UABCVSR.cvsr.uab.edu>
+To: cvsrehb
+Subject: 27558.uabcvsr
+
+1                                                          The SAS System                           08:11 Thursday, December 1, 1994
+
+NOTE: Copyright(c) 1989 by SAS Institute Inc., Cary, NC USA. 
+NOTE: SAS (r) Proprietary Software Release 6.09  TS027
+      Licensed to UNIVERSITY OF ALABAMA AT BIRMINGHAM, Site 0001676011.
+
+NOTE: Running on IBM Model RS/6000 Serial Number 000002582E00.
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: AUTOEXEC processing beginning; file is /apps/sasnew/sas609/autoexec.sas.
+
+
+NOTE: AUTOEXEC processing completed.
+
+1            OPTIONS PAGESIZE=100 LINESIZE=132;
+2          *******************************************************************************;
+3          * /programs/hazard/examples/hp.death.AVC.hm2                                   ;
+4          *                                                                              ;
+5          * Multivariable analysis of death after repair                                 ;
+6          *                                                                              ;
+7          * Exploration of strength of risk factors.                                     ;
+8          *                                                                              ;
+9          * Display strength of date of repair in partial and complete forms of AV Canal ;
+10         *******************************************************************************;
+11           TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+12           TITLE2 'Example Data Set';
+13           TITLE3 'Multivariable Analysis of Death After Repair';
+14           TITLE4 'Solve Multivariable Equation for 6-Months Survival';
+15           TITLE5 'In Complete and Partial Canal According to Date of Repair';
+16         *______________________________________________________________________________;
+17         *                                                                              ;
+18         * Model:                                                                       ;
+19         * Early Hazard Phase:                                                          ;
+20         *   AGE COM_IV MAL OPMOS OP_AGE STATUS                                         ;
+21         * Constant Hazard Phase:                                                       ;
+22         *   INC_SURG ORIFICE STATUS                                                    ;
+23         *______________________________________________________________________________;
+24         *                                                                              ;
+25         * Set values for standard model incremental risk factors variables.            ;
+26           DATA DESIGN;
+27           AGE=6;         /* Six months of age                                         */
+28         * COM_IV=1;      /* Interventricular communication present                    */
+29           MAL=0;         /* Major associated cardiac anomaly                          */
+30           ORIFICE=0;     /* Accessory left AV valve orifice                           */
+31           INC_SURG=0;    /* Degree of AV valve incompetence pre-repair                */
+32           STATUS=3;      /* Clinical status (NYHA I-IV)                               */
+33         * OPMOS=180;     /* Current data (1982)                                       */
+34           MONTHS=6;      /* Time of observation (months)                              */
+35         *______________________________________________________________________________;
+36         *                                                                              ;
+37         * Transformations of variables                                                 ;
+38         * OPYEAR=1967 + OPMOS/12;
+39         * OP_AGE=OPMOS*AGE;
+40           YEARS=MONTHS/12;
+41         *******************************************************************************;
+42         * Generate "isobars" of risk factors here, but check for possible              ;
+43         * transformations that may be needed.                                          ;
+44           DO COM_IV=0,1;
+45             OUTPUT;
+46           END;
+
+NOTE: The data set WORK.DESIGN has 2 observations and 8 variables.
+
+47           PROC PRINT;
+48         *******************************************************************************;
+49         * Generate and output points                                                   ;
+
+NOTE: The PROCEDURE PRINT printed page 1.
+
+50           DATA PREDICT; SET DESIGN; DIGITAL=0;
+51           MIN=0; MAX=180; INC=(MAX-MIN)/99.9;
+52           DO OPMOS=MIN TO MAX BY INC, MAX;
+53             OUTPUT;
+54           END;
+55           DROP MIN MAX INC;
+56         
+
+NOTE: The data set WORK.PREDICT has 202 observations and 10 variables.
+
+57           DATA DIGITAL; SET DESIGN; DIGITAL=1;
+58           DO OPMOS=0 TO 180 BY 12;
+59             OUTPUT;
+60           END;
+61         
+
+NOTE: The data set WORK.DIGITAL has 32 observations and 10 variables.
+
+62           DATA PREDICT; SET PREDICT DIGITAL;
+63           OPYEAR=1967 + OPMOS/12;
+64           OP_AGE=OPMOS*AGE;
+65         *******************************************************************************;
+66         * Do predictions                                                               ;
+2                                                          The SAS System                           08:11 Thursday, December 1, 1994
+
+67           LIBNAME EXAMPLES '/programs/hazard/examples/sasest';
+NOTE: Libref EXAMPLES was successfully assigned as follows: 
+      Engine:        V609 
+      Physical Name: /programs/hazard/examples/sasest
+68           %HAZPRED (
+69           PROC HAZPRED DATA=PREDICT INHAZ=EXAMPLES.HMDEATH OUT=PREDICT;
+70                TIME MONTHS;
+71           );
+
+NOTE: The data set WORK.PREDICT has 234 observations and 12 variables.
+
+
+Note: Procedure HAZPRED (C-Version 4.0.0)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+
+NOTE: The data set WORK.PREDICT has 234 observations and 24 variables.
+
+72         *******************************************************************************;
+73         * Printer plot survival and hazard                                             ;
+74           PROC PLOT DATA=PREDICT; PLOT _SURVIV*OPYEAR=COM_IV
+75                        _CLLSURV*OPYEAR='.' _CLUSURV*OPYEAR='.'
+76                        /OVERLAY VAXIS=0 TO 1 BY 0.1;
+77         *******************************************************************************;
+78         * Digital nomogram                                                             ;
+
+NOTE: The PROCEDURE PLOT printed page 2.
+
+79           DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: The data set WORK.DIGITAL has 32 observations and 24 variables.
+
+80           PROC SORT; BY COM_IV;
+
+NOTE: The data set WORK.DIGITAL has 32 observations and 24 variables.
+
+81           PROC PRINT D; BY COM_IV; VAR MONTHS YEARS
+82                OPYEAR OPMOS AGE COM_IV MAL INC_SURG ORIFICE STATUS
+83                _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ;
+84         *******************************************************************************;
+NOTE: The PROCEDURE PRINT printed page 3.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    08:11 Thursday, December 1, 1994   1
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+                                         Solve Multivariable Equation for 6-Months Survival
+                                     In Complete and Partial Canal According to Date of Repair
+
+                          OBS    AGE    MAL    ORIFICE    INC_SURG    STATUS    MONTHS    YEARS    COM_IV
+
+                           1      6      0        0           0          3         6       0.5        0  
+                           2      6      0        0           0          3         6       0.5        1  
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    08:11 Thursday, December 1, 1994   2
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+                                         Solve Multivariable Equation for 6-Months Survival
+                                     In Complete and Partial Canal According to Date of Repair
+
+                                       Plot of _SURVIV*OPYEAR.   Symbol is value of COM_IV.
+                                       Plot of _CLLSURV*OPYEAR.  Symbol used is '.'.
+                                       Plot of _CLUSURV*OPYEAR.  Symbol used is '.'.
+
+       _SURVIV |
+               |
+           1.0 +
+               |
+               |                                                                                                                      .....
+               |                                                                                                             .........
+               |                                                                                                   00000000                                                                                                      .......
+               |                                                                                             000000                                                                                                ......
+               |                                                                                         0000                                                                                                                       ....                                                                                            .....
+               |                                                                                    00000                                                                                                                  .....                                                                                       .....
+           0.9 +                                                                                0000                                                                                                              ....                                                                                   ....
+               |                                                                             000                                                                                                          ....                                                                                ....
+               |                                                                         0000                                                                                                       ....                                                                             ...                                        ...
+               |                                                                       00                                                                                                    ...                                                                          ...                                        ...
+               |                                                                    000                                                                                                 ...                                                                       ...                                         ..
+               |                                                                 000                                     11                                                                                              ...                                                                    ...                                          ..
+               |                                                               00                                     111                                                                                            ..                                                                  ..                                           ..
+               |                                                             00                                     11                                                                                         ...                                                                ..                                           ..
+           0.8 +                                                          000                                     111                                                                                       ..                                                              ..                                           ..
+               |                                                        00                                      11                                                                                     ..                                  ..                                                            ..                                            .
+               |                                                       0                                      11                                                                                   ..                                  ..                                                         ...                                            ..
+               |                                                     00                                     11                                                                                 ..                                 ...                                                        ..                                            ..
+               |                                                   00                                     11                                                                               ..                                 ...                                                      ..                                             .
+               |                                                 00                                       1                                                                              .                                 ..                                                    ..                                             ..
+               |                                                 0                                      11                                                                            ..                                ..                                                  ..                                              .
+               |                                               00                                     11                                                                          ..                                 .                                                ..                                              ..
+           0.7 +                                              0                                      1                                                                         .                                 ..                                              ..                                               .
+               |                                            00                                      1                                                                       ..                                 .                                            ..                                               ..
+               |                                           0                                      11                                                                      .                                  .                                           .                                                .
+               |                                         00                                     11                                                                     .                                 ..                                         ..                                                .
+               |                                        0                                      11                                                                   ..                                 .                                       ..                                                ..
+               |                                       0                                      1                                                                  .                                 ..                                      .                                                 .
+               |                                     00                                      1                                                                 .                                 .                                    ..                                                 .
+               |                                    0                                       1                                                                 .                                .                                  ..                                                 ..
+           0.6 +                                   0                                      11                                                               ..                               ..                                 .                                                  .
+               |                                  0                                      11                                                              .                                .                               ..                                                  .
+               |                                 0                                      1                                                             .                                .                              ..                                                 ..
+               |                               00                                      1                                                            .                                .                            ..                                                  .
+               |                              0                                       1                                                           .                               ..                          ..                                                   .
+               |                             0                                      11                                                          .                               .                         .                                                   ..
+               |                            0                                      1                                                         .                               ..                         .                                                  ..
+               |                           0                                      1                                                        .                               .                                                                           .
+           0.5 +                          0                                      1                                                       .                               .                                                                          .
+               |                         0                                      1                                                      .                               .                                                                        ..
+               |                        0                                      1                                                     .                               .                                                                       .
+               |                       0                                      1                                                    .                               .                                                                      .
+               |                      0                                      1                                                   .                               .                                                                     .
+               |                    00                                      11                                                  .                               .                                                                   ..
+               |                   0                                       1                                                 .                               .                                                                  .
+               |                  0                                       1                                                .                               .                                                                 .
+           0.4 +                 0                                       1                                               .                               .                                                                ..
+               |                0                                       1                                              .                               .                                                               .
+               |               0                                       1                                             .                               .                                                              .
+               |              00                                      1                                            .                               ..                                                             .
+               |             0                                       1                                           .                               .                                                           ..
+               |            0                                       1                                          .                               .                                                          .
+               |           0                                       1                                         .                               .                                                        ..
+               |          0                                       1                                        .                               .                                                       .
+           0.3 +         0                                       1                                       .                                                      .
+               |         0                                      1                                      .                                .                                                    ..
+               |                                               1                                     ..                               .                                                   .
+               |                                              1                                    .                                .                                                 ..
+               |                                             1                                   .                                .                                                .
+               |                                            1                                  .                                .                                              ..
+               |                                           1                                 .                                .                                            ..
+               |                                          1                                .                                .                                           .
+           0.2 +                                         1                               .                                 .                                         ..
+               |                                       11                              .                                 .                                       ..
+               |                                      1                             .                                ..                                     ..
+               |                                     1                            .                                .                                   ..
+               |                                    1                          ..                                .                                 ..
+               |                                  11                         .                                 .                              ...
+               |                                 1                         .                               ..                            ..
+               |                               11                                                        ..                         ...
+           0.1 +                              1                                                       .                         .
+               |                            11                                                     ..
+               |                          11                                                    .
+               |                        11                                                  ..
+               |                     111                                               ...
+               |                  111                                             ..
+               |              1111                                         ....
+               |         11111                                  .......
+           0.0 +                         .........
+               |
+               ---+------------+------------+------------+------------+------------+------------+------------+------------+--
+                1966         1968         1970         1972         1974         1976         1978         1980         1982
+
+                                                                   OPYEAR
+
+NOTE: 89 obs hidden.                                                                                                                
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects    08:11 Thursday, December 1, 1994   3
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+                                         Solve Multivariable Equation for 6-Months Survival
+                                     In Complete and Partial Canal According to Date of Repair
+
+------------------------------------------------------------- COM_IV=0 -------------------------------------------------------------
+
+
+     OBS MONTHS YEARS OPYEAR OPMOS AGE COM_IV MAL INC_SURG ORIFICE STATUS _SURVIV _CLLSURV _CLUSURV  _HAZARD  _CLLHAZ  _CLUHAZ
+
+
+       1    6    0.5   1967     0   6     0    0      0       0       3   0.28647  0.12584  0.52824 0.012066 .0062071 0.023454
+
+       2    6    0.5   1968    12   6     0    0      0       0       3   0.36689  0.19489  0.58113 0.009679 .0051293 0.018266
+
+       3    6    0.5   1969    24   6     0    0      0       0       3   0.44743  0.27542  0.63302 0.007766 .0042276 0.014264
+
+       4    6    0.5   1970    36   6     0    0      0       0       3   0.52464  0.36176  0.68243 0.006230 .0034741 0.011174
+
+       5    6    0.5   1971    48   6     0    0      0       0       3   0.59608  0.44819  0.72835 0.004999 .0028455 0.008783
+
+       6    6    0.5   1972    60   6     0    0      0       0       3   0.66035  0.53007  0.77017 0.004012 .0023221 0.006931
+
+       7    6    0.5   1973    72   6     0    0      0       0       3   0.71687  0.60435  0.80758 0.003220 .0018874 0.005493
+
+       8    6    0.5   1974    84   6     0    0      0       0       3   0.76569  0.66952  0.84053 0.002584 .0015277 0.004372
+
+       9    6    0.5   1975    96   6     0    0      0       0       3   0.80723  0.72531  0.86913 0.002075 .0012311 0.003497
+
+      10    6    0.5   1976   108   6     0    0      0       0       3   0.84217  0.77223  0.89359 0.001666 .0009879 0.002811
+
+      11    6    0.5   1977   120   6     0    0      0       0       3   0.87129  0.81127  0.91424 0.001339 .0007894 0.002270
+
+      12    6    0.5   1978   132   6     0    0      0       0       3   0.89537  0.84354  0.93142 0.001076 .0006283 0.001842
+
+      13    6    0.5   1979   144   6     0    0      0       0       3   0.91516  0.87014  0.94555 0.000865 .0004983 0.001501
+
+      14    6    0.5   1980   156   6     0    0      0       0       3   0.93135  0.89205  0.95703 0.000696 .0003941 0.001228
+
+      15    6    0.5   1981   168   6     0    0      0       0       3   0.94454  0.91013  0.96626 0.000560 .0003109 0.001009
+
+      16    6    0.5   1982   180   6     0    0      0       0       3   0.95526  0.92508  0.97363 0.000451 .0002449 0.000831
+
+
+------------------------------------------------------------- COM_IV=1 -------------------------------------------------------------
+
+     OBS MONTHS YEARS OPYEAR OPMOS AGE COM_IV MAL INC_SURG ORIFICE STATUS _SURVIV _CLLSURV _CLUSURV  _HAZARD  _CLLHAZ  _CLUHAZ
+
+
+      17    6    0.5   1967     0   6     1    0      0       0       3   0.00859  0.00063  0.10589 0.045892 0.024523 0.085882
+
+      18    6    0.5   1968    12   6     1    0      0       0       3   0.02202  0.00321  0.13610 0.036810 0.020462 0.066220
+
+      19    6    0.5   1969    24   6     1    0      0       0       3   0.04686  0.01135  0.17394 0.029526 0.017044 0.051149
+
+      20    6    0.5   1970    36   6     1    0      0       0       3   0.08588  0.03041  0.21957 0.023684 0.014167 0.039592
+
+      21    6    0.5   1971    48   6     1    0      0       0       3   0.13960  0.06570  0.27239 0.018998 0.011746 0.030727
+
+      22    6    0.5   1972    60   6     1    0      0       0       3   0.20613  0.11989  0.33108 0.015239 0.009708 0.023923
+
+      23    6    0.5   1973    72   6     1    0      0       0       3   0.28177  0.19151  0.39386 0.012225 0.007993 0.018697
+
+      24    6    0.5   1974    84   6     1    0      0       0       3   0.36206  0.27528  0.45887 0.009807 0.006552 0.014680
+
+      25    6    0.5   1975    96   6     1    0      0       0       3   0.44270  0.36396  0.52443 0.007868 0.005342 0.011588
+
+      26    6    0.5   1976   108   6     1    0      0       0       3   0.52018  0.45048  0.58910 0.006313 0.004330 0.009203
+
+      27    6    0.5   1977   120   6     1    0      0       0       3   0.59202  0.52968  0.65153 0.005065 0.003488 0.007356
+
+      28    6    0.5   1978   132   6     1    0      0       0       3   0.65674  0.59906  0.71013 0.004065 0.002791 0.005920
+
+      29    6    0.5   1979   144   6     1    0      0       0       3   0.71373  0.65848  0.76325 0.003262 0.002219 0.004796
+
+      30    6    0.5   1980   156   6     1    0      0       0       3   0.76299  0.70905  0.80961 0.002619 0.001754 0.003909
+
+      31    6    0.5   1981   168   6     1    0      0       0       3   0.80495  0.75214  0.84876 0.002102 0.001380 0.003203
+
+      32    6    0.5   1982   180   6     1    0      0       0       3   0.84026  0.78894  0.88098 0.001688 0.001081 0.002637
+

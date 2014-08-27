@@ -1,0 +1,546 @@
+1                                                          The SAS System                            12:47 Friday, November 10, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.08 seconds
+      cpu time            0.07 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * !HZEXAMPLES/hs.dthar.TGA.hs1                                                 ;
+4          *                                                                              ;
+5          * NOTE:  YOU MUST RUN hs.dthar.TGA.setup BEFORE RUNNING THIS JOB!!!            ;
+6          *                                                                              ;
+7          * Arterial Switch Operations                                                   ;
+8          *                                                                              ;
+9          * Multivariable analysis of risk factors for death after operation             ;
+10         * Patient risk factors                                                         ;
+11         *                                                                              ;
+12         * Average survivorship curves for each experience in the data set, generated   ;
+13         * from the multivariable equation for death.                                   ;
+14         *                                                                              ;
+15         * The estimates have been put to the plot disk by hs.dthar.TGA.setup           ;
+16         *                                                                              ;
+17         * Stratification by Era of Operation                                           ;
+18         *______________________________________________________________________________;
+19         *                                                                              ;
+20           OPTIONS PAGESIZE=100 LINESIZE=132;
+21           TITLE1 "Arterial Switch Operations";
+22           TITLE2 "Death After Operation";
+23           TITLE3 "Multivariable Analysis of Risk Factors";
+24           TITLE4 "Patient Risk Factors Only";
+25           TITLE5 "Application of Multivariable Analysis of Death to Create a
+26          Risk-Adjusted Curve for Each Patient";
+27           TITLE6 "Stratify By Era of Operation";
+28         *******************************************************************************;
+29         * Bring in data                                                                ;
+30           FILENAME INTGA ('!HZEXAMPLES/data/tga');
+31           DATA ARTSW; INFILE INTGA MISSOVER;
+32           INPUT STUDY $ 1-10 SIMPLE 12 DEXTROIN 14 CA_1RL2C 16 HYAAPROC 18 NO_TCA 20
+33               TCA_TIME 22-31 5 AGE_DAYS 33-42 5 ARCIOPYR 44-51 5 DEAD 53 INT_DEAD
+34               55-64 5 SOURCE $ 66-75 CA1_2_L 77 OPYEAR 79-88 5;
+35           LABEL
+36                 SIMPLE   = 'Simple TGA'
+37                 DEXTROIN = 'Dextrocardia'
+38                 HYAAPROC = 'Procedure for hypoplastic arch'
+39                 NO_TCA   = 'No TCA'
+40                 TCA_TIME = 'TCA time'
+41                 AGE_DAYS = 'Age at operation'
+42                 INT_DEAD = 'Followup Interval (months) After Repair'
+43                 DEAD     = 'Death'
+44           ;
+45         *******************************************************************************;
+46         * Stratifying variable                                                         ;
+47           ERA=.; IF OPYEAR<1986 THEN ERA=1;
+48                  IF OPYEAR>1985 AND OPYEAR<1989 THEN ERA=2;
+49                  IF OPYEAR>1988 THEN ERA=3;
+50         *******************************************************************************;
+51         * Form groupings                                                               ;
+52           KEEP STUDY SOURCE ERA;
+
+NOTE: The infile INTGA is:
+      File Name=/home/jehrling/hazard/examples/data/tga,
+      Owner Name=jehrling,Group Name=ctsurg,
+      Access Permission=rw-r--r--,
+      File Size (bytes)=41830
+
+NOTE: 470 records were read from the infile INTGA.
+      The minimum record length was 88.
+      The maximum record length was 88.
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+53           PROC SORT; BY SOURCE STUDY;
+54           LIBNAME ARTSWT ('!HZEXAMPLES/data');
+2                                                          The SAS System                            12:47 Friday, November 10, 2000
+
+NOTE: Libref ARTSWT was successfully assigned as follows: 
+      Levels:           1
+      Engine(1):        V6 
+      Physical Name(1): /home/jehrling/hazard/examples/data
+
+NOTE: There were 470 observations read from the dataset WORK.ARTSW.
+NOTE: The data set WORK.ARTSW has 470 observations and 3 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+55           DATA EST; SET ARTSWT.HSDTARXC;
+
+NOTE: There were 4 observations read from the dataset ARTSWT.HSDTARXC.
+NOTE: The data set WORK.EST has 4 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+56           PROC SORT; BY SOURCE STUDY;
+ERROR: Variable SOURCE not found.ERROR: Variable SOURCE not found.ERROR: Variable SOURCE not found.
+ERROR: Variable STUDY not found.ERROR: Variable STUDY not found.ERROR: Variable STUDY not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: SAS set option OBS=0 and will continue to check statements. This may cause NOTE: No observations in data set.
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+57           DATA ARTSW; MERGE ARTSW EST; BY SOURCE STUDY;
+
+NOTE: The data set WORK.ARTSW has 0 observations and 5 variables.
+WARNING: Data set WORK.ARTSW was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+58           DATA ARTSW; SET ARTSW;
+59           IF ERA=. THEN DELETE;
+
+NOTE: The data set WORK.ARTSW has 0 observations and 3 variables.
+WARNING: Data set WORK.ARTSW was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+60           PROC SORT; BY ERA;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+61           PROC MEANS N MEAN STD MIN MAX SUM; BY ERA;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+62         *******************************************************************************;
+63         * Observed v. expected deaths.                                                 ;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE MEANS used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+64           PROC SUMMARY; BY ERA; VAR
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+65           SIMPLE DEXTROIN CA_1RL2C CA1_2_L HYAAPROC NO_TCA LN_TCAT SIMIAGP1 ARCIOPYR
+ERROR: Variable SIMPLE not found.ERROR: Variable SIMPLE not found.ERROR: Variable SIMPLE not found.
+ERROR: Variable DEXTROIN not found.ERROR: Variable DEXTROIN not found.ERROR: Variable DEXTROIN not found.
+ERROR: Variable CA_1RL2C not found.ERROR: Variable CA_1RL2C not found.ERROR: Variable CA_1RL2C not found.
+ERROR: Variable CA1_2_L not found.ERROR: Variable CA1_2_L not found.ERROR: Variable CA1_2_L not found.
+ERROR: Variable HYAAPROC not found.ERROR: Variable HYAAPROC not found.ERROR: Variable HYAAPROC not found.
+ERROR: Variable NO_TCA not found.ERROR: Variable NO_TCA not found.ERROR: Variable NO_TCA not found.
+ERROR: Variable LN_TCAT not found.ERROR: Variable LN_TCAT not found.ERROR: Variable LN_TCAT not found.
+ERROR: Variable SIMIAGP1 not found.ERROR: Variable SIMIAGP1 not found.ERROR: Variable SIMIAGP1 not found.
+66           DEAD INT_DEAD PROB CUM_HAZ;
+ERROR: Variable ARCIOPYR not found.ERROR: Variable ARCIOPYR not found.ERROR: Variable ARCIOPYR not found.
+ERROR: Variable DEAD not found.ERROR: Variable DEAD not found.ERROR: Variable DEAD not found.
+ERROR: Variable INT_DEAD not found.ERROR: Variable INT_DEAD not found.ERROR: Variable INT_DEAD not found.
+67               OUTPUT OUT=OUTEXP MEAN= SUM(PROB CUM_HAZ DEAD)=PEXPECT EXPECTED
+ERROR: Variable DEAD not found.ERROR: Variable DEAD not found.ERROR: Variable DEAD not found.
+68                 ACTUAL N(DEAD)=N;
+ERROR: Variable DEAD not found.ERROR: Variable DEAD not found.ERROR: Variable DEAD not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.OUTEXP may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.00 seconds
+3                                                          The SAS System                            12:47 Friday, November 10, 2000
+
+      cpu time            0.01 seconds
+      
+
+
+69           DATA OUTEXP; SET OUTEXP;
+70           FILENAME CHISQGF ('!MACROS/chisqgf.sas');
+71           OPTIONS NOSOURCE; %INC CHISQGF; OPTIONS SOURCE;
+105        *______________________________________________________________________________;
+106        *                                                                              ;
+107        * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+108        *                                                                              ;
+109        *   N        = Denominator (sample size)         N                             ;
+110        *   OBSERVED = Number of observed events         OBSERVED                      ;
+111        *   EXPECTED = Number of expected events         EXPECTED                      ;
+112        *   PROB_OBS = Proportion observed               PROB_OBS                      ;
+113        *   PROB_EXP = Proportion expected               PROB_OBS                      ;
+114        *   ZVALUE   = Z-value for difference            Z-VALUE                       ;
+115        *   PVALUE   = P-value for difference            P-VALUE                       ;
+116        *______________________________________________________________________________;
+117        *                                                                              ;
+118        * Statistics                                                                   ;
+119          %CHISQGF(N=N, OBSERVED=ACTUAL, EXPECTED=EXPECTED);
+
+NOTE: The data set WORK.OUTEXP has 0 observations and 10 variables.
+WARNING: Data set WORK.OUTEXP was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+120          PROC PRINT D DATA=OUTEXP; VAR
+121               SIMPLE DEXTROIN CA_1RL2C CA1_2_L HYAAPROC NO_TCA LN_TCAT SIMIAGP1 ARCIOPYR
+ERROR: Variable SIMPLE not found.ERROR: Variable SIMPLE not found.ERROR: Variable SIMPLE not found.
+ERROR: Variable DEXTROIN not found.ERROR: Variable DEXTROIN not found.ERROR: Variable DEXTROIN not found.
+ERROR: Variable CA_1RL2C not found.ERROR: Variable CA_1RL2C not found.ERROR: Variable CA_1RL2C not found.
+ERROR: Variable CA1_2_L not found.ERROR: Variable CA1_2_L not found.ERROR: Variable CA1_2_L not found.
+ERROR: Variable HYAAPROC not found.ERROR: Variable HYAAPROC not found.ERROR: Variable HYAAPROC not found.
+ERROR: Variable NO_TCA not found.ERROR: Variable NO_TCA not found.ERROR: Variable NO_TCA not found.
+ERROR: Variable LN_TCAT not found.ERROR: Variable LN_TCAT not found.ERROR: Variable LN_TCAT not found.
+ERROR: Variable SIMIAGP1 not found.ERROR: Variable SIMIAGP1 not found.ERROR: Variable SIMIAGP1 not found.
+122               PROB CUM_HAZ DEAD PEXPECT EXPECTED ACTUAL N PVALUE;
+ERROR: Variable ARCIOPYR not found.ERROR: Variable ARCIOPYR not found.ERROR: Variable ARCIOPYR not found.
+ERROR: Variable PROB not found.ERROR: Variable PROB not found.ERROR: Variable PROB not found.
+ERROR: Variable CUM_HAZ not found.ERROR: Variable CUM_HAZ not found.ERROR: Variable CUM_HAZ not found.
+ERROR: Variable DEAD not found.ERROR: Variable DEAD not found.ERROR: Variable DEAD not found.
+ERROR: Variable PEXPECT not found.ERROR: Variable PEXPECT not found.ERROR: Variable PEXPECT not found.
+ERROR: Variable EXPECTED not found.ERROR: Variable EXPECTED not found.ERROR: Variable EXPECTED not found.
+ERROR: Variable ACTUAL not found.ERROR: Variable ACTUAL not found.ERROR: Variable ACTUAL not found.
+ERROR: Variable N not found.ERROR: Variable N not found.ERROR: Variable N not found.
+ERROR: Variable PVALUE not found.ERROR: Variable PVALUE not found.ERROR: Variable PVALUE not found.
+123        *******************************************************************************;
+124        * Stratified actuarial analysis                                                ;
+125          FILENAME KAPLAN ('!MACROS/kaplan.sas');
+126          OPTIONS NOSOURCE; %INC KAPLAN; OPTIONS SOURCE;
+318        *______________________________________________________________________________;
+319        *                                                                              ;
+320        * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+321        *                                                                              ;
+322        *   INTERVAL = Time variable                     INTERVAL                      ;
+323        *   EVENT    = Event (0/1) indicator             EVENT                         ;
+324        *   STRATIFY = Stratification variable           'ALL'                         ;
+325        *   CLEVEL   = Confidence coefficient            0.68268948 (1 sd)             ;
+326        *   IN       = Input data set name                                             ;
+327        *   OUT      = Output data set name              EVENT                         ;
+328        *   HLABEL   = Label for time axis of plots      Years After Operation         ;
+329        *   ELABEL   = Label for the event               Death                         ;
+330        *   PEVENT   = Print only the events             1 (0 for censored also)       ;
+331        *   OEVENT   = Output only the events            1 (0 for censored also)       ;
+332        *   PLOTS    = Plot survival                     1 (0 to skip)                 ;
+333        *   PLOTC    = Plot cumulative hazard            1 (0 to skip)                 ;
+334        *   PLOTH    = Plot hazard                       0 (1 to plot)                 ;
+335        *   PLOTL    = Plot integrated survivorship      0 (1 to plot)                 ;
+336        *______________________________________________________________________________;
+337        *                                                                              ;
+338          %KAPLAN(IN=ARTSW, OUT=PLOUT, INTERVAL=INT_DEAD, EVENT=DEAD, PEVENT=0,
+339                  OEVENT=0, PLOTS=0, PLOTC=0, STRATIFY=ERA,
+340                  HLABEL=Months After Operation);
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+
+
+NOTE: The data set WORK._REFINE_ has 0 observations and 6 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: The data set WORK._REFINE_ has 0 observations and 9 variables.
+WARNING: Data set WORK._REFINE_ was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+4                                                          The SAS System                            12:47 Friday, November 10, 2000
+
+      
+
+ERROR: Variable TEST not found.ERROR: Variable TEST not found.ERROR: Variable TEST not found.
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.OUTTEST may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      553:195   
+NOTE: The data set WORK.OUTTEST has 0 observations and 1 variables.
+WARNING: Data set WORK.OUTTEST was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+WARNING: Apparent symbolic reference TEST not resolved.
+ERROR: A character operand was found in the %EVAL function or %IF condition where a numeric operand is required. The condition was: ERROR: A character operand was found in the %EVAL function or %IF condition where a numeric operand is required. The condition was: ERROR: A character operand was found in the %EVAL function or %IF condition where a numeric operand is required. The condition was: 
+       &TEST>0        &TEST>0        &TEST>0 
+ERROR: The macro KAPLAN will stop executing.ERROR: The macro KAPLAN will stop executing.ERROR: The macro KAPLAN will stop executing.
+341        *******************************************************************************;
+342        * Time-related nomograms                                                       ;
+343          DATA ARTSW; SET ARTSW;
+344          KEEP STUDY SOURCE ERA;
+
+NOTE: The data set WORK.ARTSW has 0 observations and 3 variables.
+WARNING: Data set WORK.ARTSW was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+345          PROC SORT DATA=ARTSW; BY SOURCE STUDY;
+
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+346          DATA PREDICT; SET ARTSWT.HSDTARXP;
+
+NOTE: The data set WORK.PREDICT has 0 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+347          PROC SORT DATA=PREDICT; BY SOURCE STUDY;
+ERROR: Variable SOURCE not found.ERROR: Variable SOURCE not found.ERROR: Variable SOURCE not found.
+ERROR: Variable STUDY not found.ERROR: Variable STUDY not found.ERROR: Variable STUDY not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+348          DATA PREDICT; MERGE ARTSW PREDICT; BY SOURCE STUDY;
+349          IF ERA=. THEN DELETE;
+350        *******************************************************************************;
+351        * Digital nomogram                                                             ;
+
+NOTE: The data set WORK.PREDICT has 0 observations and 5 variables.
+WARNING: Data set WORK.PREDICT was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+352          DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: The data set WORK.DIGITAL has 0 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+353          PROC SORT DATA=DIGITAL; BY ERA;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+354        * Mean curve                                                                   ;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+355          PROC SUMMARY DATA=DIGITAL NWAY; BY ERA;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+356               CLASS MONTHS; VAR _SURVIV _CLLSURV _CLUSURV;
+ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.
+ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.
+ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.
+5                                                          The SAS System                            12:47 Friday, November 10, 2000
+
+357               OUTPUT OUT=MEANS MEAN=MSURVIV MCLLSURV MCLUSURV
+358                 N=NSURVIV NCLLSURV NCLUSURV;
+359        * Print the results                                                            ;
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.MEANS may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+360          PROC SORT DATA=MEANS; BY ERA MONTHS;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+ERROR: Variable MONTHS not found.ERROR: Variable MONTHS not found.ERROR: Variable MONTHS not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+361          PROC PRINT D; BY ERA; VAR MONTHS NSURVIV MSURVIV MCLLSURV MCLUSURV;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+ERROR: Variable MONTHS not found.ERROR: Variable MONTHS not found.ERROR: Variable MONTHS not found.
+ERROR: Variable NSURVIV not found.ERROR: Variable NSURVIV not found.ERROR: Variable NSURVIV not found.
+ERROR: Variable MSURVIV not found.ERROR: Variable MSURVIV not found.ERROR: Variable MSURVIV not found.
+ERROR: Variable MCLLSURV not found.ERROR: Variable MCLLSURV not found.ERROR: Variable MCLLSURV not found.
+ERROR: Variable MCLUSURV not found.ERROR: Variable MCLUSURV not found.ERROR: Variable MCLUSURV not found.
+362        *******************************************************************************;
+363        * Calculate parametric survivorship curves for each subgroup                   ;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+364          DATA PREDICT; SET PREDICT; IF DIGITAL=0;
+
+NOTE: The data set WORK.PREDICT has 0 observations and 2 variables.
+WARNING: Data set WORK.PREDICT was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+365          PROC SORT DATA=PREDICT; BY ERA;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+366        * Mean curve                                                                   ;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+367          PROC SUMMARY DATA=PREDICT NWAY; BY ERA;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+368               CLASS MONTHS; VAR _SURVIV _CLLSURV _CLUSURV;
+ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.
+ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.
+ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.
+369               OUTPUT OUT=MEANS MEAN=MSURVIV MCLLSURV MCLUSURV
+370                 N=NSURVIV NCLLSURV NCLUSURV;
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.MEANS may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set WORK.MEANS was not replaced because this step was stopped.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+371          PROC DELETE DATA=PREDICT;
+372        * Compare survivorships with stratified actuarial estimates                    ;
+
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+373          DATA PLOT; SET MEANS PLOUT;
+ERROR: File WORK.PLOUT.DATA does not exist.ERROR: File WORK.PLOUT.DATA does not exist.ERROR: File WORK.PLOUT.DATA does not exist.
+374          IF DEAD=1 THEN DO; PLTCHR='N'; PLTCL='-'; END;
+375          IF DEAD=0 THEN DO; PLTCHR='.'; PLTCL=' '; END;
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.PLOT may be incomplete.  When this step was stopped there were 0 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+6                                                          The SAS System                            12:47 Friday, November 10, 2000
+
+
+376          PROC SORT; BY ERA;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+377          PROC PLOT; BY ERA;
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+378               PLOT MSURVIV*MONTHS=ERA (MCLLSURV MCLUSURV)*MONTHS='.'
+ERROR: Variable MSURVIV not found.ERROR: Variable MSURVIV not found.ERROR: Variable MSURVIV not found.
+ERROR: Variable MONTHS not found.ERROR: Variable MONTHS not found.ERROR: Variable MONTHS not found.
+ERROR: Variable ERA not found.ERROR: Variable ERA not found.ERROR: Variable ERA not found.
+ERROR: Variable MCLLSURV not found.ERROR: Variable MCLLSURV not found.ERROR: Variable MCLLSURV not found.
+ERROR: Variable MCLUSURV not found.ERROR: Variable MCLUSURV not found.ERROR: Variable MCLUSURV not found.
+ERROR: Variable MONTHS not found.ERROR: Variable MONTHS not found.ERROR: Variable MONTHS not found.
+379                    CUM_SURV*INT_DEAD='N' (CL_LOWER CL_UPPER)*INT_DEAD='-'
+ERROR: Variable CUM_SURV not found.ERROR: Variable CUM_SURV not found.ERROR: Variable CUM_SURV not found.
+ERROR: Variable INT_DEAD not found.ERROR: Variable INT_DEAD not found.ERROR: Variable INT_DEAD not found.
+ERROR: Variable CL_LOWER not found.ERROR: Variable CL_LOWER not found.ERROR: Variable CL_LOWER not found.
+ERROR: Variable CL_UPPER not found.ERROR: Variable CL_UPPER not found.ERROR: Variable CL_UPPER not found.
+ERROR: Variable INT_DEAD not found.ERROR: Variable INT_DEAD not found.ERROR: Variable INT_DEAD not found.
+380                    /OVERLAY VAXIS=0 TO 1 BY 0.1;
+381        *******************************************************************************;
+382        RUN;
+
+WARNING: RUN statement ignored due to previous errors. Submit QUIT; to terminate the procedure.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PLOT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+ERROR: Errors printed on pages 2,3,4,5,6.ERROR: Errors printed on pages 2,3,4,5,6.ERROR: Errors printed on pages 2,3,4,5,6.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           4.14 seconds
+      cpu time            0.33 seconds
+      

@@ -1,0 +1,350 @@
+1                                                          The SAS System                            11:59 Monday, December 11, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.07 seconds
+      cpu time            0.05 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * !HZTESTS/hm.dead.n1surg.sas
+4          *______________________________________________________________________________;
+5          *                                                                              ;
+6          * Carcinoma of the Esophagus
+7          * N1 Burden
+8          * CCF, 1983 to 7/2000, n=606
+9          * Surgery only group, with N1
+10         *
+11         * Multivariable analysis of death
+12         *______________________________________________________________________________;
+13         *                                                                              ;
+14           options pagesize=107 linesize=132 nofmterr;
+15           libname library '!HZTESTS/datasets';
+NOTE: Libref LIBRARY was successfully assigned as follows: 
+      Engine:        V6 
+      Physical Name: /home/jehrling/development/hazard-4.1/tests/datasets
+16           libname est '!HZTESTS/estimates';
+NOTE: Libref EST was successfully assigned as follows: 
+      Engine:        V6 
+      Physical Name: /home/jehrling/development/hazard-4.1/tests/estimates
+17           data n1burden; set library.ddw;
+18           title1 "Carcinoma of the Esophagus";
+19           title2 "N1 Burden in Surgery Only pN1 Subgroup";
+20           title3 "(CCF; 1985 to 2000; n=606)";
+21           title4 "Multivariable Analysis of Death";
+22         *______________________________________________________________________________;
+23         *                                                                              ;
+24         * Bring in variables                                                           ;
+25         *______________________________________________________________________________;
+26         *                                                                              ;
+27           filename vars '!HZTESTS/datasets/vars.sas';
+28           %inc vars; %vars(missing=1); run;
+
+NOTE: There were 606 observations read from the dataset LIBRARY.DDW.
+NOTE: The data set WORK.N1BURDEN has 606 observations and 58 variables.
+NOTE: DATA statement used:
+      real time           0.09 seconds
+      cpu time            0.09 seconds
+      
+
+
+NOTE: Character values have been converted to numeric values at the places given by: (Line):(Column).
+      500:222   500:232   500:242   500:14    500:33    500:52    500:80    500:90    500:100   500:114   500:125   500:136
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      26 at 500:36     26 at 500:41     26 at 500:44     26 at 500:49     26 at 500:52     26 at 500:58     26 at 500:61
+      26 at 500:67     26 at 500:70     26 at 500:75     26 at 500:78     26 at 500:84     26 at 500:87     220 at 500:155
+      289 at 500:169   1 at 500:156     1 at 500:165     26 at 500:8      1 at 500:5       1 at 500:8       1 at 500:11
+      1 at 500:9       26 at 500:8      1 at 500:5       1 at 500:8       1 at 500:11      1 at 500:9       220 at 500:169
+      220 at 500:193   291 at 500:233   291 at 500:9     1 at 500:30      1 at 500:52      
+NOTE: There were 606 observations read from the dataset WORK.N1BURDEN.
+NOTE: The data set WORK.N1BURDEN has 606 observations and 170 variables.
+NOTE: DATA statement used:
+      real time           0.21 seconds
+      cpu time            0.21 seconds
+      
+
+
+NOTE: There were 606 observations read from the dataset WORK.N1BURDEN.
+NOTE: The data set WORK.N1BURDEN has 606 observations and 170 variables.
+NOTE: PROCEDURE STANDARD used:
+      real time           0.05 seconds
+      cpu time            0.05 seconds
+      
+
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      289 at 500:2     291 at 500:7     289 at 500:23    291 at 500:28    289 at 500:47    291 at 500:52    289 at 500:72
+      291 at 500:77    289 at 500:98    291 at 500:103   289 at 500:124   291 at 500:129   289 at 500:153   291 at 500:158
+      289 at 500:182   291 at 500:187   289 at 500:209   291 at 500:214   289 at 500:237   291 at 500:242   289 at 500:15
+      291 at 500:20    220 at 500:45    289 at 500:62    
+NOTE: There were 606 observations read from the dataset WORK.N1BURDEN.
+NOTE: The data set WORK.N1BURDEN has 606 observations and 203 variables.
+NOTE: DATA statement used:
+2                                                          The SAS System                            11:59 Monday, December 11, 2000
+
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+      
+
+501          data n1burden; set n1burden; if surgonly and pn1;
+502        *______________________________________________________________________________;
+503        *                                                                              ;
+504        *  M U L T I V A R I A B L E   H A Z A R D   F U N C T I O N   A N A L Y S I S
+505        *______________________________________________________________________________;
+506        *                                                                              ;
+507          %macro model;
+508          %hazard(
+509          proc hazard data=n1burden nocov nocor condition=14 mi=200;
+510               event dead;
+511               time iv_dead;
+512               parms mue=2.853738 thalf=3.028267 nu=1 fixnu m=0 fixm
+513                     fixthalf fixeta
+514                     mul=0.2754651 tau=1 fixtau alpha=1 fixalpha gamma=1 fixgamma
+515                     eta=0.716051 weibull;
+516        
+517               restrict posnodes ln_npos in_npos in2npos pctpos ln_pos in_pos;
+518        
+519               selection sle=0.5 sls=0.10 maxsteps=5 robust;
+520        
+521               early
+522          /* Demographic */
+523               male/E, female/E, age, ln_age, in_age, age2, agee, black/E, white/E,
+524          /* Preoperative factors */
+525               prior, prioreg,
+526          /* Cancer pathology */
+527               barr, pt, pt_1, pt_1im, pt_1sm, pt_2, pt_3, pt_4, ln_pt, in_pt, in2pt,
+528               posnodes, ln_npos, in_npos, in2npos, pctpos, ln_pos, in_pos/S,
+529               in2_pos, sq,
+530               ad, sig/E, pm1a, pm1b, pm, castage, ln_stage, in_stage, st2b, st3, st4a,
+531               st4b, posmarg/S, diff, ln_diff, in_diff,
+532          /* Surgical procedure */
+533               anas_n, appr_ch, appr_th,
+534          /* Postoperative therapy */
+535               anypost/S,
+536          /* Experience */
+537               opyrs, ln_opyrs, in_opyrs, in2opyrs, opyrs2
+538        
+539               ;
+540        
+541               late
+542          /* Demographic */
+543               male/E, female/E, age, ln_age, in_age, age2, agee, black/E, white/E,
+544          /* Preoperative factors */
+545               prior, prioreg,
+546          /* Cancer pathology */
+547               barr, pt, pt_1, pt_1im, pt_1sm, pt_2, pt_3, pt_4, ln_pt, in_pt, in2pt,
+548               posnodes, ln_npos, in_npos, in2npos, pctpos, ln_pos, in_pos, in2_pos, sq,
+549               ad, sig/E, pm1a/S, pm1b/S, pm, castage, ln_stage, in_stage, st2b, st3,
+550               st4a, st4b, posmarg/S, diff, ln_diff, in_diff,
+551          /* Surgical procedure */
+552               anas_n, appr_ch, appr_th,
+553          /* Postoperative therapy */
+554               anypost/S,
+555          /* Experience */
+556               opyrs, ln_opyrs/S, in_opyrs, in2opyrs, opyrs2
+557        
+558               ;
+559          );
+560          %mend;
+561        *______________________________________________________________________________;
+562        *                                                                              ;
+563        *               C H E C K   O U T   F I N A L   M O D E L                      ;
+564        *______________________________________________________________________________;
+565        *                                                                              ;
+566          %macro check;
+567          %hazard(
+568          proc hazard data=n1burden nocov nocor condition=14 mi=200;
+569               event dead;
+570               time iv_dead;
+571               parms mue=2.853738 thalf=3.028267 nu=1 fixnu m=0 fixm
+572                     fixthalf fixeta
+573                     mul=0.2754651 tau=1 fixtau alpha=1 fixalpha gamma=1 fixgamma
+574                     eta=0.716051 weibull ;
+575        
+576               selection sle=0.12 sls=0.10 robust maxsteps=0;
+577        
+578               early
+579        
+580                 in_age=-3.11266, it=1.339477, pn1=0.7427647, pn1chest=-0.217969
+581               ;
+582               late
+583        
+584                 ln_npos=-1.0624, in_npos=-10.0637, pm=0.7461937, pn0_pt=1.090695
+585               ;
+586          );
+587        
+588          %mend;
+589        
+590        *______________________________________________________________________________;
+591        *                                                                              ;
+592        *               F I N A L   M U L T I V A R I A B L  E   M O D E L             ;
+593        *______________________________________________________________________________;
+594        *                                                                              ;
+595          %hazard(
+596          proc hazard data=n1burden conserve outhaz=outest condition=14 mi=200;
+597               event dead;
+598               time iv_dead;
+599               parms mue=4.56392 thalf=3.446444 nu=1 fixnu m=0 fixm
+600                     mul=0.6741454 tau=1 fixtau alpha=1 fixalpha gamma=1 fixgamma
+601                     eta=0.7069431 weibull ;
+3                                                          The SAS System                            11:59 Monday, December 11, 2000
+
+602               early
+603                 in_pos=-0.127405, posmarg=0.5395116, anypost=0.5994018;
+604               late
+605                 pm1a=1.074573, pm1b=1.485148, anypost=-2.01541, ln_opyrs=-0.365839;
+606          );
+
+NOTE: There were 606 observations read from the dataset WORK.N1BURDEN.
+NOTE: The data set WORK.N1BURDEN has 243 observations and 203 variables.
+NOTE: DATA statement used:
+      real time           0.12 seconds
+      cpu time            0.08 seconds
+      
+
+
+Note: Procedure HAZARD (C-Version 4.037)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: There were 35 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.OUTEST has 35 observations and 32 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+607        
+608          data est.hmdtn1s (type=haz);
+609            set outest;
+610        
+611          %hazard(
+612          proc hazard data=n1burden conserve outhaz=outest condition=14 mi=200 steepest
+613               quasi;
+614               event dead;
+615               time iv_dead;
+616               parms mue=1.002958 thalf=3.298245 nu=1 fixnu m=0 fixm
+617                     mul=0.7151009 tau=1 fixtau alpha=1 fixalpha gamma=1 fixgamma
+618                     eta=0.7236128 weibull ;
+619               early
+620                 ln_npos=0.4616811, posmarg=0.6858193, anypost=0.6849007;
+621               late
+622                 pm1a=1.086815, pm1b=1.564425, anypost=-2.06235, ln_opyrs=-0.387502;
+623          );
+
+NOTE: There were 35 observations read from the dataset WORK.OUTEST.
+NOTE: The data set EST.HMDTN1S has 35 observations and 32 variables.
+NOTE: DATA statement used:
+      real time           0.16 seconds
+      cpu time            0.02 seconds
+      
+
+
+Note: Procedure HAZARD (C-Version 4.037)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: There were 35 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.OUTEST has 35 observations and 32 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+624        
+625          data est.hmdtn1sn (type=haz);
+626            set outest;
+627        *______________________________________________________________________________;
+628        *                                                                              ;
+629        *     E V A L U A T E   M O D E L   B Y   D E C I L E S   O F   R I S K        ;
+630        *______________________________________________________________________________;
+631        *                                                                              ;
+632        * DEFINITIONS OF CALLING ARGUMENTS:                      DEFAULT:              ;
+633        *                                                                              ;
+634        *   IN       = Input data set of values for variables                          ;
+635        *   OUTEST   = PROC HAZARD parameter estimates           OUTEST                ;
+636        *   EVENT    = Event (0/1) indicator                     EVENT                 ;
+637        *   INTERVAL = Interval for the event                    INTERVAL              ;
+638        *   TIME     = Single time interval value for tests      12                    ;
+639        *              (In time units matching INTEVENT)                               ;
+640        *   VARS     = Other variables for means                 none                  ;
+641        *   GROUPS   = Number of groups in table                 10                    ;
+642        *______________________________________________________________________________;
+643        *                                                                              ;
+644          filename deciles ('$MACROS/deciles.hazard');
+645          %inc deciles;
+727          %deciles(in=n1burden, event=dead, interval=iv_dead, time=5, groups=5,
+728            vars=age male pt pm1a pm1b posmarg posnodes pctpos anypost opyrs);
+hazrc 0
+
+NOTE: There were 243 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.DECILES has 243 observations and 215 variables.
+NOTE: DATA statement used:
+      real time           0.08 seconds
+      cpu time            0.09 seconds
+      
+
+4                                                          The SAS System                            11:59 Monday, December 11, 2000
+
+
+NOTE: There were 243 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.DECILES has 243 observations and 217 variables.
+NOTE: DATA statement used:
+      real time           0.08 seconds
+      cpu time            0.08 seconds
+      
+
+762          run;
+
+NOTE: Deleting WORK.DECILES (memtype=DATA).
+NOTE: Deleting WORK.DECILE1 (memtype=DATA).
+NOTE: Deleting WORK.DECILE2 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+763        *******************************************************************************;
+764          %macro final;
+765          %mend;
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           8.86 seconds
+      cpu time            2.02 seconds
+      

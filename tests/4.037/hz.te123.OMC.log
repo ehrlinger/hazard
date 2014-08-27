@@ -1,0 +1,589 @@
+1                                                          The SAS System                           13:44 Monday, September 18, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.15 seconds
+      cpu time            0.06 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1          *______________________________________________________________________________;
+2          *                                                                              ;
+3          * !HZEXAMPLES/hz.te123.OMC                                                     ;
+4          *                                                                              ;
+5          * Hazard function for repeated thromboembolic events.                          ;
+6          *______________________________________________________________________________;
+7          *                                                                              ;
+8            OPTIONS PAGESIZE=100 LINESIZE=132;
+9            TITLE1 "Primary Isolated Mitral Commissurotomy";
+10           TITLE2 "Thromboembolic Events (Repeated Events Analysis)";
+11         *******************************************************************************;
+12         * Bring in data                                                                ;
+13           FILENAME INOMC ('!HZEXAMPLES/data/omc');
+14           DATA PRIMISOL; INFILE INOMC MISSOVER;
+15           INPUT STUDY $ 1-10 TE1 12 TE2 14 TE3 16 TE1DJUL 18-25 TE2DJUL 27-33 TE3DJUL
+16                 35-41 AVP_RP1 $ 43 AVP_RP2 $ 45 AVP_RP3 $ 47 MVP_RP1 $ 49 MVP_RP2 $ 51
+17                 MVP_RP3 $ 53 TVP_RP1 $ 55 TVP_RP2 $ 57 TVP_RP3 $ 59 RP1DJUL 61-67
+18                 RP2DJUL 69-75 RP3DJUL 77-83 REOP1DAT $ 85-92 REOP2DAT $ 94-101 REOP3DAT
+19                 $ 103-110 INT_DEAD 111-120 5 OPDJUL 122-128 DEAD 130 FUPDJUL 132-138
+20                 TE1GRADE 140 TE2GRADE 142 TE3GRADE 144;
+21           LABEL
+22                 STUDY    = 'Study number'
+23                 TE1      = 'First TE'
+24                 TE2      = 'Second TE'
+25                 TE3      = 'Third TE'
+26                 TE1DJUL  = 'First TE Julian date'
+27                 TE2DJUL  = 'Second TE Julian date'
+28                 TE3DJUL  = 'Third TE Julian date'
+29                 AVP_RP1  = 'Aortc Replacement'
+30                 AVP_RP2  = 'Aortc Replacement'
+31                 AVP_RP3  = 'Aortc Replacement'
+32                 MVP_RP1  = 'Mitral Replacement'
+33                 MVP_RP2  = 'Mitral Replacement'
+34                 MVP_RP3  = 'Mitral Replacement'
+35                 TVP_RP1  = 'Tricuspid Replacement'
+36                 TVP_RP2  = 'Tricuspid Replacement'
+37                 TVP_RP3  = 'Tricuspid Replacement'
+38                 RP1DJUL  = 'First reop Julian date'
+39                 RP2DJUL  = 'Second reop Julian date'
+40                 RP3DJUL  = 'Thrid reop Julian date'
+41                 DEAD     = 'Death'
+42                 INT_DEAD = 'Followup interval (months) after repair'
+43                 FUPDJUL  = 'Followup Julian date'
+44           ;
+45         *******************************************************************************;
+46         * Censor all patients at valve replacement                                     ;
+47           IF TE1=1 AND TE1DJUL=. THEN DELETE;
+48           IF TE1=. THEN TE1=0; IF TE2=. THEN TE2=0; IF TE3=. THEN TE3=0;
+49           IF AVP_RP3='R' OR MVP_RP3='R' OR TVP_RP3='R' THEN DO;
+50             REPL=1; REPLDJUL=RP3DJUL; REPLDATE=REOP3DAT; END;
+51           IF AVP_RP2='R' OR MVP_RP2='R' OR TVP_RP2='R' THEN DO;
+52             REPL=1; REPLDJUL=RP2DJUL; REPLDATE=REOP2DAT; END;
+53           IF AVP_RP1='R' OR MVP_RP1='R' OR TVP_RP1='R' THEN DO;
+54             REPL=1; REPLDJUL=RP1DJUL; REPLDATE=REOP1DAT; END;
+55           IF REPL=. THEN REPL=0;
+56           IF REPL=0 THEN REPLDJUL=FUPDJUL;
+57         
+58           IF REPL=1 THEN DO ;
+59             IF TE1=1 THEN DO; IF TE1DJUL GE REPLDJUL THEN TE1=0; END;
+60             IF TE2=1 THEN DO; IF TE2DJUL GE REPLDJUL THEN TE2=0; END;
+61             IF TE3=1 THEN DO; IF TE3DJUL GE REPLDJUL THEN TE3=0; END;
+62           END;
+63         *******************************************************************************;
+64         * Prepare a separate observation for each intra-embolic interval               ;
+65         * General interval with be that to replacement                                 ;
+66           INT_REPL=INT_DEAD;
+67           IF REPL=1 THEN INT_REPL=(REPLDJUL-OPDJUL)*12/365.2425;
+68         *                                                                              ;
+69         * Output an observation from the time of last TE until INT_REPL                ;
+70         * This entails setting CENSORED to 1, the interval to INT_REPL, the event      ;
+2                                                          The SAS System                           13:44 Monday, September 18, 2000
+
+71         * indicator to 0, and the stating time to that of the preceding event or       ;
+72         * operaition (if no event):                                                    ;
+73         *                                                                              ;
+74           CENSORED=1; INT_TE=INT_REPL; TE=0; STARTTME=0; NOPREVTE=0;
+75           IF TE1=1 THEN DO; STARTTME=12*(TE1DJUL-OPDJUL)/365.2425; NOPREVTE=1; END;
+76               /* 2 patients had embolic events in the hospital */
+77             IF STUDY='039' THEN STARTTME=(3/24)*12/365.2425;
+78             IF STUDY='096' THEN STARTTME=(2/24)*12/365.2425;
+79               /* 1 patient died on same day as te */
+80         /*    IF STUDY='173' THEN DO; STARTTME=0; TE=1; END;  */
+81         * The previous statement is an effort to remove a zero censored interval, but
+82         * it is placed incorrectly and produces and error (TE is remodulated at wrong
+83         * level). ;
+84           IF TE2=1 THEN DO; STARTTME=12*(TE2DJUL-OPDJUL)/365.2425; NOPREVTE=2; END;
+85           IF TE3=1 THEN DO; STARTTME=12*(TE3DJUL-OPDJUL)/365.2425; NOPREVTE=3; END;
+86           OUTPUT;
+87         *                                                                              ;
+88         * Now calculate a inter-event segement for each TE, and output as a separate   ;
+89         * observation with starting time the time from t=0 of the immediately prior    ;
+90         * event (or ; * the operation) and the ending time the time from t=0 of the    ;
+91         * next event or censoring.                                                     ;
+92         *                                                                              ;
+93         * First event:                                                                 ;
+94           IF TE1=1 /* AND STUDY NE '173' */ THEN DO;
+95         * See previous comment about study # 173 ;
+96             STARTTME=0; INT_TE=12*(TE1DJUL-OPDJUL)/365.2425;
+97             /* 2 patients had embolic events in the hospital */
+98             IF STUDY='039' THEN INT_TE=(3/24)*12/365.2425;
+99             IF STUDY='096' THEN INT_TE=(2/24)*12/365.2425;
+100            CENSORED=0; TE=1; NOPREVTE=0;
+101            OUTPUT;
+102          END;
+103        *                                                                              ;
+104        * Second event:                                                                ;
+105          IF TE2=1 THEN DO;
+106            STARTTME=12*(TE1DJUL-OPDJUL)/365.2425;
+107            IF STUDY='039' THEN STARTTME=(3/24)*12/365.2425;
+108            IF STUDY='096' THEN STARTTME=(2/24)*12/365.2425;
+109            INT_TE=12*(TE2DJUL-OPDJUL)/365.2425;
+110            CENSORED=0; TE=1; NOPREVTE=1;
+111            OUTPUT;
+112          END;
+113        *                                                                              ;
+114        * Third event:                                                                 ;
+115          IF TE3=1 THEN DO;
+116            STARTTME=12*(TE2DJUL-OPDJUL)/365.2425;
+117            INT_TE=12*(TE3DJUL-OPDJUL)/365.2425;
+118            CENSORED=0; TE=1; NOPREVTE=2;
+119            OUTPUT;
+120          END;
+121          KEEP STUDY TE1 TE2 TE3 INT_TE STARTTME CENSORED TE NOPREVTE;
+122        *******************************************************************************;
+123        * Estimate parameters of the distribution of the event                         ;
+124          %HAZARD(
+125          PROC HAZARD DATA=PRIMISOL CONSERVE P OUTHAZ=OUTEST
+126               STEEPEST QUASI CONDITION=14;
+127               LCENSOR STARTTME;
+128               TIME INT_TE;
+129               RCENSOR CENSORED;
+130               EVENT TE;
+131               PARMS MUE=0.0174 THALF=0.06 NU=-1.74 M=0 FIXM
+132                     MUL=0.000209 TAU=1 FIXTAU ALPHA=1 FIXALPHA GAMMA=1 FIXGAMMA
+133                     ETA=1.32 WEIBULL;
+134          );
+
+NOTE: The infile INOMC is:
+      File Name=/home/jehrling/hazard-4.1/examples/data/omc,
+      Owner Name=jehrling,Group Name=ctsurg,
+      Access Permission=rwxr-xr-x,
+      File Size (bytes)=49155
+
+NOTE: 339 records were read from the infile INOMC.
+      The minimum record length was 144.
+      The maximum record length was 144.
+NOTE: The data set WORK.PRIMISOL has 383 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.12 seconds
+      cpu time            0.11 seconds
+      
+
+
+Note: Procedure HAZARD (C-Version 4.037)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: 1 observation(s) with inadmissible values.
+Note: 1 total observation(s) deleted.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: There were 17 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.OUTEST has 17 observations and 14 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+3                                                          The SAS System                           13:44 Monday, September 18, 2000
+
+135        *******************************************************************************;
+136        * Bring in Nelson life table method for repeating, morbid events               ;
+137          FILENAME NELSONL ('!MACROS/nelsonl.sas');
+138          OPTIONS NOSOURCE; %INC NELSONL; OPTIONS SOURCE;
+256        *______________________________________________________________________________;
+257        *                                                                              ;
+258        * DEFINITIONS OF CALLING ARGUMENTS:            DEFAULT:                        ;
+259        *                                                                              ;
+260        *   INTERVAL = Time variable                     INTERVAL                      ;
+261        *   EVENT    = Event (0/1) indicator             EVENT                         ;
+262        *   CENSORED = Censorer (0/1) indicator          CENSORED                      ;
+263        *   STRATIFY = Stratification variable           'ALL'                         ;
+264        *   CLEVEL   = Confidence coefficient            0.68268948 (1 sd)             ;
+265        *   IN       = Input data set name                                             ;
+266        *   OUT      = Output data set name              EVENT                         ;
+267        *   CUMDIST  = Cumulative hazard function        CUMDIST                       ;
+268        *   WEIGHT   = Severity level of event           1                             ;
+269        *                                                                              ;
+270        *______________________________________________________________________________;
+271        *                                                                              ;
+272          %NELSONL(INTERVAL=INT_TE, EVENT=TE, CENSORED=CENSORED, IN=PRIMISOL,
+273                   OUT=NELOUT, CUMDIST=CUMDIST);
+
+NOTE: There were 383 observations read from the dataset WORK.PRIMISOL.
+NOTE: The data set WORK.PRIMISOL has 383 observations and 16 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 383 observations read from the dataset WORK.PRIMISOL.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      273:139   
+NOTE: There were 1 observations read from the dataset WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 383 observations read from the dataset WORK.PRIMISOL.
+NOTE: The data set WORK.DATA1 has 376 observations and 9 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 376 observations read from the dataset WORK.DATA1.
+NOTE: The data set WORK.M1 has 1 observations and 4 variables.
+NOTE: PROCEDURE MEANS used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 376 observations read from the dataset WORK.DATA1.
+NOTE: There were 1 observations read from the dataset WORK.M1.
+NOTE: The data set WORK.NELOUT has 376 observations and 30 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 376 observations read from the dataset WORK.NELOUT.
+NOTE: The data set WORK.NELOUT has 376 observations and 19 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+274          DATA PRINT; SET NELOUT; IF TE>0;
+
+NOTE: There were 376 observations read from the dataset WORK.NELOUT.
+NOTE: The data set WORK.PRINT has 43 observations and 19 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+275          PROC PRINT; VAR INT_TE TE CENSORED WEIGHT NRISK NUMRISK CUMDIST
+276                          SE_CEF CLL_CEF CLU_CEF;
+277        *******************************************************************************;
+278        * Calculate parametric estimates of survivorship and hazard functions          ;
+279          %HAZPRED(
+280          PROC HAZPRED DATA=NELOUT INHAZ=OUTEST OUT=PREDICT; TIME INT_TE;);
+
+NOTE: There were 43 observations read from the dataset WORK.PRINT.
+4                                                          The SAS System                           13:44 Monday, September 18, 2000
+
+NOTE: The PROCEDURE PRINT printed page 3.
+NOTE: PROCEDURE PRINT used:
+      real time           0.03 seconds
+      cpu time            0.04 seconds
+      
+
+
+Note: Procedure HAZPRED (C-Version 4.036)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 376 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.PREDICT has 376 observations and 31 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+281          DATA PREDICT; SET PREDICT;
+282          _CUMHAZ=-LOG(_SURVIV); _CLLCUMH=-LOG(_CLUSURV); _CLUCUMH=-LOG(_CLLSURV);
+283          D_CUMHAZ=CUMDIST-_CUMHAZ;
+284        *******************************************************************************;
+285        * Plot various survival functions                                              ;
+
+NOTE: There were 376 observations read from the dataset WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 376 observations and 35 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+286          PROC PLOT;
+287               PLOT CUMDIST*INT_TE='*' CLL_CEF*INT_TE='-' CLU_CEF*INT_TE='-'
+288                    _CUMHAZ*INT_TE='P' _CLLCUMH*INT_TE='.' _CLUCUMH*INT_TE='.'
+289                    /OVERLAY;
+290               PLOT D_CUMHAZ*INT_TE='*';
+291        *______________________________________________________________________________;
+292        *                                                                              ;
+293        * Now, a completely different estimate:  Modulated Renewal Process             ;
+294        * This requires the reentry of patients exactly as above, except that each     ;
+295        * patient now reenters at a new time zero.                                     ;
+296        *______________________________________________________________________________;
+297        *                                                                              ;
+
+NOTE: There were 376 observations read from the dataset WORK.PREDICT.
+NOTE: The PROCEDURE PLOT printed pages 4-5.
+NOTE: PROCEDURE PLOT used:
+      real time           0.06 seconds
+      cpu time            0.03 seconds
+      
+
+298          DATA PRIMISOL; SET PRIMISOL;
+299          INT_TE=INT_TE - STARTTME;
+300          NOTE2=NOPREVTE*NOPREVTE;
+301          NOTEE=EXP(NOPREVTE);
+302        *******************************************************************************;
+303        * Estimate parameters of the distribution of the event                         ;
+304          %HAZARD(
+305          PROC HAZARD DATA=PRIMISOL OUTHAZ=OUTEST CONDITION=14 P CONSERVE;
+306               TIME INT_TE;
+307               EVENT TE;
+308               PARMS MUE=0.01505178 THALF=0.05289487 NU=-1.737965 M=0 FIXM
+309                     MUL=0.0009220701 TAU=1 FIXTAU ALPHA=1 FIXALPHA GAMMA=1 FIXGAMMA
+310                     ETA=1 FIXETA WEIBULL;
+311               LATE NOPREVTE=2.653528, NOTEE=-0.3680751;
+312          );
+
+NOTE: There were 383 observations read from the dataset WORK.PRIMISOL.
+NOTE: The data set WORK.PRIMISOL has 383 observations and 18 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+
+Note: Procedure HAZARD (C-Version 4.037)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: 1 observation(s) with inadmissible values.
+Note: 1 total observation(s) deleted.
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+
+NOTE: There were 23 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.OUTEST has 23 observations and 20 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+313        *******************************************************************************;
+5                                                          The SAS System                           13:44 Monday, September 18, 2000
+
+314        * Plot various survival functions                                              ;
+315          FILENAME INMACRO ('!MACROS/kaplan.sas');
+316          OPTIONS NOSOURCE; %INC INMACRO; OPTIONS SOURCE;
+508          DATA PRIMISOL; SET PRIMISOL;
+509          %KAPLAN(IN=PRIMISOL, OUT=PLOUT, INTERVAL=INT_TE, EVENT=TE,
+510                  STRATIFY=NOPREVTE, OEVENT=0, NOPRINT=1);
+
+NOTE: There were 383 observations read from the dataset WORK.PRIMISOL.
+NOTE: The data set WORK.PRIMISOL has 383 observations and 18 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 383 observations read from the dataset WORK.PRIMISOL.
+NOTE: The data set WORK._REFINE_ has 382 observations and 18 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 382 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 382 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: There were 382 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      2531:195   
+NOTE: There were 1 observations read from the dataset WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: There were 382 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.S1 has 4 observations and 8 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 4 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.S1 has 4 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 4 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.NSET has 4 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: There were 382 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.BASIC1 has 375 observations and 7 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+      
+
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 375 observations read from the dataset WORK.BASIC1.
+NOTE: The data set WORK.BASIC has 375 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+6                                                          The SAS System                           13:44 Monday, September 18, 2000
+
+      510:232   
+NOTE: There were 375 observations read from the dataset WORK.BASIC.
+NOTE: There were 4 observations read from the dataset WORK.NSET.
+NOTE: The data set WORK.KAPLAN has 375 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.05 seconds
+      
+
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 375 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.PLOUT has 375 observations and 29 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 375 observations read from the dataset WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 375 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+511          DATA PLOUT; SET PLOUT;
+512          NOTEE=EXP(NOPREVTE);
+513          %HAZPRED( PROC HAZPRED DATA=PLOUT INHAZ=OUTEST OUT=PREDICT; TIME INT_TE; );
+
+NOTE: There were 375 observations read from the dataset WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 375 observations and 16 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+Note: Procedure HAZPRED (C-Version 4.036)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 375 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.PREDICT has 375 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+514          PROC PLOT; PLOT _SURVIV*INT_TE='*' CUM_SURV*INT_TE='+'
+515                    (_CLLSURV _CLUSURV)*INT_TE='.'
+516                    (CL_LOWER CL_UPPER)*INT_TE='-'
+517                    /OVERLAY VAXIS=0 TO 1 BY 0.1;
+518        *******************************************************************************;
+519        RUN;
+
+NOTE: There were 375 observations read from the dataset WORK.PREDICT.
+NOTE: The PROCEDURE PLOT printed page 9.
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+      cpu time            0.04 seconds
+      
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           15.18 seconds
+      cpu time            1.53 seconds
+      

@@ -1,0 +1,350 @@
+1                                        The SAS System           14:08 Friday, November 10, 2000
+
+NOTE: Copyright (c) 1999-2000 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Release 8.1 (TS1M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0008874001.
+NOTE: This session is executing on the WIN_PRO  platform.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.68 seconds
+      cpu time            0.37 seconds
+      
+1            OPTIONS PAGESIZE=100 LINESIZE=132;
+2          *******************************************************************************;
+3          * !HZEXAMPLES/hz.death.AVC                                                     ;
+4          *                                                                              ;
+5          * Death after repair of atrioventricular septal defects                        ;
+6          *******************************************************************************;
+7          * Bring in data                                                                ;
+8            TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+9            TITLE2 'Example Data Set';
+10           TITLE3 'Death After Repair';
+11           TITLE4 'Determnine Hazard Function';
+12         *______________________________________________________________________________;
+13         *                                                                              ;
+14         * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+15         *        data.  For illustration, a few variables from a data set for repair   ;
+16         *        of atrioventricular septal defects will be read from a "flat file."   ;
+17         *______________________________________________________________________________;
+18         *                                                                              ;
+19           FILENAME INAVC ('!HZEXAMPLES/data/avc');
+20           DATA AVCS; INFILE INAVC MISSOVER;
+21           INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+22                 OP_AGE;
+23           LABEL
+24                 STUDY    = 'Study number'
+25                 STATUS   = 'Clinical status (NYHA I-V)'
+26                 INC_SURG = 'Surgical grade of AV valve incompetence'
+27                 OPMOS    = 'Date of operation (months since 1/67)'
+28                 AGE      = 'Age (months) at repair'
+29                 MAL      = 'Important associated cardiac anomaly'
+30                 COM_IV   = 'Interventricular communication'
+31                 ORIFICE  = 'Accessory left AV valve orifice'
+32                 DEAD     = 'Death'
+33                 INT_DEAD = 'Followup interval (months) after repair'
+34           ;
+35           KEEP INT_DEAD DEAD;
+36         *******************************************************************************;
+37         * Estimate parameters of the distribution of the event                         ;
+38           LIBNAME EXAMPLES ('!HZEXAMPLES/sasest');
+NOTE: Libref EXAMPLES was successfully assigned as follows: 
+      Levels:           1
+      Engine(1):        V8 
+      Physical Name(1): c:\hazard\examples\sasest
+39         *options mprint mlogic;
+40           %let hzrdelds = 1;
+41           %HAZARD(
+42           PROC HAZARD DATA=AVCS CONSERVE P OUTHAZ=EXAMPLES.HZDEATH
+43                STEEPEST QUASI CONDITION=14;
+44                EVENT DEAD;
+45                TIME INT_DEAD;
+46                PARMS MUE=0.2361727 THALF=0.1512095 NU=1.438652 M=1 FIXM
+47                      MUC=0.0005436977;
+48         *      PARMS MUE=0.25 THALF=0.15 NU=1  M=1  MUC=0.0005;
+49         *      PARMS MUE=0.25 THALF=0.15 NU=-1 M=1  MUC=0.0005;
+50         *      PARMS MUE=0.25 THALF=0.15 NU=1  M=-1 MUC=0.0005;
+51           );
+
+NOTE: The infile INAVC is:
+      File Name=c:\hazard\examples\data\avc,
+      RECFM=V,LRECL=256
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.18 seconds
+      cpu time            0.09 seconds
+      
+
+Running hazard c:\hazard\bin\hazard.bat on Windows with data C:\WINNT\TEMP\hzr.J1844.X5
+52         *______________________________________________________________________________;
+53         *                                                                              ;
+54         * NOTE:  Normally the cumulative hazard function plot will help in determining ;
+55         *        the number of phases and the starting values for parameters, as       ;
+56         *        described in the documentation.                                       ;
+57         *                                                                              ;
+58         *        Then, for the early phase, we have explored the 3 branches:           ;
+59         *              NU>0, M>0                                                       ;
+60         *              NU<0, M>0                                                       ;
+61         *              NU>0, M<0                                                       ;
+62         *        as seen above by the commented out PARMS statements.  We did this     ;
+63         *        with the plotting stuff below all excluded by /*  */ s.  This job,    ;
+64         *        then, represents the final output of our explorations.  We chose      ;
+65         *        to use STEEPEST QUASI, but the algorithm QUASI would have served      ;
+66         *        as well.  These explorations revealed that for NU>0, M>0, M was not   ;
+67         *        different from 1 (LL -210.5).  For NU<0, M>0, M also was not different;
+68         *        from 1 (LL -210.5), as we might expect, since these branches converge ;
+2                                                          The SAS System                            14:08 Friday, November 10, 2000
+
+69         *        when M=1.  For NU>0, M<0, NU is tending toward 2 (LL -210.8).  We     ;
+70         *        have chosen as the final model NU>0, M=1.                             ;
+71         *                                                                              ;
+72         *        An early phase alone has a LL of -215, so the constant phase is       ;
+73         *        needed.                                                               ;
+74         *______________________________________________________________________________;
+75         *                                                                              ;
+76         *******************************************************************************;
+77         * Plot various survival functions                                              ;
+78           FILENAME HAZPLOT ('!MACROS/hazplot.sas');
+79           OPTIONS NOSOURCE; %INC HAZPLOT; OPTIONS SOURCE;
+408          %HAZPLOT(INTERVAL=INT_DEAD,EVENT=DEAD,IN=AVCS,INEST=EXAMPLES.HZDEATH,
+409                   PDETAIL=1, PLOTI=1, HLABEL=Months After Repair,
+410                   ELABEL=Death After Repair);
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 310 observations read from the data set WORK.AVCS.
+NOTE: The data set WORK._REFINE_ has 310 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 310 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      1970:195   
+NOTE: There were 1 observations read from the data set WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK.S1 has 1 observations and 8 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.S1.
+NOTE: The data set WORK.S1 has 1 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.S1.
+NOTE: The data set WORK.NSET has 1 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+NOTE: There were 310 observations read from the data set WORK._REFINE_.
+NOTE: The data set WORK.BASIC1 has 273 observations and 7 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 273 observations read from the data set WORK.BASIC1.
+NOTE: The data set WORK.BASIC has 273 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+3                                                          The SAS System                            14:08 Friday, November 10, 2000
+
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 273 observations read from the data set WORK.BASIC.
+NOTE: There were 1 observations read from the data set WORK.NSET.
+NOTE: The data set WORK.KAPLAN has 273 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 273 observations read from the data set WORK.KAPLAN.
+NOTE: The data set WORK.PLOUT has 273 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 273 observations read from the data set WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 273 observations and 14 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 273 observations read from the data set WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 273 observations and 16 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1844.X15
+ERROR: File WORK.PREDICT.DATA does not exist.ERROR: File WORK.PREDICT.DATA does not exist.ERROR: File WORK.PREDICT.DATA does not exist.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: SAS set option OBS=0 and will continue to check statements. This may cause NOTE: No observations in data set.
+WARNING: The data set WORK.PREDICT may be incomplete.  When this step was stopped there were 0 observations and 76 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.OUTTEST may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
+WARNING: Data set WORK.OUTTEST was not replaced because this step was stopped.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      601:11   601:47   601:82   
+NOTE: The data set WORK.OUTTEST has 0 observations and 6 variables.
+WARNING: Data set WORK.OUTTEST was not replaced because this step was stopped.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+WARNING: Apparent symbolic reference P_EARLY not resolved.
+ERROR: A character operand was found in the %EVAL function or %IF condition where a numeric operand is required. The condition was: ERROR: A character operand was found in the %EVAL function or %IF condition where a numeric operand is required. The condition was: ERROR: A character operand was found in the %EVAL function or %IF condition where a numeric operand is required. The condition was: 
+       &P_EARLY        &P_EARLY        &P_EARLY 
+ERROR: The macro HAZPLOT will stop executing.ERROR: The macro HAZPLOT will stop executing.ERROR: The macro HAZPLOT will stop executing.
+602        *******************************************************************************;
+603        * Digital nomogram                                                             ;
+
+NOTE: No observations in data set WORK.PREDICT.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PLOT used:
+      real time           0.03 seconds
+4                                                          The SAS System                            14:08 Friday, November 10, 2000
+
+      cpu time            0.03 seconds
+      
+
+
+604          DATA DIG;
+605          DTY=12/365.2425;
+606          DO MONTHS=1*DTY,2*DTY,3*DTY,4*DTY,5*DTY,6*DTY,7*DTY,14*DTY,30*DTY,
+607          1,2,3,6,12,18,24 TO 180 BY 12;
+608            YEARS=MONTHS/12;
+609            OUTPUT;
+610          END;
+611          %HAZPRED(
+612          PROC HAZPRED DATA=DIG INHAZ=EXAMPLES.HZDEATH OUT=DIG; TIME MONTHS;
+613          );
+
+NOTE: The data set WORK.DIG has 0 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+Running hazpred c:\hazard\bin\hazpred.bat on Windows with data C:\WINNT\TEMP\hzp.J1844.X23
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.ERROR: The NOREPLACE function is not supported by the XPORT engine.
+614          PROC PRINT D; VAR MONTHS YEARS
+615               _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ;
+ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.ERROR: Variable _SURVIV not found.
+ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.ERROR: Variable _CLLSURV not found.
+ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.ERROR: Variable _CLUSURV not found.
+ERROR: Variable _HAZARD not found.ERROR: Variable _HAZARD not found.ERROR: Variable _HAZARD not found.
+ERROR: Variable _CLLHAZ not found.ERROR: Variable _CLLHAZ not found.ERROR: Variable _CLLHAZ not found.
+ERROR: Variable _CLUHAZ not found.ERROR: Variable _CLUHAZ not found.ERROR: Variable _CLUHAZ not found.
+616        *******************************************************************************;
+617        RUN;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINT used:
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+ERROR: Errors printed on pages 3,4.ERROR: Errors printed on pages 3,4.ERROR: Errors printed on pages 3,4.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           5.18 seconds
+      cpu time            1.61 seconds
+      

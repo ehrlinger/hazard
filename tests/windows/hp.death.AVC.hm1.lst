@@ -1,0 +1,11 @@
+                                       Repair of Atrioventricular Septal (A-V Canal) Defects     14:08 Friday, November 10, 2000   1
+                                                          Example Data Set
+                                            Multivariable Analysis of Death After Repair
+                                        Solve Multivariable Equation for Survival and Hazard
+                                      In Complete Canal With and Without Associated Anomalies
+                                            For a 6-month Old Infant in the Current Era
+
+                     Obs    AGE    COM_IV    ORIFICE    INC_SURG    STATUS    OPMOS    OPYEAR    OP_AGE    MAL
+
+                      1      6        1         0           0          3       180      1982      1080      0 
+                      2      6        1         0           0          3       180      1982      1080      1 

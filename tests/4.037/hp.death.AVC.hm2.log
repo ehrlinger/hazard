@@ -1,0 +1,217 @@
+1                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+NOTE: Copyright (c) 1999 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software Version 8 (TS M0)
+      Licensed to CLEVELAND CLINIC FOUNDATION, Site 0007023003.
+NOTE: This session is executing on the SunOS 5.6 platform.
+
+
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the files "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+NOTE: SAS initialization used:
+      real time           0.13 seconds
+      cpu time            0.06 seconds
+      
+
+NOTE: AUTOEXEC processing beginning; file is /vol/sas8/autoexec.sas.
+
+NOTE: Libref GDEVICE0 was successfully assigned as follows: 
+      Engine:        V8 
+      Physical Name: /vol/sas8/gdevice0
+
+NOTE: AUTOEXEC processing completed.
+
+1            OPTIONS PAGESIZE=100 LINESIZE=132;
+2          *******************************************************************************;
+3          * !HZEXAMPLES/hp.death.AVC.hm2                                                 ;
+4          *                                                                              ;
+5          * Multivariable analysis of death after repair                                 ;
+6          *                                                                              ;
+7          * Exploration of strength of risk factors.                                     ;
+8          *                                                                              ;
+9          * Display strength of date of repair in partial and complete forms of AV Canal ;
+10         *******************************************************************************;
+11           TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+12           TITLE2 'Example Data Set';
+13           TITLE3 'Multivariable Analysis of Death After Repair';
+14           TITLE4 'Solve Multivariable Equation for 6-Months Survival';
+15           TITLE5 'In Complete and Partial Canal According to Date of Repair';
+16         *______________________________________________________________________________;
+17         *                                                                              ;
+18         * Model:                                                                       ;
+19         * Early Hazard Phase:                                                          ;
+20         *   AGE COM_IV MAL OPMOS OP_AGE STATUS                                         ;
+21         * Constant Hazard Phase:                                                       ;
+22         *   INC_SURG ORIFICE STATUS                                                    ;
+23         *______________________________________________________________________________;
+24         *                                                                              ;
+25         * Set values for standard model incremental risk factors variables.            ;
+26           DATA DESIGN;
+27           AGE=6;         /* Six months of age                                         */
+28         * COM_IV=1;      /* Interventricular communication present                    */
+29           MAL=0;         /* Major associated cardiac anomaly                          */
+30           ORIFICE=0;     /* Accessory left AV valve orifice                           */
+31           INC_SURG=0;    /* Degree of AV valve incompetence pre-repair                */
+32           STATUS=3;      /* Clinical status (NYHA I-IV)                               */
+33         * OPMOS=180;     /* Current data (1982)                                       */
+34           MONTHS=6;      /* Time of observation (months)                              */
+35         *______________________________________________________________________________;
+36         *                                                                              ;
+37         * Transformations of variables                                                 ;
+38         * OPYEAR=1967 + OPMOS/12;
+39         * OP_AGE=OPMOS*AGE;
+40           YEARS=MONTHS/12;
+41         *******************************************************************************;
+42         * Generate "isobars" of risk factors here, but check for possible              ;
+43         * transformations that may be needed.                                          ;
+44           DO COM_IV=0,1;
+45             OUTPUT;
+46           END;
+
+NOTE: The data set WORK.DESIGN has 2 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+47           PROC PRINT;
+48         *******************************************************************************;
+49         * Generate and output points                                                   ;
+
+NOTE: There were 2 observations read from the dataset WORK.DESIGN.
+NOTE: The PROCEDURE PRINT printed page 1.
+NOTE: PROCEDURE PRINT used:
+      real time           0.08 seconds
+      cpu time            0.01 seconds
+      
+
+50           DATA PREDICT; SET DESIGN; DIGITAL=0;
+51           MIN=0; MAX=180; INC=(MAX-MIN)/99.9;
+52           DO OPMOS=MIN TO MAX BY INC, MAX;
+53             OUTPUT;
+54           END;
+55           DROP MIN MAX INC;
+2                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+56         
+
+NOTE: There were 2 observations read from the dataset WORK.DESIGN.
+NOTE: The data set WORK.PREDICT has 202 observations and 10 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+57           DATA DIGITAL; SET DESIGN; DIGITAL=1;
+58           DO OPMOS=0 TO 180 BY 12;
+59             OUTPUT;
+60           END;
+61         
+
+NOTE: There were 2 observations read from the dataset WORK.DESIGN.
+NOTE: The data set WORK.DIGITAL has 32 observations and 10 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+62           DATA PREDICT; SET PREDICT DIGITAL;
+63           OPYEAR=1967 + OPMOS/12;
+64           OP_AGE=OPMOS*AGE;
+65         *******************************************************************************;
+66         * Do predictions                                                               ;
+67           LIBNAME EXAMPLES ('!HZEXAMPLES/sasest');
+NOTE: Directory for library EXAMPLES contains files of mixed engine types.
+NOTE: Libref EXAMPLES was successfully assigned as follows: 
+      Levels:           1
+      Engine(1):        V8 
+      Physical Name(1): /home/jehrling/hazard-4.1/examples/sasest
+68           %HAZPRED (
+69           PROC HAZPRED DATA=PREDICT INHAZ=EXAMPLES.HMDEATH OUT=PREDICT;
+70                TIME MONTHS;
+71           );
+
+NOTE: There were 202 observations read from the dataset WORK.PREDICT.
+NOTE: There were 32 observations read from the dataset WORK.DIGITAL.
+NOTE: The data set WORK.PREDICT has 234 observations and 12 variables.
+NOTE: DATA statement used:
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+
+Note: Procedure HAZPRED (C-Version 4.036)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: Procedure HAZPRED completed successfully.
+
+NOTE: There were 234 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.PREDICT has 234 observations and 24 variables.
+NOTE: DATA statement used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+72         *******************************************************************************;
+73         * Printer plot survival and hazard                                             ;
+74           PROC PLOT DATA=PREDICT; PLOT _SURVIV*OPYEAR=COM_IV
+75                        _CLLSURV*OPYEAR='.' _CLUSURV*OPYEAR='.'
+76                        /OVERLAY VAXIS=0 TO 1 BY 0.1;
+77         *******************************************************************************;
+78         * Digital nomogram                                                             ;
+
+NOTE: There were 234 observations read from the dataset WORK.PREDICT.
+NOTE: The PROCEDURE PLOT printed page 2.
+NOTE: PROCEDURE PLOT used:
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+79           DATA DIGITAL; SET PREDICT; IF DIGITAL=1;
+
+NOTE: There were 234 observations read from the dataset WORK.PREDICT.
+NOTE: The data set WORK.DIGITAL has 32 observations and 24 variables.
+NOTE: DATA statement used:
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+80           PROC SORT; BY COM_IV;
+
+NOTE: There were 32 observations read from the dataset WORK.DIGITAL.
+NOTE: The data set WORK.DIGITAL has 32 observations and 24 variables.
+NOTE: PROCEDURE SORT used:
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+81           PROC PRINT D; BY COM_IV; VAR MONTHS YEARS
+82                OPYEAR OPMOS AGE COM_IV MAL INC_SURG ORIFICE STATUS
+83                _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ;
+3                                                          The SAS System                           13:42 Monday, September 18, 2000
+
+84         *******************************************************************************;
+85         RUN;
+
+NOTE: There were 32 observations read from the dataset WORK.DIGITAL.
+NOTE: The PROCEDURE PRINT printed page 3.
+NOTE: PROCEDURE PRINT used:
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           2.86 seconds
+      cpu time            0.44 seconds
+      

@@ -1,0 +1,1422 @@
+100    OPTIONS PAGESIZE=100 LINESIZE=132;
+101  *******************************************************************************;
+102  * $hazard/examples/hz.death.AVC                                                ;
+103  *                                                                              ;
+104  * Death after repair of atrioventricular septal defects                        ;
+105  *******************************************************************************;
+106  * Bring in data                                                                ;
+107    TITLE1 'Repair of Atrioventricular Septal (A-V Canal) Defects';
+108    TITLE2 'Example Data Set';
+109    TITLE3 'Death After Repair';
+110    TITLE4 'Determnine Hazard Function';
+111  *______________________________________________________________________________;
+112  *                                                                              ;
+113  * NOTE:  Normally this would be a SAS data set, probably built from the raw    ;
+114  *        data.  For illustration, a few variables from a data set for repair   ;
+115  *        of atrioventricular septal defects will be read from a "flat file."   ;
+116  *______________________________________________________________________________;
+117  *                                                                              ;
+118    FILENAME INAVC ('$HZEXAMPLES/data/avc');
+119    DATA AVCS; INFILE INAVC MISSOVER;
+120    INPUT STUDY $ STATUS INC_SURG OPMOS AGE MAL COM_IV ORIFICE DEAD INT_DEAD
+121          OP_AGE;
+122    LABEL
+123          STUDY    = 'Study number'
+124          STATUS   = 'Clinical status (NYHA I-V)'
+125          INC_SURG = 'Surgical grade of AV valve incompetence'
+126          OPMOS    = 'Date of operation (months since 1/67)'
+127          AGE      = 'Age (months) at repair'
+128          MAL      = 'Important associated cardiac anomaly'
+129          COM_IV   = 'Interventricular communication'
+130          ORIFICE  = 'Accessory left AV valve orifice'
+131          DEAD     = 'Death'
+132          INT_DEAD = 'Followup interval (months) after repair'
+133    ;
+134    KEEP INT_DEAD DEAD;
+135  *******************************************************************************;
+136  * Estimate parameters of the distribution of the event                         ;
+137    LIBNAME EXAMPLES ('$HZEXAMPLES/sasest');
+NOTE: Libref EXAMPLES was successfully assigned as follows:
+      Levels:           1
+      Engine(1):        V6
+      Physical Name(1): /home/jehrling/seminar/examples/sasest
+138  options mprint mlogic;
+139    %let hzrdelds = 1;
+140    %HAZARD(
+MLOGIC(HAZARD):  Beginning execution.
+MLOGIC(HAZARD):  This macro was compiled from the autocall file /programs/apps/sas/hazard/hazard.sas
+141    PROC HAZARD DATA=AVCS CONSERVE P OUTHAZ=EXAMPLES.HZDEATH
+142         STEEPEST QUASI CONDITION=14;
+143         EVENT DEAD;
+144         TIME INT_DEAD;
+145         PARMS MUE=0.2361727 THALF=0.1512095 NU=1.438652 M=1 FIXM
+146               MUC=0.0005436977;
+147  *      PARMS MUE=0.25 THALF=0.15 NU=1  M=1  MUC=0.0005;
+148  *      PARMS MUE=0.25 THALF=0.15 NU=-1 M=1  MUC=0.0005;
+149  *      PARMS MUE=0.25 THALF=0.15 NU=1  M=-1 MUC=0.0005;
+150    );
+MLOGIC(HAZARD):  %GLOBAL  HZRNOTES HZRDEBUG HAZRC HZRDELDS
+MPRINT(HAZARD):   run;
+
+NOTE: The infile INAVC is:
+      File Name=/home/jehrling/seminar/examples/data/avc,
+      Owner Name=jehrling,Group Name=ctsurg,
+      Access Permission=r-xr-xr-x,
+      File Size (bytes)=16394
+
+NOTE: 310 records were read from the infile INAVC.
+      The minimum record length was 49.
+      The maximum record length was 56.
+NOTE: The data set WORK.AVCS has 310 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.31 seconds
+      cpu time            0.07 seconds
+
+
+MLOGIC(HAZARD):  %IF condition &hzrnotes eq 1 is FALSE
+MPRINT(HAZARD):   option nonotes;
+MLOGIC(HAZARD):  %LET (variable name is CODE)
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %LET (variable name is PROCSTMT)
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZARD):  %LET (variable name is CODEBLK)
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZARD):  %LET (variable name is CODEBLK)
+MLOGIC(QLEFT):  Beginning execution.
+MLOGIC(QLEFT):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/qleft.sas
+MLOGIC(QLEFT):  Parameter TEXT has value AVCS CONSERVE P OUTHAZEXAMPLES.HZDEATH        STEEPEST QUASI CONDITION14        EVENT
+                DEAD        TIME INT_DEAD        PARMS MUE0.2361727 THALF0.1512095 NU1.438652 M1 FIXM
+                MUC0.0005436977       PARMS MUE0.25 THALF0.15 NU1  M1  MUC0.0005       PARMS MUE0.25 THALF0.15 NU1
+                M1  MUC0.0005       PARMS MUE0.25 THALF0.15 NU1  M1 MUC0.0005   
+MLOGIC(QLEFT):  %LOCAL  I
+MLOGIC(QLEFT):  %IF condition %length(&text)=0 is FALSE
+MLOGIC(QLEFT):  %LET (variable name is I)
+MLOGIC(VERIFY):  Beginning execution.
+MLOGIC(VERIFY):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/verify.sas
+MLOGIC(VERIFY):  Parameter TEXT has value AVCS CONSERVE P OUTHAZEXAMPLES.HZDEATH        STEEPEST QUASI CONDITION14        EVENT
+                 DEAD        TIME INT_DEAD        PARMS MUE0.2361727 THALF0.1512095 NU1.438652 M1 FIXM
+                 MUC0.0005436977       PARMS MUE0.25 THALF0.15 NU1  M1  MUC0.0005       PARMS MUE0.25 THALF0.15 NU1
+                 M1  MUC0.0005       PARMS MUE0.25 THALF0.15 NU1  M1 MUC0.0005   
+MLOGIC(VERIFY):  Parameter TARGET has value  
+MLOGIC(VERIFY):  %LOCAL  I
+MLOGIC(VERIFY):  %IF condition %length(&text)=0 | %length(&target)=0 is FALSE
+MLOGIC(VERIFY):  %DO loop beginning; index variable I; start value is 1; stop value is 383; by value is 1.
+MLOGIC(VERIFY):  %IF condition ^%index(&target,%qsubstr(&text,&i,1)) is TRUE
+MLOGIC(VERIFY):  %GOTO VERFND (label resolves to VERFND).
+MLOGIC(VERIFY):  %IF condition &i>%length(&text) is FALSE
+MLOGIC(VERIFY):  Ending execution.
+MLOGIC(QLEFT):  %IF condition &i is TRUE
+MLOGIC(QLEFT):  Ending execution.
+MLOGIC(HAZARD):  %LET (variable name is DATANAME)
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZARD):  %LET (variable name is CODEBLK)
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZARD):  %LET (variable name is CODEBLK)
+MLOGIC(QLEFT):  Beginning execution.
+MLOGIC(QLEFT):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/qleft.sas
+MLOGIC(QLEFT):  Parameter TEXT has value EXAMPLES.HZDEATH        STEEPEST QUASI CONDITION14        EVENT DEAD        TIME
+                INT_DEAD        PARMS MUE0.2361727 THALF0.1512095 NU1.438652 M1 FIXM              MUC0.0005436977 
+                PARMS MUE0.25 THALF0.15 NU1  M1  MUC0.0005       PARMS MUE0.25 THALF0.15 NU1 M1  MUC0.0005 
+                PARMS MUE0.25 THALF0.15 NU1  M1 MUC0.0005   
+MLOGIC(QLEFT):  %LOCAL  I
+MLOGIC(QLEFT):  %IF condition %length(&text)=0 is FALSE
+MLOGIC(QLEFT):  %LET (variable name is I)
+MLOGIC(VERIFY):  Beginning execution.
+MLOGIC(VERIFY):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/verify.sas
+MLOGIC(VERIFY):  Parameter TEXT has value EXAMPLES.HZDEATH        STEEPEST QUASI CONDITION14        EVENT DEAD        TIME
+                 INT_DEAD        PARMS MUE0.2361727 THALF0.1512095 NU1.438652 M1 FIXM              MUC0.0005436977 
+                 PARMS MUE0.25 THALF0.15 NU1  M1  MUC0.0005       PARMS MUE0.25 THALF0.15 NU1 M1  MUC0.0005 
+                 PARMS MUE0.25 THALF0.15 NU1  M1 MUC0.0005   
+MLOGIC(VERIFY):  Parameter TARGET has value  
+MLOGIC(VERIFY):  %LOCAL  I
+MLOGIC(VERIFY):  %IF condition %length(&text)=0 | %length(&target)=0 is FALSE
+MLOGIC(VERIFY):  %DO loop beginning; index variable I; start value is 1; stop value is 360; by value is 1.
+MLOGIC(VERIFY):  %IF condition ^%index(&target,%qsubstr(&text,&i,1)) is TRUE
+MLOGIC(VERIFY):  %GOTO VERFND (label resolves to VERFND).
+MLOGIC(VERIFY):  %IF condition &i>%length(&text) is FALSE
+MLOGIC(VERIFY):  Ending execution.
+MLOGIC(QLEFT):  %IF condition &i is TRUE
+MLOGIC(QLEFT):  Ending execution.
+MLOGIC(HAZARD):  %LET (variable name is OUTHAZNM)
+MLOGIC(HAZARD):  %LET (variable name is JOBID)
+MLOGIC(HAZARD):  %LET (variable name is JOBIX)
+MLOGIC(HAZARD):  %LET (variable name is PREFIX)
+WARNING: The argument to macro function %SYSGET is not defined as a system variable.
+MLOGIC(HAZARD):  %IF condition %sysget(HZtest)=new is FALSE
+MLOGIC(HAZARD):  %LET (variable name is HAZPGM)
+MPRINT(HAZARD):   data _null_;
+MPRINT(HAZARD):   file "/tmp/hzr.J12733.X11.sas";
+MLOGIC(HAZARD):  %DO %WHILE(%length(&code)>150) loop beginning; condition is TRUE.
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %DO %WHILE(%qsubstr(&code,&i,1)^=%quote( )) loop beginning; condition is TRUE.
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %DO %WHILE(%qsubstr(&code,&i,1)^=%quote( )) condition is TRUE; loop will  iterate again.
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %DO %WHILE(%qsubstr(&code,&i,1)^=%quote( )) condition is TRUE; loop will  iterate again.
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %DO %WHILE(%qsubstr(&code,&i,1)^=%quote( )) condition is TRUE; loop will  iterate again.
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %DO %WHILE(%qsubstr(&code,&i,1)^=%quote( )) condition is TRUE; loop will  iterate again.
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %DO %WHILE() condition is FALSE; loop will not iterate again.
+MLOGIC(HAZARD):  %LET (variable name is CODEBLK)
+MPRINT(HAZARD):   put "(   PROC HAZARD DATA=AVCS CONSERVE P OUTHAZ=EXAMPLES.HZDEATH        STEEPEST QUASI CONDITION=14;
+EVENT DEAD;        TIME INT_DEAD;        " @;
+MLOGIC(HAZARD):  %LET (variable name is CODE)
+MLOGIC(HAZARD):  %DO %WHILE(%length(&code)>150) condition is TRUE; loop will  iterate again.
+MLOGIC(HAZARD):  %LET (variable name is I)
+MLOGIC(HAZARD):  %DO %WHILE(%qsubstr(&code,&i,1)^=%quote( )) loop beginning; condition is FALSE.  Loop will not be executed.
+MLOGIC(HAZARD):  %LET (variable name is CODEBLK)
+MPRINT(HAZARD):   put " PARMS MUE=0.2361727 THALF=0.1512095 NU=1.438652 M=1 FIXM              MUC=0.0005436977; *      PARMS
+MUE=0.25 THALF=0.15 NU=1  M=1  MUC=0.0005; *    " @;
+MLOGIC(HAZARD):  %LET (variable name is CODE)
+MLOGIC(HAZARD):  %DO %WHILE() condition is FALSE; loop will not iterate again.
+MPRINT(HAZARD):   put "   PARMS MUE=0.25 THALF=0.15 NU=-1 M=1  MUC=0.0005; *      PARMS MUE=0.25 THALF=0.15 NU=1  M=-1 MUC=0.0005;
+ )";
+MPRINT(HAZARD):   run;
+MPRINT(HAZARD):   libname HZRCALL xport "/tmp/hzr.J12733.X11.dta";
+MPRINT(HAZARD):   data HZRCALL.HZRCALL;
+MPRINT(HAZARD):   set AVCS;
+MPRINT(HAZARD):   run;
+MPRINT(HAZARD):   data _null_;
+MPRINT(HAZARD):   i = 1;
+MPRINT(HAZARD):   set AVCS nobs=datact point=i;
+MPRINT(HAZARD):   file "/tmp/hzr.J12733.X11.sas" mod;
+MPRINT(HAZARD):   put '; OBSCOUNT'+1 datact ';';
+MPRINT(HAZARD):   put "JOBID J12733;" / "JOBIX X11;";
+MPRINT(HAZARD):   stop;
+MPRINT(HAZARD):   run;
+MLOGIC(HAZARD):  %LET (variable name is HAZRC)
+MLOGIC(HAZDOLST):  Beginning execution.
+MLOGIC(HAZDOLST):  This macro was compiled from the autocall file /programs/apps/sas/hazard/hazdolst.sas
+MPRINT(HAZDOLST):   data _null_;
+MPRINT(HAZDOLST):   infile "/tmp/hzr.J12733.X11.lst" length=ll;
+MPRINT(HAZDOLST):   length bfr $200;
+MPRINT(HAZDOLST):   input @1 code $1. @;
+MPRINT(HAZDOLST):   if code='$' then file log;
+MPRINT(HAZDOLST):   else file print linesleft=lleft header=prthdr;
+MPRINT(HAZDOLST):   bfrlen = ll-1;
+MPRINT(HAZDOLST):   input bfr $varying200. bfrlen;
+MPRINT(HAZDOLST):   select(code);
+MPRINT(HAZDOLST):   when('+') do;
+MPRINT(HAZDOLST):   link getcount;
+MPRINT(HAZDOLST):   put +count bfr $varying200. bfrlen @;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   when('@') do;
+MPRINT(HAZDOLST):   link getcount;
+MPRINT(HAZDOLST):   put @count bfr $varying200. bfrlen @;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   when('<') if lleft<input(bfr,4.) then put _page_;
+MPRINT(HAZDOLST):   else;
+MPRINT(HAZDOLST):   when('/') do;
+MPRINT(HAZDOLST):   do i = 1 to input(bfr,4.);
+MPRINT(HAZDOLST):   put;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   when(';') put bfr $varying200. bfrlen @;
+MPRINT(HAZDOLST):   when('$') put bfr $varying200. bfrlen;
+MPRINT(HAZDOLST):   otherwise error 'ERROR: Unrecognized line from print file.';
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   return;
+MPRINT(HAZDOLST):   getcount: i = index(bfr,',');
+MPRINT(HAZDOLST):   count = input(substr(bfr,1,i-1),4.);
+MPRINT(HAZDOLST):   bfr = substr(bfr,i+1);
+MPRINT(HAZDOLST):   bfrlen = bfrlen-i;
+MPRINT(HAZDOLST):   return;
+MPRINT(HAZDOLST):   prthdr: put;
+MPRINT(HAZDOLST):   return;
+MPRINT(HAZDOLST):   run;
+
+Note: Procedure HAZARD (C-Version 4.037)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: RCENSOR has been changed from 0 to 1 in one or more observations.
+Note: Procedure HAZARD completed successfully.
+MLOGIC(HAZDOLST):  Ending execution.
+MLOGIC(HAZARD):  %IF condition &hazrc ne 0 is FALSE
+MLOGIC(HAZARD):  %IF condition &outhaznm eq is FALSE
+MPRINT(HAZARD):   libname HZRCALL xport "/tmp/hzr.J12733.X11.haz";
+MPRINT(HAZARD):   option notes;
+MPRINT(HAZARD):   data EXAMPLES.HZDEATH(TYPE=HAZ);
+MPRINT(HAZARD):   set HZRCALL.HZRCALL;
+MPRINT(HAZARD):   run;
+
+ERROR: User does not have appropriate authorization level for file EXAMPLES.HZDEATH.DATA.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: DATA statement used:
+      real time           0.06 seconds
+      cpu time            0.03 seconds
+
+
+MPRINT(HAZARD):   option nonotes;
+MPRINT(HAZARD):   libname HZRCALL clear;
+MLOGIC(HAZARD):  %IF condition &hzrdebug eq 1 is FALSE
+MPRINT(HAZARD):   x rm /tmp/hzr.J12733.X11.*;
+MLOGIC(HAZARD):  %GOTO FIN (label resolves to FIN).
+MLOGIC(HAZARD):  %IF condition &hzrnotes eq -1 is FALSE
+MPRINT(HAZARD):   option notes;
+MPRINT(HAZARD):   run;
+MLOGIC(HAZARD):  Ending execution.
+151  *______________________________________________________________________________;
+152  *                                                                              ;
+153  * NOTE:  Normally the cumulative hazard function plot will help in determining ;
+154  *        the number of phases and the starting values for parameters, as       ;
+155  *        described in the documentation.                                       ;
+156  *                                                                              ;
+157  *        Then, for the early phase, we have explored the 3 branches:           ;
+158  *              NU>0, M>0                                                       ;
+159  *              NU<0, M>0                                                       ;
+160  *              NU>0, M<0                                                       ;
+161  *        as seen above by the commented out PARMS statements.  We did this     ;
+162  *        with the plotting stuff below all excluded by /*  */'s.  This job,    ;
+163  *        then, represents the final output of our explorations.  We chose      ;
+164  *        to use STEEPEST QUASI, but the algorithm QUASI would have served      ;
+165  *        as well.  These explorations revealed that for NU>0, M>0, M was not   ;
+166  *        different from 1 (LL -210.5).  For NU<0, M>0, M also was not different;
+167  *        from 1 (LL -210.5), as we might expect, since these branches converge ;
+168  *        when M=1.  For NU>0, M<0, NU is tending toward 2 (LL -210.8).  We     ;
+169  *        have chosen as the final model NU>0, M=1.                             ;
+170  *                                                                              ;
+171  *        An early phase alone has a LL of -215, so the constant phase is       ;
+172  *        needed.                                                               ;
+173  *______________________________________________________________________________;
+174  *                                                                              ;
+175  *******************************************************************************;
+176  * Plot various survival functions                                              ;
+177    FILENAME HAZPLOT ('$macros/hazplot');
+178    OPTIONS NOSOURCE; %INC HAZPLOT; OPTIONS SOURCE;
+507     %HAZPLOT(INTERVAL=INT_DEAD,EVENT=DEAD,IN=AVCS,INEST=EXAMPLES.HZDEATH,
+MLOGIC(HAZPLOT):  Beginning execution.
+508              PDETAIL=1, PLOTI=1, HLABEL=Months After Repair,
+509              ELABEL=Death After Repair);
+MLOGIC(HAZPLOT):  Parameter INTERVAL has value INT_DEAD
+MLOGIC(HAZPLOT):  Parameter EVENT has value DEAD
+MLOGIC(HAZPLOT):  Parameter IN has value AVCS
+MLOGIC(HAZPLOT):  Parameter INEST has value EXAMPLES.HZDEATH
+MLOGIC(HAZPLOT):  Parameter PDETAIL has value 1
+MLOGIC(HAZPLOT):  Parameter PLOTI has value 1
+MLOGIC(HAZPLOT):  Parameter HLABEL has value Months After Repair
+MLOGIC(HAZPLOT):  Parameter ELABEL has value Death After Repair
+MLOGIC(HAZPLOT):  Parameter RCENSOR has value 0
+MLOGIC(HAZPLOT):  Parameter HAZSCALE has value NONE
+MLOGIC(HAZPLOT):  Parameter CLEVEL has value 0.68268948
+MLOGIC(HAZPLOT):  Parameter ID has value
+MLOGIC(HAZPLOT):  Parameter DSDELETE has value 0
+MLOGIC(HAZPLOT):  Parameter STRATIFY has value 'ALL'
+MLOGIC(HAZPLOT):  Parameter PLOTS has value 1
+MLOGIC(HAZPLOT):  Parameter PLOTC has value 1
+MLOGIC(HAZPLOT):  Parameter PLOTH has value 1
+MLOGIC(HAZPLOT):  Parameter PLOTG has value 1
+MPRINT(HAZPLOT):   *______________________________________________________________________________;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * DEFINITIONS OF CALLING ARGUMENTS: DEFAULT: ;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * INTERVAL = Time variable INTERVAL ;
+MPRINT(HAZPLOT):   * EVENT = Event count EVENT ;
+MPRINT(HAZPLOT):   * RCENSOR = Censored count 0 ;
+MPRINT(HAZPLOT):   * CLEVEL = Confidence coefficient 0.68268948 (1 sd) ;
+MPRINT(HAZPLOT):   * IN = Input data set name ;
+MPRINT(HAZPLOT):   * ID = Variables retained in data set none ;
+MPRINT(HAZPLOT):   * DSDELETE = Delete data sets created 0 (1 to delete) ;
+MPRINT(HAZPLOT):   * INEST = Estimate data set name ;
+MPRINT(HAZPLOT):   * STRATIFY = Variable for stratification ALL ;
+MPRINT(HAZPLOT):   * HLABEL = Label for time axis of plots Years After Operation ;
+MPRINT(HAZPLOT):   * ELABEL = Label for the event Death ;
+MPRINT(HAZPLOT):   * PLOTS = Plot survival 1 (0 to skip) ;
+MPRINT(HAZPLOT):   * PLOTC = Plot cumulative hazard 1 (0 to skip) ;
+MPRINT(HAZPLOT):   * PLOTH = Plot hazard 1 (0 to skip) ;
+MPRINT(HAZPLOT):   * HAZSCALE = Maximum upper range of Y axis NONE ;
+MPRINT(HAZPLOT):   * for plots using _HAZARD _EARLYH and _LATEH ;
+MPRINT(HAZPLOT):   * PLOTI = Plot hazard components 0 (1 to plot) ;
+MPRINT(HAZPLOT):   * PDETAIL = Detailed and log plots 0 (1 to plot) ;
+MPRINT(HAZPLOT):   * PLOTG = Plot goodness of fit 1 (1 to plot) ;
+MPRINT(HAZPLOT):   *______________________________________________________________________________;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * Calculate nonparametric estimates ;
+MPRINT(HAZPLOT):   FILENAME INMACRO '$MACRO/kaplan';
+MPRINT(HAZPLOT):   OPTIONS NOSOURCE;
+MPRINT(HAZPLOT):   *******************************************************************************;
+MPRINT(HAZPLOT):   * Kaplan and Meier Nonparametric Product Limit Actuarial Method ;
+MPRINT(HAZPLOT):   *******************************************************************************;
+MPRINT(HAZPLOT):   OPTIONS SOURCE;
+MPRINT(HAZPLOT):   DATA AVCS;
+MPRINT(HAZPLOT):   SET AVCS;
+MPRINT(HAZPLOT):   CENSORED=0;
+MLOGIC(KAPLAN):  Beginning execution.
+MLOGIC(KAPLAN):  Parameter IN has value AVCS
+MLOGIC(KAPLAN):  Parameter OUT has value PLOUT
+MLOGIC(KAPLAN):  Parameter INTERVAL has value INT_DEAD
+MLOGIC(KAPLAN):  Parameter EVENT has value DEAD
+MLOGIC(KAPLAN):  Parameter ID has value
+MLOGIC(KAPLAN):  Parameter RCENSOR has value 0
+MLOGIC(KAPLAN):  Parameter STRATIFY has value 'ALL'
+MLOGIC(KAPLAN):  Parameter OEVENT has value 0
+MLOGIC(KAPLAN):  Parameter NOPRINT has value 1
+MLOGIC(KAPLAN):  Parameter OTHSUMS has value
+MLOGIC(KAPLAN):  Parameter CLEVEL has value 0.68268948
+MLOGIC(KAPLAN):  Parameter HLABEL has value Years After Operation
+MLOGIC(KAPLAN):  Parameter ELABEL has value Death
+MLOGIC(KAPLAN):  Parameter PEVENT has value 1
+MLOGIC(KAPLAN):  Parameter PLOTS has value 1
+MLOGIC(KAPLAN):  Parameter PLOTC has value 1
+MLOGIC(KAPLAN):  Parameter PLOTH has value 0
+MLOGIC(KAPLAN):  Parameter PLOTL has value 0
+MLOGIC(KAPLAN):  Parameter NOLIST has value 0
+MPRINT(KAPLAN):   *______________________________________________________________________________;
+MPRINT(KAPLAN):   * ;
+MPRINT(KAPLAN):   * DEFINITIONS OF CALLING ARGUMENTS: DEFAULT: ;
+MPRINT(KAPLAN):   * ;
+MPRINT(KAPLAN):   * INTERVAL = Time variable INTERVAL ;
+MPRINT(KAPLAN):   * EVENT = Number of events EVENT ;
+MPRINT(KAPLAN):   * RCENSOR = Number of censored cases 0 ;
+MPRINT(KAPLAN):   * STRATIFY = Stratification variable 'ALL' ;
+MPRINT(KAPLAN):   * OTHSUMS = Other variables to be summed none ;
+MPRINT(KAPLAN):   * ID = Variables retained in data set none ;
+MPRINT(KAPLAN):   * CLEVEL = Confidence coefficient 0.68268948 (1 sd) ;
+MPRINT(KAPLAN):   * IN = Input data set name ;
+MPRINT(KAPLAN):   * OUT = Output data set name EVENT ;
+MPRINT(KAPLAN):   * HLABEL = Label for time axis of plots Years After Operation ;
+MPRINT(KAPLAN):   * ELABEL = Label for the event Death ;
+MPRINT(KAPLAN):   * NOPRINT = No printed output 0 (1 for no printing) ;
+MPRINT(KAPLAN):   * NOLIST = Only plotter output, no lists 0 (1 for no lists) ;
+MPRINT(KAPLAN):   * PEVENT = Print only the events 1 (0 for censored also) ;
+MPRINT(KAPLAN):   * OEVENT = Output only the events 1 (0 for censored also) ;
+MPRINT(KAPLAN):   * PLOTS = Plot survival 1 (0 to skip) ;
+MPRINT(KAPLAN):   * PLOTC = Plot cumulative hazard 1 (0 to skip) ;
+MPRINT(KAPLAN):   * PLOTH = Plot hazard 0 (1 to plot) ;
+MPRINT(KAPLAN):   * PLOTL = Plot integrated survivorship 0 (1 to plot) ;
+MPRINT(KAPLAN):   *______________________________________________________________________________;
+MPRINT(KAPLAN):   * ;
+MPRINT(KAPLAN):   * Refine data set ;
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK.AVCS has 310 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.57 seconds
+      cpu time            0.06 seconds
+
+
+MPRINT(KAPLAN):   DATA _REFINE_;
+MPRINT(KAPLAN):   SET AVCS;
+MPRINT(KAPLAN):   * Define censored individuals ;
+MPRINT(KAPLAN):   CENSORED=0;
+MPRINT(KAPLAN):   IF DEAD=0 AND CENSORED=0 THEN CENSORED=1;
+MPRINT(KAPLAN):   * Remove observations with inadmissible values ;
+MPRINT(KAPLAN):   IF INT_DEAD GE 0 AND DEAD GE 0 AND CENSORED GE 0;
+
+NOTE: There were 310 observations read from the dataset WORK.AVCS.
+NOTE: The data set WORK._REFINE_ has 310 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.21 seconds
+      cpu time            0.01 seconds
+
+
+MPRINT(KAPLAN):   DATA _REFINE_;
+MPRINT(KAPLAN):   SET _REFINE_;
+MPRINT(KAPLAN):   RETAIN _CATGY_;
+MPRINT(KAPLAN):   * Number of cases for this followup time ;
+MPRINT(KAPLAN):   N=DEAD + CENSORED;
+MPRINT(KAPLAN):   * Get confidence coefficient ;
+MPRINT(KAPLAN):   T_ALPHA=PROBIT(0.5+(0.5*0.68268948));
+MPRINT(KAPLAN):   * Determine if there is stratification and if so do comparisons ;
+MPRINT(KAPLAN):   _CATG='ALL';
+MPRINT(KAPLAN):   TEST=0;
+MPRINT(KAPLAN):   IF _N_=1 THEN _CATGY_=_CATG;
+MPRINT(KAPLAN):   ELSE IF _CATG NE _CATGY_ THEN TEST=1;
+MPRINT(KAPLAN):   _STATUS_=DEAD+1;
+MPRINT(KAPLAN):   KEEP _CATG INT_DEAD DEAD CENSORED _STATUS_ T_ALPHA _CATGY_ TEST N ;
+
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK._REFINE_ has 310 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.21 seconds
+      cpu time            0.05 seconds
+
+
+MPRINT(KAPLAN):   PROC SUMMARY DATA=_REFINE_ NWAY;
+MPRINT(KAPLAN):   VAR TEST;
+MPRINT(KAPLAN):   OUTPUT OUT=OUTTEST SUM=TEST;
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.08 seconds
+      cpu time            0.02 seconds
+
+
+MPRINT(KAPLAN):   DATA OUTTEST;
+MPRINT(KAPLAN):   SET OUTTEST;
+MPRINT(KAPLAN):   CALL SYMPUT('TEST',TEST);
+MPRINT(KAPLAN):   RUN;
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      2463:195
+NOTE: There were 1 observations read from the dataset WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.14 seconds
+      cpu time            0.02 seconds
+
+
+MPRINT(KAPLAN):   *******************************************************************************;
+MPRINT(KAPLAN):   * Compare actuarial strata ;
+MLOGIC(KAPLAN):  %IF condition &NOPRINT is TRUE
+MLOGIC(KAPLAN):  %GOTO CALCULAT (label resolves to CALCULAT).
+MPRINT(KAPLAN):   PROC SUMMARY DATA=_REFINE_ NWAY;
+MPRINT(KAPLAN):   CLASS _CATG;
+MPRINT(KAPLAN):   VAR INT_DEAD DEAD CENSORED ;
+MPRINT(KAPLAN):   OUTPUT OUT=S1 MIN(INT_DEAD)=MIN MAX(INT_DEAD)=MAX SUM=SUM DEAD CENSORED ;
+MPRINT(KAPLAN):   ID ;
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.S1 has 1 observations and 8 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.09 seconds
+      cpu time            0.02 seconds
+
+
+MPRINT(KAPLAN):   DATA S1;
+MPRINT(KAPLAN):   SET S1;
+MPRINT(KAPLAN):   N=DEAD + CENSORED;
+MLOGIC(KAPLAN):  %IF condition &NOPRINT is TRUE
+MLOGIC(KAPLAN):  %GOTO START (label resolves to START).
+
+NOTE: There were 1 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.S1 has 1 observations and 9 variables.
+NOTE: DATA statement used:
+      real time           0.06 seconds
+      cpu time            0.02 seconds
+
+
+MPRINT(KAPLAN):   DATA NSET;
+MPRINT(KAPLAN):   SET S1;
+MPRINT(KAPLAN):   KEEP N _CATG;
+MPRINT(KAPLAN):   *******************************************************************************;
+MPRINT(KAPLAN):   * Do basic counting ;
+
+NOTE: There were 1 observations read from the dataset WORK.S1.
+NOTE: The data set WORK.NSET has 1 observations and 2 variables.
+NOTE: DATA statement used:
+      real time           0.14 seconds
+      cpu time            0.00 seconds
+
+
+MPRINT(KAPLAN):   PROC SUMMARY DATA=_REFINE_ NWAY;
+MPRINT(KAPLAN):   CLASS _CATG INT_DEAD;
+MPRINT(KAPLAN):   VAR DEAD CENSORED ;
+MPRINT(KAPLAN):   OUTPUT OUT=BASIC1 SUM=DEAD CENSORED ;
+MPRINT(KAPLAN):   ID T_ALPHA ;
+NOTE: There were 310 observations read from the dataset WORK._REFINE_.
+NOTE: The data set WORK.BASIC1 has 273 observations and 7 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.09 seconds
+      cpu time            0.01 seconds
+
+
+MPRINT(KAPLAN):   PROC DELETE DATA=_REFINE_;
+NOTE: Deleting WORK._REFINE_ (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+
+
+MPRINT(KAPLAN):   DATA BASIC;
+MPRINT(KAPLAN):   SET BASIC1;
+MPRINT(KAPLAN):   BY _CATG;
+MPRINT(KAPLAN):   RETAIN N 0;
+MPRINT(KAPLAN):   IF FIRST._CATG=1 THEN N=0;
+MPRINT(KAPLAN):   N=SUM(DEAD, CENSORED);
+
+NOTE: There were 273 observations read from the dataset WORK.BASIC1.
+NOTE: The data set WORK.BASIC has 273 observations and 8 variables.
+NOTE: DATA statement used:
+      real time           0.17 seconds
+      cpu time            0.02 seconds
+
+
+MPRINT(KAPLAN):   PROC DELETE DATA=BASIC1;
+MPRINT(KAPLAN):   *******************************************************************************;
+MPRINT(KAPLAN):   * Product limit estimate ;
+NOTE: Deleting WORK.BASIC1 (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.08 seconds
+      cpu time            0.00 seconds
+
+
+MPRINT(KAPLAN):   DATA KAPLAN;
+MPRINT(KAPLAN):   MERGE BASIC NSET;
+MPRINT(KAPLAN):   BY _CATG;
+MPRINT(KAPLAN):   RETAIN;
+MPRINT(KAPLAN):   IF FIRST._CATG=1 THEN DO;
+MPRINT(KAPLAN):   NUMBER=N;
+MPRINT(KAPLAN):   LAG_SURV=1.00;
+MPRINT(KAPLAN):   LAG_TIME=0;
+MPRINT(KAPLAN):   CUM_SURV=1.0;
+MPRINT(KAPLAN):   LAG_LIFE=0;
+MPRINT(KAPLAN):   LIFE=0;
+MPRINT(KAPLAN):   PROPLIFE=1;
+MPRINT(KAPLAN):   END;
+MPRINT(KAPLAN):   P_EVENT=DEAD/NUMBER;
+MPRINT(KAPLAN):   P_SURV=1-P_EVENT;
+MPRINT(KAPLAN):   CUM_SURV=P_SURV*CUM_SURV;
+MPRINT(KAPLAN):   IF FIRST._CATG=1 &((NUMBER=0)|((NUMBER-DEAD)=0)) THEN VAR_PROD=0 ;
+MPRINT(KAPLAN):   IF NUMBER>0 & (NUMBER-DEAD)>0 THEN DO;
+MPRINT(KAPLAN):   IF FIRST._CATG=1 THEN VAR_PROD=1/(NUMBER-DEAD)-1/NUMBER+1;
+MPRINT(KAPLAN):   ELSE VAR_PROD=VAR_PROD*(1/(NUMBER-DEAD)-1/NUMBER+1) ;
+MPRINT(KAPLAN):   END;
+MPRINT(KAPLAN):   *******************************************************************************;
+MPRINT(KAPLAN):   * Product limit variance and confidence limits estimates ;
+MPRINT(KAPLAN):   VAREXACT=CUM_SURV*CUM_SURV*(VAR_PROD-1);
+MPRINT(KAPLAN):   SE_EXACT=SQRT(VAREXACT);
+MPRINT(KAPLAN):   SI_EXACT=0.;
+MPRINT(KAPLAN):   IF CUM_SURV<1. THEN SI_EXACT = SQRT(VAR_PROD - 1.)*(1./(1. - CUM_SURV));
+MPRINT(KAPLAN):   CL_LOWER=CUM_SURV/(CUM_SURV+(1.-CUM_SURV)*EXP(T_ALPHA*SI_EXACT));
+MPRINT(KAPLAN):   CL_UPPER=CUM_SURV/(CUM_SURV+(1.-CUM_SURV)*EXP(-T_ALPHA*SI_EXACT));
+MPRINT(KAPLAN):   *******************************************************************************;
+MPRINT(KAPLAN):   * Cumulative hazard and hazard estimates from transforms and slopes ;
+MPRINT(KAPLAN):   * as well as integral of survivorship and proportionate life length ;
+MPRINT(KAPLAN):   CUM_HAZ=.;
+MPRINT(KAPLAN):   IF CUM_SURV>0 THEN CUM_HAZ = - LOG(CUM_SURV);
+MPRINT(KAPLAN):   LN_CUMHZ=.;
+MPRINT(KAPLAN):   IF CUM_HAZ>0 THEN LN_CUMHZ = LOG(CUM_HAZ);
+MPRINT(KAPLAN):   IF INT_DEAD>0 THEN LN_INT=LOG(INT_DEAD);
+MPRINT(KAPLAN):   ELSE LN_INT=.;
+MPRINT(KAPLAN):   HAZARD=.;
+MPRINT(KAPLAN):   DENSITY=.;
+MPRINT(KAPLAN):   MID_INT=.;
+MPRINT(KAPLAN):   IF DEAD>0 THEN DO;
+MPRINT(KAPLAN):   DELTA_TM = INT_DEAD-LAG_TIME;
+MPRINT(KAPLAN):   IF CUM_SURV>0 AND DELTA_TM>0 THEN DO;
+MPRINT(KAPLAN):   HAZARD=(LOG(LAG_SURV/CUM_SURV))/DELTA_TM;
+MPRINT(KAPLAN):  LN_HAZ=LOG(HAZARD);
+MPRINT(KAPLAN):   END;
+MPRINT(KAPLAN):   IF DELTA_TM>0 THEN DENSITY=(LAG_SURV-CUM_SURV)/DELTA_TM;
+MPRINT(KAPLAN):   MID_INT=(LAG_TIME+INT_DEAD)/2;
+MPRINT(KAPLAN):   LIFE=LAG_LIFE + DELTA_TM*(3*CUM_SURV - LAG_SURV)/2;
+MPRINT(KAPLAN):   IF INT_DEAD>0 THEN PROPLIFE=LIFE/INT_DEAD;
+MPRINT(KAPLAN):   LAG_SURV=CUM_SURV;
+MPRINT(KAPLAN):   LAG_TIME=INT_DEAD;
+MPRINT(KAPLAN):   LAG_LIFE=LIFE;
+MPRINT(KAPLAN):   END;
+MPRINT(KAPLAN):   *******************************************************************************;
+MPRINT(KAPLAN):   * Print out estimates and plot them ;
+MPRINT(KAPLAN):   PLOTCHAR=LEFT(_CATG);
+MPRINT(KAPLAN):   IF CENSORED>0 AND DEAD=0 THEN PLOTCHAR='.';
+MPRINT(KAPLAN):   OUTPUT;
+MPRINT(KAPLAN):   NUMBER=NUMBER-DEAD-CENSORED;
+MPRINT(KAPLAN):   DROP SI_EXACT VAREXACT VAR_PROD P_EVENT;
+MLOGIC(KAPLAN):  %IF condition &NOPRINT is TRUE
+MLOGIC(KAPLAN):  %GOTO FINISH (label resolves to FINISH).
+
+NOTE: There were 273 observations read from the dataset WORK.BASIC.
+NOTE: There were 1 observations read from the dataset WORK.NSET.
+NOTE: The data set WORK.KAPLAN has 273 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.76 seconds
+      cpu time            0.11 seconds
+
+
+MPRINT(KAPLAN):   PROC DELETE DATA=BASIC S1 NSET;
+
+NOTE: Deleting WORK.BASIC (memtype=DATA).
+NOTE: Deleting WORK.S1 (memtype=DATA).
+NOTE: Deleting WORK.NSET (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.15 seconds
+      cpu time            0.01 seconds
+
+
+MPRINT(KAPLAN):   DATA PLOUT;
+MPRINT(KAPLAN):   SET KAPLAN;
+MPRINT(KAPLAN):   IF 0=1 THEN DO;
+MPRINT(KAPLAN):   IF DEAD=0 THEN DELETE;
+MPRINT(KAPLAN):   END;
+MLOGIC(KAPLAN):  %IF condition &TEST>0 is FALSE
+MPRINT(KAPLAN):   ;
+
+NOTE: There were 273 observations read from the dataset WORK.KAPLAN.
+NOTE: The data set WORK.PLOUT has 273 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.17 seconds
+      cpu time            0.02 seconds
+
+
+MPRINT(KAPLAN):  PROC DELETE DATA=KAPLAN;
+MPRINT(KAPLAN):   *******************************************************************************;
+MPRINT(KAPLAN):   * Clean up output data set ;
+
+NOTE: Deleting WORK.KAPLAN (memtype=DATA).
+NOTE: PROCEDURE DELETE used:
+      real time           0.07 seconds
+      cpu time            0.00 seconds
+
+
+MPRINT(KAPLAN):   DATA PLOUT;
+MPRINT(KAPLAN):   SET PLOUT;
+MPRINT(KAPLAN):   DROP _CATG _FREQ_ _TYPE_ DELTA_TM LAG_LIFE LAG_SURV LAG_TIME LN_CUMHZ LN_HAZ LN_INT N P_SURV PLOTCHAR T_ALPHA;
+MPRINT(KAPLAN):   RUN;
+
+NOTE: There were 273 observations read from the dataset WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 273 observations and 14 variables.
+NOTE: DATA statement used:
+      real time           0.13 seconds
+      cpu time            0.01 seconds
+
+
+MPRINT(KAPLAN):   *******************************************************************************;
+MLOGIC(KAPLAN):  Ending execution.
+MPRINT(HAZPLOT):  ;
+MPRINT(HAZPLOT):   *******************************************************************************;
+MPRINT(HAZPLOT):   * Set up variables for goodness of fit calculations ;
+MPRINT(HAZPLOT):   DATA PLOUT;
+MPRINT(HAZPLOT):   SET PLOUT;
+MPRINT(HAZPLOT):   RETAIN NOBS;
+MPRINT(HAZPLOT):   IF _N_=1 THEN NOBS=NUMBER;
+MPRINT(HAZPLOT):   TOTAL=DEAD + CENSORED;
+MPRINT(HAZPLOT):   *******************************************************************************;
+MPRINT(HAZPLOT):   * Calculate parametric estimates of survivorship and hazard functions ;
+MLOGIC(HAZPRED):  Beginning execution.
+MLOGIC(HAZPRED):  This macro was compiled from the autocall file /programs/apps/sas/hazard/hazpred.sas
+MLOGIC(HAZPRED):  %GLOBAL  HZPNOTES HZPDEBUG HAZRC
+MPRINT(HAZPRED):   run;
+
+NOTE: There were 273 observations read from the dataset WORK.PLOUT.
+NOTE: The data set WORK.PLOUT has 273 observations and 16 variables.
+NOTE: DATA statement used:
+      real time           0.19 seconds
+      cpu time            0.05 seconds
+
+
+MLOGIC(HAZPRED):  %IF condition &hzpnotes eq 1 is FALSE
+MPRINT(HAZPRED):   option nonotes;
+MLOGIC(HAZPRED):  %LET (variable name is CODE)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %LET (variable name is PROCSTMT)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(QLEFT):  Beginning execution.
+MLOGIC(QLEFT):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/qleft.sas
+MLOGIC(QLEFT):  Parameter TEXT has value PLOUT INHAZEXAMPLES.HZDEATH OUTPREDICT        TIME INT_DEAD   
+MLOGIC(QLEFT):  %LOCAL  I
+MLOGIC(QLEFT):  %IF condition %length(&text)=0 is FALSE
+MLOGIC(QLEFT):  %LET (variable name is I)
+MLOGIC(VERIFY):  Beginning execution.
+MLOGIC(VERIFY):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/verify.sas
+MLOGIC(VERIFY):  Parameter TEXT has value PLOUT INHAZEXAMPLES.HZDEATH OUTPREDICT        TIME INT_DEAD   
+MLOGIC(VERIFY):  Parameter TARGET has value  
+MLOGIC(VERIFY):  %LOCAL  I
+MLOGIC(VERIFY):  %IF condition %length(&text)=0 | %length(&target)=0 is FALSE
+MLOGIC(VERIFY):  %DO loop beginning; index variable I; start value is 1; stop value is 67; by value is 1.
+MLOGIC(VERIFY):  %IF condition ^%index(&target,%qsubstr(&text,&i,1)) is TRUE
+MLOGIC(VERIFY):  %GOTO VERFND (label resolves to VERFND).
+MLOGIC(VERIFY):  %IF condition &i>%length(&text) is FALSE
+MLOGIC(VERIFY):  Ending execution.
+MLOGIC(QLEFT):  %IF condition &i is TRUE
+MLOGIC(QLEFT):  Ending execution.
+MLOGIC(HAZPRED):  %LET (variable name is DATANAME)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(QLEFT):  Beginning execution.
+MLOGIC(QLEFT):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/qleft.sas
+MLOGIC(QLEFT):  Parameter TEXT has value EXAMPLES.HZDEATH OUTPREDICT        TIME INT_DEAD   
+MLOGIC(QLEFT):  %LOCAL  I
+MLOGIC(QLEFT):  %IF condition %length(&text)=0 is FALSE
+MLOGIC(QLEFT):  %LET (variable name is I)
+MLOGIC(VERIFY):  Beginning execution.
+MLOGIC(VERIFY):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/verify.sas
+MLOGIC(VERIFY):  Parameter TEXT has value EXAMPLES.HZDEATH OUTPREDICT        TIME INT_DEAD   
+MLOGIC(VERIFY):  Parameter TARGET has value  
+MLOGIC(VERIFY):  %LOCAL  I
+MLOGIC(VERIFY):  %IF condition %length(&text)=0 | %length(&target)=0 is FALSE
+MLOGIC(VERIFY):  %DO loop beginning; index variable I; start value is 1; stop value is 55; by value is 1.
+MLOGIC(VERIFY):  %IF condition ^%index(&target,%qsubstr(&text,&i,1)) is TRUE
+MLOGIC(VERIFY):  %GOTO VERFND (label resolves to VERFND).
+MLOGIC(VERIFY):  %IF condition &i>%length(&text) is FALSE
+MLOGIC(VERIFY):  Ending execution.
+MLOGIC(QLEFT):  %IF condition &i is TRUE
+MLOGIC(QLEFT):  Ending execution.
+MLOGIC(HAZPRED):  %LET (variable name is INHAZNAM)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(QLEFT):  Beginning execution.
+MLOGIC(QLEFT):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/qleft.sas
+MLOGIC(QLEFT):  Parameter TEXT has value PREDICT        TIME INT_DEAD   
+MLOGIC(QLEFT):  %LOCAL  I
+MLOGIC(QLEFT):  %IF condition %length(&text)=0 is FALSE
+MLOGIC(QLEFT):  %LET (variable name is I)
+MLOGIC(VERIFY):  Beginning execution.
+MLOGIC(VERIFY):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/verify.sas
+MLOGIC(VERIFY):  Parameter TEXT has value PREDICT        TIME INT_DEAD   
+MLOGIC(VERIFY):  Parameter TARGET has value  
+MLOGIC(VERIFY):  %LOCAL  I
+MLOGIC(VERIFY):  %IF condition %length(&text)=0 | %length(&target)=0 is FALSE
+MLOGIC(VERIFY):  %DO loop beginning; index variable I; start value is 1; stop value is 34; by value is 1.
+MLOGIC(VERIFY):  %IF condition ^%index(&target,%qsubstr(&text,&i,1)) is TRUE
+MLOGIC(VERIFY):  %GOTO VERFND (label resolves to VERFND).
+MLOGIC(VERIFY):  %IF condition &i>%length(&text) is FALSE
+MLOGIC(VERIFY):  Ending execution.
+MLOGIC(QLEFT):  %IF condition &i is TRUE
+MLOGIC(QLEFT):  Ending execution.
+MLOGIC(HAZPRED):  %LET (variable name is OUTNAME)
+MLOGIC(HAZPRED):  %LET (variable name is JOBID)
+MLOGIC(HAZPRED):  %LET (variable name is JOBIX)
+MLOGIC(HAZPRED):  %LET (variable name is PREFIX)
+MLOGIC(HAZPRED):  %LET (variable name is HAZPGM)
+MPRINT(HAZPRED):   data _null_;
+MPRINT(HAZPRED):   file "/tmp/hzp.J12733.X21.sas";
+MLOGIC(HAZPRED):  %DO %WHILE(%length(&code)>150) loop beginning; condition is FALSE.  Loop will not be executed.
+MPRINT(HAZPRED):   put "(   PROC HAZPRED DATA=PLOUT INHAZ=EXAMPLES.HZDEATH OUT=PREDICT;        TIME INT_DEAD;   )";
+MPRINT(HAZPRED):   run;
+MPRINT(HAZPRED):   libname HZRCALL xport "/tmp/hzp.J12733.X21.dta";
+MPRINT(HAZPRED):   data HZRCALL.HZRCALL;
+MPRINT(HAZPRED):   set PLOUT;
+MPRINT(HAZPRED):   run;
+MPRINT(HAZPRED):   libname HZRCALL xport "/tmp/hzp.J12733.X21.haz";
+MPRINT(HAZPRED):   data HZRCALL.HZRCALL;
+MPRINT(HAZPRED):   set EXAMPLES.HZDEATH;
+MPRINT(HAZPRED):   run;
+MPRINT(HAZPRED):   data _null_;
+MPRINT(HAZPRED):   i = 1;
+MPRINT(HAZPRED):   set PLOUT nobs=datact point=i;
+MPRINT(HAZPRED):   set EXAMPLES.HZDEATH nobs=inhazct point=i;
+MPRINT(HAZPRED):   file "/tmp/hzp.J12733.X21.sas" mod;
+MPRINT(HAZPRED):   put 'OBSCOUNT' +1 datact ';' / 'HAZCOUNT' +1 inhazct ';';
+MPRINT(HAZPRED):   put "JOBID J12733;" / "JOBIX X21;";
+MPRINT(HAZPRED):   stop;
+MPRINT(HAZPRED):   run;
+MLOGIC(HAZPRED):  %LET (variable name is HAZRC)
+MLOGIC(HAZDOLST):  Beginning execution.
+MLOGIC(HAZDOLST):  This macro was compiled from the autocall file /programs/apps/sas/hazard/hazdolst.sas
+MPRINT(HAZDOLST):   data _null_;
+MPRINT(HAZDOLST):   infile "/tmp/hzp.J12733.X21.lst" length=ll;
+MPRINT(HAZDOLST):   length bfr $200;
+MPRINT(HAZDOLST):   input @1 code $1. @;
+MPRINT(HAZDOLST):   if code='$' then file log;
+MPRINT(HAZDOLST):   else file print linesleft=lleft header=prthdr;
+MPRINT(HAZDOLST):   bfrlen = ll-1;
+MPRINT(HAZDOLST):   input bfr $varying200. bfrlen;
+MPRINT(HAZDOLST):   select(code);
+MPRINT(HAZDOLST):   when('+') do;
+MPRINT(HAZDOLST):   link getcount;
+MPRINT(HAZDOLST):   put +count bfr $varying200. bfrlen @;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   when('@') do;
+MPRINT(HAZDOLST):   link getcount;
+MPRINT(HAZDOLST):   put @count bfr $varying200. bfrlen @;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   when('<') if lleft<input(bfr,4.) then put _page_;
+MPRINT(HAZDOLST):   else;
+MPRINT(HAZDOLST):   when('/') do;
+MPRINT(HAZDOLST):   do i = 1 to input(bfr,4.);
+MPRINT(HAZDOLST):   put;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   when(';') put bfr $varying200. bfrlen @;
+MPRINT(HAZDOLST):   when('$') put bfr $varying200. bfrlen;
+MPRINT(HAZDOLST):   otherwise error 'ERROR: Unrecognized line from print file.';
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   return;
+MPRINT(HAZDOLST):   getcount: i = index(bfr,',');
+MPRINT(HAZDOLST):   count = input(substr(bfr,1,i-1),4.);
+MPRINT(HAZDOLST):   bfr = substr(bfr,i+1);
+MPRINT(HAZDOLST):   bfrlen = bfrlen-i;
+MPRINT(HAZDOLST):   return;
+MPRINT(HAZDOLST):   prthdr: put;
+MPRINT(HAZDOLST):   return;
+MPRINT(HAZDOLST):   run;
+
+Note: Procedure HAZPRED (C-Version 4.036)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: Procedure HAZPRED completed successfully.
+MLOGIC(HAZDOLST):  Ending execution.
+MLOGIC(HAZPRED):  %IF condition &hazrc ne 0 is FALSE
+MPRINT(HAZPRED):   libname HZRCALL xport "/tmp/hzp.J12733.X21.out";
+MPRINT(HAZPRED):   option notes;
+MPRINT(HAZPRED):   data PREDICT;
+MPRINT(HAZPRED):   set HZRCALL.HZRCALL;
+MPRINT(HAZPRED):   run;
+
+NOTE: There were 273 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.PREDICT has 273 observations and 28 variables.
+NOTE: DATA statement used:
+      real time           0.10 seconds
+      cpu time            0.03 seconds
+
+
+MPRINT(HAZPRED):   option nonotes;
+MPRINT(HAZPRED):   libname HZRCALL clear;
+MLOGIC(HAZPRED):  %IF condition &hzpdebug eq 1 is FALSE
+MPRINT(HAZPRED):   x rm /tmp/hzp.J12733.X21.*;
+MLOGIC(HAZPRED):  %GOTO FIN (label resolves to FIN).
+MLOGIC(HAZPRED):  %IF condition &hzpnotes eq -1 is FALSE
+MPRINT(HAZPRED):   options notes;
+MPRINT(HAZPRED):  run;
+MLOGIC(HAZPRED):  Ending execution.
+MPRINT(HAZPLOT):  ;
+MLOGIC(HAZPLOT):  %IF condition &DSDELETE is FALSE
+MPRINT(HAZPLOT):   *******************************************************************************;
+MPRINT(HAZPLOT):   * Plot various survival functions ;
+MPRINT(HAZPLOT):   DATA PREDICT;
+MPRINT(HAZPLOT):   SET PREDICT;
+MPRINT(HAZPLOT):   IF INT_DEAD LE 0 THEN DELETE;
+MPRINT(HAZPLOT):   IF DEAD GE 1 THEN DO;
+MPRINT(HAZPLOT):   PLTCHR='+';
+MPRINT(HAZPLOT):   PLTCL='-';
+MPRINT(HAZPLOT):   END;
+MPRINT(HAZPLOT):   IF DEAD=0 THEN DO;
+MPRINT(HAZPLOT):   PLTCHR='.';
+MPRINT(HAZPLOT):   PLTCL=' ';
+MPRINT(HAZPLOT):   END;
+MPRINT(HAZPLOT):   PLTPAR='*';
+MPRINT(HAZPLOT):   LABEL _SURVIV = Proportion Free of Death After Repair _HAZARD = Hazard for Death After Repair _EARLYH = Hazard
+Components INT_DEAD = Months After Repair ;
+MLOGIC(HAZPLOT):  %IF condition &PDETAIL is TRUE
+MPRINT(HAZPLOT):   LN_TIME=LOG(INT_DEAD);
+MPRINT(HAZPLOT):   LABEL LN_TIME = Ln(Months After Repair);
+MPRINT(HAZPLOT):   * Survivorship function ;
+MLOGIC(HAZPLOT):  %IF condition &PLOTS & &PDETAIL is TRUE
+MPRINT(HAZPLOT):   D_SURVIV=CUM_SURV-_SURVIV;
+MPRINT(HAZPLOT):   LABEL D_SURVIV = Actuarial Minus Parametric Estimates;
+MPRINT(HAZPLOT):   * Hazard function ;
+MLOGIC(HAZPLOT):  %IF condition &PLOTH is TRUE
+MPRINT(HAZPLOT):   _LNHAZ=.;
+MPRINT(HAZPLOT):   IF _HAZARD>0 THEN _LNHAZ=LOG(_HAZARD);
+MPRINT(HAZPLOT):   _LNCLLHZ=.;
+MPRINT(HAZPLOT):   IF _CLLHAZ>0 THEN _LNCLLHZ=LOG(_CLLHAZ);
+MPRINT(HAZPLOT):   _LNCLUHZ=.;
+MPRINT(HAZPLOT):   IF _CLUHAZ>0 THEN _LNCLUHZ=LOG(_CLUHAZ);
+MPRINT(HAZPLOT):   LABEL _LNHAZ = Logarithm of Hazard Function;
+MLOGIC(HAZPLOT):  %IF condition &PLOTI is TRUE
+MPRINT(HAZPLOT):   _EARLYR=0;
+MPRINT(HAZPLOT):   IF _EARLYH>0 THEN _EARLYR=100*_EARLYH/_HAZARD;
+MPRINT(HAZPLOT):   _CONSTR=0;
+MPRINT(HAZPLOT):   IF _CONSTH>0 THEN _CONSTR=100*_CONSTH/_HAZARD;
+MPRINT(HAZPLOT):   _LATER=0;
+MPRINT(HAZPLOT):   IF _LATEH>0 THEN _LATER=100*_LATEH/_HAZARD;
+MPRINT(HAZPLOT):   LABEL _EARLYR = '% of hazard in early phase' _CONSTR = '% of hazard in constant phase' _LATER = '% of hazard in
+late phase' ;
+MPRINT(HAZPLOT):   * Cumulative hazard function ;
+MLOGIC(HAZPLOT):  %IF condition &PLOTC is TRUE
+MPRINT(HAZPLOT):   CUM_HAZ=-LOG(CUM_SURV);
+MPRINT(HAZPLOT):   CLL_CHZ=-LOG(CL_UPPER);
+MPRINT(HAZPLOT):   CLU_CHZ=-LOG(CL_LOWER);
+MPRINT(HAZPLOT):   _CUMHAZ=-LOG(_SURVIV);
+MPRINT(HAZPLOT):   _CLLCHZ=-LOG(_CLUSURV);
+MPRINT(HAZPLOT):   _CLUCHZ=-LOG(_CLLSURV);
+MPRINT(HAZPLOT):   LABEL _CUMHAZ = Cumulative Hazard Function;
+MLOGIC(HAZPLOT):  %IF condition &PDETAIL is TRUE
+MPRINT(HAZPLOT):   D_CUMHAZ=CUM_HAZ-_CUMHAZ;
+MPRINT(HAZPLOT):   LABEL D_CUMHAZ = Cumulative Hazard Minus Parametric Estimates;
+MPRINT(HAZPLOT):   LN_CHAZ_=.;
+MPRINT(HAZPLOT):   IF CUM_HAZ>0 THEN LN_CHAZ_=LOG(CUM_HAZ);
+MPRINT(HAZPLOT):   LN_CUMHZ=.;
+MPRINT(HAZPLOT):   IF _CUMHAZ>0 THEN LN_CUMHZ=LOG(_CUMHAZ);
+MPRINT(HAZPLOT):   LABEL LN_CUMHZ = Log Cumulative Hazard Function;
+MPRINT(HAZPLOT):   _LNCLLCH=.;
+MPRINT(HAZPLOT):   IF _CLLCHZ>0 THEN _LNCLLCH=LOG(_CLLCHZ);
+MPRINT(HAZPLOT):   _LNCLUCH=.;
+MPRINT(HAZPLOT):   IF _CLUCHZ>0 THEN _LNCLUCH=LOG(_CLUCHZ);
+MPRINT(HAZPLOT):   LN_CLLCH=.;
+MPRINT(HAZPLOT):   IF CLL_CHZ>0 THEN LN_CLLCH=LOG(CLL_CHZ);
+MPRINT(HAZPLOT):   LN_CLUCH=.;
+MPRINT(HAZPLOT):   IF CLU_CHZ>0 THEN LN_CLUCH=LOG(CLU_CHZ);
+MPRINT(HAZPLOT):   * Goodness of fit by the method of conservation of events ;
+MLOGIC(HAZPLOT):  %IF condition &PLOTG is TRUE
+MPRINT(HAZPLOT):   _CUMHAZ=-LOG(_SURVIV);
+MPRINT(HAZPLOT):   *******************************************************************************;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * G O O D N E S S O F F I T O F P A R A M E T R I C M O D E L ;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * T O T H E D A T A B A S E D O N T H E T H E O R Y O F ;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * C O N S E R V A T I O N O F E V E N T S ;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * The theory is that the summed cumulative hazard for all patients at ;
+MPRINT(HAZPLOT):   * risk should equal the number of deaths. This is true (exactly if ;
+MPRINT(HAZPLOT):   * CONSERVE option was on for PROC HAZARD, and very nearly true if not) ;
+MPRINT(HAZPLOT):   * for the entire interval of followup. However, at any given moment in ;
+MPRINT(HAZPLOT):   * the total span of followup time, the accumulated cumulative hazard to ;
+MPRINT(HAZPLOT):   * that time will be more or less equal to the number of events, ;
+MPRINT(HAZPLOT):   * depending on the goodness of fit of the model to the data. ;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * In the case of no concomitant information, all patients at risk to a ;
+MPRINT(HAZPLOT):   * given point in time have the same value for cumulative hazard. ;
+MPRINT(HAZPLOT):   * Therefore, we merely have to multiply the number at risk by the ;
+MPRINT(HAZPLOT):   * value for cumulative hazard between each unique followup interval to ;
+MPRINT(HAZPLOT):   * obtain the integrated value to that point. ;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * In practice, it is about as easy to recompute integrated cumulative ;
+MPRINT(HAZPLOT):   * hazard for patients at risk beyond the interval as to keep summers ;
+MPRINT(HAZPLOT):   * going. So the computational strategy is to do the summations for the ;
+MPRINT(HAZPLOT):   * patients no longer at risk, and add this to the amount for all ;
+MPRINT(HAZPLOT):   * patients followed beyond that. ;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   RETAIN S_CUMHAZ 0 TDEAD 0 SECUMHAZ 0 SCCUMHAZ 0 SLCUMHAZ 0 UNIQUE 0;
+MPRINT(HAZPLOT):   * Number of observations that have been censored (or uncensored) at and ;
+MPRINT(HAZPLOT):   * before this particular followup interval. ;
+MPRINT(HAZPLOT):   * NOTE: observations are in order of the followup interval. ;
+MPRINT(HAZPLOT):   UNIQUE = UNIQUE + TOTAL;
+MPRINT(HAZPLOT):   * Find the total (integrated) cumulative hazard at that interval for the ;
+MPRINT(HAZPLOT):   * observations censored or uncensored at exactly that interval ;
+MPRINT(HAZPLOT):   T_CUMHAZ = TOTAL*_CUMHAZ;
+MPRINT(HAZPLOT):   TECUMHAZ = TOTAL*(-LOG(_EARLYS));
+MPRINT(HAZPLOT):   TCCUMHAZ = TOTAL*(-LOG(_CONSTS));
+MPRINT(HAZPLOT):   TLCUMHAZ = TOTAL*(-LOG(_LATES));
+MPRINT(HAZPLOT):   * Add this to the integrated total from the previously censored and ;
+MPRINT(HAZPLOT):   * uncensored patients not haveing followup beyond the current interval ;
+MPRINT(HAZPLOT):   S_CUMHAZ=T_CUMHAZ + S_CUMHAZ;
+MPRINT(HAZPLOT):   SECUMHAZ=TECUMHAZ + SECUMHAZ;
+MPRINT(HAZPLOT):   SCCUMHAZ=TCCUMHAZ + SCCUMHAZ;
+MPRINT(HAZPLOT):   SLCUMHAZ=TLCUMHAZ + SLCUMHAZ;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * Alternative calculations from the documentation ;
+MPRINT(HAZPLOT):   NEHAZ=(DEAD*_EARLYH/_HAZARD);
+MPRINT(HAZPLOT):   NCHAZ=(DEAD*_CONSTH/_HAZARD);
+MPRINT(HAZPLOT):   NLHAZ=(DEAD*_LATEH/_HAZARD) ;
+MPRINT(HAZPLOT):   * ;
+MPRINT(HAZPLOT):   * Get cumulative hazard integral from time zero up to this interval for ;
+MPRINT(HAZPLOT):   * all patients who have followup beyond this interval. Add this to the ;
+MPRINT(HAZPLOT):   * parital integral from patients not to be traced beyond this interval ;
+MPRINT(HAZPLOT):   SUM_CHF=(NOBS - UNIQUE)*_CUMHAZ + S_CUMHAZ;
+MPRINT(HAZPLOT):   SUMECHF=(NOBS - UNIQUE)*(-LOG(_EARLYS)) + SECUMHAZ;
+MPRINT(HAZPLOT):   SUMCCHF=(NOBS - UNIQUE)*(-LOG(_CONSTS)) + SCCUMHAZ;
+MPRINT(HAZPLOT):   SUMLCHF=(NOBS - UNIQUE)*(-LOG(_LATES)) + SLCUMHAZ;
+MPRINT(HAZPLOT):   * Now sum the observed number of events ;
+MPRINT(HAZPLOT):   TDEAD = DEAD + TDEAD;
+MPRINT(HAZPLOT):   D_DEAD = SUM_CHF - TDEAD;
+MPRINT(HAZPLOT):   * Cumulative hazard components ;
+MLOGIC(HAZPLOT):  %IF condition &PLOTI is TRUE
+MPRINT(HAZPLOT):   _EARLYC=0;
+MPRINT(HAZPLOT):   LN_EARLC=.;
+MPRINT(HAZPLOT):   P_EARLY=0;
+MPRINT(HAZPLOT):   LABEL _EARLYC = Early Cumulative Hazard Function;
+MPRINT(HAZPLOT):   IF _EARLYS>0 AND _EARLYS<1 THEN DO;
+MPRINT(HAZPLOT):   P_EARLY=1;
+MPRINT(HAZPLOT):   _EARLYC=-LOG(_EARLYS);
+MLOGIC(HAZPLOT):  %IF condition &PDETAIL is TRUE
+MPRINT(HAZPLOT):   IF _EARLYC>0 THEN LN_EARLC=LOG(_EARLYC);
+MPRINT(HAZPLOT):   LABEL LN_EARLC = Log Early Cumulative Hazard Function;
+MPRINT(HAZPLOT):   END;
+MPRINT(HAZPLOT):   _CONSTC=0;
+MPRINT(HAZPLOT):   LN_CONSC=.;
+MPRINT(HAZPLOT):   P_CONST=0;
+MPRINT(HAZPLOT):   LABEL _CONSTC = Constant Cumulative Hazard Function;
+MPRINT(HAZPLOT):   IF _CONSTS>0 AND _CONSTS<1 THEN DO;
+MPRINT(HAZPLOT):   P_CONST=1;
+MPRINT(HAZPLOT):   _CONSTC=-LOG(_CONSTS);
+MPRINT(HAZPLOT):   END;
+MPRINT(HAZPLOT):   _LATEC=0;
+MPRINT(HAZPLOT):   LN_LATEC=.;
+MPRINT(HAZPLOT):   P_LATE=0;
+MPRINT(HAZPLOT):   LABEL _LATEC = Late Cumulative Hazard Function;
+MPRINT(HAZPLOT):   IF _LATES>0 AND _LATES<1 THEN DO;
+MPRINT(HAZPLOT):   P_LATE=1;
+MPRINT(HAZPLOT):   _LATEC=-LOG(_LATES);
+MLOGIC(HAZPLOT):  %IF condition &PDETAIL is TRUE
+MPRINT(HAZPLOT):   IF _LATEC>0 THEN LN_LATEC=LOG(_LATEC);
+MPRINT(HAZPLOT):   LABEL LN_LATEC = Log Late Cumulative Hazard Function;
+MPRINT(HAZPLOT):   END;
+MPRINT(HAZPLOT):   * Phase components with others removed ;
+MPRINT(HAZPLOT):   R_EARLYC=CUM_HAZ-_CONSTC-_LATEC;
+MPRINT(HAZPLOT):   R_CONSTC=CUM_HAZ-_EARLYC-_LATEC;
+MPRINT(HAZPLOT):   R_LATEC=CUM_HAZ-_EARLYC-_CONSTC;
+MPRINT(HAZPLOT):   LABEL R_EARLYC = Early Cumulative Hazard Component R_CONSTC = Constant Cumulative Hazard Component R_LATEC =
+Late Cumulative Hazard Component ;
+MLOGIC(HAZPLOT):  %IF condition &PDETAIL is TRUE
+MPRINT(HAZPLOT):   LN_EC=.;
+MPRINT(HAZPLOT):   IF R_EARLYC>0 THEN LN_EC=LOG(R_EARLYC);
+MPRINT(HAZPLOT):   LN_CC=.;
+MPRINT(HAZPLOT):   IF R_CONSTC>0 THEN LN_CC=LOG(R_CONSTC);
+MPRINT(HAZPLOT):   LN_LC=.;
+MPRINT(HAZPLOT):   IF R_LATEC>0 THEN LN_LC=LOG(R_LATEC);
+MPRINT(HAZPLOT):   LABEL LN_EC = Log Early Cumulative Hazard Component LN_CC = Log Constant Cumulative Hazard Component LN_LC = Log
+Late Cumulative Hazard Component ;
+MPRINT(HAZPLOT):   * Set up tests for the plots ;
+
+NOTE: Invalid argument to function LOG at line 700 column 15.
+NOTE: Invalid argument to function LOG at line 700 column 43.
+NOTE: Invalid argument to function LOG at line 700 column 67.
+INT_DEAD=170.5826 DEAD=1 CENSORED=0 NUMBER=1 CUM_SURV=0 LIFE=79.040605296 PROPLIFE=0.4633567861 SE_EXACT=0 CL_LOWER=0 CL_UPPER=0
+CUM_HAZ=. HAZARD=. DENSITY=0.0164435258 MID_INT=149.2762 NOBS=310 TOTAL=1 _SURVIV=0.7209772905 _CLLSURV=0.6846877176
+_CLUSURV=0.754587283 _EARLYS=0.7910453329 _CONSTS=0.9114234805 _LATES=1 _HAZARD=0.000550874 _CLLHAZ=0.0003519175
+_CLUHAZ=0.0008623106 _EARLYH=7.1630096E-6 _CONSTH=0.000543711 _LATEH=0 PLTCHR=+ PLTCL=- PLTPAR=* LN_TIME=5.1392196369
+D_SURVIV=-0.72097729 _LNHAZ=-7.504004418 _LNCLLHZ=-7.952113753 _LNCLUHZ=-7.055895083 _EARLYR=1.3002990415 _CONSTR=98.699700958
+_LATER=0 CLL_CHZ=. CLU_CHZ=. _CUMHAZ=0.3271476395 _CLLCHZ=0.2815843242 _CLUCHZ=0.3787924314 D_CUMHAZ=. LN_CHAZ_=.
+LN_CUMHZ=-1.117343713 _LNCLLCH=-1.267323323 _LNCLUCH=-0.970766898 LN_CLLCH=. LN_CLUCH=. S_CUMHAZ=70.000000776 TDEAD=70
+SECUMHAZ=63.072156337 SCCUMHAZ=6.927844439 SLCUMHAZ=0 UNIQUE=310 T_CUMHAZ=0.3271476395 TECUMHAZ=0.234400002 TCCUMHAZ=0.0927476374
+TLCUMHAZ=0 NEHAZ=0.0130029904 NCHAZ=0.9869970096 NLHAZ=0 SUM_CHF=70.000000776 SUMECHF=63.072156337 SUMCCHF=6.927844439 SUMLCHF=0
+D_DEAD=7.760115E-7 _EARLYC=0.234400002 LN_EARLC=-1.450726213 P_EARLY=1 _CONSTC=0.0927476374 LN_CONSC=. P_CONST=1 _LATEC=0 LN_LATEC=.
+P_LATE=0 R_EARLYC=. R_CONSTC=. R_LATEC=. LN_EC=. LN_CC=. LN_LC=. _ERROR_=1 _N_=273
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      1 at 700:15    1 at 700:43    1 at 700:67    1 at 700:24    1 at 700:114   1 at 700:122   1 at 700:151   1 at 700:159
+      1 at 700:187   1 at 700:195
+NOTE: Mathematical operations could not be performed at the following places. The results of the operations have been set to
+      missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      1 at 700:15   1 at 700:43   1 at 700:67
+NOTE: There were 273 observations read from the dataset WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 273 observations and 84 variables.
+NOTE: DATA statement used:
+      real time           2.02 seconds
+      cpu time            0.32 seconds
+
+
+MPRINT(HAZPLOT):   PROC SUMMARY DATA=PREDICT NWAY;
+MPRINT(HAZPLOT):   VAR P_EARLY P_CONST P_LATE;
+MPRINT(HAZPLOT):   OUTPUT OUT=OUTTEST SUM=P_EARLY P_CONST P_LATE;
+NOTE: There were 273 observations read from the dataset WORK.PREDICT.
+NOTE: The data set WORK.OUTTEST has 1 observations and 5 variables.
+NOTE: PROCEDURE SUMMARY used:
+      real time           0.12 seconds
+      cpu time            0.02 seconds
+
+
+MPRINT(HAZPLOT):   DATA OUTTEST;
+MPRINT(HAZPLOT):   SET OUTTEST;
+MPRINT(HAZPLOT):   CALL SYMPUT('P_EARLY',P_EARLY);
+MPRINT(HAZPLOT):   CALL SYMPUT('P_CONST',P_CONST);
+MPRINT(HAZPLOT):   CALL SYMPUT('P_LATE',P_LATE);
+MPRINT(HAZPLOT):   RUN;
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      700:11   700:47   700:82
+NOTE: There were 1 observations read from the dataset WORK.OUTTEST.
+NOTE: The data set WORK.OUTTEST has 1 observations and 5 variables.
+NOTE: DATA statement used:
+      real time           0.23 seconds
+      cpu time            0.01 seconds
+
+
+MPRINT(HAZPLOT):   * Do plots ;
+MPRINT(HAZPLOT):   * Determine upper limit of Y axis for _HAZARD _EARLYH _LATEH;
+MLOGIC(HAZPLOT):  %IF condition &HAZSCALE = NONE is TRUE
+MLOGIC(HAZPLOT):  %LET (variable name is _VAXIS)
+MPRINT(HAZPLOT):   PROC PLOT
+MLOGIC(HAZPLOT):  %IF condition &PLOTS is TRUE
+MPRINT(HAZPLOT):   PLOT _SURVIV*INT_DEAD=PLTPAR CUM_SURV*INT_DEAD=PLTCHR (_CLLSURV _CLUSURV)*INT_DEAD='.' (CL_LOWER
+CL_UPPER)*INT_DEAD=PLTCL /OVERLAY VAXIS=0 TO 1 BY 0.1;
+MLOGIC(HAZPLOT):  %IF condition &PDETAIL is TRUE
+MPRINT(HAZPLOT):   PLOT D_SURVIV*INT_DEAD=PLTCHR;
+MLOGIC(HAZPLOT):  %IF condition &PLOTC is TRUE
+MPRINT(HAZPLOT):   PLOT CUM_HAZ*INT_DEAD=PLTCHR _CUMHAZ*INT_DEAD=PLTPAR (_CLLCHZ _CLUCHZ)*INT_DEAD='.' (CLL_CHZ
+CLU_CHZ)*INT_DEAD=PLTCL/OVERLAY;
+MLOGIC(HAZPLOT):  %IF condition &PDETAIL is TRUE
+MPRINT(HAZPLOT):   PLOT D_CUMHAZ*INT_DEAD=PLTCHR;
+MPRINT(HAZPLOT):   PLOT LN_CHAZ_*INT_DEAD=PLTCHR LN_CUMHZ*INT_DEAD=PLTPAR (_LNCLLCH _LNCLUCH)*INT_DEAD='.' (LN_CLLCH
+LN_CLUCH)*INT_DEAD=PLTCL/OVERLAY;
+MPRINT(HAZPLOT):   PLOT CUM_HAZ*LN_TIME=PLTCHR _CUMHAZ*LN_TIME=PLTPAR (_CLLCHZ _CLUCHZ)*LN_TIME='.' (CLL_CHZ
+CLU_CHZ)*LN_TIME=PLTCL/OVERLAY;
+MPRINT(HAZPLOT):   PLOT LN_CHAZ_*LN_TIME=PLTCHR LN_CUMHZ*LN_TIME=PLTPAR (_LNCLLCH _LNCLUCH)*LN_TIME='.' (LN_CLLCH
+LN_CLUCH)*LN_TIME=PLTCL/OVERLAY;
+MLOGIC(HAZPLOT):  %IF condition &PLOTH is TRUE
+MPRINT(HAZPLOT):   PLOT _HAZARD*INT_DEAD=PLTPAR (_CLLHAZ _CLUHAZ)*INT_DEAD='.' /OVERLAY ;
+MPRINT(HAZPLOT):   PLOT _LNHAZ*INT_DEAD=PLTPAR (_LNCLLHZ _LNCLUHZ)*INT_DEAD='.' /OVERLAY ;
+MLOGIC(HAZPLOT):  %IF condition &PDETAIL is TRUE
+MPRINT(HAZPLOT):   PLOT _HAZARD*LN_TIME=PLTPAR (_CLLHAZ _CLUHAZ)*LN_TIME='.' /OVERLAY ;
+MPRINT(HAZPLOT):   PLOT _LNHAZ*LN_TIME=PLTPAR (_LNCLLHZ _LNCLUHZ)*LN_TIME='.' /OVERLAY;
+MLOGIC(HAZPLOT):  %IF condition &PLOTI is TRUE
+MPRINT(HAZPLOT):   PLOT _EARLYH*INT_DEAD='E' _CONSTH*INT_DEAD='C' _LATEH*INT_DEAD='L'/OVERLAY ;
+MPRINT(HAZPLOT):   PLOT _EARLYR*INT_DEAD='E' _CONSTR*INT_DEAD='C' _LATER*INT_DEAD='L'/OVERLAY VAXIS=0 TO 100 BY 10;
+MLOGIC(HAZPLOT):  %IF condition &P_EARLY is TRUE
+MPRINT(HAZPLOT):   PLOT _EARLYC*INT_DEAD=PLTPAR R_EARLYC*INT_DEAD=PLTCHR/OVERLAY;
+MLOGIC(HAZPLOT):  %IF condition &PDETAIL is TRUE
+MPRINT(HAZPLOT):   PLOT LN_EARLC*LN_TIME=PLTPAR LN_EC*LN_TIME=PLTCHR/OVERLAY;
+MLOGIC(HAZPLOT):  %IF condition &P_CONST is TRUE
+MPRINT(HAZPLOT):   PLOT _CONSTC*INT_DEAD=PLTPAR R_CONSTC*INT_DEAD=PLTCHR/OVERLAY;
+MLOGIC(HAZPLOT):  %IF condition &P_LATE is FALSE
+MPRINT(HAZPLOT):   * Plot goodness of fit for events only ;
+MLOGIC(HAZPLOT):  %IF condition &PLOTG is TRUE
+
+NOTE: There were 273 observations read from the dataset WORK.PREDICT.
+NOTE: PROCEDURE PLOT used:
+      real time           13.22 seconds
+      cpu time            1.85 seconds
+
+
+MPRINT(HAZPLOT):   DATA PREDICT;
+MPRINT(HAZPLOT):   SET PREDICT;
+MPRINT(HAZPLOT):   LABEL T_CUMHAZ = 'Total expected events (cum. hazard)' TECUMHAZ = 'Calculated early hazard phase events'
+TCCUMHAZ = 'Calculated constant hazard phase events' TLCUMHAZ = 'Calculated late hazard phase events' NEHAZ = 'Alternative calc.
+early phase events' NCHAZ = 'Alternative calc. constant phase events' NLHAZ = 'Alternative calc. late phase events' TDEAD = 'Number
+of Observed Events' ;
+
+NOTE: There were 273 observations read from the dataset WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 273 observations and 84 variables.
+NOTE: DATA statement used:
+      real time           0.14 seconds
+      cpu time            0.03 seconds
+
+
+MPRINT(HAZPLOT):   PROC MEANS SUM;
+MPRINT(HAZPLOT):   VAR DEAD T_CUMHAZ TECUMHAZ TCCUMHAZ TLCUMHAZ NEHAZ NCHAZ NLHAZ;
+NOTE: There were 273 observations read from the dataset WORK.PREDICT.
+NOTE: PROCEDURE MEANS used:
+      real time           0.09 seconds
+      cpu time            0.03 seconds
+
+
+MPRINT(HAZPLOT):   DATA PREDICT;
+MPRINT(HAZPLOT):   SET PREDICT;
+MPRINT(HAZPLOT):   IF DEAD>0;
+MPRINT(HAZPLOT):   L_INT=LOG(INT_DEAD);
+MPRINT(HAZPLOT):   LABEL SUM_CHF= 'Expected Events From Cum. Haz. Function' D_DEAD = 'Expected Minus Observed No. of Events' L_INT
+= 'Log(interval)';
+MPRINT(HAZPLOT):   ;
+
+NOTE: There were 273 observations read from the dataset WORK.PREDICT.
+NOTE: The data set WORK.PREDICT has 44 observations and 85 variables.
+NOTE: DATA statement used:
+      real time           0.12 seconds
+      cpu time            0.02 seconds
+
+
+MPRINT(HAZPLOT):   PROC PLOT
+MPRINT(HAZPLOT):   PLOT SUM_CHF*TDEAD='P' TDEAD*TDEAD='.'/OVERLAY;
+MPRINT(HAZPLOT):   PLOT D_DEAD*INT_DEAD/VREF=0;
+MPRINT(HAZPLOT):   PLOT D_DEAD*L_INT/VREF=0;
+MLOGIC(HAZPLOT):  %IF condition &DSDELETE is FALSE
+MPRINT(HAZPLOT):   *******************************************************************************;
+MLOGIC(HAZPLOT):  Ending execution.
+701   *******************************************************************************;
+702   * Digital nomogram                                                             ;
+
+NOTE: There were 44 observations read from the dataset WORK.PREDICT.
+NOTE: PROCEDURE PLOT used:
+      real time           2.49 seconds
+      cpu time            0.33 seconds
+
+
+703     DATA DIG;
+704     DTY=12/365.2425;
+705     DO MONTHS=1*DTY,2*DTY,3*DTY,4*DTY,5*DTY,6*DTY,7*DTY,14*DTY,30*DTY,
+706     1,2,3,6,12,18,24 TO 180 BY 12;
+707       YEARS=MONTHS/12;
+708       OUTPUT;
+709     END;
+710     %HAZPRED(
+MLOGIC(HAZPRED):  Beginning execution.
+MLOGIC(HAZPRED):  This macro was compiled from the autocall file /programs/apps/sas/hazard/hazpred.sas
+711     PROC HAZPRED DATA=DIG INHAZ=EXAMPLES.HZDEATH OUT=DIG; TIME MONTHS;
+712     );
+MLOGIC(HAZPRED):  %GLOBAL  HZPNOTES HZPDEBUG HAZRC
+MPRINT(HAZPRED):   run;
+
+NOTE: The data set WORK.DIG has 29 observations and 3 variables.
+NOTE: DATA statement used:
+      real time           0.22 seconds
+      cpu time            0.02 seconds
+
+
+MLOGIC(HAZPRED):  %IF condition &hzpnotes eq 1 is FALSE
+MPRINT(HAZPRED):   option nonotes;
+MLOGIC(HAZPRED):  %LET (variable name is CODE)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %LET (variable name is PROCSTMT)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(QLEFT):  Beginning execution.
+MLOGIC(QLEFT):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/qleft.sas
+MLOGIC(QLEFT):  Parameter TEXT has value DIG INHAZEXAMPLES.HZDEATH OUTDIG TIME MONTHS   
+MLOGIC(QLEFT):  %LOCAL  I
+MLOGIC(QLEFT):  %IF condition %length(&text)=0 is FALSE
+MLOGIC(QLEFT):  %LET (variable name is I)
+MLOGIC(VERIFY):  Beginning execution.
+MLOGIC(VERIFY):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/verify.sas
+MLOGIC(VERIFY):  Parameter TEXT has value DIG INHAZEXAMPLES.HZDEATH OUTDIG TIME MONTHS   
+MLOGIC(VERIFY):  Parameter TARGET has value  
+MLOGIC(VERIFY):  %LOCAL  I
+MLOGIC(VERIFY):  %IF condition %length(&text)=0 | %length(&target)=0 is FALSE
+MLOGIC(VERIFY):  %DO loop beginning; index variable I; start value is 1; stop value is 52; by value is 1.
+MLOGIC(VERIFY):  %IF condition ^%index(&target,%qsubstr(&text,&i,1)) is TRUE
+MLOGIC(VERIFY):  %GOTO VERFND (label resolves to VERFND).
+MLOGIC(VERIFY):  %IF condition &i>%length(&text) is FALSE
+MLOGIC(VERIFY):  Ending execution.
+MLOGIC(QLEFT):  %IF condition &i is TRUE
+MLOGIC(QLEFT):  Ending execution.
+MLOGIC(HAZPRED):  %LET (variable name is DATANAME)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(QLEFT):  Beginning execution.
+MLOGIC(QLEFT):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/qleft.sas
+MLOGIC(QLEFT):  Parameter TEXT has value EXAMPLES.HZDEATH OUTDIG TIME MONTHS   
+MLOGIC(QLEFT):  %LOCAL  I
+MLOGIC(QLEFT):  %IF condition %length(&text)=0 is FALSE
+MLOGIC(QLEFT):  %LET (variable name is I)
+MLOGIC(VERIFY):  Beginning execution.
+MLOGIC(VERIFY):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/verify.sas
+MLOGIC(VERIFY):  Parameter TEXT has value EXAMPLES.HZDEATH OUTDIG TIME MONTHS   
+MLOGIC(VERIFY):  Parameter TARGET has value  
+MLOGIC(VERIFY):  %LOCAL  I
+MLOGIC(VERIFY):  %IF condition %length(&text)=0 | %length(&target)=0 is FALSE
+MLOGIC(VERIFY):  %DO loop beginning; index variable I; start value is 1; stop value is 42; by value is 1.
+MLOGIC(VERIFY):  %IF condition ^%index(&target,%qsubstr(&text,&i,1)) is TRUE
+MLOGIC(VERIFY):  %GOTO VERFND (label resolves to VERFND).
+MLOGIC(VERIFY):  %IF condition &i>%length(&text) is FALSE
+MLOGIC(VERIFY):  Ending execution.
+MLOGIC(QLEFT):  %IF condition &i is TRUE
+MLOGIC(QLEFT):  Ending execution.
+MLOGIC(HAZPRED):  %LET (variable name is INHAZNAM)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(HAZPRED):  %LET (variable name is I)
+MLOGIC(HAZPRED):  %IF condition &i eq 0 is FALSE
+MLOGIC(HAZPRED):  %LET (variable name is CODEBLK)
+MLOGIC(QLEFT):  Beginning execution.
+MLOGIC(QLEFT):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/qleft.sas
+MLOGIC(QLEFT):  Parameter TEXT has value DIG TIME MONTHS   
+MLOGIC(QLEFT):  %LOCAL  I
+MLOGIC(QLEFT):  %IF condition %length(&text)=0 is FALSE
+MLOGIC(QLEFT):  %LET (variable name is I)
+MLOGIC(VERIFY):  Beginning execution.
+MLOGIC(VERIFY):  This macro was compiled from the autocall file /u00/vol/sas8/sasautos/verify.sas
+MLOGIC(VERIFY):  Parameter TEXT has value DIG TIME MONTHS   
+MLOGIC(VERIFY):  Parameter TARGET has value  
+MLOGIC(VERIFY):  %LOCAL  I
+MLOGIC(VERIFY):  %IF condition %length(&text)=0 | %length(&target)=0 is FALSE
+MLOGIC(VERIFY):  %DO loop beginning; index variable I; start value is 1; stop value is 21; by value is 1.
+MLOGIC(VERIFY):  %IF condition ^%index(&target,%qsubstr(&text,&i,1)) is TRUE
+MLOGIC(VERIFY):  %GOTO VERFND (label resolves to VERFND).
+MLOGIC(VERIFY):  %IF condition &i>%length(&text) is FALSE
+MLOGIC(VERIFY):  Ending execution.
+MLOGIC(QLEFT):  %IF condition &i is TRUE
+MLOGIC(QLEFT):  Ending execution.
+MLOGIC(HAZPRED):  %LET (variable name is OUTNAME)
+MLOGIC(HAZPRED):  %LET (variable name is JOBID)
+MLOGIC(HAZPRED):  %LET (variable name is JOBIX)
+MLOGIC(HAZPRED):  %LET (variable name is PREFIX)
+MLOGIC(HAZPRED):  %LET (variable name is HAZPGM)
+MPRINT(HAZPRED):   data _null_;
+MPRINT(HAZPRED):   file "/tmp/hzp.J12733.X29.sas";
+MLOGIC(HAZPRED):  %DO %WHILE(%length(&code)>150) loop beginning; condition is FALSE.  Loop will not be executed.
+MPRINT(HAZPRED):   put "(   PROC HAZPRED DATA=DIG INHAZ=EXAMPLES.HZDEATH OUT=DIG; TIME MONTHS;   )";
+MPRINT(HAZPRED):   run;
+MPRINT(HAZPRED):   libname HZRCALL xport "/tmp/hzp.J12733.X29.dta";
+MPRINT(HAZPRED):   data HZRCALL.HZRCALL;
+MPRINT(HAZPRED):   set DIG;
+MPRINT(HAZPRED):   run;
+MPRINT(HAZPRED):   libname HZRCALL xport "/tmp/hzp.J12733.X29.haz";
+MPRINT(HAZPRED):   data HZRCALL.HZRCALL;
+MPRINT(HAZPRED):   set EXAMPLES.HZDEATH;
+MPRINT(HAZPRED):   run;
+MPRINT(HAZPRED):   data _null_;
+MPRINT(HAZPRED):   i = 1;
+MPRINT(HAZPRED):   set DIG nobs=datact point=i;
+MPRINT(HAZPRED):   set EXAMPLES.HZDEATH nobs=inhazct point=i;
+MPRINT(HAZPRED):   file "/tmp/hzp.J12733.X29.sas" mod;
+MPRINT(HAZPRED):   put 'OBSCOUNT' +1 datact ';' / 'HAZCOUNT' +1 inhazct ';';
+MPRINT(HAZPRED):   put "JOBID J12733;" / "JOBIX X29;";
+MPRINT(HAZPRED):   stop;
+MPRINT(HAZPRED):   run;
+MLOGIC(HAZPRED):  %LET (variable name is HAZRC)
+MLOGIC(HAZDOLST):  Beginning execution.
+MLOGIC(HAZDOLST):  This macro was compiled from the autocall file /programs/apps/sas/hazard/hazdolst.sas
+MPRINT(HAZDOLST):   data _null_;
+MPRINT(HAZDOLST):   infile "/tmp/hzp.J12733.X29.lst" length=ll;
+MPRINT(HAZDOLST):   length bfr $200;
+MPRINT(HAZDOLST):   input @1 code $1. @;
+MPRINT(HAZDOLST):   if code='$' then file log;
+MPRINT(HAZDOLST):   else file print linesleft=lleft header=prthdr;
+MPRINT(HAZDOLST):   bfrlen = ll-1;
+MPRINT(HAZDOLST):   input bfr $varying200. bfrlen;
+MPRINT(HAZDOLST):   select(code);
+MPRINT(HAZDOLST):   when('+') do;
+MPRINT(HAZDOLST):   link getcount;
+MPRINT(HAZDOLST):   put +count bfr $varying200. bfrlen @;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   when('@') do;
+MPRINT(HAZDOLST):   link getcount;
+MPRINT(HAZDOLST):   put @count bfr $varying200. bfrlen @;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   when('<') if lleft<input(bfr,4.) then put _page_;
+MPRINT(HAZDOLST):   else;
+MPRINT(HAZDOLST):   when('/') do;
+MPRINT(HAZDOLST):   do i = 1 to input(bfr,4.);
+MPRINT(HAZDOLST):   put;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   when(';') put bfr $varying200. bfrlen @;
+MPRINT(HAZDOLST):   when('$') put bfr $varying200. bfrlen;
+MPRINT(HAZDOLST):   otherwise error 'ERROR: Unrecognized line from print file.';
+MPRINT(HAZDOLST):   end;
+MPRINT(HAZDOLST):   return;
+MPRINT(HAZDOLST):   getcount: i = index(bfr,',');
+MPRINT(HAZDOLST):   count = input(substr(bfr,1,i-1),4.);
+MPRINT(HAZDOLST):   bfr = substr(bfr,i+1);
+MPRINT(HAZDOLST):   bfrlen = bfrlen-i;
+MPRINT(HAZDOLST):   return;
+MPRINT(HAZDOLST):   prthdr: put;
+MPRINT(HAZDOLST):   return;
+MPRINT(HAZDOLST):   run;
+
+Note: Procedure HAZPRED (C-Version 4.036)
+      University of Alabama Health Services Foundation
+      P.O. Box 338  UAB Station
+      Birmingham, Alabama  35294
+      Phone: (205) 934-4144
+      Email: hazard@uabcvsr.cvsr.uab.edu
+Note: Procedure HAZPRED completed successfully.
+MLOGIC(HAZDOLST):  Ending execution.
+MLOGIC(HAZPRED):  %IF condition &hazrc ne 0 is FALSE
+MPRINT(HAZPRED):   libname HZRCALL xport "/tmp/hzp.J12733.X29.out";
+MPRINT(HAZPRED):   option notes;
+MPRINT(HAZPRED):   data DIG;
+MPRINT(HAZPRED):   set HZRCALL.HZRCALL;
+MPRINT(HAZPRED):   run;
+
+NOTE: There were 29 observations read from the dataset HZRCALL.HZRCALL.
+NOTE: The data set WORK.DIG has 29 observations and 15 variables.
+NOTE: DATA statement used:
+      real time           0.08 seconds
+      cpu time            0.02 seconds
+
+
+MPRINT(HAZPRED):   option nonotes;
+MPRINT(HAZPRED):   libname HZRCALL clear;
+MLOGIC(HAZPRED):  %IF condition &hzpdebug eq 1 is FALSE
+MPRINT(HAZPRED):   x rm /tmp/hzp.J12733.X29.*;
+MLOGIC(HAZPRED):  %GOTO FIN (label resolves to FIN).
+MLOGIC(HAZPRED):  %IF condition &hzpnotes eq -1 is FALSE
+MPRINT(HAZPRED):   options notes;
+MPRINT(HAZPRED):  run;
+MLOGIC(HAZPRED):  Ending execution.
+713     PROC PRINT D; VAR MONTHS YEARS
+714          _SURVIV _CLLSURV _CLUSURV _HAZARD _CLLHAZ _CLUHAZ;
+715   *******************************************************************************;
+716   RUN;
+
+NOTE: There were 29 observations read from the dataset WORK.DIG.
+NOTE: PROCEDURE PRINT used:
+      real time           0.68 seconds
+      cpu time            0.07 seconds
+
+
