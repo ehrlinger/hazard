@@ -1,19 +1,14 @@
+#include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include <string.h>
-
 #include "common.h"
 #include "hzdinc.h"
 
 #include "hzf_col.h"
 
-void hzfxpf(double value,long places,long precsn,long column){
-#ifdef DEBUG
-     printf("hzfzpf\n");
-#endif /*DEBUG*/
-
+void hzfxpf(double value,int places,int precsn,long column){
   double prtval;
-  long i;
+  int i;
 
   if(!curr_xpmode) return;
   hzf_col(column);

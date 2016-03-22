@@ -1,5 +1,5 @@
 #ifndef SETIDXS_H
 #define SETIDXS_H
-void setidxs(long i,long j);
+void setidxs(int i,int j);
 #endif /* SETIDXS_H */
 

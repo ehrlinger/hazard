@@ -1,13 +1,10 @@
+#include <string.h>
 #include "structures.h"
 #include "hzd_early_t2p.h"
 #include "hzd_late_t2p.h"
 #include "hzd_set_rho.h"
 
 void hzd_theta_to_parms(int chgd_E,int chgd_L){
-#ifdef DEBUG
-     printf("hzd_theta_to_parms\n");
-#endif /*DEBUG*/
-
   if(Common.phase[1]==1 && chgd_E) {
     TempE = Early;
     hzd_early_t2p();

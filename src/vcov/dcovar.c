@@ -1,5 +1,5 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
 
 #include "common.h"
 
@@ -13,9 +13,9 @@
 #include "normal.h"
 #include "hzr_set_error.h"
 
-void DCOVAR(double *beta,long nvar,logical noshap,double fx,long *index,
+void DCOVAR(double *beta,int nvar,logical noshap,double fx,int *index,
 	    double *theta,double *d2ll,double *cov,double *corr, 
-	    double *sd, double *znorm,double *pnorm,long *flag,
+	    double *sd, double *znorm,double *pnorm,int *flag,
 	    logical *stopt)
 
      /**************************************************************
@@ -139,7 +139,7 @@ void DCOVAR(double *beta,long nvar,logical noshap,double fx,long *index,
 {
   double *cov_i,*cov_ij,*corr_i,*corr_j,*corr_ij,*corr_ji,*d2ll_ii;
   double absz;
-  long i,j,nvar1,stmode;
+  int i,j,nvar1,stmode;
 
   /* INITIALIZATION */
   *stopt = FALSE;

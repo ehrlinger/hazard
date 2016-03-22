@@ -1,7 +1,8 @@
+#include <string.h>
 #include "common.h"
 
 void hzr_calc_loge_mu(void){
-  long k,ip,it,ix,Im1p7;
+  int k,ip,it,ix,Im1p7;
   double lmu[4];
   /**
    CALCULATE LOGE(MU(J)), THE LOG OF THE PARAMETRIC SCALING FUNCTION

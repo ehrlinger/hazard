@@ -5,7 +5,7 @@
 /****************************************************************/
 /* VFYNVAR called from TIMEPRC, EVENTPRC, RCNSPRC, ICNSPRC,     */
 /*          WGHTPRC, and GETRISK                                */
-long vfynvar(struct namestr *v,char *n){
+int vfynvar(struct namestr *v,char *n){
   char vn[VAR_NAME_LENGTH + 1];
 
   vn[VAR_NAME_LENGTH] = '\0';
@@ -15,10 +15,15 @@ long vfynvar(struct namestr *v,char *n){
     semerr = TRUE;
     return 0;
   }
+
+if(v->ntype==256) {
+return 1;
+}
+
   if(v->ntype!=1) {
     memcpy(vn,n,VAR_NAME_LENGTH);
     hzf_log2("ERROR: VARIABLE NOT NUMERIC - ",vn);
-    semerr = TRUE;
+    semerr = TRUE; 
     return 0;
   }
   return 1;

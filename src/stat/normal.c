@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include <common.h>
@@ -69,7 +70,7 @@ double NORMAL(double z)
 
 {
   double t,absz,lnx,lnt,mlnfz,sum,lsum,lnr;
-  long j;
+  int j;
 
   static double normal = 0;
 

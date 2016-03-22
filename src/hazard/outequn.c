@@ -1,6 +1,6 @@
+#include <string.h>
 #include <hzfxpc.h>
 #include <hzfskp.h>
-#include <string.h>
 
 void outequn(char *equnam){
   short int len;

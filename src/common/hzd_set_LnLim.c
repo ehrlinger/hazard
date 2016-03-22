@@ -1,18 +1,11 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#include "structures.h"
+#include <string.h>
 #include <float.h>
+#include "structures.h"
 
 void hzd_set_LnLim(void){
-#ifdef DEBUG
-     printf("hzd_set_LnLim\n");
-#endif /*DEBUG*/
-
   double d;
   int i;
 
-  
   LnLim.two = LOGe(Machn.two);
   LnLim.twotwo = LOGe(LnLim.two);
   LnLim.absMin = LOGe(Machn.absMin);

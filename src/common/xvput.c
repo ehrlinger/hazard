@@ -1,14 +1,10 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
 #include "hzdinc.h"
 
 void xvput(void){
-#ifdef DEBUG
-     printf("xvput\n");
-#endif /*DEBUG*/
-
   double fpno;
-  long i,mant;
+  int i,mant;
   int exponent,fpdigit,negative;
   unsigned char fpbyte[8];
 

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazard.h"
 #include "outemod.h"
 #include "outcmod.h"
@@ -13,7 +14,7 @@
 
 void outmods(void){
   logical iflag;
-  long j,k,ctr;
+  int j,k,ctr;
 
   hzfpag(40);
   hzfskp(2);

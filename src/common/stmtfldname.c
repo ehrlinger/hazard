@@ -1,9 +1,6 @@
+#include <string.h>
 #include "hzdinc.h"
 
-char *stmtfldname(long fldno){
-#ifdef DEBUG
-     printf("stntfldname\n");
-#endif /*DEBUG*/
-
+char *stmtfldname(int fldno){
   return stmtptr->parm[fldno-1].var;
 }

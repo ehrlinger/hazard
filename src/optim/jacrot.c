@@ -1,7 +1,8 @@
+#include <string.h>
 #include <math.h>
 #include "hzdinc.h"
 
-void JACROT(double *m,double a,double b,long i,long n)
+void JACROT(double *m,double a,double b,int i,int n)
 
      /***********************************************************************
 
@@ -56,7 +57,7 @@ void JACROT(double *m,double a,double b,long i,long n)
 {
   double c,s,den,temp1,temp2;
   double *mij,*mi1j;
-  long j;
+  int j;
 
   if(a!=ZERO) {
     den = sqrt(a*a+b*b);

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazard.h"
 
 #include <hzfxpc.h>
@@ -9,7 +10,7 @@
 #include "crpt.h"
 
 void concrpt(void){
-  long j,k;
+  int j,k;
 
   if(C->p==0)
     return;

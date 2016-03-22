@@ -1,5 +1,6 @@
-#include <hzdinc.h>
 #include <string.h>
+#include <hzdinc.h>
+
 #include "hazard.h"
 #include "vfynvar.h"
 #include <xvname.h>
@@ -7,7 +8,7 @@
 /****************************************************************/
 /* GETRISK called from main                                     */
 void getrisk(void){
-  long i,j;
+  int i,j;
   logical found;
   	  
   /* Copy the variable names into the risk name array */

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazard.h"
 
 #include <stdio.h>
@@ -10,7 +11,7 @@
 #include <hzfpag.h>
 
 void obsstat(void){
-  long idelet;
+  int idelet;
 
   hzfpag(8);
   hzfskp(1);

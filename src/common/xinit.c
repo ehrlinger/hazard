@@ -1,22 +1,18 @@
+#include <string.h>
 #include "sas.h"
 #include "structures.h"
-#include <string.h>
 
 #include "hzdinc.h"
 #include "hzfxit.h"
 #define NDEBUG
 
 void xinit(void){
-#ifdef DEBUG
-     printf("xinit\n");
-#endif /*DEBUG*/
-
   int pos;
   double td;
   unsigned char ts[sizeof(double)];
   
   int size = (9*sizeof(short) + 3*sizeof(charVarName)+sizeof(charLabel)+
-	      sizeof(long)+54*sizeof(char));
+	      sizeof(int)+54*sizeof(char));
 
   /* Sanity check of NAMESTR size */
   if(sizeof(struct namestr)!=size){

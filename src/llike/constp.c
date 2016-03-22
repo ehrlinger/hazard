@@ -1,5 +1,5 @@
-#include <common.h>
 #include <string.h>
+#include <common.h>
 
 #include "setcoe_setup_indices.h"
 #include <hzr_qextd.h>
@@ -17,7 +17,7 @@ void constp(void)
       OPTIMIZATION STEP.
       -------------------------------------------------------------*/
 {
-  long j;
+  int j;
  
   /* INITIALIZE */
  

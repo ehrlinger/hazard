@@ -2,7 +2,7 @@
 %global hzrnotes hzrdebug hazrc hzrdelds;
 run;
 %if &hzrnotes eq 1 %then %goto notes;
-options nonotes;
+option nonotes;
 /* Handle dummping notes */
 %notes:
     %let code=%qupcase(&syspbuff);
@@ -29,8 +29,8 @@ options nonotes;
 
 /* Figure out what platform we are running on */
 %if %length(%sysget(OSTYPE)) gt 0 %then %do;
-    %let os=%substr(%sysget(OSTYPE),1,7);
-    %end;
+    %let os=%substr(%sysget(OSTYPE),1,5);
+%end;
 %else %do;
     %let os=%str(Windows);
     %end;
@@ -39,8 +39,8 @@ options nonotes;
 /* to set up the correct separator character and remove command */
 %let jobid=&sysjobid;
 %let jobix=&sysindex;
-		
-%put "Operating System Detector &os";
+
+
 /* Create the program name */
 %if &os = Windows %then %do;
     %let separator=\;
@@ -49,36 +49,15 @@ options nonotes;
     %let remove=del;
     %end;
 %else %do;
+    %if &os = solaris %then %put &os;
     %let separator=/;
     %let decsep=.;
-    %let hazpgm=%sysget(HAZAPPS)&separator%str(hazard);
+    %let hazpgm=%sysget(HAZAPPS)&separator%str(hazard.exe);
     %let remove=rm;
     %end;
 
-/* Find the system temp space. */
-%let tmpspace=&separator%str(tmp);
-
-%if %length(%sysget(TEMPDIR)) gt 0 %then %do;
-	%let tmpspace=%sysget(TEMPDIR);
-	%end;
-%else %do;
-%if %length(%sysget(TMPDIR)) gt 0 %then %do;
-	%let tmpspace=%sysget(TMPDIR);
-	%end;
-%else %do;
-%if %length(%sysget(TEMP)) gt 0 %then %do;
-	%let tmpspace=%sysget(TEMP);
-	%end;
-%end;
-%end;
-/* Make sure we can write there */
-/* %if %sysfunc(fileexist(&tmpspace)) %then %do */
-
-
-options notes;
-
 /* Create the working file names */
-%let prefix=&tmpspace&separator%str(hzr)&decsep%str(J)&jobid&decsep%str(X)&jobix;
+%let prefix=%sysget(TMPDIR)&separator%str(hzr)&decsep%str(J)&jobid&decsep%str(X)&jobix;
 
 /* Dump a message to the screen */
 %if &hzrdebug eq 1 %then

@@ -1,12 +1,9 @@
+#include <string.h>
 #include <stdio.h>
 #include "hzdinc.h"
 #include "hzf_col.h"
 
-void hzfxpi(long value,long places,long column){
-#ifdef DEBUG
-     printf("hzfxpi\n");
-#endif /*DEBUG*/
-
+void hzfxpi(int value,int places,long column){
   if(!curr_xpmode) return;
   hzf_col(column);
   printf("%*ld\n",(int)places,value);

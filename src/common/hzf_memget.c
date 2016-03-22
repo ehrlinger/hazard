@@ -1,15 +1,9 @@
 #include <string.h>
 #include <stdio.h>
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#include "hzdinc.h"
 #include <stdlib.h>
-void *hzf_memget(long leng){
-#ifdef DEBUG
-     printf("hzf_memget\n");
-#endif /*DEBUG*/
+#include "hzdinc.h"
 
+void *hzf_memget(int leng){
   void *stg;
   size_t leng_t;
 

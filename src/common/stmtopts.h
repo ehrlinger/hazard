@@ -2,7 +2,7 @@
 #define STMTOPTS_H
 #include "structures.h" /* Defines logical */
 
-logical stmtopts(long optno);
+logical stmtopts(int optno);
 
 #endif /* STMTOPTS_H */
 

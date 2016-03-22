@@ -1,5 +1,5 @@
 #ifndef CPUT_H
 #define CPUT_H
 
-void cput(char *phasnm,long j);
+void cput(char *phasnm,int j);
 #endif /* CPUT_H */

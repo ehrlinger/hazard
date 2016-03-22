@@ -1,9 +1,9 @@
-#include <common.h>
 #include <string.h>
+#include <common.h>
 #include <hzr_set_error.h>
 #include <hzd_theta_to_parms.h>
 
-void RESTOR(double *beta,long nvar,long *index,double *theta)
+void RESTOR(double *beta,int nvar,int *index,double *theta)
 
      /***********************************************************************
 
@@ -63,7 +63,7 @@ void RESTOR(double *beta,long nvar,long *index,double *theta)
 ***********************************************************************/
 
 {
-  long i,j;
+  int i,j;
 
   /* INITIALIZE */
   if(nvar<=0) {

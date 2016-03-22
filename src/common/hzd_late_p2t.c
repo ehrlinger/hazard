@@ -1,12 +1,9 @@
+#include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"
 
 void hzd_late_p2t(double *sTheta){
   double ge_2,ge_a_2;
-
-#ifdef DEBUG
-  printf("hzd_late_p2t\n");
-#endif /*DEBUG*/
 
   if(Common.status[4]==1){
     if(Late.tau<=ZERO){

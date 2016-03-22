@@ -1,12 +1,8 @@
-#define NDEBUG
+#include <string.h>
 #include "structures.h"
 #include "hzdinc.h"
 
-logical stmtopts(long optno){
-#ifndef NDEBUG
-     printf("stmtops\n");
-#endif /*NDEBUG*/
-
+logical stmtopts(int optno){
   if(stmtptr->opts[optno-1]=='Y')
     return TRUE;
   else

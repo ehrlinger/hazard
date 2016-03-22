@@ -1,11 +1,12 @@
+#include <string.h>
 #include "hazard.h"
 #include <hzdinc.h>
-#include "isblank.h"
+#include <isblanck.h>
 
 /****************************************************************/
 /* READWT called from READOBS                                   */
 void readwt(void){
-  if(!ISBLANK(wtname))
+  if(!ISBLANCK(wtname))
     if(ISMISS(WT)) {
       mwtdel++;
       mdel = 1;

@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
@@ -9,8 +10,8 @@
 
 void LINESR(double *xc,double *xplus,double *gc,double *gplus,double fc,
 	    double *fplus,double *p,double *wk,double *sx,double maxstp,
-	    double stptol,void (*fn)(double *,double *,long),
-	    void (*grad)(double *,long),double eta,long n,long *iret,
+	    double stptol,void (*fn)(double *,double *,int),
+	    void (*grad)(double *,int),double eta,int n,long *iret,
 	    logical *maxtkn,logical angrad,logical newton)
 
      /***********************************************************************
@@ -106,7 +107,7 @@ void LINESR(double *xc,double *xplus,double *gc,double *gplus,double fc,
   double scale,newtln,initsl,rellen,minlam,lambda,ltemp;
   double a,b,newslp,maxlam,lamlo,lamdif,laminc,flo,fhi;
   double svect[3],smat[3][3];
-  long i;
+  int i;
   logical qmodel;
 
   static double lamprv = 0,fpprv = 0;

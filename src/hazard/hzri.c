@@ -1,3 +1,4 @@
+#include <string.h>
 #include <structures.h>
 #include <hzd_set_Machn.h>
 #include <hzd_set_LnLim.h>

@@ -1,4 +1,5 @@
 #include <string.h>
+#include <strings.h>
 #include "structures.h"
 
 void hzr_set_parm_err(char *location,short int parmno){

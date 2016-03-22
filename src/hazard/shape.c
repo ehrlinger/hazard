@@ -1,3 +1,4 @@
+#include <string.h>
 #include <hzdinc.h>
 #include "hazard.h"
 
@@ -9,7 +10,7 @@
 #include <hzd_parms_to_theta.h>
 
 void shape(void){
-  /* long one,two,j;*/
+  /* int one,two,j;*/
 
   CLEAR(Common.errflg);
   CLEAR(HZRstr.chgflg);
@@ -50,5 +51,5 @@ void shape(void){
   DTRSMU(1);
   setcoe();
   DTRSMU(2);
-  /* Calls to setobj, setlik, setdll are no longer needed. */
+  /* Calls to setobj, setlik, setdll are no inter needed. */
 }

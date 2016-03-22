@@ -1,5 +1,5 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
 
 #include "common.h"
 
@@ -10,8 +10,8 @@
 
 #include "hzr_set_error.h"
 
-void DQSTAT(double *chol,long nvar,long indx,long iphas,double *qbeta,
-	    double *qse,double *qz,double *qp,long *qflag,double *qtol,
+void DQSTAT(double *chol,int nvar,int indx,long iphas,double *qbeta,
+	    double *qse,double *qz,double *qp,int *qflag,double *qtol,
 	    double *d2llad,double *wk)
 
      /***********************************************************************

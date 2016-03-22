@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
@@ -208,7 +209,7 @@ void UMINCK(void)
 
 {
   double temp1,temp2,temp3;
-  long i;
+  int i;
 
   if(HZRstr.opt.N<1) {
     HZRstr.opt.trmcod = -1;
@@ -263,14 +264,14 @@ void UMINCK(void)
 }
 
 void RECHK(double *x0,double *typx,double *sx,double *typf,double *maxstp,
-	   long n)
+	   int n)
      /**
    ENTRY TO UPDATE THE CONVERGENCE CRITERIA BASED ON KNOWLEDGE GAINED
    IN THE ITERATIVE PROCESS
 **/
 {
   double temp1,temp2,temp3;
-  long i;
+  int i;
 
   for(i=0; i<n; i++) {
     typx[i] = fabs(x0[i]);

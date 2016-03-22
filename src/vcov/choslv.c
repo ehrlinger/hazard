@@ -1,3 +1,4 @@
+#include <string.h>
 #include "common.h"
 
 #include "hzr_qextd.h"
@@ -5,7 +6,7 @@
 #include "hzr_qmul.h"   
 #include "hzr_qtod.h"
 
-void CHOSLV(double *l,double *g,double *s,long n)
+void CHOSLV(double *l,double *g,double *s,int n)
 
      /***************************************************************
 
@@ -36,7 +37,7 @@ void CHOSLV(double *l,double *g,double *s,long n)
 {
   xtended qsum;
   double *li,*lii,*lij,*lji;
-  long i,j,n1;
+  int i,j,n1;
 
   /* BEGIN BY SOLVING L*S =-G */
   n1 = n+1;

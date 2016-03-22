@@ -1,5 +1,6 @@
+#include <string.h>
 #include "hazard.h"
-#include "isblank.h"
+#include <isblanck.h>
 #include <hzfmis.h>
 #include <hzfxpc.h>
 #include <hzfskp.h>
@@ -13,10 +14,10 @@
 #include "varterm.h"
 
 void varsrpt(void){
-  long j;
+  int j;
 
-  if(!ISBLANK(tlabl) || !ISBLANK(c1labl) || !ISBLANK(c2labl) || 
-     !ISBLANK(c3labl) || !ISBLANK(ctlabl))
+  if(!ISBLANCK(tlabl) || !ISBLANCK(c1labl) || !ISBLANCK(c2labl) || 
+     !ISBLANCK(c3labl) || !ISBLANCK(ctlabl))
     H->label = TRUE;
   if(!lcens) {
     MKMISS(lcmin);
@@ -56,7 +57,7 @@ void varsrpt(void){
     if(ilate[j]!=1)
       C->status[j+11+2*C->p] = 2;
   }
-  if(ISBLANK(tname) || (ISBLANK(c1name) && ISBLANK(c3name)) ||
+  if(ISBLANCK(tname) || (ISBLANCK(c1name) && ISBLANCK(c3name)) ||
      C->Nobs<=0)
     varterm();
 }

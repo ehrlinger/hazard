@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include "hazard.h"
@@ -40,7 +41,7 @@ void HAZRD2(void){
 }
 
 void HZ2LOOP(void){
-  long i,j;
+  int i,j;
 
   hz2stop = TRUE;
   for(i=0; i<H->maxn; i++) {
@@ -116,7 +117,7 @@ void DOOPTIM(void){
   }
 }
 
-void SETOPTX(long ixf,long ixt){
+void SETOPTX(int ixf,int ixt){
   H->nm1dx[ixt] = H->index[ixf];
   H->x0[ixt] = H->x[ixf];
   H->typx[ixt] = fabs(H->x[ixf]);
@@ -145,7 +146,7 @@ void NOOPTIM(void){
   hzfskp(2);
 }
 
-void HAZ2TRM(long errcode){
+void HAZ2TRM(int errcode){
   hzfpag(10);
   hzfskp(1);
   hzfxpc("*-------------*",15,4);

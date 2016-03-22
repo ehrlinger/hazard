@@ -1,3 +1,4 @@
+#include <string.h>
 /*
   yywrap()
   When the lexer encounters an end of file it calls yywrap. If yywrap

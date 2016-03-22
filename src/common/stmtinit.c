@@ -1,17 +1,10 @@
 #include <string.h>
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 #include <stdlib.h>
 #include "structures.h"
 #include "hzdinc.h"
 #include "hzfmis.h"
 
 struct stmtstr *stmtinit(int howmany){
-#ifdef DEBUG
-     printf("stmtinit\n");
-#endif /*DEBUG*/
-
   int numbytes,namelen,i;
   struct stmtstr *new;
 

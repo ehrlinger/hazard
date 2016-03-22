@@ -1,3 +1,4 @@
+#include <string.h>
 #include <hzdinc.h>
 #include "hazard.h"
 #include <setstat.h>
@@ -5,7 +6,7 @@
 /****************************************************************/
 /* SETCONC called from main                                     */
 void setconc(void){
-  long i,j;
+  int i,j;
 
   H->phase1 = 0;
   H->phase2 = 0;

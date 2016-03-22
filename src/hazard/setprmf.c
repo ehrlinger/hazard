@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazard.h"
 #include <xvname.h>
 #include <stmtfld.h>
@@ -6,7 +7,7 @@
 
 /****************************************************************/
 /* SETPRMF called from PARMPRC                                  */
-void setprmf(long parmno,long ispecno,long statno,long optno,
+void setprmf(int parmno,int ispecno,long statno,long optno,
 	     double *fixpvar){
   if(notspec(parmno))
     ispec(ispecno) = 2;

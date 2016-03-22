@@ -1,5 +1,5 @@
-#include <common.h>
 #include <string.h>
+#include <common.h>
 
 #include <hzr_qextd.h>
 #include "setcoe_obs_loop.h"
@@ -22,8 +22,8 @@ void consrv(void)
 {
   double sumchz,sumchj,lfactr;
   double devent,jevent;
-  long indexp,j;
-  /*  long interc; */
+  int indexp,j;
+  /*  int interc; */
 
   /* INITIALIZE */
   Common.errorno = 0;

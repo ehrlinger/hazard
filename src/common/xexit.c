@@ -1,14 +1,8 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-void xexit(long rc){
-#ifdef DEBUG
-     printf("xexit\n");
-#endif /*DEBUG*/
-
+void xexit(int rc){
   if(rc!=0)
     printf("!%ld\n",rc);
   exit(rc);

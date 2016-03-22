@@ -29,7 +29,6 @@ typedef short int logical;
 
 #define HZDVER 400
 
-
 #ifndef LOGe
 #define LOGe(x) log(x)
 #endif
@@ -50,7 +49,7 @@ typedef short int logical;
  * Structure containing Early Phase hazard model variables.
  */
 struct early {
-  double muE;  /* early phase intercept, equivalenced to mu(1) */
+  double muE;
   double delta;
   double tHalf;
   double rho;
@@ -66,14 +65,14 @@ struct early {
  * Structure containing Constant Phase hazard model variables.
  */
 struct constant{
-  double muC;  /* constant phase intercept, equivalenced to mu(2)  */
+  double muC;
 };
 
 /**
  * Structure containing Late Phase hazard model variables.
  */
 struct late {
-  double muL; /* late phase intercept, equivalenced to mu(3) */
+  double muL;
   double tau;
   double gamma;
   double alpha;
@@ -84,11 +83,8 @@ struct late {
 };
 
 /**
- * Structure containing calculated constant machine
- * variables. We calculate machine constants to aid 
- * the portablilty of the code.
- * 
- * 12/9/03 This should be handled by autoconf. JE
+ * Structure containing calculated constant machine variables.
+ * We calculate machine constants to aid the portablilty of the code.
  */
 struct machn {
   double zero;
@@ -122,10 +118,10 @@ struct common {
   double *theta;
   double *obs;
   double *cov;
-  long errorno;
-  long Nobs;
-  long Ntheta;
-  long p;
+  int errorno;
+  int Nobs;
+  int Ntheta;
+  int p;
   short int phase[4];
   char errflg[48];
   jmp_buf errtrap;
@@ -153,17 +149,17 @@ struct namestr {
   short nhfun;
   short nlng;
   short nvar0;
-  charVarName nname;
-  charLabel nlabel;
-  charVarName nform;
+  char nname[8];
+  char nlabel[40];
+  char nform[8];
   short nfl;
   short nfd;
   short nfj;
   char nfill[2];
-  charVarName niform;
+  char niform[8];
   short nifl;
   short nifd;
-  long npos;
+  int npos;
   char rest[52];
 };
 
@@ -174,7 +170,7 @@ union stmtval{
 
 struct stmtstr {
   struct stmtstr *next;
-  long size;
+  int size;
   char name[VAR_NAME_LENGTH];
   char opts[64];
   union stmtval parm[1];
@@ -187,7 +183,7 @@ struct xvgetstr {
 
 struct xvputstr {
   void *xvar;
-  long type,leng;
+  int type,leng;
 };
 struct lnlim {
   double two;

@@ -1,9 +1,6 @@
+#include <string.h>
 #include "hzdinc.h"
 
-void xlmode(long setting){
-#ifdef DEBUG
-     printf("xlmode\n");
-#endif /*DEBUG*/
-
+void xlmode(int setting){
   curr_xlmode = setting;
 }

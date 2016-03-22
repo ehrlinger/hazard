@@ -1,3 +1,4 @@
+#include <string.h>
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -12,7 +13,7 @@
 extern char msgbfr[80];
 
 int yyerror(char *str){
-  sprintf(stderr,"ERROR: %s parse error (%s)\n",PACKAGE,str);
+  sprintf(msgbfr,"ERROR: %s parse error (%s)\n",PACKAGE,str);
   hzf_log1(msgbfr);
   yysynerr = 1;
   return(yysynerr);

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "common.h"
 #include "hzr_set_error.h"
 #include <math.h>
@@ -14,7 +15,7 @@ logical hzr_cum_haz_calc_m(double *cum,double *cf,double lcf){
 }
 
 logical hzr_cum_haz_calc(double *cum,double *cf,double *lcf){
-  long j;
+  int j;
   double temp0;
 
   for(j=1; j<=3; j++) {

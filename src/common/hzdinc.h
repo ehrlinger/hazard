@@ -47,12 +47,12 @@ extern char parms[12][9];
 
 #endif /* GLOBAL_DEFS */
 
-EXTERN long hzf_mem_need;
-EXTERN long numvars;
-EXTERN long xvobslen;
-EXTERN long xvgetcnt;
-EXTERN long xvputcnt;
-EXTERN long xvputlen;
+EXTERN int hzf_mem_need;
+EXTERN int numvars;
+EXTERN int xvobslen;
+EXTERN int xvgetcnt;
+EXTERN int xvputcnt;
+EXTERN int xvputlen;
 EXTERN int curr_xlmode;
 EXTERN int  curr_xpmode;
 EXTERN char last_xltype;

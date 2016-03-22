@@ -1,10 +1,7 @@
+#include <string.h>
 #include "hzdinc.h"
 
 logical xMISSgot(void *value,int len){
-#ifdef DEBUG
-     printf("xMISSgot\n");
-#endif /*DEBUG*/
-
   char *bfr;
 
   bfr = value;

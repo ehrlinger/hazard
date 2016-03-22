@@ -160,7 +160,6 @@ libmem		({name}"."{name})
                                           return NAME; }
 [\.\-_A-Z0-9][\.\-_A-Z0-9]*	{ printf("$ERROR: Unexpected text, stmt %d: %s\n",yylnctr,yytext);
                                   yysynerr = 1; }
-\r		/* Eat any carriage returns, so this works with Windows strategies */
 .		{ printf("$ERROR: Unexpected char, stmt %d: %s\n",yylnctr,yytext);
                   yysynerr = 1; }
 %%

@@ -1,3 +1,4 @@
+#include <string.h>
 #include <hzfxpc.h>
 #include "cput_v.h"
 #include "cput.h"

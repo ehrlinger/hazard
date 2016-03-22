@@ -1,6 +1,6 @@
 #ifndef HZFPAG_H
 #define HZFPAG_H
 
-void hzfpag(long count);
+void hzfpag(int count);
 
 #endif /* HZFPAG_H */

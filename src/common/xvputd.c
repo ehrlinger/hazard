@@ -1,16 +1,9 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include "hzdinc.h"
 #include <string.h>
+#include "hzdinc.h"
+#define __Linux__
 
 void xvputd(struct namestr *xvnsparm,void *xvarparm){
-#ifdef DEBUG
-     printf("xvputd\n");
-#endif /*DEBUG*/
-
-#ifndef WORDS_BIGENDIAN
+#ifdef __Linux__
   struct namestr DOS_ns;
   char bfr[8];
 #endif
@@ -21,9 +14,9 @@ void xvputd(struct namestr *xvnsparm,void *xvarparm){
   xvnsparm->npos = xvputlen;
   xvnsparm->nvar0 = xvputcnt;
 
-#ifndef WORDS_BIGENDIAN
+#ifdef __Linux__
   /*
-    Because of the way that Intel x86 architectures store binary data,
+    Because of the way that Windows (MSDOS) apps store binary data,
     we need to modify the bitwise representation before writing.
 
     This keeps the files written (maybe) cross platform compatible

@@ -1,8 +1,9 @@
+#include <string.h>
 #include <math.h>
 #include "hzdinc.h"
 #include "jacrot.h"
 
-void QRUPDT(double *m,double *u,double *v,long n)
+void QRUPDT(double *m,double *u,double *v,int n)
 
      /***********************************************************************
 
@@ -36,7 +37,7 @@ void QRUPDT(double *m,double *u,double *v,long n)
 {
   double a,b;
   double *mii,*mi1i,*mj;
-  long i,j,k,l,n1;
+  int i,j,k,l,n1;
 
   /* FIND LARGEST K SUCH THAT U(K) .NE. ZERO) */
   for(k=n-1; k>=0 && u[k]==ZERO; k--);

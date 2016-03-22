@@ -1,16 +1,9 @@
 %macro hazpred/parmbuff;
-
-/*
-  For debugging puroses
-  hzpnotes - show notes throughout execution.
-  hzpdebug - show debug info
-  hazrc    - do not delete temporary files 
-*/
 %global hzpnotes hzpdebug hazrc;
 run;
 
 %if &hzpnotes eq 1 %then %goto notes;
-options nonotes;
+option nonotes;
 
 /* Handle dumping notes */
 %notes:
@@ -39,22 +32,20 @@ options nonotes;
     %let codeblk=%qleft(%qsubstr(&codeblk,%eval(&i+1)));
     %let outname=%qscan(&codeblk,1,%str(; ));
 
-/* This is where the prefix stuff goes. */
-/* Figure out what platform we are running on */
+/* Figure out what platform we are running on.                  */
+/* We can do this by the OSTYPE environment variable.           */
+/* Currently Windows does not define this, Unices do, so        */
+/* We try using it to determin the OS. Use multiple conditional */
+/* so if Redmond decides to use OSTYPE, we can still run        */
 %if %length(%sysget(OSTYPE)) gt 0 %then %do;
-    %let os=%substr(%sysget(OSTYPE),1,7);
-    %end;
+%let os=%substr(%sysget(OSTYPE),1,5);
+%end;
 %else %do;
     %let os=%str(Windows);
-    %end;
+%end;
 
-/* If we are running on a Windows platform, we need */
-/* to set up the correct separator character and remove command */
-%let jobid=&sysjobid;
-%let jobix=&sysindex;
-		
-%put "Operating System Detector &os";
-/* Create the program name */
+/* If we are running on a Windows platform, we need to */
+/* set up the correct separator character and remove command */
 %if &os = Windows %then %do;
     %let separator=\;
     %let decsep=_;
@@ -64,34 +55,15 @@ options nonotes;
 %else %do;
     %let separator=/;
     %let decsep=.;
-    %let hazpgm=%sysget(HAZAPPS)&separator%str(hazpred);
+    %let hazpgm=%sysget(HAZAPPS)&separator%str(hazpred.exe);
     %let remove=rm;
     %end;
 
-/* Find the system temp space. */
-%let tmpspace=&separator%str(tmp);
-
-%if %length(%sysget(TEMPDIR)) gt 0 %then %do;
-	%let tmpspace=%sysget(TEMPDIR);
-	%end;
-%else %do;
-%if %length(%sysget(TMPDIR)) gt 0 %then %do;
-	%let tmpspace=%sysget(TMPDIR);
-	%end;
-%else %do;
-%if %length(%sysget(TEMP)) gt 0 %then %do;
-	%let tmpspace=%sysget(TEMP);
-	%end;
-%end;
-%end;
-
-/* Make sure we can write there */
-/* %if %sysfunc(fileexist(&tmpspace)) %then %do */
-
-options notes;
+%let jobid=&sysjobid;
+%let jobix=&sysindex;
 
 /* Create the working file names */
-%let prefix=&tmpspace&separator%str(hzp)&decsep%str(J)&jobid&decsep%str(X)&jobix;
+%let prefix=%sysget(TMPDIR)&separator%str(hzp)&decsep%str(J)&jobid&decsep%str(X)&jobix;
 
 /* Dump a message to the screen */
 %if &hzpdebug eq 1 %then

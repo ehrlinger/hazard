@@ -1,5 +1,5 @@
-#include "hazard.h"
 #include <string.h>
+#include "hazard.h"
 
 #include "vfynvar.h"
 #include <notspec.h>
@@ -7,7 +7,6 @@
 #include <xvname.h>
 
 /****************************************************************/
-#include <string.h>
 /* EVNTPRC called from STMTPRC                                  */
 void evntprc(void){
   if(notspec(12))

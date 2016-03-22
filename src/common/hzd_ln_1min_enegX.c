@@ -1,19 +1,12 @@
-#include "structures.h"
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
+#include <string.h>
 #include <float.h>
+#include "structures.h"
 
 /*------------------------------------------------------------------*/
 /* Completed and results compared with DL1MEX, 12/04/89.            */
 /*------------------------------------------------------------------*/
 
 double hzd_ln_1min_enegX(double X){
-#ifdef DEBUG
-     printf("hzdln_1min_enegX\n");
-#endif /*DEBUG*/
-
   double sum,prod,denom,empmx,prdvd,LOGRdxX;
   int i,maxCalc;
 

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazard.h"
 #include <hzfskp.h>
 #include <hzfxpc.h>

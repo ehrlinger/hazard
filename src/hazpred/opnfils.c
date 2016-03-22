@@ -1,12 +1,4 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#define NDEBUG
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
+#include <string.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -15,39 +7,16 @@
 #include "hazpred.h"
 #include "hzfxit.h"
 #include "hzf_memget.h"
+#define __Linux__
 
 void opnfils(void){
   char bfr[80],pfx[80],*ptr;
   size_t i;
 
-/* Get the current temporary analysis directory */
-#ifndef NDEBUG
-  // fprintf(stderr, "COMSPEC: %s\n", getenv("COMSPEC"));
-  fprintf(stderr, "TMPDIR: %s\n", getenv("TMPDIR"));
-#endif
-
-  if(NULL==(ptr = getenv("TMPDIR"))){
-    if(NULL==(ptr = getenv("TEMPDIR"))){
-      if(NULL==(ptr = getenv("TMPQDIR"))){
-				if(NULL==(ptr = getenv("TEMP"))){
-  				NULL==(ptr = getenv("HAZTEMP"));
-	  		}
-			}
-    }
-  }
-  /* Now test for temp space existance */
-  struct stat fileStat;
-	if(stat(ptr,&fileStat) < 0){
-		/* The file does not exist, so let's try to hard code it. */
-		/* We'll assume this is *nix first */
-		if(stat("/tmp/",&fileStat) < 0){
-			perror("Hazard requires a writable temp space. Pleas set the TMPDIR environment variable");
-			exit(EXIT_FAILURE);
-		}else{
-			ptr = "/tmp/";
-		}
-	}
- 
+  if(NULL==(ptr = getenv("TMPDIR")))
+    if(NULL==(ptr = getenv("TEMPDIR")))
+      if(NULL==(ptr = getenv("TMPQDIR")))
+	ptr = getenv("HAZTEMP");
   if(ptr!=NULL)
     strcpy(pfx,ptr);
   else
@@ -57,7 +26,7 @@ void opnfils(void){
   strcat(pfx,"/hzp_");
 #else
   strcat(pfx,"/hzp.");
-#endif
+#endif 
   strncat(pfx,stmtfldname(14),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
     *ptr = '\0';
@@ -83,7 +52,7 @@ void opnfils(void){
 
   /* Open the output file for binary writing */
   if(NULL==(outputDataFile = outfile = fopen(bfr,"wb")))
-    hzfxit("open hazpred XPORT output file");
+    hzfxit("outfile");
 
   for(i=7; i; i--) {
     fread(bfr,80,1,infile);
@@ -104,14 +73,12 @@ void opnfils(void){
 
   for(i=0; i<infilect; i++) {
 
-#ifndef WORDS_BIGENDIAN
+#ifdef __Linux__
   /*
-    Because of the way that Windows (MSDOS) apps store
-    binary data, we need to modify the bitwise
-    representation before writing.
+    Because of the way that Windows (MSDOS) apps store binary data,
+    we need to modify the bitwise representation before writing.
 
-    This keeps the files written (maybe) cross platform
-    compatible
+    This keeps the files written (maybe) cross platform compatible
   */
     swab((void *)&data_ns[i].nlng,(void *)&data_ns[i].nlng,sizeof(short));
     swab((void *)&data_ns[i].ntype,(void *)&data_ns[i].ntype,sizeof(short));
@@ -125,7 +92,7 @@ void opnfils(void){
   }
 
   for(i=0; i<nvars; i++) {
-#ifndef WORDS_BIGENDIAN
+#ifdef __Linux__
     swab((void *)&inhaz_ns[i].nlng,(void *)&inhaz_ns[i].nlng,sizeof(short));
     swab((void *)&inhaz_ns[i].ntype,(void *)&inhaz_ns[i].ntype,sizeof(short));
     memcpy(bfr,(void *)&inhaz_ns[i].npos,4);

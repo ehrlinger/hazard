@@ -1,17 +1,12 @@
+#include <string.h>
 #include "structures.h"
 #include "hzd_early_p2t.h"
 #include "hzd_late_p2t.h"
 
-/*
-  Called by hzpe in lib_hazpred 
-*/
+
 /*------------------------------------------------------------------*/
 
 void hzd_parms_to_theta(void){
-#ifdef DEBUG
-     printf("hzd_parms_to_theta\n");
-#endif /*DEBUG*/
-
   double sTheta[8];
   int i;
 

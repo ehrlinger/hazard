@@ -1,10 +1,7 @@
+#include <string.h>
 
 
-void namfix(char *varname,long varidx){
-#ifdef DEBUG
-     printf("namfix\n");
-#endif /*DEBUG*/
-
+void namfix(char *varname,int varidx){
   for(; *varname!=' '; varname++);
   if(varidx>=100) {
     *varname++ = '0'+(varidx/100);

@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
@@ -11,7 +12,7 @@
 #include "hzr_qneg.h"
 
 void CNDEST(double *l,double *p,double *pm,double *x,
-	    double *condno, long n)
+	    double *condno, int n)
      /**************************************************************
     The purpose of this routine is to estimate the L-1 condition 
     number of a symmetric positive definitematrix A = L*(L-TRANSPOSE)
@@ -49,7 +50,7 @@ void CNDEST(double *l,double *p,double *pm,double *x,
   xtended sum0,sum1,qtemp;
   double *li,*lj,*lii,*lij,*lji,*ljj,*lik,*ljk;
   double xp,xm,xnorm,temp,tempm;
-  long i,j,k,n1,kmax;
+  int i,j,k,n1,kmax;
 
   /* BEGIN BY CALCULATING THE L-1 NORM OF A. */
   qtemp = QEXTD(ZERO);

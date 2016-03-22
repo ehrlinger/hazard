@@ -1,3 +1,4 @@
+#include <string.h>
 #include <common.h>
 #include <hzr_set_error.h>
 #include <hzr_calc_loge_mu.h>
@@ -15,14 +16,15 @@ logical SETCOE_obs_loop(void){
   double cumhaz,sumchz,sumchj;
   /* double cftj; */
   double cumhst;
-  long j;
-  /* long  k; */
+  int j;
+  /* int  k; */
  
   G.Im1p7 = (G.I*HZRstr.pp7)-1;
  
   /**
      _                       _
      NOBS|                         |
+     GET SUMS OF COUNTS        SC1PC3 = SUM |C1(I)*W1(I) + C3(I)*W3(I)|
      I=1 |_                       _|
   **/
  

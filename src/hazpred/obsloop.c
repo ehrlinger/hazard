@@ -1,16 +1,16 @@
+#include <string.h>
 #include "hazpred.h"
 #include "common.h"
 #include "xoget.h"
 #include "xvget.h"
 #include "xvput.h"
 #include "hzfmis.h"
-#include <string.h>
 
 #include "hzf_log1.h"
 #include "hzpo.h"
 #include "hzdinc.h"
 void obsloop(void){
-  long i;
+  int i;
 
   C->errorno = 0;
   xoget(); xvget();

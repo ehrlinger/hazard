@@ -1,10 +1,11 @@
+#include <string.h>
 #include "common.h"
 
 #include "dqstat.h"
 
 void SWVARQ(short int *status,double *pvalue,double *zvalue,
-	    double *stdErr,long *flags,double *qx, double *qtols,
-	    double *d2ll,long nvar,double *wk, double *d2llad)
+	    double *stdErr,int *flags,double *qx, double *qtols,
+	    double *d2ll,int nvar,double *wk, double *d2llad)
 
      /*----------------------------------------------------------------------
 
@@ -125,8 +126,8 @@ void SWVARQ(short int *status,double *pvalue,double *zvalue,
 
 {
   double qp,qz,qse,qbeta,qtol;
-  long qflag;
-  long j,jj,j1,j1p1,j1pp,jind,indx;
+  int qflag;
+  int j,jj,j1,j1p1,j1pp,jind,indx;
 
   /* INITIALIZATION */
   HZRstr.cnt = 0;

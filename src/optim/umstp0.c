@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
@@ -12,7 +13,7 @@ occured as the Fortran code was translated to C
 
 
 void UMSTP0(double *x0,double f0,double *g0,double *sx,double typf,
-	    double gradtl,long *trmcod,long *consec,long n)
+	    double gradtl,int *trmcod,int *consec,long n)
 
      /***********************************************************************
 
@@ -99,7 +100,7 @@ void UMSTP0(double *x0,double f0,double *g0,double *sx,double typf,
 
 {
   double den,temp1,temp2;
-  long i;
+  int i;
 
   *consec = 0;
   den = fabs(f0)>typf ? fabs(f0) : typf;

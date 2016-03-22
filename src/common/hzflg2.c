@@ -1,12 +1,9 @@
+#include <string.h>
 #include <stdio.h>
 #include "hzdinc.h"
 #include "hzf_put.h"
 
-void hzflg2(char *strg1,long leng1,char *strg2,long leng2){
-#ifdef DEBUG
-     printf("hzflg2\n");
-#endif /*DEBUG*/
-
+void hzflg2(char *strg1,int leng1,char *strg2,int leng2){
   if(!curr_xlmode) return;
   if(*strg1!=' ')
     last_xltype = *strg1;

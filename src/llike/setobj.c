@@ -1,5 +1,6 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
+
 #include <common.h>
 
 #include <consrv.h>
@@ -293,11 +294,11 @@ logical DCEOBJ_obs_loop(void);
 
 
 
-void DHAZRD(double *beta,double *fx,long nvar)
+void DHAZRD(double *beta,double *fx,int nvar)
      /* MAIN COMPUTATIONAL ROUTINE */
 {
   double llike;
-  long i,j;
+  int i,j;
 
 
   Common.errorno = 0;

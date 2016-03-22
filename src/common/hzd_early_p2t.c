@@ -1,11 +1,9 @@
+#include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"
 
 void hzd_early_p2t(double *sTheta){
   double absDelta;
-#ifdef DEBUG
-     printf("hzd_early_p2t\n");
-#endif /*DEBUG*/
 
   if(Common.status[0]==1) {
     absDelta = fabs(Early.delta);

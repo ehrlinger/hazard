@@ -1,5 +1,5 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
 
 #include "hazard.h"
 #include "hazrd3.h"
@@ -23,7 +23,7 @@
 #include <constp.h>
 
 void HAZRD3(void){
-  long smode;
+  int smode;
 
   if(H->mode==0 && H->only1!=1)
     O->N = H->N-1;
@@ -303,7 +303,7 @@ void OPTNOTE(void){
 }
 
 void OPTHDR(void){
-  long j,n1,pos;
+  int j,n1,pos;
 
   hzfpag(nrow*2+2);
   hzfxpc("Iteration",9,5);
@@ -322,7 +322,7 @@ void OPTHDR(void){
 }
 
 void OPTPRTX(void){
-  long j,n1,pos;
+  int j,n1,pos;
 
   hzfpag(nrow);
   if(nrow>1)
@@ -341,7 +341,7 @@ void OPTPRTX(void){
 }
 
 void RETRY_T(void){
-  long j;
+  int j;
 
   if(H->retry!=0)
     return;
@@ -361,7 +361,7 @@ void RETRY_T(void){
       C->theta[j] = ZERO;
 }
 
-void HAZ3TRM(long errcode){
+void HAZ3TRM(int errcode){
   C->errorno = errcode;
   hzfpag(10);
   hzfskp(1);

@@ -1,9 +1,10 @@
+#include <string.h>
 #include <hzfxpr.h>
 #include <hzfskp.h>
 #include "cput_vv.h"
 #include "hazard.h"
 
-void cput_v(long dashct,long dashat,void (*cputfn)(char *,long)){
+void cput_v(int dashct,int dashat,void (*cputfn)(char *,long)){
   hzfskp(1);
   hzfxpr('-',dashct,dashat);
   hzfskp(1);

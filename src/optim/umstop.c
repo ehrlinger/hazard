@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 #include "common.h"
 /*
@@ -11,8 +12,8 @@ occured as the Fortran code was translated to C
 
 void UMSTOP(double *xc,double *xplus,double *gplus,double *sx,
 	    double fplus, double typf,double gradtl,double stptol,
-	    long iret,long itrcnt, long itrlmt,long *trmcod,
-	    long *consec,logical maxtkn,long n)
+	    int iret,int itrcnt, long itrlmt,long *trmcod,
+	    int *consec,logical maxtkn,int n)
 
      /***********************************************************************
 
@@ -163,7 +164,7 @@ void UMSTOP(double *xc,double *xplus,double *gplus,double *sx,
 
 {
   double temp1,temp2,denom;
-  long i;
+  int i;
 
   *trmcod = 0;
   if(iret==1) {

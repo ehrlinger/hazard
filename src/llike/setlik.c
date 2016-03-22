@@ -1,6 +1,6 @@
+#include <string.h>
 #include <math.h>
 #include <common.h>
-#include <string.h>
 
 #include <hzr_set_error.h>
 #include <hzr_qextd.h>
@@ -297,7 +297,7 @@ logical SETLIK_obs_loop(void);
 void dllike(double *llike)
      /* MAIN COMPUTATIONAL ROUTINE */
 {
-  long j;
+  int j;
  
   G.entry = DLLIKE;
  
@@ -350,7 +350,7 @@ logical SETLIK_obs_loop(void){
   double der1=0,der3=0,llike;
   double time,c1,c2,c3,ctime,c1c2c3;
   double stime,c1w,c3w,weight;
-  long k,l;
+  int k,l;
  
   G.Im1p7 = (G.I*HZRstr.pp7)-1;
  

@@ -1,6 +1,7 @@
+#include <string.h>
 /* Comment out this statement to print debugging messages to the
    stderr stream. This statement effects this file only */
-#define NDEBUG
+#define NDEBUG 
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/***************************************************/
+/* #define NDEBUG */
+/****************************************************************/
 
 void initprz(void){
 

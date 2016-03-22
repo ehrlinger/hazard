@@ -1,6 +1,6 @@
 #ifndef XPMODE_H
 #define XPMODE_H
 
-void xpmode(long setting);
+void xpmode(int setting);
 
 #endif /* XPMODE_H */

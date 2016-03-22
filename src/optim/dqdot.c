@@ -1,3 +1,4 @@
+#include <string.h>
 #include "common.h"
 
 #include "hzr_qextd.h"  
@@ -6,7 +7,7 @@
 #include "hzr_qtod.h"
 #include "hzr_qneg.h"
 
-double DQDOT(double *x,double *y,long n)
+double DQDOT(double *x,double *y,int n)
 
      /***********************************************************************
 
@@ -30,7 +31,7 @@ double DQDOT(double *x,double *y,long n)
 {
   xtended qsum,qtemp;
   double temp;
-  long i,m;
+  int i,m;
 
   qsum = QEXTD(ZERO);
   m = n-(n/5)*5;

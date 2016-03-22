@@ -1,6 +1,6 @@
 #ifndef SETPRMF_H
 #define SETPRMF_H
 
-void setprmf(long,long,long,long,double *);
+void setprmf(int,int,int,int,double *);
 
 #endif /* SETPRMF_H */

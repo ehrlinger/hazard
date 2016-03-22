@@ -1,11 +1,12 @@
+#include <string.h>
 #include "hazard.h"
-#include "isblank.h"
-#include "notintg.h"
+#include <isblanck.h>
+#include <notintg.h>
 
 /****************************************************************/
 /* READC3 called from READOBS                                   */
 void readc3(void){
-  if(!ISBLANK(c3name))
+  if(!ISBLANCK(c3name))
     if(ISMISS(C3)) {
       mc3del = mc3del+1;
       mdel = 1;

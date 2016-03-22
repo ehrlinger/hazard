@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazpred.h"
 #include "hzdinc.h"
 
@@ -12,12 +13,10 @@
 #include "getflag.h"
 #include "hzpe.h"
 #include "hzpp.h"
-#include <string.h>
-
 
 
 void gethazr(void){
-  long i,namidx,k;
+  int i,namidx,k;
   double *jp,*kp;
 
   xvgetptr = inhaz_xv;

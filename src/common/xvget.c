@@ -4,10 +4,6 @@
 #include "hzdinc.h"
 
 void xvget(void){
-#ifdef DEBUG
-     printf("xvget\n");
-#endif /*DEBUG*/
-
   double rs6000fp;
   int b,varix;
   unsigned char bytes[8];

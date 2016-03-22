@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazard.h"
 /***************************************************************
  * SETREST called from main                                    *
@@ -14,7 +15,7 @@
 #define NDEBUG 
 
 void set_restrict(void){
-  long i,j;
+  int i,j;
 
   /* Loop through the named RESTRICTed variables (i)
      matching to variable names (j)                           */

@@ -1,6 +1,6 @@
+#include <string.h>
 #include "hazpred.h"
 #include "xvputd.h"
-#include <string.h>
 
 void addvars(void){
   struct namestr oxns;

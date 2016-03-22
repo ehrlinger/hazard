@@ -1,9 +1,6 @@
+#include <string.h>
 #include "structures.h"
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 #include <float.h>
-
 #include "hzd_Error.h"
 #include "hzd_ln_eX_min1.h"
 
@@ -13,10 +10,6 @@
 /*-----------------------------------------------------------------*/
 
 double hzd_ln_eBXmin1divB(double BETA,double X){
-#ifdef DEBUG
-     printf("hzd_ln_eBXmin1divB\n");
-#endif /*DEBUG*/
-
   double BX,sum,prod,denom,LOGRdxBX,LOGeBX,absBETA;
   int i,maxCalc;
 

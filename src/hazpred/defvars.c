@@ -1,10 +1,9 @@
+#include <string.h>
 #include "hazpred.h"
 #include "xvgetd.h"
 #include "hazverr.h"
-#include <string.h>
-
 void defvars(void){
-  long j;
+  int j;
 
   if(inhaz_ns[0].ntype!=2 || memcmp(inhaz_ns[0].nname,"_NAME_  ",8))
     hazverr(1);

@@ -1,5 +1,6 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
+
 #include <common.h>
 #include <hzr_set_error.h>
 
@@ -106,7 +107,7 @@ IOP=1:  TRANSFORM MODEL PARAMETERS TO ESTIMATION PARAMETERS
 **/
 {
   double muj,tmu[4];
-  long j,pp1,pj1;
+  int j,pp1,pj1;
 
   pp1 = Common.p+1;
   pj1 = (8-Common.p)-1;
@@ -137,7 +138,7 @@ IOP=2:  TRANSFORM ESTIMATION PARAMETERS TO MODEL PARAMETERS
 **/
 {
   double lmu,tmu[4];
-  long j,pp1,pj1;
+  int j,pp1,pj1;
 
   pp1 = Common.p+1;
   pj1 = (8-Common.p)-1;

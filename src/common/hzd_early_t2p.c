@@ -1,11 +1,8 @@
+#include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"
 
 void hzd_early_t2p(void){
-#ifdef DEBUG
-     printf("hzd_early_t2p\n");
-#endif /*DEBUG*/
-
   if(Common.status[0]==1){
     if(Common.theta[0]>=LOGe(LnLim.absMax)){
       hzd_Error("DTRSFM1110",1);

@@ -1,6 +1,7 @@
+#include <string.h>
 #include "common.h"
 
-void SWVARX(short int *status,double *pvalue,long *moves,long *mxmove)
+void SWVARX(short int *status,double *pvalue,int *moves,int *mxmove)
 
      /*----------------------------------------------------------------------
 
@@ -130,7 +131,7 @@ void SWVARX(short int *status,double *pvalue,long *moves,long *mxmove)
 
 {
   double hval;
-  long i,j = 0,jj,j1,j1p1,j1pp,reqx;
+  int i,j = 0,jj,j1,j1p1,j1pp,reqx;
 
   /* INITIALIZATION */
   hval = ZERO;

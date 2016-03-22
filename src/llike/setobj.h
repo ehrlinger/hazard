@@ -14,7 +14,7 @@ EXTERN struct {
   logical facall;
 } Setobj;
 
-void DHAZRD(double *beta,double *fx,long nvar);
+void DHAZRD(double *beta,double *fx,int nvar);
 void DCEOBJ(double *fx);
 void DCEOBJ_main_logic(double *fx);
 logical DCEOBJ_obs_loop(void);

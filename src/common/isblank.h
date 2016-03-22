@@ -3,8 +3,8 @@
 
 #include "structures.h"
 
-logical isBlank(char *strg,long leng);
+logical isblank(char *strg,int leng);
 
-#define ISBLANK(p) isBlank(p, sizeof(p))
+#define ISBLANK(p) isblank(p,sizeof(p))
 
 #endif /* ISBLANK_H */

@@ -1,3 +1,4 @@
+#include <string.h>
 /******************************************************************** 
     HAZARD Core Routines                                              
     All ANSI C Compilers and Operating Environments                    

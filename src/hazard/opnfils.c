@@ -1,14 +1,8 @@
+#include <string.h>
 /* Initilize the run */
 /* Comment out this statement to print debugging messages to the
    stderr stream. This statement effects this file only */
-#define NDEBUG
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+#define NDEBUG 
 
 #include <stdlib.h>
 #include <string.h>
@@ -18,56 +12,44 @@
 #include <hzfxit.h>
 #include <stmtopts.h>
 #include <hzf_memget.h>
+#define __Linux__
+/* #define NDEBUG */
 
-/*************************************************/ 
+/****************************************************************/ 
 /* opnfils called from main routine                             */
 void opnfils(char *in_file_name){
   char bfr[80],pfx[80],*ptr;
-  long i;
+  int i;
   
   /* Get the current temporary analysis directory */
 #ifndef NDEBUG
-  // fprintf(stderr, "COMSPEC: %s\n", getenv("COMSPEC"));
+  fprintf(stderr, "COMSPEC: %s\n", getenv("COMSPEC"));
   fprintf(stderr, "TMPDIR: %s\n", getenv("TMPDIR"));
 #endif
 
   if(NULL==(ptr = getenv("TMPDIR"))){
     if(NULL==(ptr = getenv("TEMPDIR"))){
       if(NULL==(ptr = getenv("TMPQDIR"))){
-				if(NULL==(ptr = getenv("TEMP"))){
-  				NULL==(ptr = getenv("HAZTEMP"));
-	  		}
-			}
+	if(NULL==(ptr = getenv("TEMP"))){
+	  ptr = getenv("HAZTEMP");
+	}
+      }
     }
   }
-  /* Now test for temp space existance */
-  struct stat fileStat;
-	if(stat(ptr,&fileStat) < 0){
-		/* The file does not exist, so let's try to hard code it. */
-		/* We'll assume this is *nix first */
-		if(stat("/tmp/",&fileStat) < 0){
-			perror("Hazard requires a writable temp space. Pleas set the TMPDIR environment variable");
-			exit(EXIT_FAILURE);
-		}else{
-			ptr = "/tmp/";
-		}
-	}
-
   if(ptr!=NULL)
     strcpy(pfx,ptr);
   else
     *pfx = '\0';
-  
 
   /* Start building the filename string */
 #ifdef __CYGWIN__
-	/* Intel windows architecture */
   strcat(pfx,"/hzr_");
   strncat(pfx,stmtfldname(44),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
     *ptr = '\0';
   strcat(pfx,"_");
 #else
+
   strcat(pfx,"/hzr.");
   strncat(pfx,stmtfldname(44),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
@@ -87,7 +69,7 @@ void opnfils(char *in_file_name){
   /* Open the input data file */
   if(NULL==(inputDataFile = fopen(bfr,"rb")))
     /* Exit on opening error */
-    hzfxit("open hazard XPORT input file");
+    hzfxit("open input file");
 
   /* Store the input file name for removal after the run */
   strcpy(in_file_name,bfr);
@@ -105,7 +87,7 @@ void opnfils(char *in_file_name){
     /* Open the output file data file */
     if(NULL==(outputDataFile = fopen(bfr,"wb")))
       /* Exit on open error */
-      hzfxit("open hazard XPORT output file");
+      hzfxit("outfile");
   }
   
   /* Start reading/(writing) the data file header */
@@ -125,7 +107,6 @@ void opnfils(char *in_file_name){
   fprintf(stderr, "length of bfr: %d\n", strlen(bfr));
 #endif 
 
-	/* allocate a section of memory for all the namestr */
   ns = (struct namestr *)hzf_memget(sizeof(struct namestr)*numvars);
 
   /*
@@ -135,9 +116,9 @@ void opnfils(char *in_file_name){
   fread(ns,sizeof(struct namestr),(size_t)numvars,inputDataFile);  
  
   for(i=0; i<numvars; i++) {
-#ifndef WORDS_BIGENDIAN
+#ifdef __Linux__
     /*
-      Because of the way that Intel x86 stores binary data,
+      Because of the way that Windows (MSDOS) (and 64 bits Linux) pps store binary data,
       we need to modify the bitwise representation after reads.
 
       This keeps the files written (maybe) cross platform compatible
@@ -149,6 +130,7 @@ void opnfils(char *in_file_name){
     swab(bfr+2,bfr+4,2);
     memcpy((void *)&ns[i].npos,bfr+4,4);
 #endif
+
     xvobslen += ns[i].nlng;
   }
 

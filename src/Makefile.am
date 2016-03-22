@@ -8,4 +8,4 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-SUBDIRS = common stat vars vcov  libhazp llike model optim utils hazard hazpred blackbox scripts
+SUBDIRS = common stat vars vcov llike model optim utils hazard hazpred scripts

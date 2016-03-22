@@ -1,9 +1,6 @@
+#include <string.h>
 #include "hzdinc.h"
 
-void xpmode(long setting){
-#ifdef DEBUG
-     printf("xpmode\n");
-#endif /*DEBUG*/
-
+void xpmode(int setting){
   curr_xpmode = setting;
 }

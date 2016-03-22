@@ -1,9 +1,10 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
 
-void SWVARI(short int *status,double *pvalue,long *moves,long *mxmove,
-	    double *zvalue,long *flags,long *rstvec)
+void SWVARI(short int *status,double *pvalue,int *moves,int *mxmove,
+	    double *zvalue,int *flags,int *rstvec)
 
      /*----------------------------------------------------------------------
 
@@ -141,7 +142,7 @@ void SWVARI(short int *status,double *pvalue,long *moves,long *mxmove,
 
 {
   double hval,zhval;
-  long j,jj,j1,j1p1,j1pp;
+  int j,jj,j1,j1p1,j1pp;
 
   /* INITIALIZATION */
   hval = HZRstr.sle;

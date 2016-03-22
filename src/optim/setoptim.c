@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
@@ -341,7 +342,7 @@ void setoptim(void)
 ***********************************************************************/
 
 {
-  long i;
+  int i;
 
   /**
      BEGIN INITIALIZATION SECTION: THIS INVOLVES THE CHECKING OF INPUT
@@ -427,7 +428,7 @@ void optim(void)
      /* ENTER HERE FOR LOOPING THROUGH THE ITERATIONS */
 {
   /*double *li;*/
-  long i;
+  int i;
   /* int  l,j,k; */
   logical maxtkn;
 

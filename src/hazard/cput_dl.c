@@ -1,10 +1,11 @@
+#include <string.h>
 #include "hazard.h"
 #include <hzfxpc.h>
 #include <hzfxpf.h>
 #include <hzfxpi.h>
 #include <hzfskp.h>
 
-void cput_dl(char *phasnm,long j){
+void cput_dl(char *phasnm,int j){
   hzfxpc(phasnm,9,5);
   hzfxpc(risk[j],8,-1);
   hzfxpc(H->labl[j+9],40,-6);

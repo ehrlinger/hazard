@@ -1,23 +1,22 @@
+#include <string.h>
 /**
    The hazard program has about 16000 lines of code.
 
     REVISIONS
     
     Hazard-4.1.0 (2000)
-    Start to comment and recast the code into standard
-    C format using GNU coding standards. Divide 
-    monolithic files into subroutine size files, and
-    recast the global variables into usable groupings.
-    JE
+    Start to comment and recast the code into standard C format
+    using GNU coding standards. Divide monolithic files into
+    subroutine size files, and recast the global variables into 
+    usable groupings. JE
 
     HZD4.036-1 (10/21/95)
-    Duplicate option numbers being used for NONOTES and
-    ROBUST corrected.
+    Duplicate option numbers being used for NONOTES and ROBUST
+    corrected.
 
     HZD4.036a (11/24/95)
-    exit() calls changed to XEXIT to allow better 
-    determination of error conditions by SAS code after
-    program ends.
+    exit() calls changed to XEXIT to allow better determination
+    of error conditions by SAS code after program ends.
     
     037 (02/29/96)
     Updates to setopt.c umstop.c umstp0 linesr.c.  linesr.c
@@ -150,7 +149,7 @@ int main(void){
   initprz();
 
 #ifndef NDEBUG
-  fprintf(stderr,"Opening input and output Files %s\n", in_file_name);
+  fprintf(stderr,"Opening input and output Files\n");
 #endif
   /* Open and read the data input file. */
   opnfils(in_file_name);

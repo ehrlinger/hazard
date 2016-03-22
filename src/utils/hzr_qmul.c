@@ -1,3 +1,4 @@
+#include <string.h>
 #include "common.h"
 #include "hzr_xmul.h"
 #ifdef QEMULATE

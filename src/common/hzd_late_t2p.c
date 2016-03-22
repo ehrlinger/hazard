@@ -1,11 +1,8 @@
+#include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"
 
 void hzd_late_t2p(void){
-#ifdef DEBUG
-     printf("hzd_late_t2p\n");
-#endif /*DEBUG*/
-
   double gamma_eta;
 
   if(Common.status[4]==1){

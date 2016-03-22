@@ -1,10 +1,11 @@
+#include <string.h>
 #include "hazard.h"
-#include "isblank.h"
+#include <isblanck.h>
 
 /****************************************************************/
 /* READLC called from READOBS                                   */
 void readlc(void){
-  if(!ISBLANK(lcname)){
+  if(!ISBLANCK(lcname)){
     if(ISMISS(LC)) {
       mlcdel++;
       mdel = 1;

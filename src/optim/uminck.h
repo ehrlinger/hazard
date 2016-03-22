@@ -2,6 +2,6 @@
 #define UMINCK_H
 void UMINCK(void);
 void RECHK(double *x0,double *typx,double *sx,double *typf,double *maxstp,
-	   long n);
+	   int n);
 
 #endif /* UMINCK_H */

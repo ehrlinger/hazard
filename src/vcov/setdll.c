@@ -1,5 +1,5 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
 
 #include "common.h"
 #include "hzd_ln_G1_and_SG1_m.h"
@@ -363,11 +363,11 @@
 /* SETDLL entry point not required as of HZRCOR C-version 4.0(0) */
 
  
-void DAGRAD(double *d1ll,long nvar)
+void DAGRAD(double *d1ll,int nvar)
      /* ENTRY TO CALCULATE THE GRADIENT OF THE OBJECTIVE FUNCTION */
 {
   double xi;
-  long i,ii,ip,ix;
+  int i,ii,ip,ix;
  
   /* INITIALIZE DERIVATIVE ARRAY */
   for(i=0; i<nvar; i++)
@@ -398,12 +398,12 @@ void DAGRAD(double *d1ll,long nvar)
   }
 }
 
-void DAHESS(double *d2ll,long nvar)
+void DAHESS(double *d2ll,int nvar)
      /* ENTRY TO CALCULATE THE HESSIAN OF THE OBJECTIVE FUNCTION */
 {
   double xi,d2llij[4][4];
   /* double xj; */
-  long i,ii,ip,ix,jj,jp,iijj,jjii,nvtnv,I,Im1p7,pp7,nvarii;
+  int i,ii,ip,ix,jj,jp,iijj,jjii,nvtnv,I,Im1p7,pp7,nvarii;
   int phase1,phase2,phase3;
 
 
@@ -486,7 +486,7 @@ void d2lcon(double *d2ll)
    PRESENTLY IN THE MODEL.
 **/
 {
-  long i,j,ivtiv;
+  int i,j,ivtiv;
   double cf[4],lcf[4],hf[4],lhf[4],cfct[4],lcfct[4];
   double cfst[4],lcfst[4];
   double cumhaz,hazard,cumhct,dcf=0;
@@ -497,18 +497,18 @@ void d2lcon(double *d2ll)
   /* double llike;*/
   double time,c1,c2,c3,ctime,c1c2c3;
   double stime,c1w,c3w,weight;
-  long k,l;
-  long ip,it,ix,Im1p7;
+  int k,l;
+  int ip,it,ix,Im1p7;
   double lmu[4];
-  long I;
+  int I;
   double lnG1,lnSG1;
   double lnG3,lnSG3;
   double xi;
   /* double xj; */
-  long ii,jj,jp,iijj,jjii;
+  int ii,jj,jp,iijj,jjii;
   double dcf2=0;
   double d2llij[4][4],d1llp[4];
-  long nvar,nvarii; 
+  int nvar,nvarii; 
 
   /* build control flag to determine computed goto's "switch{ case: }" */
   /* INITIALIZE */
@@ -839,7 +839,7 @@ void d2lcon(double *d2ll)
   }
 }
 
-void DLLADD(long indx,long iphas,double *d1llad,double *d2llad)
+void DLLADD(int indx,int iphas,double *d1llad,double *d2llad)
      /**
    CALCULATE DERIVATIVES FOR VARIABLES OUTSIDE THE MAXIMUM LIKELIHOOD
    MODEL
@@ -847,7 +847,7 @@ void DLLADD(long indx,long iphas,double *d1llad,double *d2llad)
 {
   double xi,xj,d2llij[4];
   /* double d1llp;*/
-  long I,i,ix,ivarp1,jj,jp,Im1p7,pp7;
+  int I,i,ix,ivarp1,jj,jp,Im1p7,pp7;
  
   /* INITIALIZE */
   if(iphas<1 || iphas>3) {
@@ -947,9 +947,9 @@ void DLLADD(long indx,long iphas,double *d1llad,double *d2llad)
    }
 */
 /* 
-   static void SETDLL_form_hessian(double *d2ll,long nvar){
+   static void SETDLL_form_hessian(double *d2ll,int nvar){
    double xi,xj;
-   long ii,ip,ix,jj,jp,iijj,jjii;
+   int ii,ip,ix,jj,jp,iijj,jjii;
  
    for(ii=0; ii<nvar; ii++) {
    ip = HZRstr.indxp[ii];

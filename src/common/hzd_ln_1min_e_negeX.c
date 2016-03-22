@@ -1,13 +1,9 @@
+#include <string.h>
 #include "structures.h"
 
 /*------------------------------------------------------------------*/
 
-double hzd_ln_1min_e_negeX(double lnX){
-#ifdef DEBUG
-     printf("hzd_ln_1min_e_negeX\n");
-#endif /*DEBUG*/
-
-/* for now */
+double hzd_ln_1min_e_negeX(double lnX){/* for now */
   if(lnX>=-2.25e0 && lnX<=0.834e0)
     return LOGe(ONE-ePOW(-ePOW(lnX)));
   if(lnX<-35.351e0)

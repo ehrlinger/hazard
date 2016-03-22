@@ -1,9 +1,10 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
 void FDHESS(double *xc,double *sx,double *H,double *stpsiz,
 	    double *fneigh, double fc,
-	    void (*fn)(double *,double *,long),long n)
+	    void (*fn)(double *,double *,int),int n)
 
      /***********************************************************************
 
@@ -59,7 +60,7 @@ void FDHESS(double *xc,double *sx,double *H,double *stpsiz,
 {
   double sg,f,tempi,tempj;
   double *hii,*hij,*hji;
-  long i,j,n1;
+  int i,j,n1;
 
   for(i=0; i<n; i++) {
     /* CALCULATE STPSIZ(I) AND FN(XC+STPSIZ(I)*E(I)) */

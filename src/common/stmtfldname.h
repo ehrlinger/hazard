@@ -1,7 +1,7 @@
 #ifndef STMTFLDNAME_H
 #define STMTFLDNAME_H
 
-char *stmtfldname(long fldno);
+char *stmtfldname(int fldno);
 
 #endif /* STMTFLDNAME_H */
 

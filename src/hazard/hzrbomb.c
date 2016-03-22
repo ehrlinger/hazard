@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazard.h"
 #include "hazrerr.h"
 #include <hzfpag.h>

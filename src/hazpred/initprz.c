@@ -1,3 +1,4 @@
+#include <string.h>
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -42,7 +43,7 @@ void initprz(void){
   /* Dump a run header */
   hzf_log1(" ");
   hzf_log1(strcat(version_text, version));
-#ifndef NDEBUG
+#ifdef NDEBUG
   hzf_log1("      DEBUGGING VERSION");
 #endif /* NDEBUG */
   hzf_log1("      The Cleveland Clinic Foundation");

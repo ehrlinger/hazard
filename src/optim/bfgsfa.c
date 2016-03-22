@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
@@ -13,10 +14,10 @@
 /* 
    static void BFGSFA(double *m,double *xc,double *xplus,
    double *gc,double *gplus, double *s,double *y,double eta,logical
-   angrad,long n)
+   angrad,int n)
 */
 void BFGSFA(double *m,double *gc,double *gplus, double *s,
-	    double *y, double eta,logical angrad,long n)
+	    double *y, double eta,logical angrad,int n)
 
      /**************************************************************
 
@@ -98,7 +99,7 @@ void BFGSFA(double *m,double *gc,double *gplus, double *s,
   xtended qsum;
   double temp1,temp2,temp3,tol,gcgpmax,alpha;
   double *mi,*mii,*mji,*mij,*miij,*miji;
-  long i,j,n1;
+  int i,j,n1;
   logical skipud;
 
   /**

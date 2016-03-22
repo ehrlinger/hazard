@@ -1,13 +1,13 @@
-#include "hazard.h"
-#include "hzdinc.h"
 #include <string.h>
-#include "notintg.h"
-#include "isblank.h"
+#include "hazard.h"
+#include <hzdinc.h>
+#include <notintg.h>
+#include <isblanck.h>
 
 /****************************************************************/
 /* READC1 called from READOBS                                   */
 void readc1(void){
-  if(!ISBLANK(c1name))
+  if(!ISBLANCK(c1name))
     if(ISMISS(C1)) {
       mc1del = mc1del+1;
       mdel = 1;

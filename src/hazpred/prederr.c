@@ -1,3 +1,4 @@
+#include <string.h>
 #include <stdio.h>
 #include "hazpred.h"
 #include "hzf_log1.h"

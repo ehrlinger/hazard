@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazard.h"
 
 #include <hzf_memget.h>
@@ -9,7 +10,7 @@
 /****************************************************************/
 /* ALOCWRK called from main                                     */
 void alocwrk(void){
-  long i,j;
+  int i,j;
   double *Work;
 
   H->maxn = 0;
@@ -137,9 +138,9 @@ void alocwrk(void){
   H->lnmu1 = Work+ilnmu1;
   H->lnmu2 = Work+ilnmu2;
   H->lnmu3 = Work+ilnmu3;
-  H->indxx = (long *)(Work+iindxx);
-  H->indxp = (long *)(Work+iindxp);
-  H->indxt = (long *)(Work+iindxt);
+  H->indxx = (int *)(Work+iindxx);
+  H->indxp = (int *)(Work+iindxp);
+  H->indxt = (int *)(Work+iindxt);
   H->d2llad = Work+id2lla;
   H->d2ll = Work+id2ll;
   H->d1ll1 = Work+id1l1;
@@ -153,14 +154,14 @@ void alocwrk(void){
   H->d2ll33 = Work+id2l33;
   H->beta = Work+ibeta;
   H->x = Work+ix;
-  H->indx = (long *)(Work+iindx);
-  H->indx2 = (long *)(Work+iindx2);
+  H->indx = (int *)(Work+iindx);
+  H->indx2 = (int *)(Work+iindx2);
   H->cov = Work+icov;
   H->corr = Work+icorr;
   H->sd = Work+isd;
   H->znorm = Work+iznorm;
   H->pnorm = Work+ipnorm;
-  H->flag = (long *)(Work+iflags);
+  H->flag = (int *)(Work+iflags);
   H->wk = Work+iwk;
   H->lvec = Work+il;
   H->x0 = Work+ix0;

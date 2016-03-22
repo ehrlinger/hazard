@@ -1,16 +1,9 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "structures.h"
+#include <string.h>
 #include <float.h>
+#include "structures.h"
 /*------------------------------------------------------------------*/
 
 double hzd_ln_eX_plus1(double X){
-#ifdef DEBUG
-     printf("hzd_ln_eX_plus1\n");
-#endif /*DEBUG*/
-
   double sum,prod,denom,LOGRdxX,eX,Z,index;
   int i,maxCalc;
 

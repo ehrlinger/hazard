@@ -1,9 +1,10 @@
+#include <string.h>
 #include "hazard.h"
 #include "finprmx.h"
 /****************************************************************/
 /* THETA_X called from hazrd2.c:HZ2LOOP, hazrd3.c:HAZRD3        */
 void theta_x(void){
-  long i,j;
+  int i,j;
 
   i = 0;
   if(C->phase[1]==1)

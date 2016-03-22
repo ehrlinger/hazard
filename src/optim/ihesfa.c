@@ -1,7 +1,8 @@
+#include <string.h>
 #include <math.h>
 #include "hzdinc.h"
 
-void IHESFA(double *l,double *sx,double f0,double typf,long n)
+void IHESFA(double *l,double *sx,double f0,double typf,int n)
 
      /***********************************************************************
 
@@ -59,7 +60,7 @@ void IHESFA(double *l,double *sx,double f0,double typf,long n)
 {
   double *li,*lii,*lij;
   double scale;
-  long i,j,n1;
+  int i,j,n1;
    
 
   scale = fabs(f0)>typf ? fabs(f0) : f0;

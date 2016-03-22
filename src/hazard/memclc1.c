@@ -1,8 +1,9 @@
+#include <string.h>
 #include "hazard.h"
 /****************************************************************/
 /* MEMCLC1 called from ALOCWRK                                  */
-void memclc1(long phasno,long xt1st,long *xt2nd,long *xt3rd,
-	     long *xt4th,long *xt5th){
+void memclc1(int phasno,int xt1st,long *xt2nd,long *xt3rd,
+	     int *xt4th,int *xt5th){
   if(C->phase[phasno]==1) {
     *xt2nd = xt1st+C->Nobs;
     *xt3rd = *xt2nd+C->Nobs;

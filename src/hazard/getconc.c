@@ -1,5 +1,5 @@
-#include "hazard.h"
 #include <string.h>
+#include "hazard.h"
 #include <hzdinc.h>
 #include <hzf_memget.h>
 #include <hzf_log1.h>
@@ -8,7 +8,7 @@
 /****************************************************************/
 /* GETCONC called from main                                      */
 void getconc(void){
-  long j = 0;
+  int j = 0;
 
   /* Initialize some variables to 0 */
   k = 0;                 /* A global counter variable */
@@ -57,7 +57,7 @@ void getconc(void){
   inex = hzf_memget(k*VAR_NAME_LENGTH);
   stval = hzf_memget(k*sizeof(double));
   O->swordr = hzf_memget(k*sizeof(double));
-  nomovs = hzf_memget(k*sizeof(long));
+  nomovs = hzf_memget(k*sizeof(int));
   risk_ns = hzf_memget(k*sizeof(struct namestr *));
   if(O->restct>0){
     O->rsttbl = hzf_memget(O->restct*sizeof(struct rsttbl));

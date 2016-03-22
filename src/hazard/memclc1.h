@@ -1,5 +1,5 @@
 #ifndef MEMCLC1_H
 #define MEMCLC1_H
-void memclc1(long phasno,long xt1st,long *xt2nd,long *xt3rd,
-	     long *xt4th,long *xt5th);
+void memclc1(int phasno,int xt1st,int *xt2nd,int *xt3rd,
+	     int *xt4th,int *xt5th);
 #endif /* MEMCLC1_H */

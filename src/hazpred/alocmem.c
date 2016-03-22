@@ -1,6 +1,6 @@
+#include <string.h>
 #include "hazpred.h"
 #include "hzdinc.h"
-#include <string.h>
 
 #include "hzf_memget.h"
 #include "xvputi.h"
@@ -8,7 +8,7 @@
 #include "hzfxit.h"
 
 void alocmem(void){
-  long i;
+  int i;
 
   data_xv = hzf_memget(infilect*sizeof(struct xvgetstr));
   inhaz_xv = hzf_memget(nvars*sizeof(struct xvgetstr));

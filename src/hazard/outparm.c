@@ -1,9 +1,10 @@
+#include <string.h>
 #include "hazard.h"
 #include <hzfxpc.h>
 #include <hzfxpf.h>
 #include <hzfskp.h>
 
-void outparm(char *phase,long chgno,long parmno,double spcval,
+void outparm(char *phase,int chgno,int parmno,double spcval,
 	     double useval,char *estnam){
   short int len;
 

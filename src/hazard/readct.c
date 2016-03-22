@@ -1,10 +1,11 @@
+#include <string.h>
 #include "hazard.h"
-#include "isblank.h"
+#include <isblanck.h>
 
 /****************************************************************/
 /* READCT called from READOBS                                   */
 void readct(void){
-  if(!ISBLANK(c3name) && C3>0){
+  if(!ISBLANCK(c3name) && C3>0){
     if(ISMISS(CT)) {
       mctdel = mctdel+1;
       mdel = 1;

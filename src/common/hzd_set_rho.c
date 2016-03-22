@@ -1,17 +1,11 @@
+#include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"
 #include "hzd_ln_eX_min1.h"
 #include "hzd_ln_1min_enegX.h"
 #include "hzd_ln_eBXmin1divB.h"
 
-/*
-  Used by: libhazpred/hzpe
-*/
 void hzd_set_rho(struct early *Early){
-#ifdef DEBUG
-     printf("hzd_set_rho\n");
-#endif /*DEBUG*/
-
   double Bt,lnBt,lnRho=0,mln2,ln_mTerm;
 
   if(Early->delta0) {

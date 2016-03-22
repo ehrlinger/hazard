@@ -1,11 +1,11 @@
-#include <hzdinc.h>
 #include <string.h>
+#include <hzdinc.h>
 #include "hazard.h"
 
 /****************************************************************/
 /* SETRISK called from main                                     */
 void setrisk(void){
-  long j;
+  int j;
   struct namestr *nsj;
 
   for(j=0; j<11+3*C->p; j++) {

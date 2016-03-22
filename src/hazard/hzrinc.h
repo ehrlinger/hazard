@@ -13,8 +13,8 @@
 
 struct rsttbl {
   charVarName rstnam;
-  long rstvar;
-  long rstctr;
+  int rstvar;
+  int rstctr;
 };
 
 #endif /* HZRINC_H */

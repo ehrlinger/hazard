@@ -1,21 +1,19 @@
+#include <string.h>
 /**
-   The hazpred program has about 3640 lines of code, 
-   not including libraries.
+   The hazpred program has about 2900 lines of code 
 
    REVISIONS
 
    Hazpred-4.1.0 (2000)
-   Start to comment and recast the code into standard C
-   format using GNU coding standards. Divide monolithic
-   files into subroutine size files, and recast the
-   global variables into usable groupings. JE
+   Start to comment and recast the code into standard C format
+   using GNU coding standards. Divide monolithic files into
+   subroutine size files, and recast the global variables into 
+   usable groupings. JE
 
-   HZP4.035a1 (7/26/95)
-   Added support for NOLOG/NONOTES.
-   
+     HZP4.035a1 (7/26/95)
+         Added support for NOLOG/NONOTES.
+
 **/
-#define NDEBUG
-
 #include <stdlib.h>
 #include <string.h>
 /* Define STRUCT to alloc storage for structures.h */
@@ -67,41 +65,21 @@
 #include "hzpm.h"
 
 int main(void){
-  long i,j;
+  int i,j;
   struct namestr *k;
 
   curr_xlmode=2;
 
-  /* Initialize the Common Structure */
-  C = hzpi();                      /* hzrcor.c */
+  C = hzpi();
   H = C->hzpstr;
   E = C->early;
   L = C->late;
   Machine = C->machn; /*added by dale 10/30/97 */
-  /* XINIT performs some sanity checks for the current
-     platform */
-  xinit();                                  /* common/hazcfn.c */
-
-  /* Read the command file and prepare for analysis */
+  xinit();
   initprz();
-
-  /* Open and read the data input file. */
   opnfils();
-
-  /* Initialize a bunch of variables to zero for this
-     run.*/
-#ifndef NDEBUG
-  fprintf(stderr,"Initialize variables\n");
-#endif
   stmtprc();
-
-#ifndef NDEBUG
-  fprintf(stderr,"cntobsh\n");
-#endif
-  /* Initialize the totalobs variable 
-   Read from stmtfld(13)*/
   cntobsh();
-
   if(!setjmp(C->errtrap))
     hzpm(totalobs);
   else if(C->errorno) {
@@ -117,13 +95,7 @@ int main(void){
     }
   }
   cntobsi();
-
-#ifndef NDEBUG
-  fprintf(stderr,"alocmem\n");
-#endif
-  /* Allocate memory for anlysis stage (II) */
   alocmem();
-
   gethazr();
   termin = FALSE;
   xvgetptr = data_xv;

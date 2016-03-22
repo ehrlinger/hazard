@@ -1,5 +1,5 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
 #include "hzrinc.h"
 
 #define HAZRD4
@@ -10,22 +10,22 @@
 #include "setidxs.h"
 #include "phasidx.h"
 
-#include "dcovar.h"
-#include "backw.h"
-#include "stepw.h"
-#include "dfast.h"
+#include <dcovar.h>
+#include <backw.h>
+#include <stepw.h>
+#include <dfast.h>
 #include "hazrerr.h"
-#include "dtrsmu.h"
+#include <dtrsmu.h>
 
-#include "hzfskp.h"
-#include "hzfxpc.h"
-#include "hzfxpf.h"
-#include "hzflg1.h"
+#include <hzfskp.h>
+#include <hzfxpc.h>
+#include <hzfxpf.h>
+#include <hzflg1.h>
 
-#include "hzfpag.h"
-#include "hzfxpr.h"
-#include "hzfxpi.h"
-#include "hzflg2.h"
+#include <hzfpag.h>
+#include <hzfxpr.h>
+#include <hzfxpi.h>
+#include <hzflg2.h>
 
 
 /* Comment out this statement to print debugging messages to the
@@ -50,7 +50,7 @@ void HZ4G(void){
 
 /* */
 void HZ4LOOP(void){
-  long i,i0,i1,j,jvar0,k;
+  int i,i0,i1,j,jvar0,k;
 
   hz4stop = TRUE;
   if(H->sw!=1 && H->bw!=1 && H->f==1 && H->fdone==1)
@@ -207,7 +207,7 @@ void HZ4LOOP(void){
 }
 
 void STPWISE(void){
-  long i,j,jvar1,nvarm1;
+  int i,j,jvar1,nvarm1;
   double horder;
 
   if(O->restct!=0)
@@ -414,7 +414,7 @@ void RSTRICT(void){
  * list enters the phase model, then we do not allow the 
  * others to enter the phase.
  */
-void RSTRPHZ(long base){
+void RSTRPHZ(int base){
   /* Loop through */
   for(ri=0,rbase=(-1); ri<O->restct; ri++) {
     if(O->rsttbl[ri].rstctr==1 && rbase!=ri) {
@@ -467,7 +467,7 @@ void RSTBACK(void){
 }
 
 /* */
-void RSTBPHZ(long base){
+void RSTBPHZ(int base){
 
   H->swadel = 0;
   for(ri=0; ri<O->restct; ri++) {
@@ -540,7 +540,7 @@ void STEPPRT(void){
 }
 
 void SPRT_L(void){
-  long i,j;
+  int i,j;
 
   SHDR_L();
   for(j=0; j<H->N; j++) {
@@ -595,7 +595,7 @@ void SPRT_L(void){
 }
 
 void SPRT(void){
-  long i,j;
+  int i,j;
 
   SHDR();
   for(j=0; j<H->N; j++) {
@@ -673,7 +673,7 @@ void SHDR(void){
 }
 
 void SPRT2_L(void){
-  long j,jvar1;
+  int j,jvar1;
 
   SHDR2_L();
   for(j=8; j<C->Ntheta; j++) {
@@ -749,7 +749,7 @@ void SPRT2_L(void){
 }
 
 void SPRT2(void){
-  long j,jvar1;
+  int j,jvar1;
 
   SHDR2();
   for(j=8; j<C->Ntheta; j++) {
@@ -851,7 +851,7 @@ void SHDR2(void){
 }
 
 void SPRT3_L(void){
-  long j;
+  int j;
 
   SHDR3_L();
   stepk1 = 0;
@@ -937,7 +937,7 @@ void SPRT3_L(void){
 }
 
 void SPRT3(void){
-  long j;
+  int j;
 
   SHDR3();
   stepk1 = 0;
@@ -1042,7 +1042,7 @@ void SHDR3(void){
   hzfskp(1);
 }
 
-void HAZ4TRM(long errcode){
+void HAZ4TRM(int errcode){
   hzfpag(10);
   hzfskp(1);
   hzfxpc("*-------------*",15,4);
@@ -1085,7 +1085,7 @@ void FAST(void){
 }
 
 void FASLOOP(void){
-  long i,j,jvar1;
+  int i,j,jvar1;
 
   faststop = TRUE;
   H->hpsn = 0;
@@ -1142,8 +1142,8 @@ void FASLOOP(void){
   }
 }
 
-void FASTSET(long ixf,long ixt){
-  long j;
+void FASTSET(int ixf,int ixt){
+  int j;
 
   for(j=ixf; j<=ixt; j++)
     if(C->status[j]==1)
@@ -1212,7 +1212,7 @@ void FASTPRT(void){
 }
 
 void FPRT_L(void){
-  long i,j,jvar1;
+  int i,j,jvar1;
 
   FHDR_L();
   for(i=0; i<H->N; i++) {
@@ -1274,7 +1274,7 @@ void FPRT_L(void){
 }
 
 void FPRT(void){
-  long i,j,jvar1;
+  int i,j,jvar1;
 
   FHDR();
   for(i=0; i<H->N; i++) {
@@ -1423,7 +1423,7 @@ void HZ5G(void){
   hzfskp(1);
   if(C->errorno!=0 || H->ierr!=0)
     return;
-  nrow = (long) ceil((H->N+ONE)/8);
+  nrow = (int) ceil((H->N+ONE)/8);
   if(H->nocov!=1 && H->N!=1) {
     hzfpag(nrow*2+9);
     hzfskp(2);
@@ -1482,7 +1482,7 @@ void FINLMOD(void){
   hzfskp(1);
 }
 
-void FINPARM(char *phase,long parmno,double useval){
+void FINPARM(char *phase,int parmno,double useval){
   short int len;
 
   len = strlen(phase);
@@ -1500,7 +1500,7 @@ void FINPARM(char *phase,long parmno,double useval){
 }
 
 void MTRXPRT(double *mtrx){
-  long i,i1,j,n1,pos;
+  int i,i1,j,n1,pos;
 
   MTRXHDR();
   stepk1 = 0;
@@ -1559,7 +1559,7 @@ void MTRXPRT(double *mtrx){
 }
 
 void MTRXHDR(void){
-  long j,n1,pos;
+  int j,n1,pos;
 
   for(j=0,n1=0,pos=24; j<H->N; j++,n1++,pos+=14) {
     if(n1==8) {

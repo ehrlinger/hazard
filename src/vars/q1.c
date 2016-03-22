@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
@@ -12,8 +13,8 @@
 #include "hzr_qdiv.h"
 #include "hzr_qneg.h"
 
-double Q1(double *a,double grad,double *b1,double *qtol,long *err,
-	  double *wk,long n)
+double Q1(double *a,double grad,double *b1,double *qtol,int *err,
+	  double *wk,int n)
 
      /***********************************************************************
 
@@ -79,7 +80,7 @@ double Q1(double *a,double grad,double *b1,double *qtol,long *err,
   xtended qsum;
   double diag,scale,temp;
   double *ai,*aii,*aij;
-  long i,j,n1;
+  int i,j,n1;
 
   *err = 0;
   if(grad==ZERO) {

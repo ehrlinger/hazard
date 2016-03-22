@@ -1,5 +1,4 @@
 #include <string.h>
-
 #include "hazard.h"
 
 #include <hzfxpc.h>
@@ -7,7 +6,7 @@
 #include <hzfxpf.h>
 #include <hzfskp.h>
 
-void vput_d(char *spcnam,char *varnam,long misval,long delval,
+void vput_d(char *spcnam,char *varnam,int misval,int delval,
 	    double minval, double maxval,size_t spclen){
   char spcprt[18];
 

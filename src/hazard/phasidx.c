@@ -1,12 +1,11 @@
 #include <string.h>
-
 #include "hazard.h"
 #include "setidxs.h"
 
 /****************************************************************/
 /* PHASEIDX called from hazrd2.c:HZ2LOOP, hazrd4.c:HZ4LOOP      */
-void phasidx(long *i,long phasno,long spt,long ept){
-  long j;
+void phasidx(int *i,int phasno,long spt,long ept){
+  int j;
 
   if(C->phase[phasno]!=1)
     return;

@@ -1,10 +1,7 @@
+#include <string.h>
 #include "structures.h"
 
 double dlgaob(double A,double B){
-#ifdef DEBUG
-     printf("dlgoab\n");
-#endif /*DEBUG*/
-
   double ratio,y,sum,term,ix,denom;
   int i;
 

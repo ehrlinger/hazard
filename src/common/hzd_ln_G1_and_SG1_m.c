@@ -1,3 +1,4 @@
+#include <string.h>
 #include "structures.h"
 #include "hzd_ln_eBXmin1divB.h"
 #include "hzd_Error.h"
@@ -8,10 +9,6 @@
 
 void hzd_ln_G1_and_SG1_m(double T,double *lnG1,double *lnSG1){
   double Bt,dBt,lnX,mInvNu,mInvNu_1,mInvM,mInvM_1,termNu,termM;
-
-#ifdef DEBUG
-     printf("hzd_ln_g1_and_SG1_m\n");
-#endif /*DEBUG*/
 
   if(Early.delta0) {
     Bt = T;

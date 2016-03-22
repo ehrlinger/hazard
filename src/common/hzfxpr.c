@@ -1,13 +1,10 @@
+#include <string.h>
 #include <stdio.h>
 #include "hzdinc.h"
 #include "hzf_col.h"
 
-void hzfxpr(char byte,long times,long column){
-#ifdef DEBUG
-     printf("hzfxpr\n");
-#endif /*DEBUG*/
-
-  long i;
+void hzfxpr(char byte,int times,int column){
+  int i;
 
   if(!curr_xpmode) return;
   hzf_col(column);

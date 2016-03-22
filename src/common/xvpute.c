@@ -1,11 +1,8 @@
+#include <string.h>
 #include "hzdinc.h"
 
 void xvpute(void){
-#ifdef DEBUG
-     printf("xvpute\n");
-#endif /*DEBUG*/
-
-  long gap;
+  int gap;
 
   gap = 80-((xvputcnt*140)%80);
   if(gap!=80)

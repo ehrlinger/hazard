@@ -1,12 +1,8 @@
-#include "hzflg1.h"
 #include <string.h>
+#include "hzflg1.h"
 
 void hzf_log1(char *strg){
-#ifdef DEBUG
-     printf("hzf_log1\n");
-#endif /*DEBUG*/
-
-  long leng;
+  int leng;
 
   leng = strlen(strg);
   hzflg1(strg,leng);

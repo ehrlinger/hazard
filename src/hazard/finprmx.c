@@ -1,8 +1,9 @@
+#include <string.h>
 #include "hazard.h"
 /****************************************************************/
 /* FINPRMX called from THETA_X                                  */
-void finprmx(long *i,long phasno,long spt,long ept){
-  long j;
+void finprmx(int *i,int phasno,long spt,long ept){
+  int j;
 
   if(C->phase[phasno]!=1)
     return;

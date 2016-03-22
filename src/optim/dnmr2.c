@@ -1,8 +1,9 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
 
-double DNMR2(double *sx,long n,long incx)
+double DNMR2(double *sx,int n,int incx)
 
 /***********************************************************************
 
@@ -30,7 +31,7 @@ double DNMR2(double *sx,long n,long incx)
 
 {
    double sum,xmax,hitest;
-   long i,j,next,nn;
+   int i,j,next,nn;
    logical do85;
 
    if(n<=0)

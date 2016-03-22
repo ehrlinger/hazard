@@ -1,7 +1,8 @@
+#include <string.h>
 #include <common.h>
 
 void SETCOE_setup_indices(void){
-  long i,j,ji,j1,j1p1,j1pp,jind;
+  int i,j,ji,j1,j1p1,j1pp,jind;
  
   /* SET UP INDICES TO SPEED PASSES THROUGH THE DATA */
   i = -1;

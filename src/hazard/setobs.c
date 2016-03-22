@@ -1,9 +1,10 @@
+#include <string.h>
 #include "hazard.h"
 
 /****************************************************************/
 /* SETOBS called from READOBS                                   */
 void setobs(void){
-  long i,j;
+  int i,j;
 
   for(i=0; i<C->p; i++) {
     contal[i] += concom[i];

@@ -4,7 +4,7 @@
 
 void UMSTOP(double *xc,double *xplus,double *gplus,double *sx,
 	    double fplus, double typf,double gradtl,double stptol,
-	    long iret,long itrcnt, long itrlmt,long *trmcod,
-	    long *consec,logical maxtkn,long n);
+	    int iret,int itrcnt, int itrlmt,int *trmcod,
+	    int *consec,logical maxtkn,int n);
 
 #endif /* UMSTOP_H */

@@ -1,5 +1,4 @@
 #include <string.h>
-
 #include "hazard.h"
 #include "vfynvar.h"
 #include "notspec.h"

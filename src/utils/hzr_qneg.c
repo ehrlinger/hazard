@@ -1,3 +1,4 @@
+#include <string.h>
 #include "common.h"
 #ifdef QEMULATE 
 xtended hzr_qneg(xtended a){

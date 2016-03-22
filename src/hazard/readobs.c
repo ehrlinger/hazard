@@ -1,3 +1,4 @@
+#include <string.h>
 #include <common.h>
 #include "hazard.h"
 
@@ -12,7 +13,7 @@
 #include "readwt.h"
 #include "setobs.h"
 
-#include "isblank.h"
+#include <isblanck.h>
 #include <xvgetd.h>
 #include <xoget.h>  
 #include <xvget.h> 
@@ -26,7 +27,7 @@
 /****************************************************************/
 /* READOBS called from main                                     */
 void readobs(void){
-  long i,j,xocnt;
+  int i,j,xocnt;
 
   H->label = FALSE;
   events = ZERO;
@@ -78,19 +79,19 @@ void readobs(void){
   wtdel = 0;
   mlcdel = 0;
   mwtdel = 0;
-  if(!ISBLANK(tname))
+  if(!ISBLANCK(tname))
     xvgetd(T_ns,&T);
-  if(!ISBLANK(c1name))
+  if(!ISBLANCK(c1name))
     xvgetd(C1_ns,&C1);
-  if(!ISBLANK(c2name))
+  if(!ISBLANCK(c2name))
     xvgetd(C2_ns,&C2);
-  if(!ISBLANK(c3name)) {
+  if(!ISBLANCK(c3name)) {
     xvgetd(C3_ns,&C3);
     xvgetd(CT_ns,&CT);
   }
-  if(!ISBLANK(lcname))
+  if(!ISBLANCK(lcname))
     xvgetd(LC_ns,&LC);
-  if(!ISBLANK(wtname))
+  if(!ISBLANCK(wtname))
     xvgetd(WT_ns,&WT);
   for(j=0; j<C->p; j++)
     xvgetd(risk_ns[j],&concom[j]);
@@ -110,14 +111,14 @@ void readobs(void){
     readct();
     readlc();
     readwt();
-    if(!ISBLANK(c1name) && !ISBLANK(c2name) && ISBLANK(c3name))
+    if(!ISBLANCK(c1name) && !ISBLANCK(c2name) && ISBLANCK(c3name))
       if(ic10==1 && ic20==1) {
 	alldel = alldel+1;
 	c1del = c1del+1;
 	c2del = c2del+1;
 	del = 1;
       }
-    if(ISBLANK(c1name) && !ISBLANK(c2name) && !ISBLANK(c3name))
+    if(ISBLANCK(c1name) && !ISBLANCK(c2name) && !ISBLANCK(c3name))
       if(ic30==1 && ic20==1) {
 	alldel = alldel+1;
 	c3del = c3del+1;

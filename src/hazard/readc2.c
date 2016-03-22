@@ -1,11 +1,12 @@
+#include <string.h>
 #include "hazard.h"
-#include "isblank.h"
-#include "notintg.h"
+#include <isblanck.h>
+#include <notintg.h>
 
 /****************************************************************/
 /* READC2 called from READOBS                                   */
 void readc2(void){
-  if(!ISBLANK(c2name))
+  if(!ISBLANCK(c2name))
     if(ISMISS(C2)) {
       mc2del = mc2del+1;
       mdel = 1;
@@ -21,8 +22,8 @@ void readc2(void){
       c2max = c2max>C2 ? c2max : C2;
     }
   else
-    if((ISBLANK(c1name) && C3==ZERO) || (ISBLANK(c3name) && C1==ZERO) ||
-       (!ISBLANK(c1name) && !ISBLANK(c3name) && C1==ZERO && C3==ZERO)) {
+    if((ISBLANCK(c1name) && C3==ZERO) || (ISBLANCK(c3name) && C1==ZERO) ||
+       (!ISBLANCK(c1name) && !ISBLANCK(c3name) && C1==ZERO && C3==ZERO)) {
       C2 = ONE;
       c2chg = c2chg+1;
       c2min = c2min<C2 ? c2min : C2;

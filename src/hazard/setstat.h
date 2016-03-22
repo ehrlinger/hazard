@@ -1,4 +1,4 @@
 #ifndef SETSTAT_H
 #define SETSTAT_H
-void setstat(long i,long idx,long *phasevar,long *itabl,long *ipxc);
+void setstat(int i,int idx,int *phasevar,int *itabl,long *ipxc);
 #endif /* SETSTAT_H */

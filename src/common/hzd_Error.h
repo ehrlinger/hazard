@@ -2,5 +2,5 @@
 #define HZD_ERROR_H
 
 
-void hzd_Error(char *msgtext,long errnum);
+void hzd_Error(char *msgtext,int errnum);
 #endif /* HZD_ERROR_H */

@@ -1,3 +1,4 @@
+#include <string.h>
 #include <common.h>
 #include <hzr_qtod.h>
 #include <hzd_ln_A_div_B.h>
@@ -7,7 +8,7 @@
 
 void SETCOE_calc_scaling(void){
   double sumchz,lfactr;
-  long j,indexp;
+  int j,indexp;
  
   /**
      NOW CALCULATE THE SCALING FACTOR FOR THE ENTIRE MODEL WHICH WILL

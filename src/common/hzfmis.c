@@ -1,10 +1,6 @@
-#include "hzdinc.h"
 #include <string.h>
+#include "hzdinc.h"
 
 void hzfmis(void *var){
-#ifdef DEBUG
-     printf("hzfmis\n");
-#endif /*DEBUG*/
-
   memcpy(var,MISSING,sizeof(double));
 }

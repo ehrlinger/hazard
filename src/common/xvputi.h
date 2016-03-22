@@ -1,7 +1,7 @@
 #ifndef XVPUTI_H
 #define  XVPUTI_H
 
-void xvputi(long nvar);
+void xvputi(int nvar);
 
 #endif /* XVPUTI_H */
 

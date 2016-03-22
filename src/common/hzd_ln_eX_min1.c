@@ -1,18 +1,13 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#include "structures.h"
+#include <string.h>
 #include <float.h>
+#include "structures.h"
+
 /*------------------------------------------------------------------*/
 /* Completed and results compared with DLEXM1, 12/03/89.            */
 /* Modifications incorporated from 02Nov94 changes by EHB.          */
 /*------------------------------------------------------------------*/
 
 double hzd_ln_eX_min1(double X){
-#ifdef DEBUG
-     printf("hzd_ln_eX_min1\n");
-#endif /*DEBUG*/
-
   double sum,prod,denom,LOGRdxX,absX;
   int i,maxCalc;
 

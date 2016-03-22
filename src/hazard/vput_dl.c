@@ -5,7 +5,7 @@
 #include <hzfxpf.h>
 #include <hzfskp.h>
 
-void vput_dl(char *spcnam,char *varnam,char *label,long misval,long delval,
+void vput_dl(char *spcnam,char *varnam,char *label,int misval,int delval,
 	     double minval,double maxval,size_t spclen){
   char spcprt[18];
 

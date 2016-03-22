@@ -9,6 +9,6 @@ void OPTNOTE(void);
 void OPTHDR(void);
 void OPTPRTX(void);
 void RETRY_T(void);
-void HAZ3TRM(long);
+void HAZ3TRM(int);
 
 #endif /* _HAZRD3_H_ */

@@ -1,5 +1,5 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
 
 #include "common.h"
 
@@ -7,7 +7,7 @@
 
 #include "hzr_set_error.h"
 
-void DFAST(double *beta,long nvar,double *cov,long ivar,double *sd,
+void DFAST(double *beta,int nvar,double *cov,int ivar,double *sd,
 	   double *znorm,double *pnorm)
 
      /***********************************************************************
@@ -106,7 +106,7 @@ void DFAST(double *beta,long nvar,double *cov,long ivar,double *sd,
 {
   double *iivar,*covii,*covij,*coviijj;
   double betai,vari,bivi,absz;
-  long i,j,im1var,nvar1;
+  int i,j,im1var,nvar1;
 
   /* INITIALIZATION */
   if(nvar<=0 || ivar<0 || ivar>nvar) {

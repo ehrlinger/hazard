@@ -1,8 +1,9 @@
+#include <string.h>
 #include "hazard.h"
 
-void cput_vv(char *phasnm,long *iary,void (*cputfn)(char *,long)){
+void cput_vv(char *phasnm,int *iary,void (*cputfn)(char *,int)){
   logical lbld;
-  long j,*iptr;
+  int j,*iptr;
 
   lbld = FALSE;
   for(j=0,iptr=iary; j<C->p; j++,iptr++){

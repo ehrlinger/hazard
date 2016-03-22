@@ -1,10 +1,7 @@
+#include <string.h>
 #include <stdio.h>
 
-void hzf_col(long column){
-#ifdef DEBUG
-     printf("hzf_col\n");
-#endif /*DEBUG*/
-
+void hzf_col(int column){
   if(column>0)
     printf("@%ld,",column);
   else if(column<0)

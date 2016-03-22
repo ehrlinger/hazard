@@ -1,11 +1,8 @@
+#include <string.h>
 #include <stdio.h>
 #include "hzdinc.h"
 
-void hzfskp(long count){
-#ifdef DEBUG
-     printf("hzfskp\n");
-#endif /*DEBUG*/
-
+void hzfskp(int count){
   if(!curr_xpmode) return;
   printf("/%ld\n",count);
 }

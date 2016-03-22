@@ -1,3 +1,4 @@
+#include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"
 #include "hzd_ln_A_div_B.h"
@@ -6,9 +7,6 @@
 #include "hzd_ln_eeX_min1.h"
 
 void hzd_ln_G3_and_SG3(void){
-#ifdef DEBUG
-     printf("hzd_ln_G3_and_SG3\n");
-#endif /*DEBUG*/
   double lnTTau,lnTTauG,lnScale,tGamma,tEta;
 
   HazG3.lnG3 = ZERO;

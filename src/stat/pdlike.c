@@ -1,9 +1,10 @@
+#include <string.h>
 #include <math.h>
 
 #include <common.h>
 #include "normal.h"
 
-double PDLIKE(double llike1,double llike2,long df)
+double PDLIKE(double llike1,double llike2,int df)
 
      /***********************************************************************
 

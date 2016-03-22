@@ -1,10 +1,10 @@
+#include <string.h>
 #include "common.h"
 #include "notspec.h"
 #include "hzf_log1.h"
 #include "hazpred.h"
 #include "xvname.h"
 #include "stmtfldname.h"
-#include <string.h>
 
 void timeprc(void){
   if(notspec(11)) {

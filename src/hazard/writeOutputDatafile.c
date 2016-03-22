@@ -1,6 +1,6 @@
+#include <string.h>
 #include "hazard.h"
 
-#include <string.h>
 #include <xvputi.h>
 #include <xvputd.h>
 #include <namfix.h>
@@ -21,7 +21,7 @@ void writeOutputDatafile(void){
   struct namestr oxns;
   double out_est,out_status;
   charVarName out_name;
-  long nthetx,i,j,namidx,nconc;
+  int nthetx,i,j,namidx,nconc;
   double *indx;
 
   /* Initialize some variables */

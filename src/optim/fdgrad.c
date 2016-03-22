@@ -1,9 +1,10 @@
+#include <string.h>
 #include <math.h>
 #include "hzdinc.h"
 
 
 void FDGRAD(double *xc,double fc,double *sx,double *g,
-		   void (*fn)(double *,double *,long),double eta,long n)
+		   void (*fn)(double *,double *,int),double eta,int n)
 
      /***********************************************************************
 
@@ -49,7 +50,7 @@ void FDGRAD(double *xc,double fc,double *sx,double *g,
 
 {
   double sqreta,fj,sg,tempj,stepj;
-  long j;
+  int j;
 
   sqreta = sqrt(eta);
   for(j=0; j<n; j++) {

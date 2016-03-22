@@ -1,3 +1,4 @@
+#include <string.h>
 #include "common.h"
 
 logical hzr_parm_is_fixed(short int parmno){

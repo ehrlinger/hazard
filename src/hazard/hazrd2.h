@@ -6,9 +6,9 @@
 void HAZRD2(void);
 void HZ2LOOP(void);
 void DOOPTIM(void);
-void SETOPTX(long,long);
+void SETOPTX(int,int);
 void NOOPTIM(void);
-void HAZ2TRM(long);
+void HAZ2TRM(int);
 
 
 #endif /* _HAZRD2_H_ */

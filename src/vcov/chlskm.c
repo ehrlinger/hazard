@@ -1,3 +1,4 @@
+#include <string.h>
 #include <math.h>
 
 #include "common.h"
@@ -10,8 +11,8 @@
 
 
 
-void CHLSKM(double *a,double *wk1,double *wk2,double *sx,long n,
-	    long iop)
+void CHLSKM(double *a,double *wk1,double *wk2,double *sx,int n,
+	    int iop)
 
      /***************************************************************
 
@@ -79,7 +80,7 @@ void CHLSKM(double *a,double *wk1,double *wk2,double *sx,long n,
   xtended qsum,qtemp;
   double *ai,*aij,*aik,*aj,*ajj,*ajk,*ak,*ajx;
   double temp,xce,gamma,sum,norma,delta,beta2,theta2,dbar,phi;
-  long i,j,k,n1;
+  int i,j,k,n1;
 
   if(iop<0 || iop>1)
     iop = 0;

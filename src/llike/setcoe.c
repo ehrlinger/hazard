@@ -1,5 +1,6 @@
-#include <math.h>
 #include <string.h>
+#include <math.h>
+
 #include <common.h>
 
 #include <hzr_set_error.h>
@@ -472,8 +473,8 @@ void setcoe(void)
 {
   /* double sumchz,lfactr;*/
   double phmax;
-  /*long i; */
-  long j;
+  /*int i; */
+  int j;
  
   if(HZRstr.mode<0 || HZRstr.mode>2) {
     hzr_set_error("(SETCOE900)",2);

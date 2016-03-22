@@ -1,3 +1,4 @@
+#include <string.h>
 #include "hazard.h"
 
 #include <hzdinc.h>
@@ -15,7 +16,7 @@
 /****************************************************************/
 /* STMTPRC called from main routine                             */
 void stmtprc(void){
-  long i;
+  int i;
 
   H->weibul = FALSE;
   H->angrad = TRUE;
