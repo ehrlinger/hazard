@@ -2,7 +2,7 @@
 %{
   /* C Declarations (hazard_y.y) */
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <memory.h>
 #include <yyerror.h>
 #include <structures.h>

@@ -1,1 +1,0 @@
-namfix.o: namfix.c

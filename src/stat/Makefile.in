@@ -286,7 +286,7 @@ top_srcdir = @top_srcdir@
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-AM_CPFLAGS = $(EXTRA_INCLUDES) -I$(top_srcdir)/src/common
+AM_CPPFLAGS = $(EXTRA_INCLUDES) -I$(top_srcdir)/src/common
 noinst_LIBRARIES = libstat.a
 noinst_HEADERS = normal.h pdlike.h
 libstat_a_SOURCES = normal.c pdlike.c

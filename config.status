@@ -393,7 +393,7 @@ on `(hostname || uname -n) 2>/dev/null | sed 1q`
 "
 
 # Files that config.status was made for.
-config_files=" Makefile src/Makefile src/blackbox/Makefile src/common/Makefile src/hazard/Makefile src/hazpred/Makefile src/llike/Makefile src/libhazp/Makefile src/model/Makefile src/optim/Makefile src/scripts/Makefile src/stat/Makefile src/utils/Makefile src/vars/Makefile src/vcov/Makefile macros/Makefile docs/Makefile docs/user_guides/Makefile docs/user_guides/overview_files/Makefile docs/user_guides/hazard_files/Makefile docs/user_guides/hazpred_files/Makefile examples/Makefile examples/data/Makefile examples/sasest/Makefile examples/sasest/ihd/Makefile examples/output/Makefile"
+config_files=" Makefile src/Makefile src/blackbox/Makefile src/common/Makefile src/hazard/Makefile src/hazpred/Makefile src/llike/Makefile src/libhazp/Makefile src/model/Makefile src/optim/Makefile src/scripts/Makefile src/stat/Makefile src/utils/Makefile src/vars/Makefile src/vcov/Makefile macros/Makefile docs/Makefile docs/user_guides/Makefile docs/user_guides/overview_files/Makefile docs/user_guides/hazard_files/Makefile docs/user_guides/hazpred_files/Makefile examples/Makefile examples/data/Makefile examples/sasest/Makefile examples/sasest/ihd/Makefile examples/output/Makefile"
 config_headers=" config.h"
 config_commands=" depfiles"
 
@@ -548,32 +548,32 @@ do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
-    "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-    "src/blackbox/Makefile") CONFIG_FILES="$CONFIG_FILES src/blackbox/Makefile" ;;
-    "src/common/Makefile") CONFIG_FILES="$CONFIG_FILES src/common/Makefile" ;;
-    "src/hazard/Makefile") CONFIG_FILES="$CONFIG_FILES src/hazard/Makefile" ;;
-    "src/hazpred/Makefile") CONFIG_FILES="$CONFIG_FILES src/hazpred/Makefile" ;;
-    "src/llike/Makefile") CONFIG_FILES="$CONFIG_FILES src/llike/Makefile" ;;
-    "src/libhazp/Makefile") CONFIG_FILES="$CONFIG_FILES src/libhazp/Makefile" ;;
-    "src/model/Makefile") CONFIG_FILES="$CONFIG_FILES src/model/Makefile" ;;
-    "src/optim/Makefile") CONFIG_FILES="$CONFIG_FILES src/optim/Makefile" ;;
-    "src/scripts/Makefile") CONFIG_FILES="$CONFIG_FILES src/scripts/Makefile" ;;
-    "src/stat/Makefile") CONFIG_FILES="$CONFIG_FILES src/stat/Makefile" ;;
-    "src/utils/Makefile") CONFIG_FILES="$CONFIG_FILES src/utils/Makefile" ;;
-    "src/vars/Makefile") CONFIG_FILES="$CONFIG_FILES src/vars/Makefile" ;;
-    "src/vcov/Makefile") CONFIG_FILES="$CONFIG_FILES src/vcov/Makefile" ;;
-    "macros/Makefile") CONFIG_FILES="$CONFIG_FILES macros/Makefile" ;;
-    "docs/Makefile") CONFIG_FILES="$CONFIG_FILES docs/Makefile" ;;
-    "docs/user_guides/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/Makefile" ;;
-    "docs/user_guides/overview_files/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/overview_files/Makefile" ;;
-    "docs/user_guides/hazard_files/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/hazard_files/Makefile" ;;
-    "docs/user_guides/hazpred_files/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/hazpred_files/Makefile" ;;
-    "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
-    "examples/data/Makefile") CONFIG_FILES="$CONFIG_FILES examples/data/Makefile" ;;
-    "examples/sasest/Makefile") CONFIG_FILES="$CONFIG_FILES examples/sasest/Makefile" ;;
-    "examples/sasest/ihd/Makefile") CONFIG_FILES="$CONFIG_FILES examples/sasest/ihd/Makefile" ;;
-    "examples/output/Makefile") CONFIG_FILES="$CONFIG_FILES examples/output/Makefile" ;;
+    "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+    "src/blackbox/Makefile") CONFIG_FILES="$CONFIG_FILES src/blackbox/Makefile" ;;
+    "src/common/Makefile") CONFIG_FILES="$CONFIG_FILES src/common/Makefile" ;;
+    "src/hazard/Makefile") CONFIG_FILES="$CONFIG_FILES src/hazard/Makefile" ;;
+    "src/hazpred/Makefile") CONFIG_FILES="$CONFIG_FILES src/hazpred/Makefile" ;;
+    "src/llike/Makefile") CONFIG_FILES="$CONFIG_FILES src/llike/Makefile" ;;
+    "src/libhazp/Makefile") CONFIG_FILES="$CONFIG_FILES src/libhazp/Makefile" ;;
+    "src/model/Makefile") CONFIG_FILES="$CONFIG_FILES src/model/Makefile" ;;
+    "src/optim/Makefile") CONFIG_FILES="$CONFIG_FILES src/optim/Makefile" ;;
+    "src/scripts/Makefile") CONFIG_FILES="$CONFIG_FILES src/scripts/Makefile" ;;
+    "src/stat/Makefile") CONFIG_FILES="$CONFIG_FILES src/stat/Makefile" ;;
+    "src/utils/Makefile") CONFIG_FILES="$CONFIG_FILES src/utils/Makefile" ;;
+    "src/vars/Makefile") CONFIG_FILES="$CONFIG_FILES src/vars/Makefile" ;;
+    "src/vcov/Makefile") CONFIG_FILES="$CONFIG_FILES src/vcov/Makefile" ;;
+    "macros/Makefile") CONFIG_FILES="$CONFIG_FILES macros/Makefile" ;;
+    "docs/Makefile") CONFIG_FILES="$CONFIG_FILES docs/Makefile" ;;
+    "docs/user_guides/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/Makefile" ;;
+    "docs/user_guides/overview_files/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/overview_files/Makefile" ;;
+    "docs/user_guides/hazard_files/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/hazard_files/Makefile" ;;
+    "docs/user_guides/hazpred_files/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/hazpred_files/Makefile" ;;
+    "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
+    "examples/data/Makefile") CONFIG_FILES="$CONFIG_FILES examples/data/Makefile" ;;
+    "examples/sasest/Makefile") CONFIG_FILES="$CONFIG_FILES examples/sasest/Makefile" ;;
+    "examples/sasest/ihd/Makefile") CONFIG_FILES="$CONFIG_FILES examples/sasest/ihd/Makefile" ;;
+    "examples/output/Makefile") CONFIG_FILES="$CONFIG_FILES examples/output/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

@@ -1,1 +1,0 @@
-ismuchg.o: ismuchg.c

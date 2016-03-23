@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-AM_CPPFLGS = $(EXTRA_INCLUDES) \
+AM_CPPFLAGS = $(EXTRA_INCLUDES) \
 	-I$(top_srcdir)/src/common \
 	-I$(top_srcdir)/src/utils \
 	-I$(top_srcdir)/src/vcov
