@@ -2,7 +2,7 @@
 /* Initilize the run */
 /* Comment out this statement to print debugging messages to the
    stderr stream. This statement effects this file only */
-#define NDEBUG 
+#define NDEBUG
 
 #include <stdlib.h>
 #include <string.h>
@@ -15,12 +15,12 @@
 #define __Linux__
 /* #define NDEBUG */
 
-/****************************************************************/ 
+/****************************************************************/
 /* opnfils called from main routine                             */
 void opnfils(char *in_file_name){
   char bfr[80],pfx[80],*ptr;
   int i;
-  
+
   /* Get the current temporary analysis directory */
 #ifndef NDEBUG
   fprintf(stderr, "COMSPEC: %s\n", getenv("COMSPEC"));
@@ -43,13 +43,14 @@ void opnfils(char *in_file_name){
 
   /* Start building the filename string */
 #ifdef __CYGWIN__
+  /* on windows */
   strcat(pfx,"/hzr_");
   strncat(pfx,stmtfldname(44),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
     *ptr = '\0';
   strcat(pfx,"_");
 #else
-
+ /* Other platforms */
   strcat(pfx,"/hzr.");
   strncat(pfx,stmtfldname(44),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
@@ -75,10 +76,10 @@ void opnfils(char *in_file_name){
   strcpy(in_file_name,bfr);
 
   /* Check for output command */
-  /*  I would realy like to enum these stmtopts parameters to 
+  /*  I would realy like to enum these stmtopts parameters to
       make them human legible.  */
   outhaz = stmtopts(63);
-  
+
   if(outhaz) {
     /* Build the output filename string */
     strcpy(bfr,pfx);
@@ -89,14 +90,14 @@ void opnfils(char *in_file_name){
       /* Exit on open error */
       hzfxit("outfile");
   }
-  
+
   /* Start reading/(writing) the data file header */
   for(i=7; i; i--){
     fread(bfr,80,1,inputDataFile);
     if(outhaz)
       fwrite(bfr,80,1,outputDataFile);
   }
-  
+
   fread(bfr,80,1,inputDataFile);
 
   /* Get the number of relevent variables */
@@ -105,7 +106,7 @@ void opnfils(char *in_file_name){
 #ifndef NDEBUG
   fprintf(stderr, "Numvars: %ld\n", numvars);
   fprintf(stderr, "length of bfr: %d\n", strlen(bfr));
-#endif 
+#endif
 
   ns = (struct namestr *)hzf_memget(sizeof(struct namestr)*numvars);
 
@@ -113,8 +114,8 @@ void opnfils(char *in_file_name){
     Read in the data set
     An array of NAMESTR[numvar]
   */
-  fread(ns,sizeof(struct namestr),(size_t)numvars,inputDataFile);  
- 
+  fread(ns,sizeof(struct namestr),(size_t)numvars,inputDataFile);
+
   for(i=0; i<numvars; i++) {
 #ifdef __Linux__
     /*

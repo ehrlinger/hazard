@@ -22,15 +22,17 @@ void opnfils(void){
   else
     *pfx = '\0';
 
-#ifdef __CYGWIN__ 
+#ifdef __CYGWIN__
+ /* on windows */
   strcat(pfx,"/hzp_");
 #else
+  /* otherwise */
   strcat(pfx,"/hzp.");
-#endif 
+#endif
   strncat(pfx,stmtfldname(14),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
     *ptr = '\0';
-#ifdef __CYGWIN__ 
+#ifdef __CYGWIN__
   strcat(pfx,"_");
 #else
   strcat(pfx,".");
