@@ -5,6 +5,7 @@
 
 autom4te.cache/
 .deps/
+config.log
 
 # Object files
 *.o

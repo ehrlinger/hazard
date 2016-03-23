@@ -3,7 +3,7 @@
  /* C Declarations (hazpred_y.y) */
 
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <memory.h>
 #include "structures.h"
 #include "stmtinit.h"
@@ -37,9 +37,9 @@ program :	hazpredstmt otherstmts
 hazpredstmt :	PROC procspec hazpredopts ';'
 	;
 
-procspec :	HAZPRED				{ 
+procspec :	HAZPRED				{
   /* Initialize the YACC parser (looks like a linked list) */
-  current = last = anchor = stmtinit(15); 
+  current = last = anchor = stmtinit(15);
 }
 	;
 
