@@ -12,6 +12,7 @@ HAZARD is a statistical computing package developed at [Cleveland Clinic](https:
 
 - [HAZARD](#hazard)
   - [Table of Contents](#table-of-contents)
+
   - [Overview](#overview)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -25,9 +26,23 @@ HAZARD is a statistical computing package developed at [Cleveland Clinic](https:
   - [Quick Start](#quick-start)
   - [Project Structure](#project-structure)
   - [Documentation](#documentation)
+  - [Vignettes](#vignettes)
   - [Citation](#citation)
   - [License](#license)
   - [Contact](#contact)
+
+---
+
+
+---
+
+## Project Metadata & Links
+
+- [Authors](AUTHORS.md)
+- [License](COPYING.md)
+- [Installation Guide](INSTALL.md)
+- [Changelog](NEWS.md)
+- [Acknowledgments](THANKS.md)
 
 ---
 
@@ -240,7 +255,18 @@ hazard/
 
 ---
 
+
 ## Documentation
+## Vignettes
+
+The following vignettes provide detailed guides and examples:
+
+- [Downloads](docs/vignettes/downloads.md)
+- [Analysis Examples](docs/vignettes/examples.md)
+- [Installation](docs/vignettes/installation.md)
+- [Introduction to Hazard Function Technology](docs/vignettes/introduction.md)
+- [SAS Utility Macros](docs/vignettes/macros.md)
+- [User Guides](docs/vignettes/user_guides.md)
 
 ### User Vignettes
 
