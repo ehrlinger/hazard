@@ -10,22 +10,24 @@ HAZARD is a statistical computing package developed at [Cleveland Clinic](https:
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-  - [From Source (Unix/Linux/macOS)](#from-source-unixlinuxmacos)
-  - [From Source (Windows via Cygwin)](#from-source-windows-via-cygwin)
-  - [From Binary Distribution](#from-binary-distribution)
-- [Environment Setup](#environment-setup)
-  - [Unix/Linux/macOS](#unixlinuxmacos)
-  - [Windows](#windows)
-  - [SAS Configuration](#sas-configuration)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [Documentation](#documentation)
-- [Citation](#citation)
-- [License](#license)
-- [Contact](#contact)
+- [HAZARD](#hazard)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+    - [From Source (Unix/Linux/macOS)](#from-source-unixlinuxmacos)
+    - [From Source (Windows via Cygwin)](#from-source-windows-via-cygwin)
+    - [From Binary Distribution](#from-binary-distribution)
+  - [Environment Setup](#environment-setup)
+    - [Unix/Linux/macOS](#unixlinuxmacos)
+    - [Windows](#windows)
+    - [SAS Configuration](#sas-configuration)
+  - [Quick Start](#quick-start)
+  - [Project Structure](#project-structure)
+  - [Documentation](#documentation)
+  - [Citation](#citation)
+  - [License](#license)
+  - [Contact](#contact)
 
 ---
 
@@ -75,7 +77,7 @@ SAS is required at runtime for data I/O. The C executables handle all numerical 
 
 ```bash
 # 1. Clone or download the source
-git clone https://github.com/your-org/hazard.git
+git clone https://github.com/ehrlinger/hazard
 cd hazard
 
 # 2. Configure (default installs to /usr/local/hazard)
@@ -240,15 +242,32 @@ hazard/
 
 ## Documentation
 
+### User Vignettes
+
+| Vignette | Description |
+|---|---|
+| [Introduction](docs/vignettes/introduction.md) | What is hazard function analysis; multi-phase model overview |
+| [Downloads](docs/vignettes/downloads.md) | Binary distributions and source code |
+| [Installation](docs/vignettes/installation.md) | Build, install, and configure for Unix/Windows/SAS |
+| [Examples](docs/vignettes/examples.md) | Annotated walkthrough of all included example programs |
+| [SAS Utility Macros](docs/vignettes/macros.md) | Reference for all helper macros |
+| [User Guides](docs/vignettes/user_guides.md) | Full procedure reference documents |
+
+### Reference Manuals
+
+| Document | Formats |
+|---|---|
+| Overview of Procedures | [HTML](docs/user_guides/overview.html) · [PDF](docs/user_guides/overview.pdf) |
+| The HAZARD Procedure | [HTML](docs/user_guides/hazard.html) · [PDF](docs/user_guides/hazard.pdf) |
+| The HAZPRED Procedure | [HTML](docs/user_guides/hazpred.html) · [PDF](docs/user_guides/hazpred.pdf) |
+
+### Developer Documentation
+
 | Document | Description |
 |---|---|
-| [`docs/hazard.pdf`](docs/hazard.pdf) | Complete PROC HAZARD reference |
-| [`docs/hazpred.pdf`](docs/hazpred.pdf) | Complete PROC HAZPRED reference |
-| [`docs/overview.pdf`](docs/overview.pdf) | Introduction to parametric hazard analysis |
 | [`docs/CODEBASE_ANALYSIS.md`](docs/CODEBASE_ANALYSIS.md) | Architectural overview for contributors |
 | [`docs/MODERNIZATION_GUIDE.md`](docs/MODERNIZATION_GUIDE.md) | C modernization roadmap |
 | [`docs/R_MIGRATION_GUIDE.md`](docs/R_MIGRATION_GUIDE.md) | R migration roadmap |
-| [`examples/README`](examples/README) | Guide to included example programs |
 
 ---
 
