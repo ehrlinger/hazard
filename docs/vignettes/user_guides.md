@@ -27,6 +27,7 @@ Two SAS-interfaced procedures — PROC HAZARD and PROC HAZPRED — are described
 
 | Format | Link |
 |---|---|
+| Markdown | [overview.md](overview.md) |
 | HTML | [overview.html](../user_guides/overview.html) |
 | PDF | [overview.pdf](../user_guides/overview.pdf) |
 | PostScript | [overview.ps](../user_guides/overview.ps) |
@@ -51,6 +52,7 @@ Complete syntax reference for PROC HAZARD, the parametric analysis procedure for
 
 | Format | Link |
 |---|---|
+| Markdown | [hazard.md](hazard.md) |
 | HTML | [hazard.html](../user_guides/hazard.html) |
 | PDF | [hazard.pdf](../user_guides/hazard.pdf) |
 | PostScript | [hazard.ps](../user_guides/hazard.ps) |
@@ -74,6 +76,7 @@ Complete syntax reference for PROC HAZPRED, the prediction procedure. HAZPRED ca
 
 | Format | Link |
 |---|---|
+| Markdown | [hazpred.md](hazpred.md) |
 | HTML | [hazpred.html](../user_guides/hazpred.html) |
 | PDF | [hazpred.pdf](../user_guides/hazpred.pdf) |
 | PostScript | [hazpred.ps](../user_guides/hazpred.ps) |
