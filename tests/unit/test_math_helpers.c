@@ -163,12 +163,15 @@ static void test_ln_A_div_B_zero_B_sets_error(void)
     ASSERT_EQ_INT(Common.errorno, 2);
 }
 
-/* errorno is reset to 0 on successful call (ErrorReset macro). */
-static void test_ln_A_div_B_clears_previous_error(void)
+/* A successful call must NOT modify errorno.
+ * hzd_ln_A_div_B uses ErrorReturn (sets errorno, returns 0) on failure,
+ * but the success path returns LOGe(ratio) directly without calling
+ * ErrorReset.  A stale errorno from a prior call remains unchanged. */
+static void test_ln_A_div_B_does_not_modify_errorno(void)
 {
-    Common.errorno = 99;   /* stale error */
+    Common.errorno = 99;   /* stale error from a hypothetical prior call */
     (void)hzd_ln_A_div_B(2.0, 1.0);
-    ASSERT_EQ_INT(Common.errorno, 0);
+    ASSERT_EQ_INT(Common.errorno, 99);  /* unchanged by successful call */
 }
 
 /* ================================================================== */

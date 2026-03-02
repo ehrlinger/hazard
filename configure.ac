@@ -64,7 +64,7 @@ AC_SUBST(examples_outputdir)
 # Dump a message saying what we are doing.
 echo "configuring the Hazard $MAJ_VER.$MIN_VER.$MIC_VER system"
 
-# AC_CANONICAL_SYSTEM
+AC_CANONICAL_SYSTEM
 AC_SUBST(MAJ_VER)dnl
 AC_SUBST(MIN_VER)dnl
 AC_SUBST(MIC_VER)dnl

@@ -32,6 +32,7 @@ COMMON_SHAPING = \
     $(SRCDIR)/hzd_ln_G3_and_SG3.c  \
     $(SRCDIR)/hzd_ln_eBXmin1divB.c  \
     $(SRCDIR)/hzd_ln_eX_plus1.c    \
+    $(SRCDIR)/hzd_ln_eeX_min1.c    \
     $(SRCDIR)/hzd_ln_1min_enegX.c  \
     $(SRCDIR)/hzd_Error.c
 
@@ -146,6 +147,7 @@ COV_COMMON_SHAPE = \
     $(COV_DIR)/hzd_ln_G3_and_SG3.o  \
     $(COV_DIR)/hzd_ln_eBXmin1divB.o  \
     $(COV_DIR)/hzd_ln_eX_plus1.o    \
+    $(COV_DIR)/hzd_ln_eeX_min1.o    \
     $(COV_DIR)/hzd_ln_1min_enegX.o  \
     $(COV_DIR)/hzd_Error.o
 
