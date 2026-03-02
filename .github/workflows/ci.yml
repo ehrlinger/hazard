@@ -25,12 +25,10 @@ jobs:
         run: sudo apt-get update -q && sudo apt-get install -y gcc
 
       - name: Build unit tests
-        working-directory: tests/unit
-        run: make all
+        run: make -C tests/unit all
 
       - name: Run unit tests
-        working-directory: tests/unit
-        run: make check
+        run: make -C tests/unit check
 
   # ------------------------------------------------------------------ #
   # Job 2: Unit tests under AddressSanitizer + UBSan                   #
@@ -46,12 +44,11 @@ jobs:
         run: sudo apt-get update -q && sudo apt-get install -y gcc
 
       - name: Run unit tests under AddressSanitizer
-        working-directory: tests/unit
         # ASAN_OPTIONS: halt_on_error=0 lets all tests run before failing,
         # so the full report is available in the log.
         env:
           ASAN_OPTIONS: detect_leaks=1:check_initialization_order=1:halt_on_error=0
-        run: make asan check
+        run: make -C tests/unit asan check
 
   # ------------------------------------------------------------------ #
   # Job 3: Full autotools build + integration tests                     #
@@ -110,12 +107,10 @@ jobs:
       - name: Build coverage instrumented tests and run
         # 'make coverage' compiles unit tests with -fprofile-arcs
         # -ftest-coverage into .cov/, runs them, and writes coverage.info.
-        working-directory: tests/unit
-        run: make coverage
+        run: make -C tests/unit coverage
 
       - name: Show coverage summary
-        working-directory: tests/unit
-        run: lcov --summary coverage.info 2>&1 | grep -E "lines|functions" || true
+        run: lcov --summary tests/unit/coverage.info 2>&1 | grep -E "lines|functions" || true
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v4
