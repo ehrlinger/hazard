@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ------------------------------------------------------------------ #
+  # Job 1: C unit tests (no autotools required — tests compile directly) #
+  # ------------------------------------------------------------------ #
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GCC
+        run: sudo apt-get update -q && sudo apt-get install -y gcc
+
+      - name: Build unit tests
+        working-directory: tests/unit
+        run: make all
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: make check
+
+  # ------------------------------------------------------------------ #
+  # Job 2: Unit tests under AddressSanitizer + UBSan                   #
+  # ------------------------------------------------------------------ #
+  memory-safety:
+    name: Memory Safety (ASan + UBSan)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GCC
+        run: sudo apt-get update -q && sudo apt-get install -y gcc
+
+      - name: Run unit tests under AddressSanitizer
+        working-directory: tests/unit
+        # ASAN_OPTIONS: halt_on_error=0 lets all tests run before failing,
+        # so the full report is available in the log.
+        env:
+          ASAN_OPTIONS: detect_leaks=1:check_initialization_order=1:halt_on_error=0
+        run: make asan check
+
+  # ------------------------------------------------------------------ #
+  # Job 3: Full autotools build + integration tests                     #
+  # ------------------------------------------------------------------ #
+  build-and-integration:
+    name: Full Build + Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y gcc autoconf automake flex bison
+
+      - name: Bootstrap (autoreconf)
+        run: autoreconf -fi
+
+      - name: Configure
+        run: ./configure
+
+      - name: Build
+        run: make -j$(nproc)
+
+      - name: Run integration tests
+        # Integration tests gracefully skip checks that need SAS-prepared
+        # input files (.input).  V1/V2/V3 fall back to comparing existing
+        # .lst outputs in the repo; V6 (ASan) and V7 (concurrent) skip
+        # when inputs are absent.
+        run: bash tests/run_all_tests.sh --integration-only --skip-memory --skip-concurrent
+        env:
+          HAZARD_BIN: ${{ github.workspace }}/hazard
+
+      - name: Upload hazard binary as artifact
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: hazard-binary-${{ github.sha }}
+          path: hazard
+          retention-days: 7
+
+  # ------------------------------------------------------------------ #
+  # Job 4: Coverage instrumented build → Codecov upload                #
+  # ------------------------------------------------------------------ #
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GCC and lcov
+        run: sudo apt-get update -q && sudo apt-get install -y gcc lcov
+
+      - name: Build coverage instrumented tests and run
+        # 'make coverage' compiles unit tests with -fprofile-arcs
+        # -ftest-coverage into .cov/, runs them, and writes coverage.info.
+        working-directory: tests/unit
+        run: make coverage
+
+      - name: Show coverage summary
+        working-directory: tests/unit
+        run: lcov --summary coverage.info 2>&1 | grep -E "lines|functions" || true
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: tests/unit/coverage.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unit-tests
+          name: hazard-unit-coverage
+          fail_ci_if_error: false
+          verbose: true
