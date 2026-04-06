@@ -373,7 +373,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-main_DATA = AUTHORS ChangeLog COPYING INSTALL NEWS README THANKS
+main_DATA = AUTHORS.md ChangeLog COPYING INSTALL.md NEWS.md README.md THANKS.md
 
 # Because the "make dist" target does not include DATA files...
 EXTRA_DIST = $(main_DATA)
