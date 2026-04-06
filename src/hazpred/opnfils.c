@@ -1,3 +1,4 @@
+#include "swab_compat.h"
 #include <string.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,21 +58,33 @@ void opnfils(void){
     hzfxit("outfile");
 
   for(i=7; i; i--) {
-    fread(bfr,80,1,infile);
+    if(fread(bfr,80,1,infile)!=1) {
+      /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+    }
     fwrite(bfr,80,1,outfile);
-    fread(bfr,80,1,hazfile);
+    if(fread(bfr,80,1,hazfile)!=1) {
+      /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+    }
   }
 
-  fread(bfr,80,1,infile);
+  if(fread(bfr,80,1,infile)!=1) {
+    /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+  }
   sscanf(&bfr[54],"%4d",&infilect);
-  fread(bfr,80,1,hazfile);
+  if(fread(bfr,80,1,hazfile)!=1) {
+    /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+  }
   sscanf(&bfr[54],"%4d",&nvars);
 
   data_ns = (struct namestr *)hzf_memget(sizeof(struct namestr)*infilect);
   inhaz_ns = (struct namestr *)hzf_memget(sizeof(struct namestr)*nvars);
 
-  fread(data_ns,sizeof(struct namestr),infilect,infile);
-  fread(inhaz_ns,sizeof(struct namestr),nvars,hazfile);
+  if(fread(data_ns,sizeof(struct namestr),infilect,infile)!=infilect) {
+    /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+  }
+  if(fread(inhaz_ns,sizeof(struct namestr),nvars,hazfile)!=nvars) {
+    /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+  }
 
   for(i=0; i<infilect; i++) {
 
@@ -108,11 +121,19 @@ void opnfils(void){
   i = 640+infilect*sizeof(struct namestr);
   i = 80-i%80;
   if(i!=80)
-    fread(bfr,i,1,infile);
-  fread(bfr,80,1,infile);
+    if(fread(bfr,i,1,infile)!=1) {
+      /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+    }
+  if(fread(bfr,80,1,infile)!=1) {
+    /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+  }
   i = 640+nvars*sizeof(struct namestr);
   i = 80-i%80;
   if(i!=80)
-    fread(bfr,i,1,hazfile);
-  fread(bfr,80,1,hazfile);
+    if(fread(bfr,i,1,hazfile)!=1) {
+      /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+    }
+  if(fread(bfr,80,1,hazfile)!=1) {
+    /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+  }
 }

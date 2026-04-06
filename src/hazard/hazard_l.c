@@ -670,15 +670,14 @@ static char *yy_last_accepting_cpos;
 #define yymore() yymore_used_but_not_detected
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
-char *yytext;
-#line 1 "hazard_l.l"
+#ifndef INITIAL
 #define INITIAL 0
-#line 4 "hazard_l.l"
+#endif
 /*
-  (12/21/96) RAM
-         Changed hazard.l RESTRICT production added yylval.nam = yytext
-         RESTRICT command had stopped working somtime mid 1995
-         This change is made pending testing under PC version of gnu yacc/flex.
+	(12/21/96) RAM
+				 Changed hazard.l RESTRICT production added yylval.nam = yytext
+				 RESTRICT command had stopped working somtime mid 1995
+				 This change is made pending testing under PC version of gnu yacc/flex.
 */
 #include <stdio.h>
 #include "hazard_y.h" /* parser defines */
@@ -706,6 +705,8 @@ int yylnctr,yysynerr;
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
  */
+
+char *yytext;
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus

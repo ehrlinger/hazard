@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include "hazpred_y.h" /* parser defines */
 
+/*
+	Lexer-owned globals for hazpred scanner.
+	These must be defined here (not in shared headers) to avoid duplicate or
+	missing symbol errors across platform-specific scanner regeneration.
+*/
 int yylnctr,yysynerr;
 %}
 ws		[ \t\n\)]+

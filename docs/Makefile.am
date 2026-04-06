@@ -8,9 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-docs_DATA = README documentation.html downloads.html examples.html\
-	header.css header.html index.html installation.html \
-	introduction.html macros.html nav.css navigate.html style.css
+docs_DATA = README.md
 
 # Because the "make dist" target does not include DATA files...
 EXTRA_DIST = $(docs_DATA)

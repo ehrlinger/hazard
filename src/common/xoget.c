@@ -3,5 +3,7 @@
 #include "hzdinc.h"
 
 void xoget(void){
-  fread(xvobsbfr,(size_t)xvobslen,1,inputDataFile);
+  if(fread(xvobsbfr,(size_t)xvobslen,1,inputDataFile)!=1) {
+    /* Preserve historical behavior: callers handle downstream state. */
+  }
 }

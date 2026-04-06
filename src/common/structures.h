@@ -222,8 +222,13 @@ EXTERN struct stmtstr *current;
 EXTERN struct stmtstr *last;
 EXTERN char MISSING[sizeof(double)];
 
-EXTERN char *yytext;
-EXTERN int yylnctr;
+/*
+  Flex scanner globals are defined in lexer translation units
+  (hazard_l.* / hazpred_l.*). Keep declarations-only here to avoid
+  duplicate symbol definitions when scanners are regenerated in CI.
+*/
+extern char *yytext;
+extern int yylnctr;
 
 EXTERN struct xvgetstr *xvgetptr;
 EXTERN struct xvputstr *xvputptr;

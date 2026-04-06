@@ -1,5 +1,9 @@
 # HAZARD
 
+[![CI](https://github.com/ehrlinger/hazard/actions/workflows/ci.yml/badge.svg)](https://github.com/ehrlinger/hazard/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/ehrlinger/hazard/branch/master/graph/badge.svg)](https://codecov.io/gh/ehrlinger/hazard)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+
 **Parametric hazard analysis for time-to-event data.**
 
 HAZARD is a statistical computing package developed at [Cleveland Clinic](https://www.clevelandclinic.org) for fitting flexible, multi-phase parametric hazard models to survival data. It implements the **Conservation of Events theorem** (Turner et al.) to produce models with early, constant, and late hazard phases — commonly applied to cardiac surgery outcomes and other clinical research.
@@ -134,6 +138,33 @@ This creates a `hazard/` directory with the standard layout.
 **Windows:**
 
 Extract the `.zip` distribution with your preferred archive tool to a root directory such as `C:\`. The distribution must be extracted to a root-level directory due to path length constraints.
+
+Official Windows binary distributions are available only from:
+https://www.lerner.ccf.org/quantitative-health/software/
+
+### Verify Release Checksums
+
+Each GitHub release includes a `SHA256SUMS.txt` file. Verify downloaded archives before extracting.
+
+**Unix/Linux/macOS:**
+
+```bash
+# Linux (sha256sum)
+sha256sum -c SHA256SUMS.txt
+
+# macOS fallback if sha256sum is unavailable
+shasum -a 256 -c SHA256SUMS.txt
+```
+
+**Windows (PowerShell):**
+
+```powershell
+# Example: verify one archive against SHA256SUMS.txt
+$file = "hazard-vX.Y.Z-windows-x64.zip"
+$actual = (Get-FileHash -Algorithm SHA256 $file).Hash.ToLower()
+$expected = (Select-String -Path SHA256SUMS.txt -Pattern [regex]::Escape($file)).Line.Split(" ")[0].ToLower()
+if ($actual -eq $expected) { "Checksum OK" } else { "Checksum MISMATCH" }
+```
 
 ---
 

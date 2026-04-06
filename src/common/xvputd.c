@@ -1,3 +1,4 @@
+#include "swab_compat.h"
 #include <string.h>
 #include "hzdinc.h"
 #define __Linux__

@@ -6,5 +6,6 @@
 void hzfxpi(int value,int places,long column){
   if(!curr_xpmode) return;
   hzf_col(column);
-  printf("%*ld\n",(int)places,value);
+  /* 'value' is int throughout the call chain; keep format consistent. */
+  printf("%*d\n",(int)places,value);
 }

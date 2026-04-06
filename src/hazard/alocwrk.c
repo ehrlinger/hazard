@@ -120,7 +120,7 @@ void alocwrk(void){
   Work = hzf_memget(memory*sizeof(double));
   if(hzf_mem_need>0) {
     sprintf(msgbfr,"ERROR: Insufficient memory for Stage III; "
-	    "need %ldK additional storage",hzf_mem_need/1024);
+	    "need %dK additional storage",hzf_mem_need/1024);
     hzf_log1(msgbfr);
     hzfxit("MEMORY");
   }
