@@ -703,6 +703,7 @@ int yylnctr,yysynerr;
 #line 704 "lex.yy.c"
 
 /* Macros after this point can all be overridden by user definitions in
+char *yytext;
  * section 1.
  */
 
