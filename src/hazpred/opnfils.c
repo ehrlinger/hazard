@@ -1,3 +1,12 @@
+/* Portability: swab() is POSIX (_XOPEN_SOURCE >= 500); MinGW uses _swab() */
+#ifdef _WIN32
+#  define swab(from, to, n) _swab((char *)(from), (char *)(to), (int)(n))
+#else
+#  ifndef _XOPEN_SOURCE
+#    define _XOPEN_SOURCE 600
+#  endif
+#  include <unistd.h>
+#endif
 #include <string.h>
 #include <stdlib.h>
 #include <string.h>

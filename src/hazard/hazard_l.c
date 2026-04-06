@@ -670,6 +670,9 @@ static char *yy_last_accepting_cpos;
 #define yymore() yymore_used_but_not_detected
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
+#ifndef INITIAL
+#define INITIAL 0
+#endif
 /*
 	(12/21/96) RAM
 				 Changed hazard.l RESTRICT production added yylval.nam = yytext
