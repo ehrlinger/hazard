@@ -12,11 +12,13 @@
 
 /*
   Lexer-owned globals:
+  - yytext: scanner token buffer pointer used by parser/error paths.
   - yylnctr: statement/line counter used by parser error reporting.
   - yysynerr: parser/lexer syntax-error latch (see yyerror.c / initprz.c).
   Keep these as real definitions in the lexer TU.  Using extern here caused
   undefined references when scanner regeneration order changed.
 */
+char *yytext;
 int yylnctr,yysynerr;
 
 /* Older generated scanners may miss this define; keep a safe fallback. */

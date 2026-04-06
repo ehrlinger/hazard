@@ -347,9 +347,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-docs_DATA = README documentation.html downloads.html examples.html\
-	header.css header.html index.html installation.html \
-	introduction.html macros.html nav.css navigate.html style.css
+docs_DATA = README.md
 
 
 # Because the "make dist" target does not include DATA files...
