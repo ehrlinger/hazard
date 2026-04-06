@@ -6,6 +6,8 @@
 
 #ifdef HAZRD4
 
+#define EXTERN
+
 /* We may be able to get rid of these static definitions */
 extern double hval;
 extern double rz,rp;
