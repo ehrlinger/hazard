@@ -4,8 +4,8 @@
 #include <isblanck.h>
 /****************************************************************/
 /* SETSTAT called from SETCONC                                  */
-void setstat(int i,int idx,long *phasevar,long *itabl,
-		    int *ipxc){
+void setstat(int i,int idx,int *phasevar,int *itabl,
+                    int *ipxc){
   if((memcmp(faze[i],"EARLY   ",8)==0 && C->phase[1]!=1) ||
      (memcmp(faze[i],"CONSTANT",8)==0 && C->phase[2]!=1) ||
      (memcmp(faze[i],"LATE    ",8)==0 && C->phase[3]!=1))
