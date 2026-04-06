@@ -24,12 +24,12 @@
  */
 extern void hazard_test_pre_run(void);
 
-/* ------------------------------------------------------------------ */
-/* Shared counters — one per translation unit (static to avoid ODR    */
-/* conflicts when multiple test files are compiled into the same bin). */
-/* ------------------------------------------------------------------ */
-static int _pass_count = 0;
-static int _fail_count = 0;
+/*
+ * Shared counters are defined once in test_harness_hooks.c.
+ * Keeping storage out of the header avoids per-translation-unit splits.
+ */
+extern int _pass_count;
+extern int _fail_count;
 
 /* ------------------------------------------------------------------ */
 /* Assertion macros                                                    */
