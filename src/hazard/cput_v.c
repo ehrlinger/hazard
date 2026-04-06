@@ -4,7 +4,7 @@
 #include "cput_vv.h"
 #include "hazard.h"
 
-void cput_v(int dashct,int dashat,void (*cputfn)(char *,long)){
+void cput_v(int dashct,int dashat,void (*cputfn)(char *,int)){
   hzfskp(1);
   hzfxpr('-',dashct,dashat);
   hzfskp(1);
