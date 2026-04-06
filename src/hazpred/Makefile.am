@@ -12,13 +12,6 @@
 # the use of rational tools on the code.
 AM_CPPFLAGS = $(EXTRA_INCLUDES) -I$(top_srcdir)/src/common
 
-# In order to run purify or purecov, setenv PURIFY pur????
-# Then make hazard.purify
-noinst_PROGRAMS = hazpred.purify
-
-hazpred_purify_SOURCES = $(hazpred_exe_SOURCES)
-hazpred_purify_LINK = $(PURIFY) $(LINK)
-
 AM_LDFLAGS = -L$(top_builddir)/src/common
 LDADD = -lcommon -lm
 
