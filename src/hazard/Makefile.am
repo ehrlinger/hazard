@@ -12,13 +12,6 @@
 # the use of rational tools on the code.
 AM_YFLAGS = -d
 
-# In order to run purify or purecov, setenv PURIFY pur????
-# Then make hazard.purify
-noinst_PROGRAMS = hazard.purify
-
-hazard_purify_SOURCES = $(hazard_exe_SOURCES)
-hazard_purify_LINK = $(PURIFY) $(LINK)
-
 # The standard build rules
 # included header files from the source location
 AM_CPPFLAGS = $(EXTRA_INCLUDES) \

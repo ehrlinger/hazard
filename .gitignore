@@ -60,7 +60,7 @@ src/blackbox/blackbox
 src/blackbox/hzpexmpl
 src/blackbox/xpt2ascii
 
-# Purify / memory-profiling artifacts
+# Legacy runtime scratch artifacts
 *.pcv
 .pure
 st0_*
@@ -83,6 +83,9 @@ Debug/
 *.swo
 *.asv
 bin.proj
+
+# Local Copilot/Claude scratch worktrees (must never be tracked)
+.claude/worktrees/
 
 # =============================================================================
 # macOS
