@@ -121,3 +121,52 @@ jobs:
           name: hazard-unit-coverage
           fail_ci_if_error: false
           verbose: true
+
+  # ------------------------------------------------------------------ #
+  # Job 5: Native Windows build (MSYS2/MinGW-w64, no Cygwin runtime)   #
+  # ------------------------------------------------------------------ #
+  windows-native-build:
+    name: Windows Native Build (MSYS2/MinGW)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSYS2 (UCRT64 toolchain)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            autoconf
+            automake
+            bison
+            flex
+            make
+            mingw-w64-ucrt-x86_64-gcc
+
+      - name: Bootstrap (autoreconf)
+        shell: msys2 {0}
+        run: autoreconf -fi
+
+      - name: Configure
+        shell: msys2 {0}
+        run: ./configure --prefix="$PWD/dist/hazard"
+
+      - name: Build
+        shell: msys2 {0}
+        run: make -j"$(nproc)"
+
+      - name: Install staged Windows distribution
+        shell: msys2 {0}
+        run: make install
+
+      - name: Upload Windows executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: hazard-windows-native-${{ github.sha }}
+          path: |
+            src/hazard/hazard.exe
+            src/hazpred/hazpred.exe
+            dist/hazard
+          retention-days: 7

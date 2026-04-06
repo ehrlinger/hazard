@@ -139,6 +139,33 @@ This creates a `hazard/` directory with the standard layout.
 
 Extract the `.zip` distribution with your preferred archive tool to a root directory such as `C:\`. The distribution must be extracted to a root-level directory due to path length constraints.
 
+Official Windows binary distributions are available only from:
+https://www.lerner.ccf.org/quantitative-health/software/
+
+### Verify Release Checksums
+
+Each GitHub release includes a `SHA256SUMS.txt` file. Verify downloaded archives before extracting.
+
+**Unix/Linux/macOS:**
+
+```bash
+# Linux (sha256sum)
+sha256sum -c SHA256SUMS.txt
+
+# macOS fallback if sha256sum is unavailable
+shasum -a 256 -c SHA256SUMS.txt
+```
+
+**Windows (PowerShell):**
+
+```powershell
+# Example: verify one archive against SHA256SUMS.txt
+$file = "hazard-vX.Y.Z-windows-x64.zip"
+$actual = (Get-FileHash -Algorithm SHA256 $file).Hash.ToLower()
+$expected = (Select-String -Path SHA256SUMS.txt -Pattern [regex]::Escape($file)).Line.Split(" ")[0].ToLower()
+if ($actual -eq $expected) { "Checksum OK" } else { "Checksum MISMATCH" }
+```
+
 ---
 
 ## Environment Setup
