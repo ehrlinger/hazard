@@ -37,7 +37,7 @@ COMMON_SHAPING = \
     $(SRCDIR)/hzd_Error.c
 
 # Global storage + init (must appear exactly once per binary).
-GLOBALS = test_globals.c
+GLOBALS = test_globals.c test_harness_hooks.c
 
 # ------------------------------------------------------------------ #
 # test_math_helpers                                                    #
@@ -59,7 +59,7 @@ test_shaping_functions: $(GLOBALS) $(COMMON_MATH) $(COMMON_SHAPING) \
 # test_obs_layout                                                      #
 #   Tests: OBS array indexing constants — no global state needed      #
 # ------------------------------------------------------------------ #
-test_obs_layout: test_obs_layout.c
+test_obs_layout: test_obs_layout.c test_harness_hooks.c
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # ------------------------------------------------------------------ #
@@ -119,6 +119,9 @@ $(COV_DIR):
 $(COV_DIR)/test_globals.o: test_globals.c | $(COV_DIR)
 	$(CC) $(COV_CFLAGS) -c -o $@ $<
 
+$(COV_DIR)/test_harness_hooks.o: test_harness_hooks.c | $(COV_DIR)
+	$(CC) $(COV_CFLAGS) -c -o $@ $<
+
 $(COV_DIR)/test_math_helpers.o: test_math_helpers.c | $(COV_DIR)
 	$(CC) $(COV_CFLAGS) -c -o $@ $<
 
@@ -154,17 +157,20 @@ COV_COMMON_SHAPE = \
 # ---- coverage binaries ---------------------------------------------
 
 $(COV_DIR)/test_math_helpers: $(COV_DIR)/test_globals.o \
+							   $(COV_DIR)/test_harness_hooks.o \
                                $(COV_COMMON_MATH) \
                                $(COV_DIR)/test_math_helpers.o
 	$(CC) $(COV_CFLAGS) -o $@ $^ -lm
 
 $(COV_DIR)/test_shaping_functions: $(COV_DIR)/test_globals.o \
+									$(COV_DIR)/test_harness_hooks.o \
                                     $(COV_COMMON_MATH) \
                                     $(COV_COMMON_SHAPE) \
                                     $(COV_DIR)/test_shaping_functions.o
 	$(CC) $(COV_CFLAGS) -o $@ $^ -lm
 
-$(COV_DIR)/test_obs_layout: $(COV_DIR)/test_obs_layout.o
+$(COV_DIR)/test_obs_layout: $(COV_DIR)/test_harness_hooks.o \
+                            $(COV_DIR)/test_obs_layout.o
 	$(CC) $(COV_CFLAGS) -o $@ $^ -lm
 
 COV_BINS = \

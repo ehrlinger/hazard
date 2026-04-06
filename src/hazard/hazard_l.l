@@ -10,6 +10,11 @@
 #include <stdio.h>
 #include "hazard_y.h" /* parser defines */
 int yylnctr,yysynerr;
+
+/* Older generated scanners may miss this define; keep a safe fallback. */
+#ifndef INITIAL
+#define INITIAL 0
+#endif
 %}
 
 /* Regular expressions */

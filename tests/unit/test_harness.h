@@ -18,6 +18,12 @@
 #include <math.h>
 #include <stdlib.h>
 
+/*
+ * Optional pre-test hook implemented by the test binary.
+ * tests/unit/test_harness_hooks.c provides a weak no-op default.
+ */
+extern void hazard_test_pre_run(void);
+
 /* ------------------------------------------------------------------ */
 /* Shared counters — one per translation unit (static to avoid ODR    */
 /* conflicts when multiple test files are compiled into the same bin). */
@@ -114,6 +120,7 @@ static int _fail_count = 0;
 /* Run a named test function (declared as static void name(void)) */
 #define RUN_TEST(fn)                                                   \
     do {                                                               \
+        hazard_test_pre_run();                                         \
         fprintf(stderr, "  · %s\n", #fn);                             \
         fn();                                                          \
     } while (0)
