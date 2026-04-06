@@ -12,7 +12,7 @@ void *hzf_memget(int leng){
     stg = malloc(leng_t);
   else {
     if(curr_xlmode)
-      printf("$ERROR: Attempted memory allocation of %ld "
+      printf("$ERROR: Attempted memory allocation of %d "
 	     "exceeds size limit.\n",leng);
     stg = NULL;
   }

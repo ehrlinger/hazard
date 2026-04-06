@@ -4,6 +4,6 @@
 
 void xexit(int rc){
   if(rc!=0)
-    printf("!%ld\n",rc);
+    printf("!%d\n",rc);
   exit(rc);
 }

@@ -3,9 +3,9 @@
 
 void hzf_col(int column){
   if(column>0)
-    printf("@%ld,",column);
+    printf("@%d,",column);
   else if(column<0)
-    printf("+%ld,",-column);
+    printf("+%d,",-column);
   else
     printf(";");
 }

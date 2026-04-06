@@ -5,13 +5,14 @@
 */
 
 #ifdef HAZRD4
-#define EXTERN 
 
-/* We may be able to get rid of these static definitions */
+#define EXTERN
+
+/* These are defined here when compiling hazrd4.c (HAZRD4 defined) */
 double hval;
 double rz,rp;
 int stepk1,stepk2,stepk3,h4nvar;
-int stepf,movrem,nrow;
+int stepf,movrem; /* nrow defined in hazard.c via hazard.h (EXTERN int prnt,nrow) */
 int ri,rset,rbase,rvar;
 logical hz4stop,adone,noshap,stopt;
 logical faststop;

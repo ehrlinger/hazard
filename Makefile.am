@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-main_DATA = AUTHORS ChangeLog COPYING INSTALL NEWS README THANKS
+main_DATA = AUTHORS.md ChangeLog COPYING INSTALL.md NEWS.md README.md THANKS.md
 
 # Because the "make dist" target does not include DATA files...
 EXTRA_DIST = $(main_DATA)

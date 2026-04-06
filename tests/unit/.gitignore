@@ -1,0 +1,8 @@
+# Local/unit-test build artifacts
+test_math_helpers
+test_shaping_functions
+test_obs_layout
+*.dSYM/
+.cov/
+coverage.info
+coverage_html/
