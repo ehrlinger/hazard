@@ -8,15 +8,15 @@
 
 #define EXTERN
 
-/* We may be able to get rid of these static definitions */
-extern double hval;
-extern double rz,rp;
-extern int stepk1,stepk2,stepk3,h4nvar;
-extern int stepf,movrem,nrow;
-extern int ri,rset,rbase,rvar;
-extern logical hz4stop,adone,noshap,stopt;
-extern logical faststop;
-extern char cflag1,cflag2,cflag3,cflag4;
+/* These are defined here when compiling hazrd4.c (HAZRD4 defined) */
+double hval;
+double rz,rp;
+int stepk1,stepk2,stepk3,h4nvar;
+int stepf,movrem,nrow;
+int ri,rset,rbase,rvar;
+logical hz4stop,adone,noshap,stopt;
+logical faststop;
+char cflag1,cflag2,cflag3,cflag4;
 
 void HZ4LOOP(void);
 void STPWISE(void);

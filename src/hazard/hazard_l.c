@@ -681,7 +681,7 @@ static char *yy_last_accepting_cpos;
 */
 #include <stdio.h>
 #include "hazard_y.h" /* parser defines */
-extern int yylnctr,yysynerr;
+int yylnctr,yysynerr;
 /* Regular expressions */
 /* ------------------- */
 /* start conditions make things more complicated */
