@@ -319,6 +319,7 @@ int main(void)
     RUN_TEST(test_ln_A_div_B_negative_A_sets_error);
     RUN_TEST(test_ln_A_div_B_zero_B_sets_error);
     RUN_TEST(test_ln_A_div_b_clears_previous_error);
+    RUN_TEST(test_ln_A_div_B_does_not_modify_errorno);
 
     TEST_SUITE("hzd_ln_1min_e_negeX  [log(1 - e^(-e^lnX)), boundary cases]");
     RUN_TEST(test_ln_1min_e_negeX_at_lnX_zero);

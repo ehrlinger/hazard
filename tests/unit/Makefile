@@ -201,9 +201,9 @@ coverage: $(COV_BINS)
 	@# Remove test scaffolding and system headers — keep only src/common/
 	lcov --remove coverage.info \
 	     '*/tests/unit/test_*' \
-	     '*/tests/unit/test_harness.h' \
 	     '/usr/*' \
-	     --output-file coverage.info
+	     --output-file coverage.info \
+	     --ignore-errors unused
 	genhtml coverage.info \
 	        --output-directory coverage_html \
 	        --title "HAZARD Unit Test Coverage" \

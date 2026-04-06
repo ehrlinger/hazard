@@ -1,0 +1,5 @@
+conftest.c:67:6: warning: incompatible redeclaration of library function 'pow' [-Wincompatible-library-redeclaration]
+   67 | char pow (void);
+      |      ^
+conftest.c:67:6: note: 'pow' is a builtin with type 'double (double, double)'
+1 warning generated.
