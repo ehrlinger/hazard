@@ -50,7 +50,7 @@ void alocmem(void){
   O->rstvec = hzf_memget(p_cnt*sizeof(int));
   if(hzf_mem_need>0) {
     sprintf(msgbfr,"ERROR: Insufficient memory for Stage II; "
-	    "need %ldK additional storage",hzf_mem_need/1024);
+	    "need %dK additional storage",hzf_mem_need/1024);
     hzf_log1(msgbfr);
     hzfxit("MEMORY");
   }

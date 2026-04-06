@@ -103,18 +103,22 @@ void opnfils(char *in_file_name){
 
   /* Start reading/(writing) the data file header */
   for(i=7; i; i--){
-    fread(bfr,80,1,inputDataFile);
+    if(fread(bfr,80,1,inputDataFile)!=1) {
+      /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+    }
     if(outhaz)
       fwrite(bfr,80,1,outputDataFile);
   }
 
-  fread(bfr,80,1,inputDataFile);
+  if(fread(bfr,80,1,inputDataFile)!=1) {
+    /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+  }
 
-  /* Get the number of relevent variables */
-  sscanf(&bfr[54],"%4ld",&numvars);
+  /* numvars is an int global (hzdinc.h), so parse it as %d. */
+  sscanf(&bfr[54],"%4d",&numvars);
 
 #ifndef NDEBUG
-  fprintf(stderr, "Numvars: %ld\n", numvars);
+  fprintf(stderr, "Numvars: %d\n", numvars);
   fprintf(stderr, "length of bfr: %d\n", strlen(bfr));
 #endif
 
@@ -124,7 +128,9 @@ void opnfils(char *in_file_name){
     Read in the data set
     An array of NAMESTR[numvar]
   */
-  fread(ns,sizeof(struct namestr),(size_t)numvars,inputDataFile);
+  if(fread(ns,sizeof(struct namestr),(size_t)numvars,inputDataFile)!=(size_t)numvars) {
+    /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+  }
 
   for(i=0; i<numvars; i++) {
 #ifdef __Linux__
@@ -149,6 +155,10 @@ void opnfils(char *in_file_name){
   i = 640+numvars*sizeof(struct namestr);
   i = 80-i%80;
   if(i!=80)
-    fread(bfr,(size_t)i,1,inputDataFile);
-  fread(bfr,80,1,inputDataFile);
+    if(fread(bfr,(size_t)i,1,inputDataFile)!=1) {
+      /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+    }
+  if(fread(bfr,80,1,inputDataFile)!=1) {
+    /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
+  }
 }

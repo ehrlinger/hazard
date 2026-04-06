@@ -55,7 +55,7 @@ void obsstat(void){
     hzfxpi(mdelet,5,1);
     hzfxpc("observation(s) found with missing values",40,-1);
     hzfskp(1);
-    sprintf(msgbfr,"Note: %ld observation(s) with missing values.",
+    sprintf(msgbfr,"Note: %d observation(s) with missing values.",
 	    mdelet);
     hzf_log1(msgbfr);
   }
@@ -64,7 +64,7 @@ void obsstat(void){
     hzfxpi(idelet,5,1);
     hzfxpc("observation(s) found with inadmissable",38,-1);
     hzfxpc(" values",7,0);
-    sprintf(msgbfr,"Note: %ld observation(s) with inadmissible values.",
+    sprintf(msgbfr,"Note: %d observation(s) with inadmissible values.",
 	    idelet);
     hzf_log1(msgbfr);
   }
@@ -74,7 +74,7 @@ void obsstat(void){
     hzfxpc("of which have no count of events or",35,-1);
     hzfxpc(" censored observations",22,0);
     hzfskp(1);
-    sprintf(msgbfr,"      (%ld of which have no count of events or "
+    sprintf(msgbfr,"      (%d of which have no count of events or "
 	    "censored observations.)",alldel);
     hzf_log1(msgbfr);
   } else if(delet>mdelet)
@@ -84,7 +84,7 @@ void obsstat(void){
     hzfxpi(delet,5,1);
     hzfxpc("total observations deleted",26,-1);
     hzfskp(1);
-    sprintf(msgbfr,"Note: %ld total observation(s) deleted.",delet);
+    sprintf(msgbfr,"Note: %d total observation(s) deleted.",delet);
     hzf_log1(msgbfr);
   }
   hzfskp(2);

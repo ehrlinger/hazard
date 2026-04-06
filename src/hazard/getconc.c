@@ -64,7 +64,7 @@ void getconc(void){
   }
   if(hzf_mem_need>0) {
     sprintf(msgbfr,"ERROR: Insufficient memory for Stage I; "
-	    "need %ldK additional storage",hzf_mem_need/1024);
+	    "need %dK additional storage",hzf_mem_need/1024);
     hzf_log1(msgbfr);
     hzfxit("MEMORY");
   }

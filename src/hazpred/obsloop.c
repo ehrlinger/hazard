@@ -36,12 +36,13 @@ void obsloop(void){
     errlast = FALSE;
   }
   if(C->errorno==1) {
-    sprintf(msgbfr,"ERROR: In observation %ld, a computation exceeded "
+    /* obscnt is int in this module; keep log formatting type-safe. */
+    sprintf(msgbfr,"ERROR: In observation %d, a computation exceeded "
 	    "its limits %12.12s.\n",obscnt,C->errflg);
     hzf_log1(msgbfr);
     hzf_log1("Note: Processing will continue.");
   } else if(C->errorno==2) {
-    sprintf(msgbfr,"ERROR: In observation %ld, internal sign violation, "
+    sprintf(msgbfr,"ERROR: In observation %d, internal sign violation, "
 	    "possibly data dependent %12.12s.\n",obscnt,C->errflg);
     hzf_log1(msgbfr);
     hzf_log1("Note: Processing will continue.");
