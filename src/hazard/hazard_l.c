@@ -681,7 +681,8 @@ static char *yy_last_accepting_cpos;
 */
 #include <stdio.h>
 #include "hazard_y.h" /* parser defines */
-int yylnctr,yysynerr;
+extern int yylnctr; /* defined in hazard.c via structures.h */
+int yysynerr;       /* unique to lexer; declared extern in yyparse.h */
 /* Regular expressions */
 /* ------------------- */
 /* start conditions make things more complicated */
