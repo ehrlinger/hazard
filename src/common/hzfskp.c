@@ -4,5 +4,5 @@
 
 void hzfskp(int count){
   if(!curr_xpmode) return;
-  printf("/%ld\n",count);
+  printf("/%d\n",count);
 }
