@@ -70,8 +70,8 @@ suite_failed()  { echo "  [FAIL] $1"; SUITE_FAIL=$((SUITE_FAIL + 1)); }
 suite_skipped() { echo "  [SKIP] $1 — $2"; SUITE_SKIP=$((SUITE_SKIP + 1)); }
 
 # Run a script and record its outcome.
-# Scripts that exit 0 are counted as passed; non-zero as failed.
-# Scripts that print "SKIP:" on the first line and exit 0 are skipped.
+# Scripts that exit 0 are passed unless they report "SKIP:" on line 1.
+# Non-zero exit status is a failure.
 run_suite() {
     local label="$1" script="$2"
     shift 2
@@ -86,12 +86,24 @@ run_suite() {
     printf  "║  %-40s║\n" "${label}"
     echo "╚══════════════════════════════════════════╝"
 
-    local rc=0
-    bash "${script}" "${extra_args[@]}" || rc=$?
+    local rc=0 first_line reason
+    local tmp_output
+    tmp_output="$(mktemp)"
+
+    bash "${script}" "${extra_args[@]}" >"${tmp_output}" 2>&1 || rc=$?
+    cat "${tmp_output}"
+
+    first_line="$(head -n 1 "${tmp_output}" || true)"
+    rm -f "${tmp_output}"
 
     echo ""
     if [ "${rc}" -eq 0 ]; then
-        suite_passed "${label}"
+        if [[ "${first_line}" == SKIP:* ]]; then
+            reason="${first_line#SKIP: }"
+            suite_skipped "${label}" "${reason:-suite reported skip}"
+        else
+            suite_passed "${label}"
+        fi
     else
         suite_failed "${label} (exit code ${rc})"
     fi

@@ -43,7 +43,14 @@ require_binary() {
 
 pass() { echo "  PASS: $1"; PASSED=$((PASSED + 1)); }
 fail() { echo "  FAIL: $1"; FAILURES=$((FAILURES + 1)); }
-skip() { echo "  SKIP: $1"; SKIPPED=$((SKIPPED + 1)); }
+skip() {
+    if [ $# -gt 1 ]; then
+        echo "  SKIP: $1 ($2)"
+    else
+        echo "  SKIP: $1"
+    fi
+    SKIPPED=$((SKIPPED + 1))
+}
 
 # ------------------------------------------------------------------ #
 # Extract the stepwise move sequence from a .lst file.
