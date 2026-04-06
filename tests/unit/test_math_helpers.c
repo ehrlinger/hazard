@@ -174,12 +174,6 @@ static void test_ln_A_div_B_does_not_modify_errorno(void)
     ASSERT_EQ_INT(Common.errorno, 99);  /* unchanged by successful call */
 }
 
-/* TODO: Implement test_ln_A_div_B_clears_previous_error */
-void test_ln_A_div_b_clears_previous_error(void) {
-    // This is a stub implementation for linking only.
-    // TODO: Implement actual test logic.
-}
-
 /* ================================================================== */
 /* hzd_ln_1min_e_negeX(lnX) = log(1 - e^(-e^lnX))                  */
 /*                                                                    */
@@ -318,7 +312,6 @@ int main(void)
     RUN_TEST(test_ln_A_div_B_near_one_precision);
     RUN_TEST(test_ln_A_div_B_negative_A_sets_error);
     RUN_TEST(test_ln_A_div_B_zero_B_sets_error);
-    RUN_TEST(test_ln_A_div_b_clears_previous_error);
     RUN_TEST(test_ln_A_div_B_does_not_modify_errorno);
 
     TEST_SUITE("hzd_ln_1min_e_negeX  [log(1 - e^(-e^lnX)), boundary cases]");
