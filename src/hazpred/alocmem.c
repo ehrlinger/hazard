@@ -9,6 +9,8 @@
 
 void alocmem(void){
   size_t i;
+  size_t ntheta_t;
+  size_t cov_elems;
 
   data_xv = hzf_memget(infilect*sizeof(struct xvgetstr));
   inhaz_xv = hzf_memget(nvars*sizeof(struct xvgetstr));
@@ -48,6 +50,13 @@ void alocmem(void){
   memcpy(names[6],"ALPHA   ",8);
   memcpy(names[7],"ETA     ",8);
   memcpy(names[8],"E0      ",8);
-  for(i=0; i<(size_t)(C->Ntheta*C->Ntheta); i++)
+
+  if(C->Ntheta<0) {
+    hzf_log1("ERROR: Invalid negative Ntheta in HAZPRED.");
+    hzfxit("DATA");
+  }
+  ntheta_t = (size_t)C->Ntheta;
+  cov_elems = ntheta_t*ntheta_t;
+  for(i=0; i<cov_elems; i++)
     C->cov[i] = ZERO;
 }

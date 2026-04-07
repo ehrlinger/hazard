@@ -65,7 +65,8 @@
 #include "hzpm.h"
 
 int main(void){
-  int i,j;
+  size_t i;
+  int j;
   struct namestr *k;
 
   curr_xlmode=2;
@@ -110,7 +111,7 @@ int main(void){
   xvputd(&out_ns[0],&C->obs[0]);
   if(gotID)
     xvgetd(ID_ns,id_curr);
-  for(i=9,j=1; i<C->p+9; i++) {
+  for(i=9,j=1; i<(size_t)(C->p+9); i++) {
     k = xvname(names[i]);
     if(k==NULL) {
       snprintf(msgbfr,sizeof(msgbfr),
@@ -134,7 +135,7 @@ int main(void){
   }
   if(termin)
     hzfxit("DATA");
-  for(i=0; i<(int)infilect; i++)
+  for(i=0; i<infilect; i++)
     if(buftyp[i]!=0) {
       xvgetd(&ns[i],buffer[i]);
       out_ns[j] = ns[i];

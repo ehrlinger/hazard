@@ -47,7 +47,7 @@
   else
     if(*inex[k]!=' ') {
       snprintf(msgbfr,sizeof(msgbfr),
-	       "ERROR: ORDER= and %s are mutually exclusive, variable %s in phase %s\n.",
+	       "ERROR: ORDER= and %s are mutually exclusive, variable %s in phase %s.\n",
 	       inex[k],varnam[k],phasenm);
       hzf_log1(msgbfr);
       semerr = TRUE;
