@@ -102,13 +102,36 @@ cd hazard
 # 2. Configure (default installs to /usr/local/hazard)
 ./configure
 
+# Optional developer flags:
+./configure --enable-warnings
+./configure --enable-sanitizers
+
+# On macOS, if your shell exports a broken Homebrew gcc-14 as CC,
+# configure now falls back to clang automatically.
+# Set HAZARD_KEEP_CC=1 to keep the exported compiler.
+
 # To specify a custom install directory:
 ./configure --prefix=/path/to/install
 
 # 3. Compile
 make
 
-# 4. Install
+# Or rebuild the configured tree with ASan + UBSan:
+make asan
+
+# 4. Smoke-test the built executables with staged local fixtures
+./tests/run_local_example.sh hazard
+./tests/run_local_example.sh hazpred
+
+# Keep staged temp files/logs for inspection:
+./tests/run_local_example.sh hazard --keep
+
+# Notes:
+# - The helper validates success by checking expected output artifacts.
+# - hazard fixture runs may return non-zero while still producing output;
+#   this is treated as a successful smoke test when output is present.
+
+# 5. Install
 make install
 ```
 

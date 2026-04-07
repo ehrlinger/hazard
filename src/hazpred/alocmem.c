@@ -8,7 +8,7 @@
 #include "hzfxit.h"
 
 void alocmem(void){
-  int i;
+  size_t i;
 
   data_xv = hzf_memget(infilect*sizeof(struct xvgetstr));
   inhaz_xv = hzf_memget(nvars*sizeof(struct xvgetstr));
@@ -48,6 +48,6 @@ void alocmem(void){
   memcpy(names[6],"ALPHA   ",8);
   memcpy(names[7],"ETA     ",8);
   memcpy(names[8],"E0      ",8);
-  for(i=0; i<(C->Ntheta*C->Ntheta); i++)
+  for(i=0; i<(size_t)(C->Ntheta*C->Ntheta); i++)
     C->cov[i] = ZERO;
 }

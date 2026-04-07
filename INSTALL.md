@@ -41,8 +41,10 @@ These are generic instructions for installing the HAZARD package. For more detai
 
 ## Compiler Options
 
-- `--with-warnings` — Enable extra compiler warnings
-- `--disable-assert` — Disable assertions (not recommended for development)
-- `--with-f2c`, `--with-g77`, `--with-f77=F77` — Fortran compiler options
+- `--enable-warnings` — Enable extra compiler warnings (`-Wall -Wextra -Wno-unused-parameter`)
+- `--enable-sanitizers` — Enable AddressSanitizer and UndefinedBehaviorSanitizer at configure time
+- `make asan` — Rebuild the configured tree with sanitizer flags for a quick local diagnostic build
+
+On macOS, `./configure` now ignores an exported `CC=/opt/homebrew/bin/gcc-14` and falls back to `clang`, because that shell-level compiler setting may be broken. Set `HAZARD_KEEP_CC=1` if you want to force the exported compiler anyway.
 
 For more, see `sh ./configure --help` or the [installation vignette](docs/vignettes/installation.md).

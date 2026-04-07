@@ -102,7 +102,6 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-noinst_PROGRAMS = hazpred.purify$(EXEEXT)
 bin_PROGRAMS = hazpred.exe$(EXEEXT)
 subdir = src/hazpred
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -116,7 +115,7 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
-PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
+PROGRAMS = $(bin_PROGRAMS)
 am_hazpred_exe_OBJECTS = hazpred.$(OBJEXT) hazpred_y.$(OBJEXT) \
 	hazpred_l.$(OBJEXT) initprz.$(OBJEXT) opnfils.$(OBJEXT) \
 	hazpprc.$(OBJEXT) stmtprc.$(OBJEXT) timeprc.$(OBJEXT) \
@@ -137,27 +136,6 @@ am_hazpred_exe_OBJECTS = hazpred.$(OBJEXT) hazpred_y.$(OBJEXT) \
 hazpred_exe_OBJECTS = $(am_hazpred_exe_OBJECTS)
 hazpred_exe_LDADD = $(LDADD)
 hazpred_exe_DEPENDENCIES =
-am__objects_1 = hazpred.$(OBJEXT) hazpred_y.$(OBJEXT) \
-	hazpred_l.$(OBJEXT) initprz.$(OBJEXT) opnfils.$(OBJEXT) \
-	hazpprc.$(OBJEXT) stmtprc.$(OBJEXT) timeprc.$(OBJEXT) \
-	idproc.$(OBJEXT) cntobsh.$(OBJEXT) cntobsi.$(OBJEXT) \
-	alocmem.$(OBJEXT) gethazr.$(OBJEXT) defvars.$(OBJEXT) \
-	hazverr.$(OBJEXT) fmtverr.$(OBJEXT) prederr.$(OBJEXT) \
-	getflag.$(OBJEXT) obsverr.$(OBJEXT) addvars.$(OBJEXT) \
-	obsloop.$(OBJEXT) hzpi.$(OBJEXT) hzpm.$(OBJEXT) hzpe.$(OBJEXT) \
-	hzpp.$(OBJEXT) hzpo.$(OBJEXT) hzd_calc_norinv.$(OBJEXT) \
-	hzp_init_CL.$(OBJEXT) hzp_refmt_cov.$(OBJEXT) \
-	hzp_init_preds.$(OBJEXT) hzp_pred_time_0.$(OBJEXT) \
-	hzp_calc_scale.$(OBJEXT) hzp_calc_log_fn.$(OBJEXT) \
-	hzp_calc_fn.$(OBJEXT) hzp_calc_survival.$(OBJEXT) \
-	hzp_calc_hazard.$(OBJEXT) hzp_calc_parm_drv.$(OBJEXT) \
-	hzp_calc_intcp_drv.$(OBJEXT) hzp_calc_XsX.$(OBJEXT) \
-	hzp_calc_srv_CL.$(OBJEXT) hzp_calc_haz_CL.$(OBJEXT) \
-	hzp_time_parm_drv.$(OBJEXT) hzp_calc_intcp_subr.$(OBJEXT)
-am_hazpred_purify_OBJECTS = $(am__objects_1)
-hazpred_purify_OBJECTS = $(am_hazpred_purify_OBJECTS)
-hazpred_purify_LDADD = $(LDADD)
-hazpred_purify_DEPENDENCIES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -222,8 +200,8 @@ AM_V_YACC = $(am__v_YACC_@AM_V@)
 am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 am__v_YACC_1 = 
-SOURCES = $(hazpred_exe_SOURCES) $(hazpred_purify_SOURCES)
-DIST_SOURCES = $(hazpred_exe_SOURCES) $(hazpred_purify_SOURCES)
+SOURCES = $(hazpred_exe_SOURCES)
+DIST_SOURCES = $(hazpred_exe_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -272,10 +250,8 @@ DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
-EGREP = @EGREP@
 ETAGS = @ETAGS@
 EXEEXT = @EXEEXT@
-GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -382,8 +358,6 @@ top_srcdir = @top_srcdir@
 # Create this CCLD definition (default is just $(CC)) to enable
 # the use of rational tools on the code.
 AM_CPPFLAGS = $(EXTRA_INCLUDES) -I$(top_srcdir)/src/common
-hazpred_purify_SOURCES = $(hazpred_exe_SOURCES)
-hazpred_purify_LINK = $(PURIFY) $(LINK)
 AM_LDFLAGS = -L$(top_builddir)/src/common
 LDADD = -lcommon -lm
 AM_YFLAGS = -d
@@ -420,9 +394,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/hazpred/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/hazpred/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu src/hazpred/Makefile
+	  $(AUTOMAKE) --foreign src/hazpred/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -482,9 +456,6 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-$(am__rm_f) $(bin_PROGRAMS)
-
-clean-noinstPROGRAMS:
-	-$(am__rm_f) $(noinst_PROGRAMS)
 hazpred_y.h: hazpred_y.c
 	@if test ! -f $@; then rm -f hazpred_y.c; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) hazpred_y.c; else :; fi
@@ -492,10 +463,6 @@ hazpred_y.h: hazpred_y.c
 hazpred.exe$(EXEEXT): $(hazpred_exe_OBJECTS) $(hazpred_exe_DEPENDENCIES) $(EXTRA_hazpred_exe_DEPENDENCIES) 
 	@rm -f hazpred.exe$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(hazpred_exe_OBJECTS) $(hazpred_exe_LDADD) $(LIBS)
-
-hazpred.purify$(EXEEXT): $(hazpred_purify_OBJECTS) $(hazpred_purify_DEPENDENCIES) $(EXTRA_hazpred_purify_DEPENDENCIES) 
-	@rm -f hazpred.purify$(EXEEXT)
-	$(AM_V_GEN)$(hazpred_purify_LINK) $(hazpred_purify_OBJECTS) $(hazpred_purify_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -700,8 +667,7 @@ maintainer-clean-generic:
 	-$(am__rm_f) hazpred_y.h
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-noinstPROGRAMS \
-	mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f ./$(DEPDIR)/addvars.Po
@@ -855,18 +821,18 @@ uninstall-am: uninstall-binPROGRAMS
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-am clean \
-	clean-binPROGRAMS clean-generic clean-noinstPROGRAMS \
-	cscopelist-am ctags ctags-am distclean distclean-compile \
-	distclean-generic distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-binPROGRAMS \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS
+	clean-binPROGRAMS clean-generic cscopelist-am ctags ctags-am \
+	distclean distclean-compile distclean-generic distclean-tags \
+	distdir dvi dvi-am html html-am info info-am install \
+	install-am install-binPROGRAMS install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 

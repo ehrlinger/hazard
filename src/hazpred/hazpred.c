@@ -86,7 +86,7 @@ int main(void){
     hzf_log1("ERROR: INHAZ data set has invalid observation count.");
     hzfxit("DATA");
   }
-  if((C->Ntheta+3)!=nvars){
+  if((size_t)(C->Ntheta+3)!=nvars){
     if(nvars==3){
       H->noCL = TRUE;
     }else {
@@ -113,14 +113,15 @@ int main(void){
   for(i=9,j=1; i<C->p+9; i++) {
     k = xvname(names[i]);
     if(k==NULL) {
-      sprintf(msgbfr,"ERROR: Concomitant variable %8.8s is not "
-	      "in the input data set.",names[i]);
+      snprintf(msgbfr,sizeof(msgbfr),
+	       "ERROR: Concomitant variable %8.8s is not in the input data set.",
+	       names[i]);
       hzf_log1(msgbfr);
       termin = TRUE;
     } else {
       if(k->ntype!=1) {
-	sprintf(msgbfr,"ERROR: Concomitant variable %8.8s is "
-		"not numeric.",names[i]);
+	snprintf(msgbfr,sizeof(msgbfr),
+		 "ERROR: Concomitant variable %8.8s is not numeric.",names[i]);
 	hzf_log1(msgbfr);
 	termin = TRUE;
       }
@@ -133,7 +134,7 @@ int main(void){
   }
   if(termin)
     hzfxit("DATA");
-  for(i=0; i<infilect; i++)
+  for(i=0; i<(int)infilect; i++)
     if(buftyp[i]!=0) {
       xvgetd(&ns[i],buffer[i]);
       out_ns[j] = ns[i];

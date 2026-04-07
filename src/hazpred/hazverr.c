@@ -5,7 +5,8 @@
 #include "hzfxit.h"
 
 void hazverr(int varnum){
-  sprintf(msgbfr,"ERROR: INHAZ data set variable %d is incorrect.",varnum);
+  snprintf(msgbfr,sizeof(msgbfr),
+	   "ERROR: INHAZ data set variable %d is incorrect.",varnum);
   hzf_log1(msgbfr);
   hzfxit("DATA");
 }

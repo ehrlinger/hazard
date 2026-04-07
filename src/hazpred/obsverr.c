@@ -5,8 +5,8 @@
 #include "hzfxit.h"
 
 void obsverr(int obsnum){
-  sprintf(msgbfr,"ERROR: INHAZ data set observation %d is incorrect.",
-	  obsnum);
+  snprintf(msgbfr,sizeof(msgbfr),
+	   "ERROR: INHAZ data set observation %d is incorrect.",obsnum);
   hzf_log1(msgbfr);
   hzfxit("DATA");
 }
