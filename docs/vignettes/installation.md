@@ -14,7 +14,7 @@ There are four steps to getting HAZARD running:
 3. [Install the executables](#3-install-the-binary-executables)
 4. [Set up the system and SAS environments](#4-set-up-environments)
 
-Platform-specific steps are marked **Unix** or **Windows** throughout. Unix instructions are based on Solaris but apply to all Unix variants including Linux and macOS.
+Platform-specific steps are marked **Unix** or **Windows** throughout. Unix instructions apply broadly to Linux and macOS.
 
 ---
 
@@ -47,11 +47,14 @@ HAZARD is written in ANSI C and uses Lex and Yacc for parsing. The following too
 | GNU Make | https://www.gnu.org/software/make |
 | Autoconf / Automake | https://www.gnu.org/software/autoconf |
 
-**Windows:** Install [Cygwin](https://cygwin.com) (full distribution) — it includes all required tools and no separate downloads are needed.
+**Windows:** Use [MSYS2](https://www.msys2.org) with the **UCRT64** environment.
 
 ### Build Steps
 
 ```bash
+# If building from a fresh git checkout after autotools changes:
+# autoreconf -fi
+
 # 1. Configure the build
 #    Default install path: /usr/local/hazard
 ./configure
@@ -67,10 +70,15 @@ make
 make install
 ```
 
-**Windows (Cygwin):** The recommended install prefix is `c:\hazard`:
+**Windows (MSYS2 UCRT64):** install dependencies, then build/install:
 ```bash
-./configure --prefix=//c/hazard
-make
+pacman -S --needed --noconfirm \
+  autoconf automake bison flex make \
+  mingw-w64-ucrt-x86_64-gcc
+
+autoreconf -fi
+./configure --prefix="$PWD/dist/hazard"
+make -j"$(nproc)"
 make install
 ```
 
@@ -176,7 +184,21 @@ The `-noxwait` option prevents SAS from leaving a DOS command window open after 
 
 ## Testing the Installation
 
-Run any example program to verify everything is working:
+Run a quick local executable smoke test:
+
+```bash
+./tests/run_local_example.sh hazard
+./tests/run_local_example.sh hazpred
+```
+
+Optionally run the integration test runner (skipping memory and concurrent suites for a fast check):
+
+```bash
+HAZARD_BIN=$PWD/src/hazard/hazard.exe \
+  bash tests/run_all_tests.sh --integration-only --skip-memory --skip-concurrent
+```
+
+Then run any example program from SAS:
 
 ```sas
 %include '!HZEXAMPLES/hm.death.AVC.sas';
