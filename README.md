@@ -21,7 +21,7 @@ HAZARD is a statistical computing package developed at [Cleveland Clinic](https:
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
     - [From Source (Unix/Linux/macOS)](#from-source-unixlinuxmacos)
-    - [From Source (Windows via Cygwin)](#from-source-windows-via-cygwin)
+    - [From Source (Windows via MSYS2)](#from-source-windows-via-msys2)
     - [From Binary Distribution](#from-binary-distribution)
   - [Environment Setup](#environment-setup)
     - [Unix/Linux/macOS](#unixlinuxmacos)
@@ -102,6 +102,9 @@ cd hazard
 # 2. Configure (default installs to /usr/local/hazard)
 ./configure
 
+# If building from a fresh git checkout after autotools changes:
+# autoreconf -fi
+
 # Optional developer flags:
 ./configure --enable-warnings
 ./configure --enable-sanitizers
@@ -137,13 +140,27 @@ make install
 
 If you are building on a platform not previously tested, please report your experience to [hazard@bio.ri.ccf.org](mailto:hazard@bio.ri.ccf.org) with the platform details.
 
-### From Source (Windows via Cygwin)
+### From Source (Windows via MSYS2)
 
-Install the full [Cygwin](https://cygwin.com) distribution, then build as above. The recommended install prefix under Cygwin is `c:\hazard`:
+Windows source builds are supported via **MSYS2 UCRT64** (same toolchain used in CI releases).
+
+1. Install [MSYS2](https://www.msys2.org) and open the **MSYS2 UCRT64** shell.
+2. Install build dependencies:
 
 ```bash
-./configure --prefix=//c/hazard
-make
+pacman -S --needed --noconfirm \
+  autoconf automake bison flex make \
+  mingw-w64-ucrt-x86_64-gcc
+```
+
+3. Build and install:
+
+```bash
+# Run this when building from git source after autotools edits
+autoreconf -fi
+
+./configure --prefix="$PWD/dist/hazard"
+make -j"$(nproc)"
 make install
 ```
 
@@ -162,7 +179,8 @@ This creates a `hazard/` directory with the standard layout.
 
 Extract the `.zip` distribution with your preferred archive tool to a root directory such as `C:\`. The distribution must be extracted to a root-level directory due to path length constraints.
 
-Official Windows binary distributions are available only from:
+Official release archives (including Windows `.zip`) are published in GitHub Releases for this repository.
+Legacy downloads may also exist at:
 https://www.lerner.ccf.org/quantitative-health/software/
 
 ### Verify Release Checksums
@@ -232,14 +250,19 @@ A system restart may be required for the variables to take effect.
 
 ### SAS Configuration
 
-Add the `HAZAPPS` directory to the `sasautos` path in your SAS configuration file (`sasv8.cfg` or equivalent).
+HAZARD integrates with SAS via its autocall macro library. You must add `HAZAPPS` to the `sasautos` path in your SAS configuration file (`sasv8.cfg`, `sasv9.cfg`, or similar).
 
-**Unix** (`~/sasv8.cfg`):
+**Locate your SAS config file:**
+
+- **Unix:** `~/sasv?.cfg` (in your home directory)
+- **Windows:** `C:\Program Files\SAS Institute\SAS\V8\` or `My Documents\My SAS Files\V8\`. Search for `sas*.cfg` if unsure.
+
+**Unix** — edit `sasautos` to add `!HAZAPPS`:
 ```
 -sasautos ( '!SASROOT8/sasautos' '!HAZAPPS' )
 ```
 
-**Windows** (`sasv9.cfg`):
+**Windows** — edit `sasautos` and add `-noxwait`:
 ```sas
 -SET SASAUTOS (
   "!sasroot\core\sasmacro"
@@ -253,6 +276,23 @@ Add the `HAZAPPS` directory to the `sasautos` path in your SAS configuration fil
 ```
 
 The `-noxwait` option prevents SAS from leaving a DOS window open after each external call.
+
+---
+
+## Build Verification
+
+After building from source, you can run the test suite runner directly:
+
+```bash
+# Unit tests
+make -C tests/unit clean all check
+
+# Integration-only run (skip memory/concurrency suites)
+HAZARD_BIN=$PWD/src/hazard/hazard.exe \
+  bash tests/run_all_tests.sh --integration-only --skip-memory --skip-concurrent
+```
+
+If your shell exports a missing compiler path (for example `CC=/opt/homebrew/bin/gcc-14`), override test builds with `CC=cc`.
 
 ---
 

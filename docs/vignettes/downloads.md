@@ -15,15 +15,19 @@ HAZARD runs from within SAS®. Macros and installation instructions are included
 
 ## Binary Distributions
 
-Pre-compiled binaries are available for the following platforms:
+Pre-compiled release artifacts are published in GitHub Releases for this repository.
 
-| Platform | Notes |
+Typical artifact names:
+
+| Platform | Artifact pattern |
 |---|---|
-| IBM AIX | Contact [hazard@bio.ri.ccf.org](mailto:hazard@bio.ri.ccf.org) |
-| SUN Solaris | `hazard.solaris.tar.gz` |
-| Microsoft Windows | `hazard.win.zip` |
+| Linux x64 | `hazard-vX.Y.Z-linux-x64.tar.gz` |
+| Linux arm64 | `hazard-vX.Y.Z-linux-arm64.tar.gz` |
+| macOS x64 | `hazard-vX.Y.Z-macos-x64.tar.gz` |
+| macOS arm64 | `hazard-vX.Y.Z-macos-arm64.tar.gz` |
+| Windows x64 | `hazard-vX.Y.Z-windows-x64.zip` |
 
-> Binary packages have been compiled, linked, and tested on the platforms listed above. For other platforms, compile from source.
+Legacy binary packages may still be available via Cleveland Clinic contact channels.
 
 ### Installing a Binary Distribution
 
@@ -41,7 +45,7 @@ This creates a `hazard/` directory with the [standard layout](installation.md#3-
 
 **Windows:**
 
-Extract `hazard.win.zip` to a root-level directory such as `C:\`. The package must be placed at the root due to path length constraints. This creates `C:\hazard\` with the standard layout.
+Extract the Windows release `.zip` (for example `hazard-vX.Y.Z-windows-x64.zip`) to a root-level directory such as `C:\`. This creates a `hazard\` tree with the [standard layout](installation.md#3-install-the-binary-executables).
 
 After unpacking, proceed to [environment setup](installation.md#4-set-up-environments).
 
@@ -49,7 +53,7 @@ After unpacking, proceed to [environment setup](installation.md#4-set-up-environ
 
 ## Source Code Distribution
 
-The C source code compiles on any platform with a standard ANSI C toolchain. Known working platforms beyond Windows and Solaris include Linux and macOS.
+The C source code compiles on platforms with a standard C toolchain and Autotools.
 
 ### Build Requirements
 
@@ -59,14 +63,15 @@ The C source code compiles on any platform with a standard ANSI C toolchain. Kno
 | Flex | https://www.gnu.org/software/flex |
 | Bison | https://www.gnu.org/software/bison |
 | Autoconf / Automake | https://www.gnu.org/software/autoconf |
+| GNU Make | https://www.gnu.org/software/make |
 
-**Windows:** Install [Cygwin](https://cygwin.com) (full distribution) — includes all required tools.
+**Windows:** Use [MSYS2](https://www.msys2.org) in the UCRT64 environment.
 
 ### Getting the Source
 
 Clone from GitHub:
 ```bash
-git clone https://github.com/your-org/hazard.git
+git clone https://github.com/ehrlinger/hazard.git
 ```
 
 Or download the gzipped tar archive: `hazard-latest.tar.gz`
