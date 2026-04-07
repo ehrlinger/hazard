@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-AC_PREREQ([2.72])
+AC_PREREQ([2.69])
 # AC_INIT must be the first thing done.
 # AC_INIT([Hazard_Package],[4.3.0])
 AC_INIT([Hazard_Package],[4.3.1])
