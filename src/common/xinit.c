@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "sas.h"
 #include "structures.h"
@@ -7,19 +8,19 @@
 #define NDEBUG
 
 void xinit(void){
-  int pos;
+  size_t pos;
   double td;
   unsigned char ts[sizeof(double)];
   
-  int size = (9*sizeof(short) + 3*sizeof(charVarName)+sizeof(charLabel)+
-	      sizeof(int)+54*sizeof(char));
+  size_t size = (9*sizeof(short) + 3*sizeof(charVarName)+sizeof(charLabel)+
+		 sizeof(int)+54*sizeof(char));
 
   /* Sanity check of NAMESTR size */
   if(sizeof(struct namestr)!=size){
 #ifndef NDEBUG
-    fprintf(stderr, "Size of NAMESTR: %d\n", 
+  fprintf(stderr, "Size of NAMESTR: %zu\n",
 	    sizeof(struct namestr));
-    fprintf(stderr, "Calculated Size of NAMESTR: %d\n", size);
+  fprintf(stderr, "Calculated Size of NAMESTR: %zu\n", size);
 #endif /* NDEBUG */
     hzfxit("NAMESTR sizing");
   }

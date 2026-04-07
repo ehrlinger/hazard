@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "hazpred.h"
 #include "common.h"
@@ -36,15 +37,17 @@ void obsloop(void){
     errlast = FALSE;
   }
   if(C->errorno==1) {
-    /* obscnt is int in this module; keep log formatting type-safe. */
-    sprintf(msgbfr,"ERROR: In observation %d, a computation exceeded "
-	    "its limits %12.12s.\n",obscnt,C->errflg);
+    snprintf(msgbfr,sizeof(msgbfr),
+	     "ERROR: Observation %d exceeded limits %12.12s.",
+	     obscnt,C->errflg);
     hzf_log1(msgbfr);
     hzf_log1("Note: Processing will continue.");
   } else if(C->errorno==2) {
-    sprintf(msgbfr,"ERROR: In observation %d, internal sign violation, "
-	    "possibly data dependent %12.12s.\n",obscnt,C->errflg);
+    snprintf(msgbfr,sizeof(msgbfr),
+	     "ERROR: Observation %d had sign violation %12.12s.",
+	     obscnt,C->errflg);
     hzf_log1(msgbfr);
+    hzf_log1("Note: The error may be data dependent.");
     hzf_log1("Note: Processing will continue.");
   }
   if((C->errorno!=0 && C->errorno!=3) || !H->Sflag) {

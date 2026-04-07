@@ -65,7 +65,8 @@
 #include "hzpm.h"
 
 int main(void){
-  int i,j;
+  size_t i;
+  int j;
   struct namestr *k;
 
   curr_xlmode=2;
@@ -86,7 +87,7 @@ int main(void){
     hzf_log1("ERROR: INHAZ data set has invalid observation count.");
     hzfxit("DATA");
   }
-  if((C->Ntheta+3)!=nvars){
+  if((size_t)(C->Ntheta+3)!=nvars){
     if(nvars==3){
       H->noCL = TRUE;
     }else {
@@ -110,17 +111,18 @@ int main(void){
   xvputd(&out_ns[0],&C->obs[0]);
   if(gotID)
     xvgetd(ID_ns,id_curr);
-  for(i=9,j=1; i<C->p+9; i++) {
+  for(i=9,j=1; i<(size_t)(C->p+9); i++) {
     k = xvname(names[i]);
     if(k==NULL) {
-      sprintf(msgbfr,"ERROR: Concomitant variable %8.8s is not "
-	      "in the input data set.",names[i]);
+      snprintf(msgbfr,sizeof(msgbfr),
+	       "ERROR: Concomitant variable %8.8s is not in the input data set.",
+	       names[i]);
       hzf_log1(msgbfr);
       termin = TRUE;
     } else {
       if(k->ntype!=1) {
-	sprintf(msgbfr,"ERROR: Concomitant variable %8.8s is "
-		"not numeric.",names[i]);
+	snprintf(msgbfr,sizeof(msgbfr),
+		 "ERROR: Concomitant variable %8.8s is not numeric.",names[i]);
 	hzf_log1(msgbfr);
 	termin = TRUE;
       }

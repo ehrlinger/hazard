@@ -72,14 +72,14 @@ void stpwprc(void){
   if(stmtopts(25))
     H->npq = 1;
   if(notspec(34))
-    H->mxstep = LONG_MAX;
+    H->mxstep = INT_MAX;
   else {
     temp_fl = stmtfld(34);
     if(temp_fl<ZERO) {
       hzf_log1("ERROR: NEGATIVE MAXSTEPS SPECIFIED.");
       hzfxit("SEMANTIC");
     } else
-      H->mxstep = temp_fl;
+      H->mxstep = temp_fl>(double)INT_MAX ? INT_MAX : (int)temp_fl;
   }
   if(notspec(35))
     H->mxvars = 0;

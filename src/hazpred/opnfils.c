@@ -7,12 +7,14 @@
 #include "stmtfldname.h"
 #include "hazpred.h"
 #include "hzfxit.h"
+#include "hzf_log1.h"
 #include "hzf_memget.h"
 #define __Linux__
 
 void opnfils(void){
   char bfr[80],pfx[80],*ptr;
   size_t i;
+  int field_count;
 
   if(NULL==(ptr = getenv("TMPDIR")))
     if(NULL==(ptr = getenv("TEMPDIR")))
@@ -70,11 +72,19 @@ void opnfils(void){
   if(fread(bfr,80,1,infile)!=1) {
     /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
   }
-  sscanf(&bfr[54],"%4d",&infilect);
+  if(sscanf(&bfr[54],"%4d",&field_count)!=1 || field_count<0) {
+    hzf_log1("ERROR: INFILE data set header has invalid field count.");
+    hzfxit("DATA");
+  }
+  infilect = (size_t)field_count;
   if(fread(bfr,80,1,hazfile)!=1) {
     /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
   }
-  sscanf(&bfr[54],"%4d",&nvars);
+  if(sscanf(&bfr[54],"%4d",&field_count)!=1 || field_count<0) {
+    hzf_log1("ERROR: INHAZ data set header has invalid field count.");
+    hzfxit("DATA");
+  }
+  nvars = (size_t)field_count;
 
   data_ns = (struct namestr *)hzf_memget(sizeof(struct namestr)*infilect);
   inhaz_ns = (struct namestr *)hzf_memget(sizeof(struct namestr)*nvars);
