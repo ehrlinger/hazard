@@ -13,7 +13,8 @@
 extern char msgbfr[80];
 
 int yyerror(char *str){
-  sprintf(msgbfr,"ERROR: %s parse error (%s)\n",PACKAGE,str);
+  snprintf(msgbfr,sizeof(msgbfr),
+	   "ERROR: %s parse error (%s)\n",PACKAGE,str);
   hzf_log1(msgbfr);
   yysynerr = 1;
   return(yysynerr);

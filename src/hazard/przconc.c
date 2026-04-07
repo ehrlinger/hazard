@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "hazard.h"
 #include <notspec.h>
@@ -23,9 +24,9 @@
     nomovs[k] = stmtfld(3);
     if(nomovs[k]>1 && O->nosw) {
       nomovs[k] = 1;
-      sprintf(msgbfr,"Note: MOVE for %s in %s phase "
-	      "reset to 1 due to NOSTEPWISE.",varnam[k],
-	      faze[k]);
+      snprintf(msgbfr,sizeof(msgbfr),
+	       "Note: MOVE for %s in %s phase reset to 1 due to NOSTEPWISE.",
+	       varnam[k],faze[k]);
       hzf_log1(msgbfr);
     }
   }
@@ -45,8 +46,9 @@
     O->swordr[k] = O->ordmax;
   else
     if(*inex[k]!=' ') {
-      sprintf(msgbfr,"ERROR: ORDER= and %s are mutually exclusive, "
-	      "variable %s in phase %s\n.",inex[k],varnam[k],phasenm);
+      snprintf(msgbfr,sizeof(msgbfr),
+	       "ERROR: ORDER= and %s are mutually exclusive, variable %s in phase %s\n.",
+	       inex[k],varnam[k],phasenm);
       hzf_log1(msgbfr);
       semerr = TRUE;
     } else {

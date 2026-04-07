@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "hazard.h"
 #include "hazrerr.h"
@@ -36,8 +37,9 @@ void hzrbomb(void){
     C->errorno = 2;
     hazrerr();
   } else {
-    sprintf(msgbfr,"ERROR: Low-level error trap sprung, catching %12.12s",
-	    C->errflg);
+    snprintf(msgbfr,sizeof(msgbfr),
+	     "ERROR: Low-level error trap sprung, catching %12.12s",
+	     C->errflg);
     hzf_log1(msgbfr);
     hzf_log1("      Please report this problem to authors immediately!");
     xexit(16);

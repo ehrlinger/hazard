@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <hzdinc.h>
 #include <hzf_memget.h>
@@ -49,8 +50,9 @@ void alocmem(void){
   O->orders = hzf_memget(p_cnt*sizeof(double));
   O->rstvec = hzf_memget(p_cnt*sizeof(int));
   if(hzf_mem_need>0) {
-    sprintf(msgbfr,"ERROR: Insufficient memory for Stage II; "
-	    "need %dK additional storage",hzf_mem_need/1024);
+    snprintf(msgbfr,sizeof(msgbfr),
+	     "ERROR: Insufficient memory for Stage II; need %dK additional storage",
+	     hzf_mem_need/1024);
     hzf_log1(msgbfr);
     hzfxit("MEMORY");
   }

@@ -8,12 +8,13 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.72])
 # AC_INIT must be the first thing done.
-# AC_INIT(Hazard_Package, 4.3.0)
-AC_INIT([Hazard_Package], [4.3.1])
-AC_CONFIG_SRCDIR([./])
-AM_INIT_AUTOMAKE
+# AC_INIT([Hazard_Package],[4.3.0])
+AC_INIT([Hazard_Package],[4.3.1])
+AC_CONFIG_SRCDIR([README.md])
+AC_CANONICAL_TARGET
+AM_INIT_AUTOMAKE([foreign])
 
 # Set version numbers, these are used to define the VERSION
 # macro in the config.h file. We use this to increment versioning.
@@ -31,7 +32,7 @@ maindir='${prefix}'
 docsdir='${prefix}/docs'
 docs_userguidesdir='${docsdir}/user_guides'
 docs_hazardfilesdir='${docs_userguidesdir}/hazard_files'
-docs_overviewfilesdir='${docs_userguidesdir}/overview_files'
+docs_overviewdir='${docs_userguidesdir}/overview_files'
 docs_hazpredfilesdir='${docs_userguidesdir}/hazpred_files'
 
 # This is for the hazard package support macros
@@ -62,9 +63,8 @@ AC_SUBST(examples_ihddir)
 AC_SUBST(examples_outputdir)
 
 # Dump a message saying what we are doing.
-echo "configuring the Hazard $MAJ_VER.$MIN_VER.$MIC_VER system"
+AC_MSG_NOTICE([configuring the Hazard $MAJ_VER.$MIN_VER.$MIC_VER system])
 
-AC_CANONICAL_SYSTEM
 AC_SUBST(MAJ_VER)dnl
 AC_SUBST(MIN_VER)dnl
 AC_SUBST(MIC_VER)dnl
@@ -73,62 +73,63 @@ AC_SUBST(MIC_VER)dnl
 #AM_INIT_AUTOMAKE(hazard,$MAJ_VER.$MIN_VER.$MIC_VER)
 
 # Save version and package information in the config.h file
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
-# Look for the C compiler.
+# Optional developer-oriented build flags.
+AC_ARG_ENABLE([warnings],
+  [AS_HELP_STRING([--enable-warnings],
+    [enable extra compiler warnings (-Wall -Wextra -Wno-unused-parameter)])],
+  [enable_warnings=$enableval],
+  [enable_warnings=no])
+
+AC_ARG_ENABLE([sanitizers],
+  [AS_HELP_STRING([--enable-sanitizers],
+    [enable AddressSanitizer and UndefinedBehaviorSanitizer])],
+  [enable_sanitizers=$enableval],
+  [enable_sanitizers=no])
+
+AS_IF([test "x$enable_warnings" = "xyes"], [
+  CFLAGS="$CFLAGS -Wall -Wextra -Wno-unused-parameter"
+])
+
+AS_IF([test "x$enable_sanitizers" = "xyes"], [
+  CFLAGS="$CFLAGS -fsanitize=address,undefined -fno-omit-frame-pointer"
+  LDFLAGS="$LDFLAGS -fsanitize=address,undefined -fno-omit-frame-pointer"
+])
+
+# Prefer clang on macOS unless the user selected CC explicitly.
+AS_IF([test -z "$CC"], [
+  case $host_os in
+    *darwin* ) AC_CHECK_PROGS([CC], [clang gcc cc], [cc]);;
+  esac
+])
+
+# Work around shells that export a broken Homebrew gcc-14 on macOS.
+# Allow opting out by setting HAZARD_KEEP_CC=1.
+AS_IF([test "x$host_os" != "x"], [
+  case $host_os in
+    *darwin* )
+      AS_IF([test "x$CC" = "x/opt/homebrew/bin/gcc-14" && test "x$HAZARD_KEEP_CC" != "x1"], [
+        AC_MSG_WARN([ignoring CC=/opt/homebrew/bin/gcc-14 on macOS and falling back to clang; set HAZARD_KEEP_CC=1 to keep it])
+        CC=clang
+      ])
+      ;;
+  esac
+])
+
+# Look for the build tools.
 AC_PROG_CC
 AC_PROG_CPP
-AC_AIX
-AC_ISC_POSIX
-AC_MINIX
-AC_HEADER_STDC
+AC_USE_SYSTEM_EXTENSIONS
+AC_PROG_INSTALL
+AC_PROG_RANLIB
+AM_PROG_LEX([noyywrap])
+AC_PROG_YACC
+AC_C_BIGENDIAN
+AC_EXEEXT
 
 # Checks for header files.
 AC_FUNC_ALLOCA
-AC_HEADER_STDC
-AC_CHECK_HEADERS([float.h limits.h malloc.h memory.h stdlib.h string.h unistd.h])
-
-# Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
-AC_TYPE_SIZE_T
-
-# Checks for library functions.
-AC_FUNC_MALLOC
-AC_FUNC_MEMCMP
-AC_FUNC_REALLOC
-AC_CHECK_FUNCS([floor memset pow sqrt strchr strspn])
-
-#AC_PROG_LIBTOOL
-
-# We don't need C++ for the hazard package... yet.
-#
-# This macro calls
-#	AC_PROG_CXX
-# 	AC_PROG_CXXCPP
-
-# Checks for libraries.
-# FIXME: Replace `main' with a function in `-lcommon':
-#AC_CHECK_LIB([common], [hzd_Error])
-# FIXME: Replace `main' with a function in `-lllike':
-#AC_CHECK_LIB([llike], [setcoe])
-# FIXME: Replace `main' with a function in `-lmodel':
-#AC_CHECK_LIB([model], [DTRSMU_mu_to_theta])
-# FIXME: Replace `main' with a function in `-loptim':
-#AC_CHECK_LIB([optim], [setoptim])
-# FIXME: Replace `main' with a function in `-lstat':
-#AC_CHECK_LIB([stat], [NORMAL])
-# FIXME: Replace `main' with a function in `-lutils':
-#AC_CHECK_LIB([utils], [hzr_set_error])
-# FIXME: Replace `main' with a function in `-lvars':
-#AC_CHECK_LIB([vars], [BACKW])
-# FIXME: Replace `main' with a function in `-lvcov':
-#AC_CHECK_LIB([vcov], [DAGRAD])
-# FIXME: Replace `main' with a function in `-lm':
-AC_CHECK_LIB([m], [pow])
-
-# Checks for header files.
-AC_FUNC_ALLOCA
-AC_HEADER_STDC
 AC_CHECK_HEADERS([float.h limits.h malloc.h memory.h stdlib.h string.h strings.h unistd.h math.h stdio.h asm/byteorder.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -139,10 +140,9 @@ AC_TYPE_SIZE_T
 AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([floor memset pow sqrt strchr])
-
-# Look for the C compiler.
-AC_PROG_CC
+AC_SEARCH_LIBS([pow], [m])
+AC_SEARCH_LIBS([strerror], [cposix])
+AC_CHECK_FUNCS([floor memset pow sqrt strchr strspn])
 
 # Are we on CYGWIN?
 #
@@ -150,7 +150,11 @@ AC_PROG_CC
 # variable defined. PC/SAS opens a execution window and it
 # would be nice to dump some execution information to tell the
 # user something is happening.
-#AC_CYGWIN
+case $host_os in
+  *cygwin* ) CYGWIN=yes;;
+  * ) CYGWIN=no;;
+esac
+
 AC_CHECK_LIB([automode], [automode_create_write_struct_2])
 
 # Then test:
@@ -158,24 +162,6 @@ AS_IF([test "$ac_cv_lib_automode_automode_create_write_struct_2" = yes], [HAVE_A
 
 # Or set conditional:
 AM_CONDITIONAL([USE_LIBPNG], [test "$ac_cv_lib_automode_automode_create_write_struct_2" = yes])
-
-# What install program?
-AC_PROG_INSTALL
-
-# We are making libraries.
-AC_PROG_RANLIB
-
-# What LEX program?
-AM_PROG_LEX
-
-# What YACC program?
-AC_PROG_YACC
-
-# To determine endianness.
-AC_C_BIGENDIAN
-
-# To make sure we get the correct extension naming
-AC_EXEEXT
 
 # Change the default installation directory. Since most users
 # are not admins... We may change this later. Right now point it to

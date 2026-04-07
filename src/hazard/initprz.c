@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 /* Comment out this statement to print debugging messages to the
    stderr stream. This statement effects this file only */
@@ -28,9 +29,9 @@ void initprz(void){
      configure script.
   */
 
-  char version[128];
-  char version_text[128] = "Note: Procedure HAZARD (C-Version ";
-  sprintf(version, "%s)",VERSION);
+  char version_text[128];
+  snprintf(version_text, sizeof(version_text),
+	   "Note: Procedure HAZARD (C-Version %s)", VERSION);
 
   /*
     yyparse parses the input command file (.sas) supplied to the 
@@ -66,7 +67,7 @@ void initprz(void){
   /* Dump a run header */
   hzf_log1(" ");
   
-  hzf_log1(strcat(version_text, version));
+  hzf_log1(version_text);
 #ifdef HAZOPTIM
   hzf_log1("      Optimized version");
 #endif

@@ -13,6 +13,7 @@
 void opnfils(void){
   char bfr[80],pfx[80],*ptr;
   size_t i;
+  int field_count;
 
   if(NULL==(ptr = getenv("TMPDIR")))
     if(NULL==(ptr = getenv("TEMPDIR")))
@@ -70,11 +71,13 @@ void opnfils(void){
   if(fread(bfr,80,1,infile)!=1) {
     /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
   }
-  sscanf(&bfr[54],"%4d",&infilect);
+  sscanf(&bfr[54],"%4d",&field_count);
+  infilect = (size_t)field_count;
   if(fread(bfr,80,1,hazfile)!=1) {
     /* Preserve legacy flow; downstream read/parse checks remain unchanged. */
   }
-  sscanf(&bfr[54],"%4d",&nvars);
+  sscanf(&bfr[54],"%4d",&field_count);
+  nvars = (size_t)field_count;
 
   data_ns = (struct namestr *)hzf_memget(sizeof(struct namestr)*infilect);
   inhaz_ns = (struct namestr *)hzf_memget(sizeof(struct namestr)*nvars);

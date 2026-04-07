@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "hazard.h"
 
@@ -119,8 +120,9 @@ void alocwrk(void){
   memory = basopt>bascov ? basopt : bascov;
   Work = hzf_memget(memory*sizeof(double));
   if(hzf_mem_need>0) {
-    sprintf(msgbfr,"ERROR: Insufficient memory for Stage III; "
-	    "need %dK additional storage",hzf_mem_need/1024);
+    snprintf(msgbfr,sizeof(msgbfr),
+	     "ERROR: Insufficient memory for Stage III; need %dK additional storage",
+	     hzf_mem_need/1024);
     hzf_log1(msgbfr);
     hzfxit("MEMORY");
   }
