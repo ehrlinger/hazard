@@ -1,7 +1,7 @@
 # HAZARD
 
 [![CI](https://github.com/ehrlinger/hazard/actions/workflows/ci.yml/badge.svg)](https://github.com/ehrlinger/hazard/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/ehrlinger/hazard/branch/master/graph/badge.svg)](https://codecov.io/gh/ehrlinger/hazard)
+[![codecov](https://codecov.io/gh/ehrlinger/hazard/branch/main/graph/badge.svg)](https://codecov.io/gh/ehrlinger/hazard)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 **Parametric hazard analysis for time-to-event data.**
