@@ -102,7 +102,6 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-noinst_PROGRAMS = hazard.purify$(EXEEXT)
 bin_PROGRAMS = hazard.exe$(EXEEXT)
 subdir = src/hazard
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -116,7 +115,7 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
-PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
+PROGRAMS = $(bin_PROGRAMS)
 am_hazard_exe_OBJECTS = alocmem.$(OBJEXT) hazard.$(OBJEXT) \
 	hazrerr.$(OBJEXT) memclc1.$(OBJEXT) readc1.$(OBJEXT) \
 	readwt.$(OBJEXT) setrisk.$(OBJEXT) wghtprc.$(OBJEXT) \
@@ -150,40 +149,6 @@ am_hazard_exe_OBJECTS = alocmem.$(OBJEXT) hazard.$(OBJEXT) \
 hazard_exe_OBJECTS = $(am_hazard_exe_OBJECTS)
 hazard_exe_LDADD = $(LDADD)
 hazard_exe_DEPENDENCIES =
-am__objects_1 = alocmem.$(OBJEXT) hazard.$(OBJEXT) hazrerr.$(OBJEXT) \
-	memclc1.$(OBJEXT) readc1.$(OBJEXT) readwt.$(OBJEXT) \
-	setrisk.$(OBJEXT) wghtprc.$(OBJEXT) alocwrk.$(OBJEXT) \
-	hazpprc.$(OBJEXT) hzrbomb.$(OBJEXT) memclc2.$(OBJEXT) \
-	readc2.$(OBJEXT) setconc.$(OBJEXT) setstat.$(OBJEXT) \
-	cntobs.$(OBJEXT) opnfils.$(OBJEXT) hzri.$(OBJEXT) \
-	readc3.$(OBJEXT) setidxs.$(OBJEXT) stmtprc.$(OBJEXT) \
-	evntprc.$(OBJEXT) hazrd2.$(OBJEXT) icnsprc.$(OBJEXT) \
-	parmprc.$(OBJEXT) readct.$(OBJEXT) setobs.$(OBJEXT) \
-	stpwprc.$(OBJEXT) finprmx.$(OBJEXT) hazrd3.$(OBJEXT) \
-	initprz.$(OBJEXT) phasidx.$(OBJEXT) readlc.$(OBJEXT) \
-	setparmno.$(OBJEXT) theta_x.$(OBJEXT) getconc.$(OBJEXT) \
-	hazrd4.$(OBJEXT) lcnsprc.$(OBJEXT) przconc.$(OBJEXT) \
-	readobs.$(OBJEXT) setprmf.$(OBJEXT) timeprc.$(OBJEXT) \
-	getrisk.$(OBJEXT) rcnsprc.$(OBJEXT) readt.$(OBJEXT) \
-	set_restrict.$(OBJEXT) vfynvar.$(OBJEXT) hazard_y.$(OBJEXT) \
-	hazard_l.$(OBJEXT) hzrg.$(OBJEXT) varsrpt.$(OBJEXT) \
-	concrpt.$(OBJEXT) results.$(OBJEXT) obsstat.$(OBJEXT) \
-	vrpt.$(OBJEXT) vrpt_l.$(OBJEXT) vrpt_d.$(OBJEXT) \
-	vrpt_dl.$(OBJEXT) vput.$(OBJEXT) vput_l.$(OBJEXT) \
-	vput_d.$(OBJEXT) vput_dl.$(OBJEXT) varterm.$(OBJEXT) \
-	varnote.$(OBJEXT) crpt.$(OBJEXT) crpt_d.$(OBJEXT) \
-	crpt_l.$(OBJEXT) crpt_dl.$(OBJEXT) cput.$(OBJEXT) \
-	cput_v.$(OBJEXT) cput_d.$(OBJEXT) cput_l.$(OBJEXT) \
-	cput_dl.$(OBJEXT) cput_vv.$(OBJEXT) outmods.$(OBJEXT) \
-	outemod.$(OBJEXT) outcmod.$(OBJEXT) outlmod.$(OBJEXT) \
-	outflgs.$(OBJEXT) cmpmeth.$(OBJEXT) modterm.$(OBJEXT) \
-	ismuchg.$(OBJEXT) outflag.$(OBJEXT) outequn.$(OBJEXT) \
-	outparm.$(OBJEXT) writeOutputDatafile.$(OBJEXT) \
-	shape.$(OBJEXT)
-am_hazard_purify_OBJECTS = $(am__objects_1)
-hazard_purify_OBJECTS = $(am_hazard_purify_OBJECTS)
-hazard_purify_LDADD = $(LDADD)
-hazard_purify_DEPENDENCIES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -268,8 +233,8 @@ AM_V_YACC = $(am__v_YACC_@AM_V@)
 am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 am__v_YACC_1 = 
-SOURCES = $(hazard_exe_SOURCES) $(hazard_purify_SOURCES)
-DIST_SOURCES = $(hazard_exe_SOURCES) $(hazard_purify_SOURCES)
+SOURCES = $(hazard_exe_SOURCES)
+DIST_SOURCES = $(hazard_exe_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -318,10 +283,8 @@ DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
-EGREP = @EGREP@
 ETAGS = @ETAGS@
 EXEEXT = @EXEEXT@
-GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -428,8 +391,6 @@ top_srcdir = @top_srcdir@
 # Create this CCLD definition (default is just $(CC)) to enable
 # the use of rational tools on the code.
 AM_YFLAGS = -d
-hazard_purify_SOURCES = $(hazard_exe_SOURCES)
-hazard_purify_LINK = $(PURIFY) $(LINK)
 
 # The standard build rules
 # included header files from the source location
@@ -502,9 +463,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/hazard/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/hazard/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu src/hazard/Makefile
+	  $(AUTOMAKE) --foreign src/hazard/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -564,9 +525,6 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-$(am__rm_f) $(bin_PROGRAMS)
-
-clean-noinstPROGRAMS:
-	-$(am__rm_f) $(noinst_PROGRAMS)
 hazard_y.h: hazard_y.c
 	@if test ! -f $@; then rm -f hazard_y.c; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) hazard_y.c; else :; fi
@@ -574,10 +532,6 @@ hazard_y.h: hazard_y.c
 hazard.exe$(EXEEXT): $(hazard_exe_OBJECTS) $(hazard_exe_DEPENDENCIES) $(EXTRA_hazard_exe_DEPENDENCIES) 
 	@rm -f hazard.exe$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(hazard_exe_OBJECTS) $(hazard_exe_LDADD) $(LIBS)
-
-hazard.purify$(EXEEXT): $(hazard_purify_OBJECTS) $(hazard_purify_DEPENDENCIES) $(EXTRA_hazard_purify_DEPENDENCIES) 
-	@rm -f hazard.purify$(EXEEXT)
-	$(AM_V_GEN)$(hazard_purify_LINK) $(hazard_purify_OBJECTS) $(hazard_purify_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -826,8 +780,7 @@ maintainer-clean-generic:
 	-$(am__rm_f) hazard_y.h
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-noinstPROGRAMS \
-	mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f ./$(DEPDIR)/alocmem.Po
@@ -1069,18 +1022,18 @@ uninstall-am: uninstall-binPROGRAMS
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-am clean \
-	clean-binPROGRAMS clean-generic clean-noinstPROGRAMS \
-	cscopelist-am ctags ctags-am distclean distclean-compile \
-	distclean-generic distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-binPROGRAMS \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS
+	clean-binPROGRAMS clean-generic cscopelist-am ctags ctags-am \
+	distclean distclean-compile distclean-generic distclean-tags \
+	distdir dvi dvi-am html html-am info info-am install \
+	install-am install-binPROGRAMS install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 

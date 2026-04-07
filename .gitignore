@@ -83,6 +83,11 @@ Debug/
 *.swo
 *.asv
 bin.proj
+.vscode/
+
+# Local build/test logs
+build-*.log
+plain-configure.log
 
 # Local Copilot/Claude scratch worktrees (must never be tracked)
 .claude/worktrees/

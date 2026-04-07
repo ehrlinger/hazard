@@ -23,9 +23,9 @@ void initprz(void){
      MINOR_VERSION and MICRO_VERSION) and get them at compile
      time.
   */
-  char version[128];
-  char version_text[128] = "Note: Procedure HAZPRED (C-Version ";
-  sprintf(version, "%s)", VERSION);
+  char version_text[128];
+  snprintf(version_text, sizeof(version_text),
+	   "Note: Procedure HAZPRED (C-Version %s)", VERSION);
   /*  sprintf(version, "%d.%d.%d)", MAJOR_VERSION, MINOR_VERSION,
       MICRO_VERSION); */
   
@@ -42,7 +42,7 @@ void initprz(void){
     xlmode(1);
   /* Dump a run header */
   hzf_log1(" ");
-  hzf_log1(strcat(version_text, version));
+  hzf_log1(version_text);
 #ifdef NDEBUG
   hzf_log1("      DEBUGGING VERSION");
 #endif /* NDEBUG */
