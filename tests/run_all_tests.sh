@@ -75,7 +75,6 @@ suite_skipped() { echo "  [SKIP] $1 — $2"; SUITE_SKIP=$((SUITE_SKIP + 1)); }
 run_suite() {
     local label="$1" script="$2"
     shift 2
-    local extra_args=("$@")
 
     if [ ! -f "${script}" ]; then
         suite_skipped "${label}" "script not found: ${script}"; return
@@ -90,7 +89,11 @@ run_suite() {
     local tmp_output
     tmp_output="$(mktemp)"
 
-    bash "${script}" "${extra_args[@]}" >"${tmp_output}" 2>&1 || rc=$?
+    if [ "$#" -gt 0 ]; then
+        bash "${script}" "$@" >"${tmp_output}" 2>&1 || rc=$?
+    else
+        bash "${script}" >"${tmp_output}" 2>&1 || rc=$?
+    fi
     cat "${tmp_output}"
 
     first_line="$(head -n 1 "${tmp_output}" || true)"

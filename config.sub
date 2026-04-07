@@ -244,6 +244,7 @@ case $1 in
 					| sequent* \
 					| siemens \
 					| sgi* \
+					| siemens \
 					| sim \
 					| sni \
 					| sony* \
