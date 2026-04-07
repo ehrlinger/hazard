@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "hzdinc.h"
 
 void *hzf_memget(int leng){
@@ -16,8 +17,12 @@ void *hzf_memget(int leng){
 	     "exceeds size limit.\n",leng);
     stg = NULL;
   }
-  if(stg==NULL)
-    hzf_mem_need += leng;
+  if(stg==NULL) {
+    if(leng>0)
+      hzf_mem_need += leng;
+    else
+      hzf_mem_need = INT_MAX;
+  }
   else
     memset(stg,0,leng_t);
   return stg;

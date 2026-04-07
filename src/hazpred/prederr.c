@@ -11,7 +11,7 @@ void prederr(void){
     hzf_log1(msgbfr);
   } else if(C->errorno==2) {
     snprintf(msgbfr,sizeof(msgbfr),
-	     "ERROR: Internal sign violation, possibly data dependant %12.12s.\n",
+	     "ERROR: Internal sign violation, possibly data dependent %12.12s.\n",
 	     C->errflg);
     hzf_log1(msgbfr);
   }
