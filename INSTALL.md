@@ -70,6 +70,15 @@ make -j"$(nproc)"
 make install
 ```
 
+To compile Windows builds with `NDEBUG` defined:
+
+```sh
+autoreconf -fi
+./configure --prefix="$PWD/dist/hazard" CPPFLAGS="-DNDEBUG"
+make -j"$(nproc)"
+make install
+```
+
 ## Build Verification
 
 ```sh
