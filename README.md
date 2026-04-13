@@ -164,6 +164,14 @@ make -j"$(nproc)"
 make install
 ```
 
+To build with assertions disabled (define `NDEBUG`) on Windows:
+
+```bash
+./configure --prefix="$PWD/dist/hazard" CPPFLAGS="-DNDEBUG"
+make -j"$(nproc)"
+make install
+```
+
 ### From Binary Distribution
 
 **Unix/Linux/macOS:**
