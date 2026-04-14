@@ -3677,9 +3677,6 @@ MIC_VER=0
 maindir='${prefix}'
 docsdir='${prefix}/docs'
 docs_userguidesdir='${docsdir}/user_guides'
-docs_hazardfilesdir='${docs_userguidesdir}/hazard_files'
-docs_overviewdir='${docs_userguidesdir}/overview_files'
-docs_hazpredfilesdir='${docs_userguidesdir}/hazpred_files'
 
 # This is for the hazard package support macros
 macrosdir='${prefix}/macros'
@@ -6856,7 +6853,7 @@ fi
 # AC_PREFIX_DEFAULT($HOME/hazard)
 
 # What are we making?
-ac_config_files="$ac_config_files Makefile src/Makefile src/blackbox/Makefile src/common/Makefile src/hazard/Makefile src/hazpred/Makefile src/llike/Makefile src/libhazp/Makefile src/model/Makefile src/optim/Makefile src/scripts/Makefile src/stat/Makefile src/utils/Makefile src/vars/Makefile src/vcov/Makefile macros/Makefile docs/Makefile docs/user_guides/Makefile docs/user_guides/overview_files/Makefile docs/user_guides/hazard_files/Makefile docs/user_guides/hazpred_files/Makefile examples/Makefile examples/data/Makefile examples/sasest/Makefile examples/sasest/ihd/Makefile examples/output/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/blackbox/Makefile src/common/Makefile src/hazard/Makefile src/hazpred/Makefile src/llike/Makefile src/libhazp/Makefile src/model/Makefile src/optim/Makefile src/scripts/Makefile src/stat/Makefile src/utils/Makefile src/vars/Makefile src/vcov/Makefile macros/Makefile docs/Makefile docs/user_guides/Makefile examples/Makefile examples/data/Makefile examples/sasest/Makefile examples/sasest/ihd/Makefile examples/output/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -7619,9 +7616,6 @@ do
     "macros/Makefile") CONFIG_FILES="$CONFIG_FILES macros/Makefile" ;;
     "docs/Makefile") CONFIG_FILES="$CONFIG_FILES docs/Makefile" ;;
     "docs/user_guides/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/Makefile" ;;
-    "docs/user_guides/overview_files/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/overview_files/Makefile" ;;
-    "docs/user_guides/hazard_files/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/hazard_files/Makefile" ;;
-    "docs/user_guides/hazpred_files/Makefile") CONFIG_FILES="$CONFIG_FILES docs/user_guides/hazpred_files/Makefile" ;;
     "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
     "examples/data/Makefile") CONFIG_FILES="$CONFIG_FILES examples/data/Makefile" ;;
     "examples/sasest/Makefile") CONFIG_FILES="$CONFIG_FILES examples/sasest/Makefile" ;;

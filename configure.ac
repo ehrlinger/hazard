@@ -31,9 +31,6 @@ MIC_VER=0
 maindir='${prefix}'
 docsdir='${prefix}/docs'
 docs_userguidesdir='${docsdir}/user_guides'
-docs_hazardfilesdir='${docs_userguidesdir}/hazard_files'
-docs_overviewdir='${docs_userguidesdir}/overview_files'
-docs_hazpredfilesdir='${docs_userguidesdir}/hazpred_files'
 
 # This is for the hazard package support macros
 macrosdir='${prefix}/macros'
@@ -187,9 +184,6 @@ AC_CONFIG_FILES([Makefile
                  macros/Makefile
                  docs/Makefile
                  docs/user_guides/Makefile
-                 docs/user_guides/overview_files/Makefile
-                 docs/user_guides/hazard_files/Makefile
-                 docs/user_guides/hazpred_files/Makefile
                  examples/Makefile
                  examples/data/Makefile
                  examples/sasest/Makefile
