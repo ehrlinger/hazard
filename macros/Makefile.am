@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 macros_DATA = README bootstrap.clusters.example.sas bootstrap.clusters.sas\
-	bootstrap.doc bootstrap.hazard.sas bootstrap.summary.example.sas \
+	bootstrap.hazard.sas bootstrap.summary.example.sas \
 	bootstrap.summary.sas chisqgf.sas deciles.hazard.sas hazplot.sas \
 	kaplan.sas logit.sas logitgr.sas markov.sas markov.test.sas \
 	nelsonl.sas nelsont.sas plot.README plot.sas
