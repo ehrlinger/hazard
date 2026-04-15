@@ -41,6 +41,29 @@ require_binary() {
     fi
 }
 
+preflight_dependencies() {
+    local missing=0
+    local tool
+
+    for tool in awk grep sed; do
+        if ! command -v "${tool}" >/dev/null 2>&1; then
+            echo "ERROR: required tool '${tool}' was not found in PATH"
+            missing=1
+        fi
+    done
+
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "ERROR: required tool 'python3' was not found in PATH"
+        echo "ERROR: V2 convergence checks require python3 for numeric comparisons"
+        missing=1
+    fi
+
+    if [ "${missing}" -ne 0 ]; then
+        echo "ERROR: install required tools and rerun integration tests"
+        exit 1
+    fi
+}
+
 pass() { echo "  PASS: $1"; PASSED=$((PASSED + 1)); }
 fail() { echo "  FAIL: $1 — $2"; FAILURES=$((FAILURES + 1)); }
 skip() { echo "  SKIP: $1 — $2"; SKIPPED=$((SKIPPED + 1)); }
@@ -177,6 +200,7 @@ run_convergence_check() {
 # ------------------------------------------------------------------ #
 
 require_binary
+preflight_dependencies
 
 echo "========================================"
 echo "V2 — Optimizer Convergence Tests"
