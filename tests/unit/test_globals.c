@@ -44,8 +44,3 @@ void hazard_test_init(void)
     hzd_set_Machn();   /* fills Machn from float.h constants            */
     hzd_set_LnLim();   /* fills LnLim from Machn                        */
 }
-
-void hazard_test_pre_run(void)
-{
-    Common.errorno = 0;
-}
