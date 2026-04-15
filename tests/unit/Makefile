@@ -12,7 +12,11 @@
 #   gcc (or clang; override with CC=clang)
 #   The project source tree must be at ../../src/ relative to this file.
 
-CC       = gcc
+# GNU make provides a built-in default CC=cc. If that default is still
+# in effect, prefer gcc; if CC was set by env/CLI, preserve user choice.
+ifeq ($(origin CC), default)
+CC := gcc
+endif
 SRCDIR   = ../../src/common
 CFLAGS   = -std=c99 -Wall -Wextra -Wno-unused-parameter -g \
            -I$(SRCDIR)

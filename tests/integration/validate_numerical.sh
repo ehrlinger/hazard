@@ -65,9 +65,6 @@ preflight_dependencies() {
         exit 1
     fi
 
-    if ! command -v python3 >/dev/null 2>&1; then
-        echo "INFO: python3 not found; using awk-based numeric comparator"
-    fi
 }
 
 pass() { echo "  PASS: $1"; PASSED=$((PASSED + 1)); }
