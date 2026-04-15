@@ -49,6 +49,27 @@ require_binary() {
     fi
 }
 
+preflight_dependencies() {
+    local missing=0
+    local tool
+
+    for tool in awk grep sed; do
+        if ! command -v "${tool}" >/dev/null 2>&1; then
+            echo "ERROR: required tool '${tool}' was not found in PATH"
+            missing=1
+        fi
+    done
+
+    if [ "${missing}" -ne 0 ]; then
+        echo "ERROR: install required shell tools and rerun integration tests"
+        exit 1
+    fi
+
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "INFO: python3 not found; using awk-based numeric comparator"
+    fi
+}
+
 pass() { echo "  PASS: $1"; PASSED=$((PASSED + 1)); }
 fail() { echo "  FAIL: $1"; echo "        $2"; FAILURES=$((FAILURES + 1)); }
 skip() { echo "  SKIP: $1"; SKIPPED=$((SKIPPED + 1)); }
@@ -63,12 +84,15 @@ extract_field() {
 # Compare two numbers to N decimal places.
 numbers_equal_dp() {
     local got="$1" want="$2" dp="$3"
-    python3 -c "
-import sys, math
-got, want, dp = float('${got}'), float('${want}'), int('${dp}')
-tol = 0.5 * 10**(-dp)
-sys.exit(0 if abs(got - want) <= tol else 1)
-" 2>/dev/null
+    awk -v got="${got}" -v want="${want}" -v dp="${dp}" '
+BEGIN {
+    # Use a symmetric half-ULP-style tolerance at the requested decimal place.
+    tol = 0.5 * (10 ^ (-dp))
+    diff = got - want
+    if (diff < 0) diff = -diff
+    exit (diff <= tol) ? 0 : 1
+}
+' >/dev/null 2>&1
 }
 
 # ------------------------------------------------------------------ #
@@ -279,6 +303,7 @@ run_version_regression() {
 # ------------------------------------------------------------------ #
 
 require_binary
+preflight_dependencies
 
 echo "========================================"
 echo "V1 — Numerical Regression Tests"

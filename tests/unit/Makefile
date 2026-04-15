@@ -12,7 +12,7 @@
 #   gcc (or clang; override with CC=clang)
 #   The project source tree must be at ../../src/ relative to this file.
 
-CC      ?= gcc
+CC       = gcc
 SRCDIR   = ../../src/common
 CFLAGS   = -std=c99 -Wall -Wextra -Wno-unused-parameter -g \
            -I$(SRCDIR)
