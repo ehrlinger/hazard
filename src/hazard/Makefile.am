@@ -56,7 +56,7 @@ noinst_HEADERS = alocmem.h alocwrk.h cntobs.h evntprc.h finprmx.h getconc.h \
 	writeOutputDatafile.h stmtprc.h
 
 # The source files required to build the executable.
-hazard_exe_SOURCES = alocmem.c hazard.c hazrerr.c memclc1.c readc1.c readwt.c \
+hazard_SOURCES = alocmem.c hazard.c hazrerr.c memclc1.c readc1.c readwt.c \
 	setrisk.c wghtprc.c alocwrk.c hazpprc.c hzrbomb.c memclc2.c readc2.c \
 	setconc.c setstat.c cntobs.c  hzrg.h opnfils.c hzri.c \
 	readc3.c  setidxs.c stmtprc.c evntprc.c hazrd2.c  icnsprc.c \

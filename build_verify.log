@@ -1,0 +1,41 @@
+/Library/Developer/CommandLineTools/usr/bin/make  all-recursive
+Making all in src
+Making all in common
+make[3]: Nothing to be done for `all'.
+Making all in stat
+make[3]: Nothing to be done for `all'.
+Making all in vars
+make[3]: Nothing to be done for `all'.
+Making all in vcov
+make[3]: Nothing to be done for `all'.
+Making all in llike
+make[3]: Nothing to be done for `all'.
+Making all in model
+make[3]: Nothing to be done for `all'.
+Making all in optim
+make[3]: Nothing to be done for `all'.
+Making all in utils
+make[3]: Nothing to be done for `all'.
+Making all in hazard
+make[3]: Nothing to be done for `all'.
+Making all in hazpred
+make[3]: Nothing to be done for `all'.
+Making all in scripts
+make[3]: Nothing to be done for `all'.
+make[3]: Nothing to be done for `all-am'.
+Making all in macros
+make[2]: Nothing to be done for `all'.
+Making all in docs
+Making all in user_guides
+make[3]: Nothing to be done for `all'.
+make[3]: Nothing to be done for `all-am'.
+Making all in examples
+Making all in data
+make[3]: Nothing to be done for `all'.
+Making all in sasest
+Making all in ihd
+make[4]: Nothing to be done for `all'.
+make[4]: Nothing to be done for `all-am'.
+Making all in output
+make[3]: Nothing to be done for `all'.
+make[3]: Nothing to be done for `all-am'.

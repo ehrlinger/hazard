@@ -116,7 +116,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_hazpred_exe_OBJECTS = hazpred.$(OBJEXT) hazpred_y.$(OBJEXT) \
+am_hazpred_OBJECTS = hazpred.$(OBJEXT) hazpred_y.$(OBJEXT) \
 	hazpred_l.$(OBJEXT) initprz.$(OBJEXT) opnfils.$(OBJEXT) \
 	hazpprc.$(OBJEXT) stmtprc.$(OBJEXT) timeprc.$(OBJEXT) \
 	idproc.$(OBJEXT) cntobsh.$(OBJEXT) cntobsi.$(OBJEXT) \
@@ -133,9 +133,9 @@ am_hazpred_exe_OBJECTS = hazpred.$(OBJEXT) hazpred_y.$(OBJEXT) \
 	hzp_calc_intcp_drv.$(OBJEXT) hzp_calc_XsX.$(OBJEXT) \
 	hzp_calc_srv_CL.$(OBJEXT) hzp_calc_haz_CL.$(OBJEXT) \
 	hzp_time_parm_drv.$(OBJEXT) hzp_calc_intcp_subr.$(OBJEXT)
-hazpred_exe_OBJECTS = $(am_hazpred_exe_OBJECTS)
-hazpred_exe_LDADD = $(LDADD)
-hazpred_exe_DEPENDENCIES =
+hazpred_OBJECTS = $(am_hazpred_OBJECTS)
+hazpred_LDADD = $(LDADD)
+hazpred_DEPENDENCIES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -200,8 +200,8 @@ AM_V_YACC = $(am__v_YACC_@AM_V@)
 am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 am__v_YACC_1 = 
-SOURCES = $(hazpred_exe_SOURCES)
-DIST_SOURCES = $(hazpred_exe_SOURCES)
+SOURCES = $(hazpred_SOURCES)
+DIST_SOURCES = $(hazpred_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -371,7 +371,7 @@ noinst_HEADERS = hazpred.h initprz.h opnfils.h hazpprc.h hzp_calc_XsX.h \
 	hzp_calc_srv_CL.h hzp_calc_haz_CL.h hzp_time_parm_drv.h \
 	hzp_calc_intcp_subr.h
 
-hazpred_exe_SOURCES = hazpred.c hazpred_y.y hazpred_l.l initprz.c opnfils.c \
+hazpred_SOURCES = hazpred.c hazpred_y.y hazpred_l.l initprz.c opnfils.c \
 	hazpprc.c stmtprc.c timeprc.c idproc.c cntobsh.c cntobsi.c \
 	alocmem.c gethazr.c defvars.c hazverr.c fmtverr.c prederr.c getflag.c \
 	obsverr.c addvars.c obsloop.c hzpi.c hzpm.c hzpe.c hzpp.c hzpo.c  \
@@ -460,9 +460,9 @@ hazpred_y.h: hazpred_y.c
 	@if test ! -f $@; then rm -f hazpred_y.c; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) hazpred_y.c; else :; fi
 
-hazpred$(EXEEXT): $(hazpred_exe_OBJECTS) $(hazpred_exe_DEPENDENCIES) $(EXTRA_hazpred_exe_DEPENDENCIES) 
+hazpred$(EXEEXT): $(hazpred_OBJECTS) $(hazpred_DEPENDENCIES) $(EXTRA_hazpred_DEPENDENCIES) 
 	@rm -f hazpred$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(hazpred_exe_OBJECTS) $(hazpred_exe_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(hazpred_OBJECTS) $(hazpred_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

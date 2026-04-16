@@ -31,7 +31,7 @@ noinst_HEADERS = hazpred.h initprz.h opnfils.h hazpprc.h hzp_calc_XsX.h \
 	hzp_calc_intcp_subr.h
 
 
-hazpred_exe_SOURCES = hazpred.c hazpred_y.y hazpred_l.l initprz.c opnfils.c \
+hazpred_SOURCES = hazpred.c hazpred_y.y hazpred_l.l initprz.c opnfils.c \
 	hazpprc.c stmtprc.c timeprc.c idproc.c cntobsh.c cntobsi.c \
 	alocmem.c gethazr.c defvars.c hazverr.c fmtverr.c prederr.c getflag.c \
 	obsverr.c addvars.c obsloop.c hzpi.c hzpm.c hzpe.c hzpp.c hzpo.c  \
