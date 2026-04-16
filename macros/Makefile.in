@@ -288,7 +288,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 macros_DATA = README bootstrap.clusters.example.sas bootstrap.clusters.sas\
-	bootstrap.hazard.sas bootstrap.summary.example.sas \
+	bootstrap.doc bootstrap.hazard.sas bootstrap.summary.example.sas \
 	bootstrap.summary.sas chisqgf.sas deciles.hazard.sas hazplot.sas \
 	kaplan.sas logit.sas logitgr.sas markov.sas markov.test.sas \
 	nelsonl.sas nelsont.sas plot.README plot.sas
