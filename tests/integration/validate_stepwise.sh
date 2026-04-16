@@ -67,9 +67,21 @@ skip() {
 
 extract_stepwise_path() {
     local file="$1"
-    grep -E '^\|Step +[0-9]+\.' "${file}" 2>/dev/null | \
-        sed 's/.*Step *[0-9]*\. *\([A-Za-z_0-9]*\) *\(added to\|deleted from\) *\([A-Z]*\) PHASE.*/\1 \2 \3/' | \
-        sed 's/added to/ENTER/; s/deleted from/REMOVE/'
+    awk '
+        /^\|Step[[:space:]]+[0-9]+\./ && /added to|deleted from/ {
+            line = $0
+            sub(/^.*Step[[:space:]]*[0-9]*\.[[:space:]]*/, "", line)
+            gsub(/[[:space:]]+/, " ", line)
+            sub(/^ /, "", line)
+
+            split(line, fields, " ")
+            if (fields[2] == "added" && fields[3] == "to") {
+                print fields[1] " ENTER " fields[4]
+            } else if (fields[2] == "deleted" && fields[3] == "from") {
+                print fields[1] " REMOVE " fields[4]
+            }
+        }
+    ' "${file}" 2>/dev/null
 }
 
 # ------------------------------------------------------------------ #

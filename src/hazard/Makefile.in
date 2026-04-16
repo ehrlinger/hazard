@@ -102,7 +102,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-bin_PROGRAMS = hazard.exe$(EXEEXT)
+bin_PROGRAMS = hazard$(EXEEXT)
 subdir = src/hazard
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -116,7 +116,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_hazard_exe_OBJECTS = alocmem.$(OBJEXT) hazard.$(OBJEXT) \
+am_hazard_OBJECTS = alocmem.$(OBJEXT) hazard.$(OBJEXT) \
 	hazrerr.$(OBJEXT) memclc1.$(OBJEXT) readc1.$(OBJEXT) \
 	readwt.$(OBJEXT) setrisk.$(OBJEXT) wghtprc.$(OBJEXT) \
 	alocwrk.$(OBJEXT) hazpprc.$(OBJEXT) hzrbomb.$(OBJEXT) \
@@ -146,9 +146,9 @@ am_hazard_exe_OBJECTS = alocmem.$(OBJEXT) hazard.$(OBJEXT) \
 	modterm.$(OBJEXT) ismuchg.$(OBJEXT) outflag.$(OBJEXT) \
 	outequn.$(OBJEXT) outparm.$(OBJEXT) \
 	writeOutputDatafile.$(OBJEXT) shape.$(OBJEXT)
-hazard_exe_OBJECTS = $(am_hazard_exe_OBJECTS)
-hazard_exe_LDADD = $(LDADD)
-hazard_exe_DEPENDENCIES =
+hazard_OBJECTS = $(am_hazard_OBJECTS)
+hazard_LDADD = $(LDADD)
+hazard_DEPENDENCIES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -233,8 +233,8 @@ AM_V_YACC = $(am__v_YACC_@AM_V@)
 am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 am__v_YACC_1 = 
-SOURCES = $(hazard_exe_SOURCES)
-DIST_SOURCES = $(hazard_exe_SOURCES)
+SOURCES = $(hazard_SOURCES)
+DIST_SOURCES = $(hazard_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -435,7 +435,7 @@ noinst_HEADERS = alocmem.h alocwrk.h cntobs.h evntprc.h finprmx.h getconc.h \
 
 
 # The source files required to build the executable.
-hazard_exe_SOURCES = alocmem.c hazard.c hazrerr.c memclc1.c readc1.c readwt.c \
+hazard_SOURCES = alocmem.c hazard.c hazrerr.c memclc1.c readc1.c readwt.c \
 	setrisk.c wghtprc.c alocwrk.c hazpprc.c hzrbomb.c memclc2.c readc2.c \
 	setconc.c setstat.c cntobs.c  hzrg.h opnfils.c hzri.c \
 	readc3.c  setidxs.c stmtprc.c evntprc.c hazrd2.c  icnsprc.c \
@@ -529,9 +529,9 @@ hazard_y.h: hazard_y.c
 	@if test ! -f $@; then rm -f hazard_y.c; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) hazard_y.c; else :; fi
 
-hazard.exe$(EXEEXT): $(hazard_exe_OBJECTS) $(hazard_exe_DEPENDENCIES) $(EXTRA_hazard_exe_DEPENDENCIES) 
-	@rm -f hazard.exe$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(hazard_exe_OBJECTS) $(hazard_exe_LDADD) $(LIBS)
+hazard$(EXEEXT): $(hazard_OBJECTS) $(hazard_DEPENDENCIES) $(EXTRA_hazard_DEPENDENCIES) 
+	@rm -f hazard$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(hazard_OBJECTS) $(hazard_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
