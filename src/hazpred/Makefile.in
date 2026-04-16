@@ -102,7 +102,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-bin_PROGRAMS = hazpred.exe$(EXEEXT)
+bin_PROGRAMS = hazpred$(EXEEXT)
 subdir = src/hazpred
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -460,8 +460,8 @@ hazpred_y.h: hazpred_y.c
 	@if test ! -f $@; then rm -f hazpred_y.c; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) hazpred_y.c; else :; fi
 
-hazpred.exe$(EXEEXT): $(hazpred_exe_OBJECTS) $(hazpred_exe_DEPENDENCIES) $(EXTRA_hazpred_exe_DEPENDENCIES) 
-	@rm -f hazpred.exe$(EXEEXT)
+hazpred$(EXEEXT): $(hazpred_exe_OBJECTS) $(hazpred_exe_DEPENDENCIES) $(EXTRA_hazpred_exe_DEPENDENCIES) 
+	@rm -f hazpred$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(hazpred_exe_OBJECTS) $(hazpred_exe_LDADD) $(LIBS)
 
 mostlyclean-compile:

@@ -37,7 +37,7 @@ AM_LDFLAGS = -L$(top_builddir)/src/vars \
 LDADD = -lvars -lvcov -lstat -loptim -lmodel -lllike -lutils -lcommon -lm
 
 # The production executable
-bin_PROGRAMS = hazard.exe
+bin_PROGRAMS = hazard
 
 # A list  of header files to include in the distribution
 noinst_HEADERS = alocmem.h alocwrk.h cntobs.h evntprc.h finprmx.h getconc.h \

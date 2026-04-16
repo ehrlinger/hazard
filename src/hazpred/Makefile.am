@@ -17,7 +17,7 @@ LDADD = -lcommon -lm
 
 AM_YFLAGS = -d
 
-bin_PROGRAMS = hazpred.exe
+bin_PROGRAMS = hazpred
 
 
 noinst_HEADERS = hazpred.h initprz.h opnfils.h hazpprc.h hzp_calc_XsX.h \
