@@ -102,7 +102,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-bin_PROGRAMS = hazard.exe$(EXEEXT)
+bin_PROGRAMS = hazard$(EXEEXT)
 subdir = src/hazard
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -529,8 +529,8 @@ hazard_y.h: hazard_y.c
 	@if test ! -f $@; then rm -f hazard_y.c; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) hazard_y.c; else :; fi
 
-hazard.exe$(EXEEXT): $(hazard_exe_OBJECTS) $(hazard_exe_DEPENDENCIES) $(EXTRA_hazard_exe_DEPENDENCIES) 
-	@rm -f hazard.exe$(EXEEXT)
+hazard$(EXEEXT): $(hazard_exe_OBJECTS) $(hazard_exe_DEPENDENCIES) $(EXTRA_hazard_exe_DEPENDENCIES) 
+	@rm -f hazard$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(hazard_exe_OBJECTS) $(hazard_exe_LDADD) $(LIBS)
 
 mostlyclean-compile:
