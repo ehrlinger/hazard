@@ -1,8 +1,7 @@
 #include "swab_compat.h"
 #include <string.h>
 #include "hzdinc.h"
-/* SAS transport format is big-endian; always byte-swap on write. */
-#define SAS_TRANSPORT_BYTESWAP
+/* SAS_TRANSPORT_BYTESWAP is defined by swab_compat.h on little-endian hosts. */
 
 void xvputd(struct namestr *xvnsparm,void *xvarparm){
   xvputptr[xvputcnt].xvar = xvarparm;
