@@ -13,8 +13,7 @@
 #include <hzfxit.h>
 #include <stmtopts.h>
 #include <hzf_memget.h>
-/* SAS transport format is big-endian; always byte-swap on read. */
-#define SAS_TRANSPORT_BYTESWAP
+/* SAS_TRANSPORT_BYTESWAP is defined by swab_compat.h on little-endian hosts. */
 /* #define NDEBUG */
 
 /****************************************************************/
