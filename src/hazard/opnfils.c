@@ -43,15 +43,15 @@ void opnfils(char *in_file_name){
     *pfx = '\0';
 
   /* Start building the filename string */
-#ifdef __CYGWIN__
-  /* on windows */
+#if defined(__CYGWIN__) || defined(_WIN32)
+  /* Windows (Cygwin and MinGW/MSYS2) */
   strcat(pfx,"/hzr_");
   strncat(pfx,stmtfldname(44),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
     *ptr = '\0';
   strcat(pfx,"_");
 #else
- /* Other platforms */
+  /* Other platforms */
   strcat(pfx,"/hzr.");
   strncat(pfx,stmtfldname(44),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
@@ -69,9 +69,10 @@ void opnfils(char *in_file_name){
 #endif /* NDEBUG */
 
   /* Open the input data file */
-  if(NULL==(inputDataFile = fopen(bfr,"rb")))
-    /* Exit on opening error */
+  if(NULL==(inputDataFile = fopen(bfr,"rb"))) {
+    fprintf(stderr, "ERROR: cannot open input data file: %s\n", bfr);
     hzfxit("open input file");
+  }
 
   /* Store the input file name for removal after the run */
   strcpy(in_file_name,bfr);
