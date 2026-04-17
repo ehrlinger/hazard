@@ -3,11 +3,11 @@
    The hazard program has about 16000 lines of code.
 
     REVISIONS
-    
+
     Hazard-4.1.0 (2000)
     Start to comment and recast the code into standard C format
     using GNU coding standards. Divide monolithic files into
-    subroutine size files, and recast the global variables into 
+    subroutine size files, and recast the global variables into
     usable groupings. JE
 
     HZD4.036-1 (10/21/95)
@@ -17,7 +17,7 @@
     HZD4.036a (11/24/95)
     exit() calls changed to XEXIT to allow better determination
     of error conditions by SAS code after program ends.
-    
+
     037 (02/29/96)
     Updates to setopt.c umstop.c umstp0 linesr.c.  linesr.c
     recieved the primary modification, which enabled code
@@ -28,11 +28,10 @@
     HZRstr.opt.iret and HZR.opt.trmcod are both set to 0.  This
     does not appear in the fortran code.  If they are left out of
     the C code, the routine fails when shaping parameters are not
-    fixed.  
+    fixed.
 **/
 
-/* Comment out this statement to print debugging messages to the
-   stderr stream. This statement effects this file only */
+/* Comment out NDEBUG to enable debug messages to stderr */
 #define NDEBUG
 
 #define HAZARD
@@ -89,14 +88,21 @@
 #include "hzrg.h"
 #include "hzri.h"
 
+/* Debug macro: remove NDEBUG above (or compile with -UNDEBUG) to enable */
+#ifdef NDEBUG
+#define DBG(fmt, ...) ((void)0)
+#else
+#define DBG(fmt, ...) fprintf(stderr, "[hazard:%d] " fmt "\n", __LINE__, ##__VA_ARGS__)
+#endif
+
 /****************************************************************/
 int main(void){
-  char in_file_name[80];
+  /* volatile: survives longjmp in error trap */
+  volatile char in_file_name[80];
+  volatile const char *last_step = "init";
+  int err;
 
-#ifndef NDEBUG
-  /* The same as debug statements for the PC version only */
-  fprintf(stderr, "Running the Hazard executable\n");
-#endif
+  DBG("Starting Hazard executable");
 
   /* Initialize some variables */
   hzf_mem_need=0;
@@ -119,14 +125,14 @@ int main(void){
   Params.normlb[1] = -0.356563782e0;
   Params.normlb[2] = 1.781477937e0;
   Params.normlb[3] = -1.821255978e0;
-  Params.normlb[4] = 1.330274429e0; 
+  Params.normlb[4] = 1.330274429e0;
   Params.normlr = 0.2316419e0;
   Params.lsr2pi = 9.189385332046727417803296e-01;
 
   /* Initialize the Common Structure */
   C = hzri();                                /* hzrcor.c */
   HZ4I(C);                                   /* hazrd4.c */
-  
+
   /* Create reference pointers into the Common structure */
   E = C->early;
   H = C->hzrstr;
@@ -135,47 +141,44 @@ int main(void){
 
   /* Create a reference pointer into the HZRSTR structure */
   O = &H->opt;
-  
+
   /* initialize the error flag */
   semerr = FALSE;
 
   /* XINIT performs some sanity checks for the current platform */
   xinit();                                  /* common/hazcfn.c */
-  
-#ifndef NDEBUG
-  fprintf(stderr, "Read input\n");
-#endif
-  /* Read the command file and prepare for analysis */
+
+  /* Error trap: catches any longjmp from hzd_Error() */
+  if ((err = setjmp(C->errtrap)) != 0) {
+    fprintf(stderr, "HAZARD ERROR %d %s: abnormal termination after step \"%s\"\n",
+            err, C->errflg, last_step);
+    hzrbomb();
+    xexit(1);
+  }
+
+  last_step = "initprz";
+  DBG("Reading input");
   initprz();
 
-#ifndef NDEBUG
-  fprintf(stderr,"Opening input and output Files\n");
-#endif
-  /* Open and read the data input file. */
-  opnfils(in_file_name);
-  
-  /* Initialize a bunch of variables to zero for this run.*/
-#ifndef NDEBUG
-  fprintf(stderr,"Initialize variables\n");
-#endif
+  last_step = "opnfils";
+  DBG("Opening input and output files");
+  opnfils((char *)in_file_name);
+  DBG("Input file: %s", in_file_name);
+
+  last_step = "stmtprc";
+  DBG("Initialize variables");
   stmtprc();
 
-#ifndef NDEBUG
-  fprintf(stderr,"cntobs\n");
-#endif
-  /* Initialize the Common Nobs variable */
+  last_step = "cntobs";
+  DBG("cntobs");
   cntobs();
 
-#ifndef NDEBUG
-  fprintf(stderr,"getconc\n");
-#endif
-  /* start getting memory, and initializing print labels. */
+  last_step = "getconc";
+  DBG("getconc");
   getconc();
-  
-#ifndef NDEBUG
-  fprintf(stderr,"getrisk\n");
-#endif
-  /* Store the risk variables into the risk arrays  */
+
+  last_step = "getrisk";
+  DBG("getrisk");
   getrisk();
 
   /* Check for errors to this point */
@@ -183,72 +186,49 @@ int main(void){
     hzf_log1("Note: PROCEDURE TERMINATING DUE TO ABOVE ERRORS.");
     hzfxit("SEMANTIC");
   }
-  
-#ifndef NDEBUG
-  fprintf(stderr,"alocmem\n");
-#endif
-  /* Allocate memory for anlysis stage (II) */
+
+  last_step = "alocmem";
+  DBG("alocmem");
   alocmem();
 
   /* Dump analysis header */
   hzfxpc(" T H R E E   P H A S E   P A R A M E T R I C   H A Z A R D   P R O C E D U R E",0,26);
   hzfskp(2);
 
-#ifndef NDEBUG
-  fprintf(stderr,"setrisk\n");
-#endif
-  /* Initialize the HZRSTR structure */
+  last_step = "setrisk";
+  DBG("setrisk");
   setrisk();
 
-#ifndef NDEBUG
-  fprintf(stderr,"setconc\n");
-#endif
-  /* Initialize the hazard model */
+  last_step = "setconc";
+  DBG("setconc");
   setconc();
 
-#ifndef NDEBUG
-  fprintf(stderr,"set_restrict\n");
-#endif
-  /* RESTRICT variables. */
+  last_step = "set_restrict";
+  DBG("set_restrict");
   set_restrict();
 
-#ifndef NDEBUG
-  fprintf(stderr,"readobs\n");
-#endif
-  /* */
+  last_step = "readobs";
+  DBG("readobs");
   readobs();
-  
-#ifndef NDEBUG
-  fprintf(stderr,"varsrpt\n");
-#endif
-  /* */
+
+  last_step = "varsrpt";
+  DBG("varsrpt");
   varsrpt();
-  
-#ifndef NDEBUG
-  fprintf(stderr, "Running\n");
-#endif
-#ifndef NDEBUG
-  fprintf(stderr,"concrpt\n");
-#endif
-  /* */
+
+  last_step = "concrpt";
+  DBG("concrpt");
   concrpt();
 
-#ifndef NDEBUG
-  fprintf(stderr,"alocwrk\n");
-#endif
-  /* */
+  last_step = "alocwrk";
+  DBG("alocwrk");
   alocwrk();
 
-#ifndef NDEBUG
-  fprintf(stderr,"hzrg\n");
-#endif
-  /* */
+  last_step = "hzrg";
+  DBG("hzrg");
   hzrg();
 
-#ifndef NDEBUG
-  fprintf(stderr,"outmods\n");
-#endif
-  /* */
+  last_step = "outmods";
+  DBG("outmods");
   outmods();
 
   /* */
@@ -257,19 +237,9 @@ int main(void){
   else if(C->errorno==1001 || C->errorno==1002)
     hzfxit("SEMANTIC");
 
-#ifndef NDEBUG
-  fprintf(stderr,"results\n");
-#endif
-  /* */
+  last_step = "results";
+  DBG("results");
   results();
-
-  if(setjmp(C->errtrap)){
-    /* */
-#ifndef NDEBUG
-    fprintf(stderr,"hzrbomb\n");
-#endif
-    hzrbomb();
-  }
 
   /* Close the input data file */
   fclose(inputDataFile);
@@ -279,26 +249,21 @@ int main(void){
   /*  remove(in_file_name);*/
 #endif /* NDEBUG */
 
-#ifndef NDEBUG
-   fprintf(stderr,"Output\n");
-#endif
-  /* */
+  last_step = "HAZRD2";
+  DBG("Output");
   HAZRD2();
 
   if(outhaz) {
-    
-    /* Write an xport data file */
+    last_step = "writeOutputDatafile";
     writeOutputDatafile();
     fclose(outputDataFile);
   }
 
   /* Dump end message and exit */
   hzf_log1("Note: Procedure HAZARD completed successfully.");
-#ifndef NDEBUG
-  fprintf(stderr, "Note: Procedure HAZARD completed successfully.\n");
-#endif
+  DBG("Note: Procedure HAZARD completed successfully.");
   xexit(0);
-  
+
   /* This return is unecessary, but shuts up compiler warnings */
-  exit(0);    
+  exit(0);
 }
