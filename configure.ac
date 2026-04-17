@@ -15,11 +15,10 @@ AC_INIT([Hazard_Package], [4.4.0])
 AC_CONFIG_SRCDIR([./])
 AM_INIT_AUTOMAKE([foreign])
 
-# Set version numbers, these are used to define the VERSION
-# macro in the config.h file. We use this to increment versioning.
-MAJ_VER=4
-MIN_VER=4
-MIC_VER=0
+# Derive version components from AC_INIT — edit the version there only.
+MAJ_VER=`echo "$PACKAGE_VERSION" | cut -d. -f1`
+MIN_VER=`echo "$PACKAGE_VERSION" | cut -d. -f2`
+MIC_VER=`echo "$PACKAGE_VERSION" | cut -d. -f3`
 
 # Declare the directory variables,
 # these are used to install the hazard package documentation
