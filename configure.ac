@@ -11,16 +11,15 @@
 AC_PREREQ([2.69])
 # AC_INIT must be the first thing done.
 # AC_INIT([Hazard_Package],[4.3.0])
-AC_INIT([Hazard_Package],[4.3.1])
+AC_INIT([Hazard_Package],[4.4.0])
 AC_CONFIG_SRCDIR([README.md])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([foreign])
 
-# Set version numbers, these are used to define the VERSION
-# macro in the config.h file. We use this to increment versioning.
-MAJ_VER=4
-MIN_VER=3
-MIC_VER=0
+# Derive version components from AC_INIT — edit the version there only.
+MAJ_VER=`echo "$PACKAGE_VERSION" | cut -d. -f1`
+MIN_VER=`echo "$PACKAGE_VERSION" | cut -d. -f2`
+MIC_VER=`echo "$PACKAGE_VERSION" | cut -d. -f3`
 
 # Declare the directory variables,
 # these are used to install the hazard package documentation
