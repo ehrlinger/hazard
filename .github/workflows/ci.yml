@@ -91,6 +91,20 @@ jobs:
           path: hazard
           retention-days: 7
 
+      - name: Generate version badge
+        run: |
+          VERSION=$(grep 'AC_INIT' configure.ac | grep -oP '[\d.]+(?=\])')
+          echo "{\"schemaVersion\": 1, \"label\": \"version\", \"message\": \"$VERSION\", \"color\": \"blue\"}" > version-badge.json
+
+      - name: Commit version badge to main
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version-badge.json
+          git diff --staged --quiet || git commit -m "chore: update version badge [skip ci]"
+          git push
+
   # ------------------------------------------------------------------ #
   # Job 4: Coverage instrumented build → Codecov upload                #
   # ------------------------------------------------------------------ #
