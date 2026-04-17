@@ -9,7 +9,8 @@
 #include "hzfxit.h"
 #include "hzf_log1.h"
 #include "hzf_memget.h"
-#define __Linux__
+/* SAS transport format is big-endian; always byte-swap on read. */
+#define SAS_TRANSPORT_BYTESWAP
 
 void opnfils(void){
   char bfr[80],pfx[80],*ptr;
@@ -19,23 +20,24 @@ void opnfils(void){
   if(NULL==(ptr = getenv("TMPDIR")))
     if(NULL==(ptr = getenv("TEMPDIR")))
       if(NULL==(ptr = getenv("TMPQDIR")))
-	ptr = getenv("HAZTEMP");
+        if(NULL==(ptr = getenv("TEMP")))
+          ptr = getenv("HAZTEMP");
   if(ptr!=NULL)
     strcpy(pfx,ptr);
   else
     *pfx = '\0';
 
-#ifdef __CYGWIN__
- /* on windows */
+#if defined(__CYGWIN__) || defined(_WIN32)
+  /* Windows (Cygwin and MinGW/MSYS2) */
   strcat(pfx,"/hzp_");
 #else
-  /* otherwise */
+  /* Other platforms */
   strcat(pfx,"/hzp.");
 #endif
   strncat(pfx,stmtfldname(14),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
     *ptr = '\0';
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__) || defined(_WIN32)
   strcat(pfx,"_");
 #else
   strcat(pfx,".");
@@ -45,8 +47,10 @@ void opnfils(void){
     *ptr = '\0';
   strcpy(bfr,pfx);
   strcat(bfr,".dta");
-  if(NULL==(infile = fopen(bfr,"rb")))
+  if(NULL==(infile = fopen(bfr,"rb"))) {
+    fprintf(stderr, "ERROR: cannot open input data file: %s\n", bfr);
     hzfxit("infile");
+  }
   strcpy(bfr,pfx);
   strcat(bfr,".haz");
 
@@ -97,33 +101,21 @@ void opnfils(void){
   }
 
   for(i=0; i<infilect; i++) {
-
-#ifdef __Linux__
-  /*
-    Because of the way that Windows (MSDOS) apps store binary data,
-    we need to modify the bitwise representation before writing.
-
-    This keeps the files written (maybe) cross platform compatible
-  */
-    swab((void *)&data_ns[i].nlng,(void *)&data_ns[i].nlng,sizeof(short));
-    swab((void *)&data_ns[i].ntype,(void *)&data_ns[i].ntype,sizeof(short));
-    swab((void *)&data_ns[i].nvar0,(void *)&data_ns[i].nvar0,sizeof(short));
-    memcpy(bfr,(void *)&data_ns[i].npos,4);
-    swab(bfr,bfr+6,2);
-    swab(bfr+2,bfr+4,2);
-    memcpy((void *)&data_ns[i].npos,bfr+4,4);
+#ifdef SAS_TRANSPORT_BYTESWAP
+    /* SAS transport files are big-endian; convert to host byte order. */
+    data_ns[i].nlng  = hzd_bswap_short(data_ns[i].nlng);
+    data_ns[i].ntype = hzd_bswap_short(data_ns[i].ntype);
+    data_ns[i].nvar0 = hzd_bswap_short(data_ns[i].nvar0);
+    data_ns[i].npos  = hzd_bswap_int(data_ns[i].npos);
 #endif
     data_ln += data_ns[i].nlng;
   }
 
   for(i=0; i<nvars; i++) {
-#ifdef __Linux__
-    swab((void *)&inhaz_ns[i].nlng,(void *)&inhaz_ns[i].nlng,sizeof(short));
-    swab((void *)&inhaz_ns[i].ntype,(void *)&inhaz_ns[i].ntype,sizeof(short));
-    memcpy(bfr,(void *)&inhaz_ns[i].npos,4);
-    swab(bfr,bfr+6,2);
-    swab(bfr+2,bfr+4,2);
-    memcpy((void *)&inhaz_ns[i].npos,bfr+4,4);
+#ifdef SAS_TRANSPORT_BYTESWAP
+    inhaz_ns[i].nlng  = hzd_bswap_short(inhaz_ns[i].nlng);
+    inhaz_ns[i].ntype = hzd_bswap_short(inhaz_ns[i].ntype);
+    inhaz_ns[i].npos  = hzd_bswap_int(inhaz_ns[i].npos);
 #endif
     inhaz_ln += inhaz_ns[i].nlng;
   }

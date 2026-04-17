@@ -13,7 +13,8 @@
 #include <hzfxit.h>
 #include <stmtopts.h>
 #include <hzf_memget.h>
-#define __Linux__
+/* SAS transport format is big-endian; always byte-swap on read. */
+#define SAS_TRANSPORT_BYTESWAP
 /* #define NDEBUG */
 
 /****************************************************************/
@@ -43,15 +44,15 @@ void opnfils(char *in_file_name){
     *pfx = '\0';
 
   /* Start building the filename string */
-#ifdef __CYGWIN__
-  /* on windows */
+#if defined(__CYGWIN__) || defined(_WIN32)
+  /* Windows (Cygwin and MinGW/MSYS2) */
   strcat(pfx,"/hzr_");
   strncat(pfx,stmtfldname(44),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
     *ptr = '\0';
   strcat(pfx,"_");
 #else
- /* Other platforms */
+  /* Other platforms */
   strcat(pfx,"/hzr.");
   strncat(pfx,stmtfldname(44),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
@@ -69,9 +70,10 @@ void opnfils(char *in_file_name){
 #endif /* NDEBUG */
 
   /* Open the input data file */
-  if(NULL==(inputDataFile = fopen(bfr,"rb")))
-    /* Exit on opening error */
+  if(NULL==(inputDataFile = fopen(bfr,"rb"))) {
+    fprintf(stderr, "ERROR: cannot open input data file: %s\n", bfr);
     hzfxit("open input file");
+  }
 
   /* Store the input file name for removal after the run */
   strcpy(in_file_name,bfr);
@@ -124,19 +126,11 @@ void opnfils(char *in_file_name){
   }
 
   for(i=0; i<numvars; i++) {
-#ifdef __Linux__
-    /*
-      Because of the way that Windows (MSDOS) (and 64 bits Linux) pps store binary data,
-      we need to modify the bitwise representation after reads.
-
-      This keeps the files written (maybe) cross platform compatible
-    */
-    swab((void *)&ns[i].nlng,(void *)&ns[i].nlng,sizeof(short));
-    swab((void *)&ns[i].ntype,(void *)&ns[i].ntype,sizeof(short));
-    memcpy(bfr,(void *)&ns[i].npos,4);
-    swab(bfr,bfr+6,2);
-    swab(bfr+2,bfr+4,2);
-    memcpy((void *)&ns[i].npos,bfr+4,4);
+#ifdef SAS_TRANSPORT_BYTESWAP
+    /* SAS transport files are big-endian; convert to host byte order. */
+    ns[i].nlng  = hzd_bswap_short(ns[i].nlng);
+    ns[i].ntype = hzd_bswap_short(ns[i].ntype);
+    ns[i].npos  = hzd_bswap_int(ns[i].npos);
 #endif
 
     xvobslen += ns[i].nlng;
