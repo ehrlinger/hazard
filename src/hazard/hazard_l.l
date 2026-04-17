@@ -1,6 +1,5 @@
 %p 4000
 %e 2000
-%option nounistd
 %{
 /*
   (12/21/96) RAM
