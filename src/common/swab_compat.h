@@ -3,7 +3,7 @@
 
 /* Pull in WORDS_BIGENDIAN when built via autotools (AC_C_BIGENDIAN). */
 #ifdef HAVE_CONFIG_H
-#  include "config.h"
+#  include <config.h>
 #endif
 
 /*
