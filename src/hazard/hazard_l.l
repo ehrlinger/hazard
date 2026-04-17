@@ -14,7 +14,7 @@ int yylnctr,yysynerr;
 
 /* Regular expressions */
 /* ------------------- */
-ws		[ \t\n\)]+
+ws		[ \t\n\r\)]+
 integer		[0-9]+
 dreal		([0-9]*"."[0-9]+)
 ereal		([0-9]*"."[0-9]+"E"[+-]?[0-9]+)
