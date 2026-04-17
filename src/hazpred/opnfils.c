@@ -19,23 +19,24 @@ void opnfils(void){
   if(NULL==(ptr = getenv("TMPDIR")))
     if(NULL==(ptr = getenv("TEMPDIR")))
       if(NULL==(ptr = getenv("TMPQDIR")))
-	ptr = getenv("HAZTEMP");
+        if(NULL==(ptr = getenv("TEMP")))
+          ptr = getenv("HAZTEMP");
   if(ptr!=NULL)
     strcpy(pfx,ptr);
   else
     *pfx = '\0';
 
-#ifdef __CYGWIN__
- /* on windows */
+#if defined(__CYGWIN__) || defined(_WIN32)
+  /* Windows (Cygwin and MinGW/MSYS2) */
   strcat(pfx,"/hzp_");
 #else
-  /* otherwise */
+  /* Other platforms */
   strcat(pfx,"/hzp.");
 #endif
   strncat(pfx,stmtfldname(14),8);
   if(NULL!=(ptr = strchr(pfx,' ')))
     *ptr = '\0';
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__) || defined(_WIN32)
   strcat(pfx,"_");
 #else
   strcat(pfx,".");
@@ -45,8 +46,10 @@ void opnfils(void){
     *ptr = '\0';
   strcpy(bfr,pfx);
   strcat(bfr,".dta");
-  if(NULL==(infile = fopen(bfr,"rb")))
+  if(NULL==(infile = fopen(bfr,"rb"))) {
+    fprintf(stderr, "ERROR: cannot open input data file: %s\n", bfr);
     hzfxit("infile");
+  }
   strcpy(bfr,pfx);
   strcat(bfr,".haz");
 
