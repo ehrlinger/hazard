@@ -13,7 +13,7 @@ AC_PREREQ(2.57)
 # AC_INIT(Hazard_Package, 4.3.0)
 AC_INIT([Hazard_Package], [4.3.1])
 AC_CONFIG_SRCDIR([./])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 
 # Set version numbers, these are used to define the VERSION
 # macro in the config.h file. We use this to increment versioning.
