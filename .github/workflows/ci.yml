@@ -91,19 +91,22 @@ jobs:
           path: hazard
           retention-days: 7
 
-      - name: Generate version badge
+      - name: Verify version badge is current
+        # version-badge.json must be updated manually as part of any
+        # version-bump PR.  Branch protection prevents github-actions[bot]
+        # from pushing directly to main, so we verify instead of auto-commit.
         run: |
           VERSION=$(grep 'AC_INIT' configure.ac | grep -oP '[\d.]+(?=\])')
-          echo "{\"schemaVersion\": 1, \"label\": \"version\", \"message\": \"$VERSION\", \"color\": \"blue\"}" > version-badge.json
-
-      - name: Commit version badge to main
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add version-badge.json
-          git diff --staged --quiet || git commit -m "chore: update version badge [skip ci]"
-          git push
+          EXPECTED="{\"schemaVersion\": 1, \"label\": \"version\", \"message\": \"$VERSION\", \"color\": \"blue\"}"
+          ACTUAL=$(cat version-badge.json | tr -d '\n')
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "ERROR: version-badge.json is out of sync with configure.ac (expected version $VERSION)"
+            echo "Update version-badge.json as part of your version-bump PR:"
+            printf '%s' "$EXPECTED" > /tmp/expected-badge.json
+            echo "  $(cat /tmp/expected-badge.json)"
+            exit 1
+          fi
+          echo "version-badge.json is in sync (version $VERSION)"
 
   # ------------------------------------------------------------------ #
   # Job 4: Coverage instrumented build → Codecov upload                #
