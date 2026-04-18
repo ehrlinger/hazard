@@ -10,6 +10,10 @@ void hzd_init_Common(void){
   Common.machn = &Machn;
   Common.intfc = &Intfc;
   Common.errorno = 0;
+  Common.errfile = NULL;
+  Common.errfunc = NULL;
+  Common.errline = 0;
+  Common.errflg[0] = '\0';
   if(setjmp(Common.errtrap))
     abort();
   Version.hzdc_ver = HZDVER;

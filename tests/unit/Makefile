@@ -38,7 +38,8 @@ COMMON_SHAPING = \
     $(SRCDIR)/hzd_ln_eX_plus1.c    \
     $(SRCDIR)/hzd_ln_eeX_min1.c    \
     $(SRCDIR)/hzd_ln_1min_enegX.c  \
-    $(SRCDIR)/hzd_Error.c
+    $(SRCDIR)/hzd_Error.c          \
+    $(SRCDIR)/hzd_log.c
 
 # Global storage + init (must appear exactly once per binary).
 GLOBALS = test_globals.c test_harness_hooks.c
@@ -156,7 +157,8 @@ COV_COMMON_SHAPE = \
     $(COV_DIR)/hzd_ln_eX_plus1.o    \
     $(COV_DIR)/hzd_ln_eeX_min1.o    \
     $(COV_DIR)/hzd_ln_1min_enegX.o  \
-    $(COV_DIR)/hzd_Error.o
+    $(COV_DIR)/hzd_Error.o          \
+    $(COV_DIR)/hzd_log.o
 
 # ---- coverage binaries ---------------------------------------------
 

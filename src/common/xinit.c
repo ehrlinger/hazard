@@ -5,23 +5,20 @@
 
 #include "hzdinc.h"
 #include "hzfxit.h"
-#define NDEBUG
+#include "hzd_log.h"
 
 void xinit(void){
   size_t pos;
   double td;
   unsigned char ts[sizeof(double)];
-  
+
   size_t size = (9*sizeof(short) + 3*sizeof(charVarName)+sizeof(charLabel)+
 		 sizeof(int)+54*sizeof(char));
 
   /* Sanity check of NAMESTR size */
   if(sizeof(struct namestr)!=size){
-#ifndef NDEBUG
-  fprintf(stderr, "Size of NAMESTR: %zu\n",
-	    sizeof(struct namestr));
-  fprintf(stderr, "Calculated Size of NAMESTR: %zu\n", size);
-#endif /* NDEBUG */
+    HZD_LOG_ERROR("NAMESTR size mismatch: sizeof(struct namestr)=%zu, expected=%zu",
+                  sizeof(struct namestr), size);
     hzfxit("NAMESTR sizing");
   }
 
