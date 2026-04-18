@@ -13,7 +13,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#include <io.h>
+#define HZD_DUP   _dup
+#define HZD_DUP2  _dup2
+#define HZD_CLOSE _close
+#define HZD_FILENO _fileno
+#else
 #include <unistd.h>
+#define HZD_DUP   dup
+#define HZD_DUP2  dup2
+#define HZD_CLOSE close
+#define HZD_FILENO fileno
+#endif
 
 #include "hzd_log.h"
 #include "test_harness.h"
@@ -22,29 +34,29 @@
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
-/* Capture stderr written by `body` into `buf` (up to bufsz-1 bytes). */
+/* Capture stderr written by `body` into `buf` (up to bufsz-1 bytes).
+   Uses tmpfile() rather than mkstemp for portability to Windows/MinGW. */
 static void capture_stderr(void (*body)(void), char *buf, size_t bufsz)
 {
-    char tmpl[] = "/tmp/hzdlog_XXXXXX";
-    int fd = mkstemp(tmpl);
-    if (fd < 0) { buf[0] = '\0'; return; }
+    FILE *tmp = tmpfile();
+    if (!tmp) { buf[0] = '\0'; return; }
+    int fd = HZD_FILENO(tmp);
 
     fflush(stderr);
-    int saved = dup(fileno(stderr));
-    dup2(fd, fileno(stderr));
+    int saved = HZD_DUP(HZD_FILENO(stderr));
+    HZD_DUP2(fd, HZD_FILENO(stderr));
 
     body();
 
     fflush(stderr);
-    dup2(saved, fileno(stderr));
-    close(saved);
+    HZD_DUP2(saved, HZD_FILENO(stderr));
+    HZD_CLOSE(saved);
 
-    lseek(fd, 0, SEEK_SET);
-    ssize_t n = read(fd, buf, bufsz - 1);
-    buf[(n > 0) ? (size_t)n : 0] = '\0';
+    rewind(tmp);
+    size_t n = fread(buf, 1, bufsz - 1, tmp);
+    buf[n] = '\0';
 
-    close(fd);
-    unlink(tmpl);
+    fclose(tmp);
 }
 
 /* ------------------------------------------------------------------ */
@@ -142,12 +154,16 @@ static void test_none_suppresses_everything(void)
 /* ------------------------------------------------------------------ */
 
 /* Env parsing runs once on the first hzd_log_threshold() call in the
-   process, so this must execute BEFORE any other threshold test. */
+   process, so this must execute BEFORE any other threshold test.
+   putenv() is used (not setenv/unsetenv) because MinGW/UCRT on Windows
+   only exposes it under POSIX feature macros, and putenv is both
+   POSIX and Windows-portable. */
+static char env_buf[] = "HZD_LOG_LEVEL=info";  /* lower-case — case-fold */
+
 static void test_env_variable_is_parsed(void)
 {
-    setenv("HZD_LOG_LEVEL", "info", 1);  /* lower-case — exercises case-fold */
+    putenv(env_buf);
     ASSERT_EQ_INT(hzd_log_threshold(), HZD_LOG_LVL_INFO);
-    unsetenv("HZD_LOG_LEVEL");
 }
 
 int main(void)
