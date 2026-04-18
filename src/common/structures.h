@@ -125,6 +125,9 @@ struct common {
   short int phase[4];
   char errflg[48];
   jmp_buf errtrap;
+  const char *errfile;
+  const char *errfunc;
+  int errline;
 };
 
 struct hazg1 {

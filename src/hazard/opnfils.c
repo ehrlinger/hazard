@@ -1,9 +1,5 @@
 #include "swab_compat.h"
 #include <string.h>
-/* Initilize the run */
-/* Comment out this statement to print debugging messages to the
-   stderr stream. This statement effects this file only */
-#define NDEBUG
 
 #include <stdlib.h>
 #include <string.h>
@@ -13,8 +9,8 @@
 #include <hzfxit.h>
 #include <stmtopts.h>
 #include <hzf_memget.h>
+#include <hzd_log.h>
 /* SAS_TRANSPORT_BYTESWAP is defined by swab_compat.h on little-endian hosts. */
-/* #define NDEBUG */
 
 /****************************************************************/
 /* opnfils called from main routine                             */
@@ -23,10 +19,8 @@ void opnfils(char *in_file_name){
   int i;
 
   /* Get the current temporary analysis directory */
-#ifndef NDEBUG
-  fprintf(stderr, "COMSPEC: %s\n", getenv("COMSPEC"));
-  fprintf(stderr, "TMPDIR: %s\n", getenv("TMPDIR"));
-#endif
+  HZD_LOG_DEBUG("COMSPEC: %s", getenv("COMSPEC") ? getenv("COMSPEC") : "(unset)");
+  HZD_LOG_DEBUG("TMPDIR: %s",  getenv("TMPDIR")  ? getenv("TMPDIR")  : "(unset)");
 
   if(NULL==(ptr = getenv("TMPDIR"))){
     if(NULL==(ptr = getenv("TEMPDIR"))){
@@ -64,13 +58,11 @@ void opnfils(char *in_file_name){
   strcpy(bfr,pfx);
   strcat(bfr,".dta");
 
-#ifndef NDEBUG
-  fprintf(stderr, "data input file: %s\n", bfr);
-#endif /* NDEBUG */
+  HZD_LOG_DEBUG("data input file: %s", bfr);
 
   /* Open the input data file */
   if(NULL==(inputDataFile = fopen(bfr,"rb"))) {
-    fprintf(stderr, "ERROR: cannot open input data file: %s\n", bfr);
+    HZD_LOG_ERROR("cannot open input data file: %s", bfr);
     hzfxit("open input file");
   }
 
@@ -109,10 +101,8 @@ void opnfils(char *in_file_name){
   /* numvars is an int global (hzdinc.h), so parse it as %d. */
   sscanf(&bfr[54],"%4d",&numvars);
 
-#ifndef NDEBUG
-  fprintf(stderr, "Numvars: %d\n", numvars);
-  fprintf(stderr, "length of bfr: %d\n", strlen(bfr));
-#endif
+  HZD_LOG_DEBUG("Numvars: %d", numvars);
+  HZD_LOG_DEBUG("length of bfr: %zu", strlen(bfr));
 
   ns = (struct namestr *)hzf_memget(sizeof(struct namestr)*numvars);
 

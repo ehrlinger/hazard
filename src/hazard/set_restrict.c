@@ -1,5 +1,6 @@
 #include <string.h>
 #include "hazard.h"
+#include "hzd_log.h"
 /***************************************************************
  * SETREST called from main                                    *
  *                                                             *
@@ -10,9 +11,6 @@
  * name is stored in O->rsttbl[i].rstnam. We are creating a    *
  * vector (O->rsttbl[i].rstvar) of RESTRICTed variable indices *
 ****************************************************************/
-/* Comment out this statement to print debugging messages to the
-   stderr stream. This statement effects this file only */
-#define NDEBUG 
 
 void set_restrict(void){
   int i,j;
@@ -31,9 +29,7 @@ void set_restrict(void){
 	  /* Until a match is found                       */
 	  memcmp(risk[j],O->rsttbl[i].rstnam, VAR_NAME_LENGTH); j++);
       
-#ifndef NDEBUG
-    fprintf(stderr, "RESTRICTing %s\n", O->rsttbl[i].rstnam);
-#endif /* NDEBUG */
+    HZD_LOG_DEBUG("RESTRICTing %s", O->rsttbl[i].rstnam);
 
     /* Once we have a match, add the index to the RESTRICT vector */
     O->rsttbl[i].rstvar = (j<C->p) ? (j+1) : 0;  
