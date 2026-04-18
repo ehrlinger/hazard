@@ -382,6 +382,31 @@ static void test_invalid_g1flag_triggers_error(void)
     }
 }
 
+/* hzd_Error() is a macro that threads __FILE__/__LINE__/__func__ through
+   to hzd_Error_at().  When a shaping routine raises, the Common struct
+   must hold the origin of the failure so the top-level catch handler
+   in hazard.c can print it. */
+static void test_error_populates_origin_context(void)
+{
+    setup_case1_avc();
+    Early.g1flag = 0;
+    HazG1.T = 1.0;
+    Common.errfile = NULL;
+    Common.errfunc = NULL;
+    Common.errline = 0;
+
+    if (setjmp(Common.errtrap) == 0) {
+        hzd_ln_G1_and_SG1();
+        ASSERT_TRUE(0);
+    } else {
+        /* errflg is wrapped in "(...)" by hzd_Error_at. */
+        ASSERT_TRUE(Common.errflg[0] == '(');
+        ASSERT_TRUE(Common.errfile != NULL);
+        ASSERT_TRUE(Common.errfunc != NULL);
+        ASSERT_TRUE(Common.errline > 0);
+    }
+}
+
 /* ------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------ */
@@ -418,6 +443,7 @@ int main(void)
 
     TEST_SUITE("Error handling");
     RUN_TEST(test_invalid_g1flag_triggers_error);
+    RUN_TEST(test_error_populates_origin_context);
 
     print_test_results();
     return test_exit_code();
