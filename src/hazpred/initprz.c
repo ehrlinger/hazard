@@ -12,7 +12,6 @@
 #include "xlmode.h"
 #include "hzf_log1.h"
 #include "hzfxit.h"
-#define NDEBUG
 
 #include "yyparse.h"
 
@@ -43,9 +42,9 @@ void initprz(void){
   /* Dump a run header */
   hzf_log1(" ");
   hzf_log1(version_text);
-#ifdef NDEBUG
+#ifdef HZD_DEBUG_BUILD
   hzf_log1("      DEBUGGING VERSION");
-#endif /* NDEBUG */
+#endif
   hzf_log1("      The Cleveland Clinic Foundation");
   hzf_log1("      9500 Euclid Avenue");
   hzf_log1("      Cleveland, Ohio 44195");

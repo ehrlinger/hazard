@@ -26,11 +26,8 @@
 #include <hzfxpr.h>
 #include <hzfxpi.h>
 #include <hzflg2.h>
+#include <hzd_log.h>
 
-
-/* Comment out this statement to print debugging messages to the
-   stderr stream. This statement effects this file only */
-#define NDEBUG 
 
 /* */
 void HZ4I(struct common *hzrC){
@@ -78,9 +75,7 @@ void HZ4LOOP(void){
       if(O->restct!=0) {
 	RSTBACK();
 	if(H->swadel!=0) {
-#ifndef NDEBUG
-	  fprintf(stderr, "WARNING: At least one RESTRICTed variable was not removed from the model.\n");
-#endif /* NDEBUG */
+	  HZD_LOG_WARN("At least one RESTRICTed variable was not removed from the model.");
 	  hzflg1("WARNING: At least one RESTRICTed variable was not "
 		 "removed from the model.",73);
 	  hzfxpc("****** WARNING: At least one RESTRICTed variable "
@@ -320,9 +315,7 @@ void STPWISE(void){
     H->swadel = 1;
   } else if(H->swadel==21) {
     hzfskp(1);
-#ifndef NDEBUG
-    fprintf(stderr, "***** A variable is being dropped from the model due to RESTRICT specifications.\n");
-#endif /* NDEBUG */
+    HZD_LOG_INFO("A variable is being dropped from the model due to RESTRICT specifications.");
     hzfxpc("***** A variable is being dropped from the model due to "
 	   "RESTRICT specifications.",78,5);
     hzfskp(2);
@@ -914,16 +907,11 @@ void SPRT3_L(void){
 	if(!((C->phase[1]==1 && j==8) ||
 	     (C->phase[2]==1 && j==C->p+9) ||
 	     (C->phase[3]==1 && j==2*C->p+10))){
-#ifndef NDEBUG
-	  fprintf(stderr, "Restricting O->rstvec[%d] = %d\n",
-		  j, O->rstvec[j]);
-#endif /* NDEBUG */
-	  
+	  HZD_LOG_DEBUG("Restricting O->rstvec[%d] = %d", j, O->rstvec[j]);
+
 	  if(O->rstvec[j]==1){
 	    hzfxpc("RESTRICT",8,-3);
-#ifndef NDEBUG
-	    fprintf(stderr, "Restricted\n");
-#endif /* NDEBUG */
+	    HZD_LOG_DEBUG("Restricted");
 	  }else{
 	    hzfxpi(movrem,3,-3);
 	  }

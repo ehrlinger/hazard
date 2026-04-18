@@ -1,8 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-/* Comment out this statement to print debugging messages to the
-   stderr stream. This statement effects this file only */
-#define NDEBUG 
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -14,12 +11,12 @@
 #include <xlmode.h>
 #include <hzf_log1.h>
 #include <hzfxit.h>
+#include <hzd_log.h>
 
 #include <yyparse.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* #define NDEBUG */
 /****************************************************************/
 
 void initprz(void){
@@ -38,15 +35,11 @@ void initprz(void){
     stdin at program execution. 
   */
   
-#ifndef NDEBUG
-  fprintf(stderr, "Parse input instructions\n");
-#endif
+  HZD_LOG_DEBUG("Parse input instructions");
 
   yyparse();
-  
-#ifndef NDEBUG
-  fprintf(stderr, "Checking for parse errors\n");
-#endif
+
+  HZD_LOG_DEBUG("Checking for parse errors");
 
   stmtptr = anchor;
   C->errorno = 0;
@@ -59,21 +52,18 @@ void initprz(void){
       xlmode(1);
   }
 
-  
-#ifndef NDEBUG
-  /* The same as debug statements for the PC version only */
-  fprintf(stderr, "Dump run headers\n");
-#endif
+
+  HZD_LOG_DEBUG("Dump run headers");
   /* Dump a run header */
   hzf_log1(" ");
-  
+
   hzf_log1(version_text);
 #ifdef HAZOPTIM
   hzf_log1("      Optimized version");
 #endif
-#ifndef NDEBUG
+#ifdef HZD_DEBUG_BUILD
   hzf_log1("      DEBUGGING VERSION");
-#endif /* NDEBUG */
+#endif
   hzf_log1("      The Cleveland Clinic Foundation");
   hzf_log1("      9500 Euclid Avenue");
   hzf_log1("      Cleveland, Ohio 44195");
