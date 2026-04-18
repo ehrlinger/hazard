@@ -96,7 +96,10 @@ jobs:
         # version-bump PR.  Branch protection prevents github-actions[bot]
         # from pushing directly to main, so we verify instead of auto-commit.
         run: |
-          VERSION=$(grep 'AC_INIT' configure.ac | grep -oP '[\d.]+(?=\])')
+          # Anchor to start-of-line so commented-out historical AC_INIT
+          # lines (e.g. "# AC_INIT([Hazard_Package],[4.3.0])") don't leak
+          # into VERSION and break the string compare below.
+          VERSION=$(grep '^AC_INIT' configure.ac | grep -oP '[\d.]+(?=\])')
           EXPECTED="{\"schemaVersion\": 1, \"label\": \"version\", \"message\": \"$VERSION\", \"color\": \"blue\"}"
           ACTUAL=$(cat version-badge.json | tr -d '\n')
           if [ "$ACTUAL" != "$EXPECTED" ]; then
