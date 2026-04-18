@@ -38,7 +38,8 @@ COMMON_SHAPING = \
     $(SRCDIR)/hzd_ln_eX_plus1.c    \
     $(SRCDIR)/hzd_ln_eeX_min1.c    \
     $(SRCDIR)/hzd_ln_1min_enegX.c  \
-    $(SRCDIR)/hzd_Error.c
+    $(SRCDIR)/hzd_Error.c          \
+    $(SRCDIR)/hzd_log.c
 
 # Global storage + init (must appear exactly once per binary).
 GLOBALS = test_globals.c test_harness_hooks.c
@@ -67,9 +68,25 @@ test_obs_layout: test_obs_layout.c test_harness_hooks.c
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # ------------------------------------------------------------------ #
+# test_error_describe                                                  #
+#   Tests: cryptic-code → human description table                     #
+# ------------------------------------------------------------------ #
+test_error_describe: test_error_describe.c test_harness_hooks.c \
+                     $(SRCDIR)/hzd_error_describe.c
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+# ------------------------------------------------------------------ #
+# test_log                                                             #
+#   Tests: levelled logger threshold + emission format                #
+# ------------------------------------------------------------------ #
+test_log: test_log.c test_harness_hooks.c $(SRCDIR)/hzd_log.c
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+# ------------------------------------------------------------------ #
 # Aggregate targets                                                    #
 # ------------------------------------------------------------------ #
-ALL_BINS = test_math_helpers test_shaping_functions test_obs_layout
+ALL_BINS = test_math_helpers test_shaping_functions test_obs_layout \
+           test_error_describe test_log
 
 all: $(ALL_BINS)
 
@@ -135,6 +152,12 @@ $(COV_DIR)/test_shaping_functions.o: test_shaping_functions.c | $(COV_DIR)
 $(COV_DIR)/test_obs_layout.o: test_obs_layout.c | $(COV_DIR)
 	$(CC) $(COV_CFLAGS) -c -o $@ $<
 
+$(COV_DIR)/test_error_describe.o: test_error_describe.c | $(COV_DIR)
+	$(CC) $(COV_CFLAGS) -c -o $@ $<
+
+$(COV_DIR)/test_log.o: test_log.c | $(COV_DIR)
+	$(CC) $(COV_CFLAGS) -c -o $@ $<
+
 # Sources from src/common/
 $(COV_DIR)/%.o: $(SRCDIR)/%.c | $(COV_DIR)
 	$(CC) $(COV_CFLAGS) -c -o $@ $<
@@ -156,7 +179,8 @@ COV_COMMON_SHAPE = \
     $(COV_DIR)/hzd_ln_eX_plus1.o    \
     $(COV_DIR)/hzd_ln_eeX_min1.o    \
     $(COV_DIR)/hzd_ln_1min_enegX.o  \
-    $(COV_DIR)/hzd_Error.o
+    $(COV_DIR)/hzd_Error.o          \
+    $(COV_DIR)/hzd_log.o
 
 # ---- coverage binaries ---------------------------------------------
 
@@ -177,10 +201,22 @@ $(COV_DIR)/test_obs_layout: $(COV_DIR)/test_harness_hooks.o \
                             $(COV_DIR)/test_obs_layout.o
 	$(CC) $(COV_CFLAGS) -o $@ $^ -lm
 
+$(COV_DIR)/test_error_describe: $(COV_DIR)/test_harness_hooks.o \
+                                $(COV_DIR)/hzd_error_describe.o \
+                                $(COV_DIR)/test_error_describe.o
+	$(CC) $(COV_CFLAGS) -o $@ $^ -lm
+
+$(COV_DIR)/test_log: $(COV_DIR)/test_harness_hooks.o \
+                     $(COV_DIR)/hzd_log.o \
+                     $(COV_DIR)/test_log.o
+	$(CC) $(COV_CFLAGS) -o $@ $^ -lm
+
 COV_BINS = \
     $(COV_DIR)/test_math_helpers    \
     $(COV_DIR)/test_shaping_functions \
-    $(COV_DIR)/test_obs_layout
+    $(COV_DIR)/test_obs_layout      \
+    $(COV_DIR)/test_error_describe  \
+    $(COV_DIR)/test_log
 
 # ---- aggregate target ----------------------------------------------
 

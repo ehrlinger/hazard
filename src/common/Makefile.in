@@ -148,7 +148,8 @@ am_libcommon_a_OBJECTS = hzf_log2.$(OBJEXT) hzfpag.$(OBJEXT) \
 	hzd_ln_G3_and_SG3_m.$(OBJEXT) hzd_ln_G3_and_SG3.$(OBJEXT) \
 	hzd_ln_eBXmin1divB.$(OBJEXT) setparm.$(OBJEXT) \
 	setopt.$(OBJEXT) setvar.$(OBJEXT) errtext.$(OBJEXT) \
-	yyerror.$(OBJEXT) yywrap.$(OBJEXT)
+	yyerror.$(OBJEXT) yywrap.$(OBJEXT) hzd_log.$(OBJEXT) \
+	hzd_error_describe.$(OBJEXT)
 libcommon_a_OBJECTS = $(am_libcommon_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -167,9 +168,9 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/dlgaob.Po ./$(DEPDIR)/errtext.Po \
 	./$(DEPDIR)/hzd_Error.Po ./$(DEPDIR)/hzd_early_p2t.Po \
-	./$(DEPDIR)/hzd_early_t2p.Po ./$(DEPDIR)/hzd_init_Common.Po \
-	./$(DEPDIR)/hzd_late_p2t.Po ./$(DEPDIR)/hzd_late_t2p.Po \
-	./$(DEPDIR)/hzd_ln_1min_e_negeX.Po \
+	./$(DEPDIR)/hzd_early_t2p.Po ./$(DEPDIR)/hzd_error_describe.Po \
+	./$(DEPDIR)/hzd_init_Common.Po ./$(DEPDIR)/hzd_late_p2t.Po \
+	./$(DEPDIR)/hzd_late_t2p.Po ./$(DEPDIR)/hzd_ln_1min_e_negeX.Po \
 	./$(DEPDIR)/hzd_ln_1min_enegX.Po ./$(DEPDIR)/hzd_ln_A_div_B.Po \
 	./$(DEPDIR)/hzd_ln_G1_and_SG1.Po \
 	./$(DEPDIR)/hzd_ln_G1_and_SG1_m.Po \
@@ -177,7 +178,7 @@ am__depfiles_remade = ./$(DEPDIR)/dlgaob.Po ./$(DEPDIR)/errtext.Po \
 	./$(DEPDIR)/hzd_ln_G3_and_SG3_m.Po \
 	./$(DEPDIR)/hzd_ln_eBXmin1divB.Po \
 	./$(DEPDIR)/hzd_ln_eX_min1.Po ./$(DEPDIR)/hzd_ln_eX_plus1.Po \
-	./$(DEPDIR)/hzd_ln_eeX_min1.Po \
+	./$(DEPDIR)/hzd_ln_eeX_min1.Po ./$(DEPDIR)/hzd_log.Po \
 	./$(DEPDIR)/hzd_parms_to_theta.Po ./$(DEPDIR)/hzd_set_LnLim.Po \
 	./$(DEPDIR)/hzd_set_Machn.Po ./$(DEPDIR)/hzd_set_rho.Po \
 	./$(DEPDIR)/hzd_theta_to_parms.Po ./$(DEPDIR)/hzf_col.Po \
@@ -381,7 +382,7 @@ noinst_HEADERS = hzf_log2.h hzfpag.h hzfxpi.h notspec.h xMISSgot.h xpmode.h \
 	hzd_early_t2p.h hzd_late_t2p.h hzd_ln_G1_and_SG1_m.h hzd_ln_A_div_B.h \
 	hzd_ln_G1_and_SG1.h hzd_ln_G3_and_SG3_m.h hzd_ln_G3_and_SG3.h \
 	hzd_ln_eBXmin1divB.h setparm.h setopt.h setvar.h errtext.h yyparse.h \
-	yyerror.h common.h
+	yyerror.h common.h hzd_log.h hzd_error_describe.h
 
 libcommon_a_SOURCES = hzf_log2.c hzfpag.c hzfxpi.c notspec.c xMISSgot.c \
 	xpmode.c xvputd.c hzf_put.c hzfskp.c hzfxpr.c stmtfld.c isblank.c \
@@ -395,7 +396,7 @@ libcommon_a_SOURCES = hzf_log2.c hzfpag.c hzfxpi.c notspec.c xMISSgot.c \
 	hzd_late_p2t.c hzd_theta_to_parms.c hzd_early_t2p.c hzd_late_t2p.c \
 	hzd_ln_G1_and_SG1_m.c hzd_ln_G1_and_SG1.c hzd_ln_G3_and_SG3_m.c \
 	hzd_ln_G3_and_SG3.c hzd_ln_eBXmin1divB.c setparm.c setopt.c setvar.c \
-	errtext.c yyerror.c yywrap.c
+	errtext.c yyerror.c yywrap.c hzd_log.c hzd_error_describe.c
 
 all: all-am
 
@@ -450,6 +451,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_Error.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_early_p2t.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_early_t2p.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_error_describe.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_init_Common.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_late_p2t.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_late_t2p.Po@am__quote@ # am--include-marker
@@ -464,6 +466,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_ln_eX_min1.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_ln_eX_plus1.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_ln_eeX_min1.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_log.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_parms_to_theta.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_set_LnLim.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzd_set_Machn.Po@am__quote@ # am--include-marker
@@ -660,6 +663,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/hzd_Error.Po
 	-rm -f ./$(DEPDIR)/hzd_early_p2t.Po
 	-rm -f ./$(DEPDIR)/hzd_early_t2p.Po
+	-rm -f ./$(DEPDIR)/hzd_error_describe.Po
 	-rm -f ./$(DEPDIR)/hzd_init_Common.Po
 	-rm -f ./$(DEPDIR)/hzd_late_p2t.Po
 	-rm -f ./$(DEPDIR)/hzd_late_t2p.Po
@@ -674,6 +678,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/hzd_ln_eX_min1.Po
 	-rm -f ./$(DEPDIR)/hzd_ln_eX_plus1.Po
 	-rm -f ./$(DEPDIR)/hzd_ln_eeX_min1.Po
+	-rm -f ./$(DEPDIR)/hzd_log.Po
 	-rm -f ./$(DEPDIR)/hzd_parms_to_theta.Po
 	-rm -f ./$(DEPDIR)/hzd_set_LnLim.Po
 	-rm -f ./$(DEPDIR)/hzd_set_Machn.Po
@@ -770,6 +775,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/hzd_Error.Po
 	-rm -f ./$(DEPDIR)/hzd_early_p2t.Po
 	-rm -f ./$(DEPDIR)/hzd_early_t2p.Po
+	-rm -f ./$(DEPDIR)/hzd_error_describe.Po
 	-rm -f ./$(DEPDIR)/hzd_init_Common.Po
 	-rm -f ./$(DEPDIR)/hzd_late_p2t.Po
 	-rm -f ./$(DEPDIR)/hzd_late_t2p.Po
@@ -784,6 +790,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/hzd_ln_eX_min1.Po
 	-rm -f ./$(DEPDIR)/hzd_ln_eX_plus1.Po
 	-rm -f ./$(DEPDIR)/hzd_ln_eeX_min1.Po
+	-rm -f ./$(DEPDIR)/hzd_log.Po
 	-rm -f ./$(DEPDIR)/hzd_parms_to_theta.Po
 	-rm -f ./$(DEPDIR)/hzd_set_LnLim.Po
 	-rm -f ./$(DEPDIR)/hzd_set_Machn.Po

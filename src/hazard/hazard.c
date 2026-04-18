@@ -31,9 +31,6 @@
     fixed.
 **/
 
-/* Comment out NDEBUG to enable debug messages to stderr */
-#define NDEBUG
-
 #define HAZARD
 #define GLOBAL_DEFS
 
@@ -84,16 +81,13 @@
 #include <hzfxpc.h>
 #include <hzfskp.h>
 #include <xexit.h>
+#include <hzd_log.h>
+#include <hzd_error_describe.h>
 
 #include "hzrg.h"
 #include "hzri.h"
 
-/* Debug macro: remove NDEBUG above (or compile with -UNDEBUG) to enable */
-#ifdef NDEBUG
-#define DBG(fmt, ...) ((void)0)
-#else
-#define DBG(fmt, ...) fprintf(stderr, "[hazard:%d] " fmt "\n", __LINE__, ##__VA_ARGS__)
-#endif
+#define DBG(...) HZD_LOG_DEBUG(__VA_ARGS__)
 
 /****************************************************************/
 int main(void){
@@ -148,10 +142,31 @@ int main(void){
   /* XINIT performs some sanity checks for the current platform */
   xinit();                                  /* common/hazcfn.c */
 
-  /* Error trap: catches any longjmp from hzd_Error() */
+  /* Error trap: catches any longjmp from hzd_Error().
+     Prints the origin captured by hzd_Error_at() — file:line:func —
+     followed by a human-readable description when the code is known. */
   if ((err = setjmp(C->errtrap)) != 0) {
-    fprintf(stderr, "HAZARD ERROR %d %s: abnormal termination after step \"%s\"\n",
-            err, C->errflg, last_step);
+    const char *raw = C->errflg;
+    const char *origin_file = C->errfile ? C->errfile : "?";
+    const char *origin_func = C->errfunc ? C->errfunc : "?";
+    /* errflg is wrapped in "(...)" — peel it back so describe() can match. */
+    char code[48];
+    size_t n = strlen(raw);
+    if(n >= 2 && raw[0] == '(' && raw[n-1] == ')') {
+      size_t len = n - 2;
+      if(len >= sizeof(code)) len = sizeof(code) - 1;
+      memcpy(code, raw + 1, len);
+      code[len] = '\0';
+    } else {
+      strncpy(code, raw, sizeof(code) - 1);
+      code[sizeof(code) - 1] = '\0';
+    }
+    const char *desc = hzd_error_describe(code);
+    fprintf(stderr,
+            "HAZARD ERROR %d during step \"%s\" at %s:%d %s(): %s%s%s\n",
+            err, last_step, origin_file, C->errline, origin_func,
+            code[0] ? code : "(no code)",
+            desc ? " — " : "", desc ? desc : "");
     hzrbomb();
     xexit(1);
   }
@@ -243,11 +258,6 @@ int main(void){
 
   /* Close the input data file */
   fclose(inputDataFile);
-
-#ifdef NDEBUG
-  /* By default the inputDataFile is removed on program exit */
-  /*  remove(in_file_name);*/
-#endif /* NDEBUG */
 
   last_step = "HAZRD2";
   DBG("Output");

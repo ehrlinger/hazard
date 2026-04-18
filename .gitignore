@@ -60,6 +60,13 @@ src/blackbox/blackbox
 src/blackbox/hzpexmpl
 src/blackbox/xpt2ascii
 
+# Unit test binaries (sources live alongside as test_*.c)
+tests/unit/test_math_helpers
+tests/unit/test_shaping_functions
+tests/unit/test_obs_layout
+tests/unit/test_error_describe
+tests/unit/test_log
+
 # Legacy runtime scratch artifacts
 *.pcv
 .pure
