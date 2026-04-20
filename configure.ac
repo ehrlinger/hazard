@@ -11,7 +11,7 @@
 AC_PREREQ([2.69])
 # AC_INIT must be the first thing done.
 # AC_INIT([Hazard_Package],[4.3.0])
-AC_INIT([Hazard_Package],[4.4.1])
+AC_INIT([Hazard_Package],[4.4.2])
 AC_CONFIG_SRCDIR([README.md])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([foreign])
