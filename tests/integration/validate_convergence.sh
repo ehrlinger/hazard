@@ -69,44 +69,55 @@ fail() { echo "  FAIL: $1 — $2"; FAILURES=$((FAILURES + 1)); }
 skip() { echo "  SKIP: $1 — $2"; SKIPPED=$((SKIPPED + 1)); }
 
 numbers_equal_dp() {
-    python3 -c "
+    # Pass values via argv rather than string-interpolating them into the
+    # Python source.  An embedded CR (from CRLF-encoded reference files)
+    # would otherwise be treated as a newline inside the string literal
+    # and raise SyntaxError, which the caller used to interpret as a
+    # numeric mismatch.
+    python3 - "$1" "$2" "$3" <<'PY' 2>/dev/null
 import sys
-got, want, dp = float('$1'), float('$2'), int('$3')
+got, want, dp = float(sys.argv[1].strip()), float(sys.argv[2].strip()), int(sys.argv[3])
 tol = 0.5 * 10**(-dp)
 sys.exit(0 if abs(got - want) <= tol else 1)
-" 2>/dev/null
+PY
 }
 
 numbers_within_pct() {
     # Returns 0 (success) if |got-want|/|want| <= pct/100
-    python3 -c "
+    python3 - "$1" "$2" "$3" <<'PY' 2>/dev/null
 import sys
-got, want, pct = float('$1'), float('$2'), float('$3')
+got, want, pct = float(sys.argv[1].strip()), float(sys.argv[2].strip()), float(sys.argv[3])
 if want == 0:
     sys.exit(0 if abs(got - want) < 1e-10 else 1)
 sys.exit(0 if abs(got - want) / abs(want) <= pct / 100.0 else 1)
-" 2>/dev/null
+PY
 }
+
+# Normalise line endings in extracted fields.  The checked-in reference
+# and fallback .lst files can have CRLF endings, and awk's default FS
+# doesn't treat \r as whitespace — leaving a trailing CR on $NF.  Strip
+# it here so downstream numeric comparators see clean numbers.
+strip_cr() { tr -d '\r'; }
 
 # Extract the FINAL log likelihood (last occurrence in the log).
 extract_final_loglik() {
-    grep "Log likelihood" "$1" 2>/dev/null | tail -1 | awk '{print $NF}'
+    grep "Log likelihood" "$1" 2>/dev/null | strip_cr | tail -1 | awk '{print $NF}'
 }
 
 # Extract "terminated after N iterations and M function evaluations"
 extract_iterations() {
-    grep "terminated after" "$1" 2>/dev/null | head -1 | \
+    grep "terminated after" "$1" 2>/dev/null | strip_cr | head -1 | \
         sed 's/.*after *\([0-9]*\) iter.*/\1/'
 }
 
 extract_nfncts() {
-    grep "terminated after" "$1" 2>/dev/null | head -1 | \
+    grep "terminated after" "$1" 2>/dev/null | strip_cr | head -1 | \
         sed 's/.*and *\([0-9]*\) function.*/\1/'
 }
 
 # Extract "Log base 10 of condition code = VALUE"
 extract_condcode() {
-    grep "condition code" "$1" 2>/dev/null | head -1 | awk '{print $NF}'
+    grep "condition code" "$1" 2>/dev/null | strip_cr | head -1 | awk '{print $NF}'
 }
 
 # ------------------------------------------------------------------ #
