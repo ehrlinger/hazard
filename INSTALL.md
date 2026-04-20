@@ -49,7 +49,7 @@ On macOS, `./configure` now ignores an exported `CC=/opt/homebrew/bin/gcc-14` an
 
 ### macOS Intel (x86_64)
 
-Pre-built binaries are provided for macOS Apple Silicon (`arm64`) only.  The GitHub Actions free tier has retired its Intel macOS runner (`macos-13`), so release binaries for `macos-x86_64` are not shipped.  Intel macOS users should build from source:
+Pre-built binaries are provided for macOS Apple Silicon (`arm64`) only.  The GitHub Actions free tier has retired its Intel macOS runner (`macos-13`), so release binaries for `macos-x64` (Intel) are not shipped.  Intel macOS users should build from source:
 
 ```sh
 autoreconf -fi

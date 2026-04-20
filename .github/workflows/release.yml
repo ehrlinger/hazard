@@ -32,8 +32,11 @@ jobs:
             artifact: macos-arm64
           # macos-x64 intentionally dropped: the macos-13 runner label
           # has been retired from the GitHub Actions free tier and there
-          # is no free-tier Intel macOS replacement. Intel macOS users
-          # should build from source (see INSTALL.md).
+          # is no free-tier Intel macOS replacement. This workflow now
+          # publishes only linux-x64, linux-arm64, macos-arm64, and
+          # windows-x64 archives; do not expect a
+          # hazard-${version}-macos-x64.tar.gz release asset. Intel
+          # macOS users should build from source (see INSTALL.md).
 
     steps:
       - uses: actions/checkout@v4
