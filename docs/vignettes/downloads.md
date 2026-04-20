@@ -23,9 +23,10 @@ Typical artifact names:
 |---|---|
 | Linux x64 | `hazard-vX.Y.Z-linux-x64.tar.gz` |
 | Linux arm64 | `hazard-vX.Y.Z-linux-arm64.tar.gz` |
-| macOS x64 | `hazard-vX.Y.Z-macos-x64.tar.gz` |
 | macOS arm64 | `hazard-vX.Y.Z-macos-arm64.tar.gz` |
 | Windows x64 | `hazard-vX.Y.Z-windows-x64.zip` |
+
+macOS Intel (`macos-x64`) binaries are not published — the GitHub Actions free tier retired its `macos-13` runner.  Intel macOS users should build from source; see the `macOS Intel (x86_64)` section of the repository's root [`INSTALL.md`](../../INSTALL.md#macos-intel-x86_64) for the exact commands.
 
 Legacy binary packages may still be available via Cleveland Clinic contact channels.
 
