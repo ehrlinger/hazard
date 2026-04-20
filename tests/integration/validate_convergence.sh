@@ -45,7 +45,7 @@ preflight_dependencies() {
     local missing=0
     local tool
 
-    for tool in awk grep sed; do
+    for tool in awk grep sed tr; do
         if ! command -v "${tool}" >/dev/null 2>&1; then
             echo "ERROR: required tool '${tool}' was not found in PATH"
             missing=1
@@ -104,20 +104,23 @@ extract_final_loglik() {
     grep "Log likelihood" "$1" 2>/dev/null | strip_cr | tail -1 | awk '{print $NF}'
 }
 
-# Extract "terminated after N iterations and M function evaluations"
+# Extract "terminated after N iterations and M function evaluations".
+# Use grep -m1 (stop at first match) for consistency with
+# validate_numerical.sh and to avoid scanning the whole file plus any
+# SIGPIPE exit statuses under set -o pipefail.
 extract_iterations() {
-    grep "terminated after" "$1" 2>/dev/null | strip_cr | head -1 | \
+    grep -m1 "terminated after" "$1" 2>/dev/null | strip_cr | \
         sed 's/.*after *\([0-9]*\) iter.*/\1/'
 }
 
 extract_nfncts() {
-    grep "terminated after" "$1" 2>/dev/null | strip_cr | head -1 | \
+    grep -m1 "terminated after" "$1" 2>/dev/null | strip_cr | \
         sed 's/.*and *\([0-9]*\) function.*/\1/'
 }
 
 # Extract "Log base 10 of condition code = VALUE"
 extract_condcode() {
-    grep "condition code" "$1" 2>/dev/null | strip_cr | head -1 | awk '{print $NF}'
+    grep -m1 "condition code" "$1" 2>/dev/null | strip_cr | awk '{print $NF}'
 }
 
 # ------------------------------------------------------------------ #
