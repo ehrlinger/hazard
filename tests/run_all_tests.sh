@@ -190,12 +190,12 @@ if [ "${RUN_INTEGRATION}" -eq 1 ]; then
             "${INTG_DIR}/validate_concurrent.sh"
     fi
 
-    # V8 — Acceptance corpus (black-box byte-diff vs. v4.3.1 reference).
-    # Skips cleanly when the corpus hasn't been captured yet.  See
-    # docs/VALIDATION_PLAN.md and tests/corpus/README.md.
-    # V8 — Acceptance corpus (black-box byte-diff vs. v4.4.2 self-consistency
-    # reference; pass REFERENCE=v4.3.0 to diff against the archived legacy
-    # capture instead).  Skips cleanly when the corpus or binary is missing.
+    # V8 — Acceptance corpus.  Black-box byte-diff of modern-binary
+    # output against the default v4.4.2 self-consistency reference
+    # (pass REFERENCE=v4.3.0 to audit against the archived legacy
+    # capture).  Skips cleanly on non-Darwin/Linux hosts and when the
+    # corpus or binary is missing.  See docs/VALIDATION_PLAN.md and
+    # tests/corpus/README.md.
     run_suite "V8: Acceptance Corpus" \
         "${SCRIPT_DIR}/validate_corpus.sh"
 fi
