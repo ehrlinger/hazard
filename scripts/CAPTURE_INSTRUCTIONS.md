@@ -4,7 +4,7 @@
 
 The HAZARD C package (the `hazard` / `hazpred` binaries that SAS invokes as `PROC HAZARD` / `PROC HAZPRED`) is being modernised.  Before that work can proceed safely, we need a **reference corpus**: the exact inputs and outputs from a known-good legacy install running each example `.sas` file.  Once we have that, every future change to the code can be validated against it automatically — the new binary's output must match byte-for-byte.
 
-The capture you're about to do takes maybe 30 minutes of attended work plus however long your SAS runs take.  It's a one-time job.  The output is a tarball that John will drop into the `hazard` repo.
+The capture you're about to do takes maybe 30 minutes of attended work plus however long your SAS runs take.  It's a one-time job.  The output is a tarball the hazard developers will drop into the `hazard` repo.
 
 ---
 
@@ -37,7 +37,7 @@ That's it.  Tuples land in `~/hazard-capture/` (hazard/ and hazpred/ subdirs), u
 - A Unix host (Linux, AIX, Solaris — anywhere the legacy `hazard` install runs)
 - **SAS installed** with the HAZARD module configured — however you'd normally run `PROC HAZARD`
 - Your SAS session exports **`$HAZAPPS`** pointing at the HAZARD install dir (most sites do this automatically).  If it doesn't, you can set the binary paths by hand — see the "Alternate configuration" section below.
-- Your SAS session exports **`$HZEXAMPLES`** pointing at the dir with the `.sas` example files.  Same story — standard on most HAZARD installs.  If unset, the tarball John sent includes a bundled `sas/` copy as a fallback.
+- Your SAS session exports **`$HZEXAMPLES`** pointing at the dir with the `.sas` example files.  Same story — standard on most HAZARD installs.  If unset, the tarball you were sent includes a bundled `sas/` copy as a fallback.
 
 ---
 
@@ -152,7 +152,7 @@ If you see those, capture is working.  Expect roughly 23 groups under `hazard/` 
 
 ### The wrapper fires but the .dta file isn't captured
 
-- What's `$TMPDIR`?  The wrapper snapshots `$TMPDIR/hzr*.dta` before calling the real binary.  If SAS writes elsewhere (e.g. `$TMPQDIR`, `$HAZTEMP`), we need to adjust — tell John and we'll patch the wrapper.
+- What's `$TMPDIR`?  The wrapper snapshots `$TMPDIR/hzr*.dta` before calling the real binary.  If SAS writes elsewhere (e.g. `$TMPQDIR`, `$HAZTEMP`), we need to adjust — flag this to the hazard developers and the wrapper can be patched.
 - Check `$HAZARD_CAPTURE_DIR/hazard/*.meta` — the `tmpdir=` line records which dir the wrapper looked in.
 
 ### SAS reports an error but I don't know if it's from SAS or hazard
@@ -174,7 +174,7 @@ tar -czf hazard-capture-results.tar.gz captured/
 ls -la hazard-capture-results.tar.gz
 ```
 
-Ship `hazard-capture-results.tar.gz` to John.  A typical tarball size is ~5–15 MB — the XPORT `.dta` files are most of the bulk.
+Ship `hazard-capture-results.tar.gz` back to whoever requested the capture.  A typical tarball size is ~5–15 MB — the XPORT `.dta` files are most of the bulk.
 
 That's it.  You can remove `~/hazard-capture-work/` once the tarball is safely delivered.
 
@@ -202,28 +202,26 @@ Depends on your hardware, but typically 5–20 minutes wall time.  Most examples
 
 ---
 
-Send questions to John (`ehrlinj@ccf.org`) if anything unexpected happens.  Worst case, ship whatever you captured and any error logs — partial captures are still useful.
+Send questions back through whoever requested the capture, or open an issue at https://github.com/ehrlinger/hazard/issues if you're comfortable doing so.  Worst case, ship whatever you captured and any error logs — partial captures are still useful.
 
 ---
 
-## Appendix — for John: building the capture-kit tarball
+## Appendix — for hazard developers: building the capture-kit tarball
 
-Before handing this off to the operator, assemble the kit:
+Before handing this off to an operator, assemble the kit from the hazard repo:
 
 ```sh
-# From the hazard repo root
 cd /path/to/hazard
-
-mkdir -p /tmp/hazard-capture-kit/sas
-cp scripts/capture-legacy.sh /tmp/hazard-capture-kit/
-cp scripts/CAPTURE_INSTRUCTIONS.md /tmp/hazard-capture-kit/README.md
-cp tests/*.sas /tmp/hazard-capture-kit/sas/
-# Optionally include examples/*.sas too — they exercise the same binaries
-cp examples/*.sas /tmp/hazard-capture-kit/sas/ 2>/dev/null || true
-
-cd /tmp
-tar -czf hazard-capture-kit.tar.gz hazard-capture-kit/
-ls -la hazard-capture-kit.tar.gz
+make capture-kit
+# Produces hazard-capture-kit.tar.gz at the repo root.
 ```
 
-Ship `hazard-capture-kit.tar.gz` + a pointer to this doc.  The operator's workflow assumes that's what they receive.
+The target (defined in `Makefile.am`) bundles:
+- `capture-legacy.sh` (this wrapper)
+- `capture.env.example` (optional site-config template)
+- `README.md` (a copy of this instructions doc)
+- `sas/` (all `.sas` examples from `tests/` and `examples/` as a fallback if `$HZEXAMPLES` isn't set at the operator's site)
+
+Ship `hazard-capture-kit.tar.gz` to the operator; it embeds its own `README.md` so no additional files are needed.
+
+If the operator already has HAZARD installed with `$HAZAPPS` / `$HZEXAMPLES` set, you can skip the tarball entirely — just send `scripts/capture-legacy.sh` and point them at the "Quick start" section above.
