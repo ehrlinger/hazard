@@ -189,6 +189,12 @@ if [ "${RUN_INTEGRATION}" -eq 1 ]; then
         run_suite "V7: Concurrent Execution" \
             "${INTG_DIR}/validate_concurrent.sh"
     fi
+
+    # V8 — Acceptance corpus (black-box byte-diff vs. v4.3.1 reference).
+    # Skips cleanly when the corpus hasn't been captured yet.  See
+    # docs/VALIDATION_PLAN.md and tests/corpus/README.md.
+    run_suite "V8: Acceptance Corpus (v4.3.1 reference)" \
+        "${SCRIPT_DIR}/validate_corpus.sh"
 fi
 
 # ------------------------------------------------------------------ #
