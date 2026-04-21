@@ -176,19 +176,36 @@ lst_file="$cap_dir/$uid.lst"
 meta_file="$cap_dir/$uid.meta"
 
 # --------------------------------------------------------------------------
-# Snapshot TMPDIR inputs BEFORE running.  The binary may delete the .dta
-# on exit (hazard.c does so by default).  We copy everything that looks
-# like legacy binary input (hzr*.dta for hazard; hzr*.dta + hzr*.haz for
-# hazpred) into the capture dir, prefixed with the uid so files from
-# concurrent SAS invocations don't collide.
+# Snapshot TMPDIR files.  From reading src/scripts/{hazard,hazpred}.sas
+# the macros write/read these files at $TMPDIR/$prefix.* where $prefix
+# is:
+#   hazard:  hzr.J<jobid>.X<jobix>
+#   hazpred: hzp.J<jobid>.X<jobix>
+#
+# Input side (.sas, .dta, .haz) is written BEFORE the binary runs.
+# Output side (.haz for hazard's OUTHAZ=, .out for hazpred) is written
+# BY the binary and read back by the macro AFTER the binary exits but
+# BEFORE the macro's `rm` cleanup.  So we snapshot twice: once before
+# exec (for inputs) and once after (for outputs), and we deduplicate
+# by filename — a file that already exists in the capture dir is not
+# re-copied.
+#
+# Glob covers hzr* and hzp* to catch both procedures' prefixes; all
+# relevant extensions (.sas, .dta, .haz, .out) are picked up via the
+# wildcard.
 # --------------------------------------------------------------------------
 snapshot_tmpdir() {
     local tmpdir="${TMPDIR:-/tmp}"
-    local f
-    for f in "$tmpdir"/hzr*.dta "$tmpdir"/hzr*.haz; do
+    local f base dest
+    shopt -s nullglob
+    for f in "$tmpdir"/hzr* "$tmpdir"/hzp*; do
         [ -f "$f" ] || continue
-        cp -p "$f" "$cap_dir/$uid.$(basename "$f")"
+        base="$(basename "$f")"
+        dest="$cap_dir/$uid.$base"
+        [ -e "$dest" ] && continue     # already snapshotted pre-run
+        cp -p "$f" "$dest"
     done
+    shopt -u nullglob
 }
 
 snapshot_tmpdir
@@ -208,6 +225,11 @@ set +o pipefail
 tee "$stdin_file" | "$real_bin" "$@" | tee "$lst_file"
 real_exit=${PIPESTATUS[1]}
 set -o pipefail
+
+# Second snapshot — picks up .haz (hazard's OUTHAZ=) / .out (hazpred's
+# prediction output) that the binary just wrote, before the SAS macro's
+# `rm $prefix.*` cleanup runs on our caller's side.
+snapshot_tmpdir
 
 # --------------------------------------------------------------------------
 # Metadata — small, human-readable, one record per invocation.
