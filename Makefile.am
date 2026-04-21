@@ -16,8 +16,39 @@ EXTRA_DIST = $(main_DATA)
 
 SUBDIRS = src macros docs examples
 
-.PHONY: asan
+.PHONY: asan capture-kit
 
 asan:
 	$(MAKE) clean
 	$(MAKE) all CFLAGS="$(CFLAGS) $(SANITIZER_FLAGS)" LDFLAGS="$(LDFLAGS) $(SANITIZER_FLAGS)"
+
+# Assemble the hazard-capture-kit.tar.gz tarball the operator uses to
+# capture reference inputs/outputs from the legacy v4.3.1 binary.  See
+# scripts/CAPTURE_INSTRUCTIONS.md for the operator-facing workflow and
+# docs/VALIDATION_PLAN.md for the overall design.
+#
+# The kit bundles:
+#   * capture-legacy.sh       — the wrapper script
+#   * capture.env.example     — optional per-site config template
+#   * README.md               — instructions (a copy of CAPTURE_INSTRUCTIONS.md)
+#   * sas/                    — fallback .sas examples, used only at sites that
+#                               do not export $HZEXAMPLES
+CAPTURE_KIT_DIR = hazard-capture-kit
+CAPTURE_KIT_TARBALL = hazard-capture-kit.tar.gz
+
+capture-kit:
+	rm -rf $(CAPTURE_KIT_DIR) $(CAPTURE_KIT_TARBALL)
+	mkdir -p $(CAPTURE_KIT_DIR)/sas
+	cp $(top_srcdir)/scripts/capture-legacy.sh        $(CAPTURE_KIT_DIR)/
+	cp $(top_srcdir)/scripts/capture.env.example      $(CAPTURE_KIT_DIR)/
+	cp $(top_srcdir)/scripts/CAPTURE_INSTRUCTIONS.md  $(CAPTURE_KIT_DIR)/README.md
+	cp $(top_srcdir)/tests/*.sas     $(CAPTURE_KIT_DIR)/sas/ 2>/dev/null || true
+	cp $(top_srcdir)/examples/*.sas  $(CAPTURE_KIT_DIR)/sas/ 2>/dev/null || true
+	chmod +x $(CAPTURE_KIT_DIR)/capture-legacy.sh
+	tar -czf $(CAPTURE_KIT_TARBALL) $(CAPTURE_KIT_DIR)
+	rm -rf $(CAPTURE_KIT_DIR)
+	@echo ""
+	@echo "Built $(CAPTURE_KIT_TARBALL) ($$(du -h $(CAPTURE_KIT_TARBALL) | cut -f1)):"
+	@tar -tzf $(CAPTURE_KIT_TARBALL) | sed 's/^/    /' | head -30
+	@echo ""
+	@echo "Hand this tarball to the operator; it embeds its own README.md."

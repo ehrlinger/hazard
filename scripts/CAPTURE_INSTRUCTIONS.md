@@ -8,6 +8,30 @@ The capture you're about to do takes maybe 30 minutes of attended work plus howe
 
 ---
 
+## Quick start (if HAZARD v4.3.1 is already installed)
+
+If your site already has v4.3.1 and the SAS environment exports `$HAZAPPS` (install dir) + `$HZEXAMPLES` (example `.sas` dir), the wrapper script is the only thing you need.  Skip the kit tarball.
+
+```sh
+# Drop the wrapper on PATH as both `hazard` and `hazpred`
+mkdir -p ~/hazard-shadow-bin
+cp /path/to/capture-legacy.sh ~/hazard-shadow-bin/
+chmod +x ~/hazard-shadow-bin/capture-legacy.sh
+ln -sf ~/hazard-shadow-bin/capture-legacy.sh ~/hazard-shadow-bin/hazard
+ln -sf ~/hazard-shadow-bin/capture-legacy.sh ~/hazard-shadow-bin/hazpred
+export PATH=~/hazard-shadow-bin:$PATH
+
+# Run the example corpus through SAS
+for sas in "$HZEXAMPLES"/*.sas; do sas -nodms "$sas"; done
+
+# Ship the results back
+tar -czf hazard-capture-results.tar.gz ~/hazard-capture/
+```
+
+That's it.  Tuples land in `~/hazard-capture/` (hazard/ and hazpred/ subdirs), uniquely IDed per invocation.  Rest of this doc is for cases where site conventions differ, or troubleshooting is needed.
+
+---
+
 ## What you need before starting
 
 - A Unix host (Linux, AIX, Solaris — anywhere the legacy `hazard` install runs)
