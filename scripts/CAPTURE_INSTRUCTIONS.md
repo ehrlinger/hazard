@@ -73,20 +73,30 @@ If either still resolves to the real install's `bin/hazard`, PATH isn't right �
 
 Before running all 23+ files, run one through SAS and confirm the wrapper fired.  `hm.death.AVC` is a good choice — small, self-contained, no dependencies on earlier runs.
 
+> **Important — `-set HAZAPPS` and `-set TMPDIR`:** many sites wrap the `sas` command in a startup script that resets `HAZAPPS` (and strips `TMPDIR`) for "consistency" regardless of your shell environment.  Shell `export HAZAPPS=...` gets blown away before SAS's macro engine sees it.  The fix is to pass the overrides on the SAS command line via `-set`, which runs AFTER any wrapper's internal setup and survives into `%sysget()`, `%sysexec` subprocesses, and the spawned binary's environment.
+
 ```bash
 SAS_DIR="${HZEXAMPLES:-$HOME/hazard-shadow-bin/sas}"
-sas -nodms -log /tmp/smoke.log -print /tmp/smoke.lst "$SAS_DIR/hm.death.AVC.sas"
+sas -nodms \
+    -set HAZAPPS ~/hazard-shadow-bin \
+    -set TMPDIR /saswork \
+    -log /tmp/smoke.log -print /tmp/smoke.lst \
+    "$SAS_DIR/hm.death.AVC.sas"
 
 # Confirm the wrapper captured tuples
 ls ~/hazard-capture/hazard/
-# Expect a group of files with a shared uid prefix, something like:
-#   1745500432.12345.4711.stdin
-#   1745500432.12345.4711.lst
-#   1745500432.12345.4711.hzr.AVC.AVCS.dta
-#   1745500432.12345.4711.meta
+# Expect a group of files with a shared uid prefix:
+#   1745500432.12345.4711.stdin                     ← piped-in PROC options
+#   1745500432.12345.4711.lst                       ← real binary's output
+#   1745500432.12345.4711.hzr.J<job>.X<ix>.dta      ← XPORT dataset SAS wrote
+#   1745500432.12345.4711.hzr.J<job>.X<ix>.sas      ← stdin file SAS wrote
+#   1745500432.12345.4711.meta                      ← metadata (real_exit, paths)
+# If PROC HAZARD used OUTHAZ=, also expect a .haz output file in the tuple.
 ```
 
 If `~/hazard-capture/hazard/` is empty or missing, the wrapper didn't fire — jump to "If the wrapper isn't firing" before running the full batch.
+
+> **How to tell whether your site's SAS resets env vars:** run the probe at the bottom of this doc ("Diagnosing env-var inheritance") to see what `%sysget(HAZAPPS)` returns inside SAS.  If it's different from your shell's `$HAZAPPS`, a wrapper is intervening and you need the `-set` flag.  At all-Intel Cleveland Clinic HAZARD installs (where this was discovered), `-set HAZAPPS` is required.
 
 ### 5. Run the full corpus in dependency order
 
