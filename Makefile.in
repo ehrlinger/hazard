@@ -914,6 +914,7 @@ capture-kit:
 	mkdir -p $(CAPTURE_KIT_DIR)/sas
 	cp $(top_srcdir)/scripts/capture-legacy.sh        $(CAPTURE_KIT_DIR)/
 	cp $(top_srcdir)/scripts/capture.env.example      $(CAPTURE_KIT_DIR)/
+	cp $(top_srcdir)/scripts/capture-order.txt        $(CAPTURE_KIT_DIR)/
 	cp $(top_srcdir)/scripts/CAPTURE_INSTRUCTIONS.md  $(CAPTURE_KIT_DIR)/README.md
 	cp $(top_srcdir)/tests/*.sas     $(CAPTURE_KIT_DIR)/sas/ 2>/dev/null || true
 	cp $(top_srcdir)/examples/*.sas  $(CAPTURE_KIT_DIR)/sas/ 2>/dev/null || true

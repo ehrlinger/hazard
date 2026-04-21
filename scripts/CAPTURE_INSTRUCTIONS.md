@@ -12,7 +12,9 @@ The capture you're about to do takes maybe 30 minutes of attended work plus howe
 
 If your site already has v4.3.1 and the SAS environment exports `$HAZAPPS` (install dir) + `$HZEXAMPLES` (example `.sas` dir), the wrapper script is the only thing you need.  Skip the kit tarball.
 
-```sh
+> **Shell requirement:** all commands below and the wrapper itself assume **bash**.  If your default login shell is csh/tcsh/ksh, run `bash` first.  The wrapper refuses to run under non-bash shells with a clear error (it relies on `${PIPESTATUS[*]}` to capture the real binary's exit code).
+
+```bash
 # Drop the wrapper on PATH as both `hazard` and `hazpred`
 mkdir -p ~/hazard-shadow-bin
 cp /path/to/capture-legacy.sh ~/hazard-shadow-bin/
@@ -21,8 +23,30 @@ ln -sf ~/hazard-shadow-bin/capture-legacy.sh ~/hazard-shadow-bin/hazard
 ln -sf ~/hazard-shadow-bin/capture-legacy.sh ~/hazard-shadow-bin/hazpred
 export PATH=~/hazard-shadow-bin:$PATH
 
-# Run the example corpus through SAS
-for sas in "$HZEXAMPLES"/*.sas; do sas -nodms "$sas"; done
+# Run the example corpus through SAS IN DEPENDENCY ORDER.
+# Some scripts write estimate datasets under $HZEXAMPLES/sasest/ that
+# later scripts read — running out of order will produce wrong output.
+# capture-order.txt lists the correct sequence; the loop below reads it
+# and falls back to alphabetical for anything not listed.
+SAS_DIR="${HZEXAMPLES:-$PWD/sas}"
+ORDER_FILE=/path/to/capture-order.txt
+{
+    # Listed files first, in the given order
+    grep -vE '^\s*(#|$)' "$ORDER_FILE" | while read -r name; do
+        echo "$SAS_DIR/${name%.sas}.sas"
+    done
+    # Catch-all: anything on disk but not in the manifest, alphabetical
+    listed=$(grep -vE '^\s*(#|$)' "$ORDER_FILE" | sed 's/\.sas$//' | sort -u)
+    for sas in "$SAS_DIR"/*.sas; do
+        b=$(basename "$sas" .sas)
+        grep -qx "$b" <<< "$listed" || echo "$sas"
+    done
+} | while read -r sas; do
+    [ -f "$sas" ] || continue
+    name=$(basename "$sas" .sas)
+    echo "--- running $name ---"
+    sas -nodms -log /tmp/$name.log -print /tmp/$name.lst "$sas"
+done
 
 # Ship the results back
 tar -czf hazard-capture-results.tar.gz ~/hazard-capture/
@@ -35,6 +59,7 @@ That's it.  Tuples land in `~/hazard-capture/` (hazard/ and hazpred/ subdirs), u
 ## What you need before starting
 
 - A Unix host (Linux, AIX, Solaris — anywhere the legacy `hazard` install runs)
+- **`bash`** on your PATH.  Every command in this doc and the wrapper itself assumes bash.  Start a bash session (`bash` at the prompt) before running anything below if your login shell is something else.
 - **SAS installed** with the HAZARD module configured — however you'd normally run `PROC HAZARD`
 - Your SAS session exports **`$HAZAPPS`** pointing at the HAZARD install dir (most sites do this automatically).  If it doesn't, you can set the binary paths by hand — see the "Alternate configuration" section below.
 - Your SAS session exports **`$HZEXAMPLES`** pointing at the dir with the `.sas` example files.  Same story — standard on most HAZARD installs.  If unset, the tarball you were sent includes a bundled `sas/` copy as a fallback.
