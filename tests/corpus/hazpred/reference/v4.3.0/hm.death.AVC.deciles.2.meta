@@ -1,0 +1,10 @@
+# capture-legacy.sh metadata
+uid=1776804454.971003.16907
+bin_kind=hazpred
+real_bin=/opt/hazard/bin/hazpred.exe
+real_exit=0
+argv=
+timestamp=2026-04-21T20:47:34Z
+host=Linux lri-sas-p-02.lerner.ccf.org 4.18.0-553.89.1.el8_10.x86_64 #1 SMP Sat Nov 29 00:49:18 EST 2025 x86_64 x86_64 x86_64 GNU/Linux
+tmpdir=/saswork
+pwd=/home/ehrlinj/hazard-shadow-bin
