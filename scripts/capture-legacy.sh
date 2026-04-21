@@ -45,6 +45,20 @@
 # accumulates new tuples (each gets a unique uid) without disturbing
 # prior ones.  Safe to interleave with failed / retried SAS runs.
 
+# --------------------------------------------------------------------------
+# Shell preflight — MUST run before `set -o pipefail`, which is itself
+# bash/ksh93 only.  This script uses bash-specific features:
+#   * set -o pipefail     (bash / ksh93)
+#   * $RANDOM             (bash / ksh)
+#   * ${PIPESTATUS[1]}    (bash-specific — load-bearing for real-binary exit code)
+# Fail loudly and early if invoked under a non-bash shell.
+# --------------------------------------------------------------------------
+if [ -z "${BASH_VERSION:-}" ]; then
+    echo "capture-legacy.sh requires bash (uses PIPESTATUS)." >&2
+    echo "Either install bash, or invoke explicitly: bash $0" >&2
+    exit 2
+fi
+
 set -euo pipefail
 
 # --------------------------------------------------------------------------
