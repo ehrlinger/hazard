@@ -12,83 +12,79 @@ The capture you're about to do takes maybe 30 minutes of attended work plus howe
 
 - A Unix host (Linux, AIX, Solaris — anywhere the legacy `hazard` install runs)
 - **SAS installed** with the HAZARD module configured — however you'd normally run `PROC HAZARD`
-- **The legacy `hazard` and `hazpred` executables** — find the paths; you'll export them as env vars below.  A typical location is something like `/usr/local/hazard-4.3.1/bin/hazard` but it depends on how the site installed HAZARD.  If unsure, run `which hazard` inside a SAS session or check `$PATH` in the user that normally runs `PROC HAZARD`.
-- **The 23 `.sas` example files.**  They're in `tests/*.sas` in the `ehrlinger/hazard` repo.  I'll attach them (or a tarball of them) along with this instruction doc.  They each expect data at paths like `!HZEXAMPLES/data/avc` — the standard HAZARD install layout.  If you're running on the same host where HAZARD is installed, this should Just Work.
+- Your SAS session exports **`$HAZAPPS`** pointing at the HAZARD install dir (most sites do this automatically).  If it doesn't, you can set the binary paths by hand — see the "Alternate configuration" section below.
+- Your SAS session exports **`$HZEXAMPLES`** pointing at the dir with the `.sas` example files.  Same story — standard on most HAZARD installs.  If unset, the tarball John sent includes a bundled `sas/` copy as a fallback.
 
 ---
 
 ## One-time setup
 
-### 1. Put the capture script and the .sas files somewhere
+### 1. Unpack the kit
 
 ```sh
-# Pick any working directory
 mkdir -p ~/hazard-capture-work
 cd ~/hazard-capture-work
-
-# Expand the tarball John sent (contains capture-legacy.sh + all .sas files)
-tar -xzf hazard-capture-kit.tar.gz
-ls -la
+tar -xzf /path/to/hazard-capture-kit.tar.gz
+ls
 # You should see:
 #   capture-legacy.sh
-#   sas/              (directory with hz.death.AVC.sas, hm.death.AVC.sas, ...)
-
-chmod +x capture-legacy.sh
+#   capture.env.example     (optional — only needed if $HAZAPPS isn't set)
+#   README.md               (this file)
+#   sas/                    (bundled .sas examples — fallback if $HZEXAMPLES isn't set)
 ```
 
-### 2. Find the legacy binaries and export the env vars
+### 2. Point SAS at the wrapper
+
+Build a "shadow bin" dir containing symlinks that masquerade as the real binaries, and put it first on `$PATH`:
 
 ```sh
-# Adjust these paths to match YOUR install
-export HAZARD_REAL=/usr/local/hazard-4.3.1/bin/hazard
-export HAZPRED_REAL=/usr/local/hazard-4.3.1/bin/hazpred
+mkdir -p ~/hazard-capture-work/shadow-bin
+ln -sf ~/hazard-capture-work/capture-legacy.sh ~/hazard-capture-work/shadow-bin/hazard
+ln -sf ~/hazard-capture-work/capture-legacy.sh ~/hazard-capture-work/shadow-bin/hazpred
+export PATH=~/hazard-capture-work/shadow-bin:$PATH
 
-# Sanity check — both should print the binary paths
-ls -la "$HAZARD_REAL" "$HAZPRED_REAL"
+# Sanity check — both should resolve to the wrapper, not the real binary
+which hazard
+which hazpred
+# Expected: /<home>/hazard-capture-work/shadow-bin/hazard
 ```
 
-If those paths don't exist, find the right ones before continuing.  A quick way:
+That's it.  The wrapper reads `$HAZAPPS` to find the real binaries and defaults the capture dir to `$HOME/hazard-capture/`.  No other env vars required.
+
+If `which hazard` still points at the real binary, your `$PATH` modification didn't stick — fix that or capture won't happen.
+
+### Alternate configuration (only if `$HAZAPPS` isn't set at your site)
+
+If `echo $HAZAPPS` is empty, tell the wrapper where the real binaries live by copying the example config:
+
+```sh
+cp capture.env.example capture.env
+# Then edit capture.env to set HAZARD_REAL and HAZPRED_REAL to the
+# absolute paths of the real hazard and hazpred executables.  The
+# wrapper auto-sources capture.env on every invocation.
+```
+
+Find the real binaries with:
 
 ```sh
 find / -name hazard -type f -executable 2>/dev/null | head
 find / -name hazpred -type f -executable 2>/dev/null | head
 ```
 
-### 3. Create the capture staging directory
-
-```sh
-export HAZARD_CAPTURE_DIR=~/hazard-capture-work/captured
-mkdir -p "$HAZARD_CAPTURE_DIR"
-```
-
-### 4. Build a "shadow bin" directory so SAS picks up the wrapper instead of the real binaries
-
-```sh
-mkdir -p ~/hazard-capture-work/shadow-bin
-ln -sf ~/hazard-capture-work/capture-legacy.sh ~/hazard-capture-work/shadow-bin/hazard
-ln -sf ~/hazard-capture-work/capture-legacy.sh ~/hazard-capture-work/shadow-bin/hazpred
-
-# Make sure shadow-bin comes FIRST in PATH, before wherever the real binaries live
-export PATH=~/hazard-capture-work/shadow-bin:$PATH
-
-# Sanity check — these should both resolve to the wrapper script, not the real binary
-which hazard
-which hazpred
-# Expected: /<home>/hazard-capture-work/shadow-bin/hazard
-```
-
-If `which hazard` still points at the real binary, PATH isn't right — fix that before continuing or the capture won't happen.
-
 ---
 
 ## Run the captures
 
-Run each `.sas` file through SAS normally.  The wrapper silently records every invocation.
+Run each `.sas` file through SAS normally.  The wrapper silently records every invocation.  Preferred source: whatever the site has installed at `$HZEXAMPLES`.  Fallback: the bundled `sas/` directory.
 
 ```sh
 cd ~/hazard-capture-work
 
-for sas in sas/*.sas; do
+# Prefer the site's installed examples; fall back to the bundled copies
+SAS_DIR="${HZEXAMPLES:-$PWD/sas}"
+echo "Using .sas files from: $SAS_DIR"
+
+for sas in "$SAS_DIR"/*.sas; do
     name=$(basename "$sas" .sas)
     echo ""
     echo "=========================================="

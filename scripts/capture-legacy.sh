@@ -48,6 +48,36 @@
 set -euo pipefail
 
 # --------------------------------------------------------------------------
+# Configuration resolution
+# --------------------------------------------------------------------------
+# Config sources, in precedence order:
+#   1. Env vars exported in the shell running SAS
+#   2. `capture.env` in the same directory as this wrapper (resolved via
+#      the real script path so it works through symlinks)
+#   3. `$HOME/.hazard-capture.env`
+#   4. Site-convention fallbacks:
+#        $HAZAPPS/hazard        for HAZARD_REAL
+#        $HAZAPPS/hazpred       for HAZPRED_REAL
+#      Many HAZARD installs export $HAZAPPS pointing at the install's
+#      bin dir — if that's set and contains the binary, we use it.
+#   5. A one-time auto-default:
+#        $HAZARD_CAPTURE_DIR = $PWD/captured
+# --------------------------------------------------------------------------
+
+# Resolve the physical script path even when invoked via symlink, so the
+# sidecar capture.env (if any) is found next to the real script.
+script_path="$(readlink -f "$0" 2>/dev/null || python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$0" 2>/dev/null || echo "$0")"
+script_dir="$(dirname "$script_path")"
+
+# Load sidecar config (later sources don't override already-set values)
+for cfg in "$script_dir/capture.env" "${HOME:-/}/.hazard-capture.env"; do
+    if [ -f "$cfg" ]; then
+        # shellcheck disable=SC1090
+        . "$cfg"
+    fi
+done
+
+# --------------------------------------------------------------------------
 # Resolve which binary we're wrapping.  The symlink path in $0 dictates
 # whether we're standing in for `hazard` or `hazpred`.
 # --------------------------------------------------------------------------
@@ -68,9 +98,26 @@ case "$wrapper_name" in
         ;;
 esac
 
+# Site fallback: $HAZAPPS is the conventional HAZARD install dir.  If the
+# explicit overrides above are empty and $HAZAPPS is set and points at a
+# dir containing the binary we need, use that.
+if [ -z "$real_bin" ] && [ -n "${HAZAPPS:-}" ]; then
+    for candidate in "$HAZAPPS/$wrapper_name" "$HAZAPPS"; do
+        if [ -x "$candidate" ] && [ -f "$candidate" ]; then
+            real_bin="$candidate"
+            break
+        fi
+    done
+fi
+
 if [ -z "$real_bin" ]; then
-    echo "capture-legacy.sh: set \$HAZARD_REAL or \$HAZPRED_REAL to the" >&2
-    echo "  path of the legacy binary this wrapper stands in for."     >&2
+    cat >&2 <<ERR
+capture-legacy.sh: cannot locate the legacy '$wrapper_name' binary.
+Set one of the following (in order of preference):
+  * HAZARD_REAL / HAZPRED_REAL  — explicit path in this shell
+  * capture.env beside this script — edits survive across sessions
+  * \$HAZAPPS                   — site-convention install dir
+ERR
     exit 2
 fi
 
@@ -79,9 +126,15 @@ if [ ! -x "$real_bin" ]; then
     exit 2
 fi
 
-: "${HAZARD_CAPTURE_DIR:?set HAZARD_CAPTURE_DIR to an existing capture directory}"
+# Default capture dir to $HOME/hazard-capture so the wrapper works from
+# any SAS invocation directory without the operator pre-creating anything.
+# Multiple capture sessions accumulate here — each tuple has a unique uid,
+# so there's no collision.  Explicit HAZARD_CAPTURE_DIR (env or capture.env)
+# always wins.
+: "${HAZARD_CAPTURE_DIR:=${HOME:-/tmp}/hazard-capture}"
+mkdir -p "$HAZARD_CAPTURE_DIR"
 if [ ! -d "$HAZARD_CAPTURE_DIR" ]; then
-    echo "capture-legacy.sh: HAZARD_CAPTURE_DIR='$HAZARD_CAPTURE_DIR' does not exist" >&2
+    echo "capture-legacy.sh: could not create HAZARD_CAPTURE_DIR='$HAZARD_CAPTURE_DIR'" >&2
     exit 2
 fi
 
