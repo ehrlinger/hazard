@@ -93,24 +93,34 @@ done
 
 # --------------------------------------------------------------------------
 # Resolve which binary we're wrapping.  The symlink path in $0 dictates
-# whether we're standing in for `hazard` or `hazpred`.
+# whether we're standing in for `hazard` or `hazpred`.  Accept both
+# bare names (hazard / hazpred) and .exe-suffixed forms (hazard.exe /
+# hazpred.exe) since many legacy install sites ship the latter —
+# src/scripts/hazard.sas builds its invocation path as
+# `%sysget(HAZAPPS)/hazard.exe` on Unix, so we MUST accept the .exe
+# form to stand in for those sites.
 # --------------------------------------------------------------------------
 wrapper_name="$(basename "$0")"
 case "$wrapper_name" in
-    hazard)
+    hazard|hazard.exe)
         real_bin="${HAZARD_REAL:-}"
         bin_kind="hazard"
         ;;
-    hazpred)
+    hazpred|hazpred.exe)
         real_bin="${HAZPRED_REAL:-}"
         bin_kind="hazpred"
         ;;
     *)
         echo "capture-legacy.sh: unexpected invocation name '$wrapper_name'" >&2
-        echo "  Symlink this script as 'hazard' or 'hazpred' only." >&2
+        echo "  Symlink this script as hazard / hazard.exe / hazpred / hazpred.exe." >&2
         exit 2
         ;;
 esac
+
+# Also adjust the default-from-$HAZAPPS candidate search so it looks up
+# binaries matching our own invocation name's base.  i.e. if invoked as
+# hazard.exe, we search for `hazard` (base) and `hazard.exe` (suffixed).
+wrapper_base="${wrapper_name%.exe}"
 
 # Site fallback: $HAZAPPS is the conventional HAZARD install dir.  If
 # HAZARD_REAL / HAZPRED_REAL are unset and $HAZAPPS is exported, try a
@@ -125,10 +135,10 @@ esac
 # with the legacy distribution expects it.
 if [ -z "$real_bin" ] && [ -n "${HAZAPPS:-}" ]; then
     for candidate in \
-        "$HAZAPPS/$wrapper_name.exe" \
-        "$HAZAPPS/$wrapper_name" \
-        "$HAZAPPS/bin/$wrapper_name.exe" \
-        "$HAZAPPS/bin/$wrapper_name" \
+        "$HAZAPPS/$wrapper_base.exe" \
+        "$HAZAPPS/$wrapper_base" \
+        "$HAZAPPS/bin/$wrapper_base.exe" \
+        "$HAZAPPS/bin/$wrapper_base" \
         "$HAZAPPS"; do
         if [ -x "$candidate" ] && [ -f "$candidate" ]; then
             real_bin="$candidate"
