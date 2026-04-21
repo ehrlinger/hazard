@@ -1,0 +1,42 @@
+# capture-order.txt
+#
+# Dependency-aware run order for the acceptance-corpus capture.
+# Some .sas scripts write estimate data sets (under $HZEXAMPLES/sasest/)
+# that later scripts read.  Running the corpus in dependency order is
+# required: a dependent script run before its producer will either fail
+# or produce wrong output.
+#
+# FORMAT
+#   - One .sas filename per line (basename only, no directory, no
+#     .sas extension required — both "hm.death.AVC" and
+#     "hm.death.AVC.sas" work).
+#   - Blank lines ignored.
+#   - Lines starting with '#' ignored.
+#
+# USAGE
+#   The capture instructions' main loop reads this file and iterates
+#   over it.  Anything listed here runs in the order given.  Any .sas
+#   files present on-disk but NOT listed here are run AFTER the
+#   manifest, in alphabetical order, as a best-effort catch-all.
+#
+# STATUS — TO BE POPULATED
+#   The hazard developers will fill in the correct dependency order
+#   before handing this kit to an operator.  Lines below are
+#   placeholders showing the expected structure; they are not an
+#   authoritative order yet.
+
+# ---- Producers: write estimate datasets under $HZEXAMPLES/sasest/ ----
+# (examples — real order to be determined)
+# ac.death.AVC
+# hz.death.AVC
+# hz.deadp.KUL
+
+# ---- Consumers: read the estimates produced above ----
+# bs.death.AVC
+# bs.death.AVC.summary
+# hp.death.AVC
+# hp.death.AVC.hm1
+# hp.death.AVC.hm2
+# hp.death.COMPARISON
+# hm.death.AVC
+# hm.death.patient

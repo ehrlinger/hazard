@@ -1,0 +1,4 @@
+(   PROC HAZARD DATA=VALVES NOCOV NOCOR;        EVENT DEAD;        TIME INT_DEAD;        PARMS MUE=0.09596854 THALF=0.6781774 NU=0 FIXNU M=-2.15596  FIXTHALF FIXM              MUC=0.00349094;        SELECTION SLS=0.1 MAXSTEPS=5;        EARLY           AGE_COP, BLACK, MALE,           NYHA,            AO_PINC, I_PATH, NVE,           MITRAL, DOUBLE,           MECHVALV, BIO        ;        CONSTANT           AGE_COP, BLACK, MALE,           NYHA,            AO_PINC, I_PATH, NVE,           MITRAL, DOUBLE,           MECHVALV, BIO        ;   )
+; OBSCOUNT 1533 ;
+JOBID J970657;
+JOBIX X3;
