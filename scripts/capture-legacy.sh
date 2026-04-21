@@ -115,16 +115,20 @@ esac
 # Site fallback: $HAZAPPS is the conventional HAZARD install dir.  If
 # HAZARD_REAL / HAZPRED_REAL are unset and $HAZAPPS is exported, try a
 # handful of common install layouts:
-#   $HAZAPPS/bin/hazard[.exe]   (standard ./bin subdir, observed at
-#                                 sites shipping .exe-suffixed binaries)
-#   $HAZAPPS/hazard[.exe]       (flat install dir)
+#   $HAZAPPS/hazard[.exe]       (flat layout — matches sites whose
+#                                 hazard.sas macro uses
+#                                 `%sysget(HAZAPPS)/hazard.exe` directly,
+#                                 which means $HAZAPPS is the bin dir)
+#   $HAZAPPS/bin/hazard[.exe]   (sites where $HAZAPPS is the install root)
 #   $HAZAPPS                    ($HAZAPPS is the binary itself)
+# Flat layout is checked first because the PROC HAZARD macro that ships
+# with the legacy distribution expects it.
 if [ -z "$real_bin" ] && [ -n "${HAZAPPS:-}" ]; then
     for candidate in \
-        "$HAZAPPS/bin/$wrapper_name" \
-        "$HAZAPPS/bin/$wrapper_name.exe" \
-        "$HAZAPPS/$wrapper_name" \
         "$HAZAPPS/$wrapper_name.exe" \
+        "$HAZAPPS/$wrapper_name" \
+        "$HAZAPPS/bin/$wrapper_name.exe" \
+        "$HAZAPPS/bin/$wrapper_name" \
         "$HAZAPPS"; do
         if [ -x "$candidate" ] && [ -f "$candidate" ]; then
             real_bin="$candidate"
