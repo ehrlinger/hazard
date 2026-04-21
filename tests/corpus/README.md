@@ -9,25 +9,26 @@ tests/corpus/
 ├── hazard/
 │   ├── inputs/                       # stdin text + XPORT .dta per example
 │   │   ├── <name>.input              # PROC HAZARD options, fed to hazard's stdin
-│   │   └── hzr.<STUDY>.<DSET>.dta    # XPORT dataset, found via TMPDIR at runtime
-│   ├── reference/
-│   │   └── v4.3.1/
-│   │       └── <name>.lst            # byte-exact output from the legacy binary
-│   └── deviations/
-│       └── v4.3.1/
-│           └── <name>.{sed,md}       # (rare) documented accepted drifts
+│   │   └── hzr.J<jobid>.X<jobix>.dta # XPORT dataset, found via TMPDIR at runtime
+│   └── reference/
+│       ├── v4.3.0/                   # archived CCF legacy capture (exit=0 tuples)
+│       │   ├── <name>.lst            # byte-exact output from the legacy binary
+│       │   ├── <name>.meta           # wrapper metadata (real_exit, paths)
+│       │   └── <name>.haz            # (where PROC HAZARD used OUTHAZ=)
+│       └── v4.4.2/                   # self-consistency reference for current binary
+│           └── <name>.lst
 └── hazpred/
-    ├── inputs/                       # same shape — + hzr.<STUDY>.<DSET>.haz
-    ├── reference/v4.3.1/
-    └── deviations/v4.3.1/
+    ├── inputs/                       # same shape — + hzp.J<jobid>.X<jobix>.dta/.haz
+    └── reference/
+        └── v4.3.0/                   # (v4.4.2 hazpred not captured — SIGSEGV, see FINDINGS.md §2b)
 ```
 
-- `<name>` is the SAS example filename without the `.sas` extension (e.g. `hz.death.AVC`).
-- `<STUDY>` and `<DSET>` are whatever the PROC statement names; the binary derives the `.dta` / `.haz` filename from them.  Multiple examples may share the same dataset (which is fine — `cp` works at capture time).
+- `<name>` is the SAS example filename without the `.sas` extension (e.g. `hz.death.AVC`).  Multi-invocation examples get `.1` / `.2` ordinal suffixes.
+- `.dta` / `.haz` filenames use the `hzr.J<jobid>.X<jobix>.dta` convention (hazard) or `hzp.J<jobid>.X<jobix>.dta` (hazpred) that SAS's `PROC HAZARD` / `PROC HAZPRED` macros build.  Multiple examples may share the same dataset.
 
 ## How to populate
 
-Run the capture wrapper against a Unix host with SAS + the legacy v4.3.1 binary installed.  See [`scripts/capture-legacy.sh`](../../scripts/capture-legacy.sh) for the full procedure; summary:
+Run the capture wrapper against a Unix host with SAS + the legacy HAZARD binary installed.  See [`scripts/capture-legacy.sh`](../../scripts/capture-legacy.sh) and [`scripts/CAPTURE_INSTRUCTIONS.md`](../../scripts/CAPTURE_INSTRUCTIONS.md) for the full procedure; summary:
 
 ```sh
 export HAZARD_REAL=/path/to/legacy/hazard
@@ -53,7 +54,13 @@ for sas in tests/*.sas; do sas -nodms -log /dev/stderr "$sas"; done
 ./tests/validate_corpus.sh
 ```
 
-Default reference is `v4.3.1`.  Override with `REFERENCE=v4.4.3 ./tests/validate_corpus.sh` once future reference versions are captured.
+Default reference is `v4.4.2` (self-consistency — passes trivially until the current binary's numerical paths change).  Override to audit against the archived legacy capture:
+
+```sh
+REFERENCE=v4.3.0 ./tests/validate_corpus.sh
+```
+
+Expect that run to surface real diffs per [`FINDINGS.md`](FINDINGS.md) §2 — the v4.3.0 → v4.4.x numerical drift is known and documented, not yet decided.
 
 ## When a diff appears
 
@@ -64,11 +71,8 @@ The harness prints the unified diff of the normalised outputs (reference vs. got
 3. **New or missing lines** — a semantic change in the listing.  Almost always a real finding.
 4. **Timestamp or version string leaking through** — the normalizer (`tests/corpus_normalize.sh`) is missing a rule.  Add one, with a comment.
 
-## Accepted deviations
+## Accepted deviations (not currently populated)
 
-If (after investigation) a regression is judged acceptable — e.g. an error-message wording change predating the harness — it can be documented as a per-example deviation:
-
-- `deviations/<reference>/<name>.sed` — an additional sed pipeline applied to the reference side only when diffing this example.
-- `deviations/<reference>/<name>.md` — **mandatory** companion explaining why the deviation is accepted, which commit introduced it, and whether v5.0 should adopt or reverse the behaviour.
+The harness supports an escape-hatch mechanism for diffs that are investigated and judged acceptable.  At `tests/corpus/<kind>/deviations/<reference>/<name>.sed`, an additional sed pipeline is applied to the reference side only when diffing this specific example, with a mandatory sibling `<name>.md` explaining why the deviation is accepted.  No deviation dirs are populated yet; the mechanism is here for when we need it (likely during v5.0 phase work, when some drifts will be intentional).
 
 Deviations are expected to be rare.  The default answer to a diff is "investigate and fix"; the deviation mechanism is the escape hatch, not the default posture.
