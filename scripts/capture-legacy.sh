@@ -191,16 +191,19 @@ snapshot_tmpdir
 
 # --------------------------------------------------------------------------
 # Run the real binary.  Stdin is teed to the capture file; stdout is teed
-# to the lst file and also forwarded so SAS sees it unchanged.  We preserve
-# exit code via PIPESTATUS[0] (the real binary, not tee).
+# to the lst file and also forwarded so SAS sees it unchanged.
 #
-# Using mkfifo-based teeing rather than `| tee` keeps the PIPESTATUS clean
-# and avoids the bash pipeline-exit-code gotcha under `set -e`.
+# The script runs under `set -euo pipefail`.  Without care, a non-zero
+# exit from the real binary (common for hazard fixtures that intentionally
+# halt via hzfxit(), exit code 16) would be propagated by pipefail and
+# killed by -e — BEFORE we got to write the .meta file.  Disable pipefail
+# just around this one pipeline so the wrapper always runs to completion
+# and PIPESTATUS[1] gives us the real binary's exit code.
 # --------------------------------------------------------------------------
-# Capture stdin to a file AND stream it to the binary without reading it
-# all up-front (which would break interactive/large-input cases).
+set +o pipefail
 tee "$stdin_file" | "$real_bin" "$@" | tee "$lst_file"
 real_exit=${PIPESTATUS[1]}
+set -o pipefail
 
 # --------------------------------------------------------------------------
 # Metadata — small, human-readable, one record per invocation.
