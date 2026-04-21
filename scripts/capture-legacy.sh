@@ -112,11 +112,20 @@ case "$wrapper_name" in
         ;;
 esac
 
-# Site fallback: $HAZAPPS is the conventional HAZARD install dir.  If the
-# explicit overrides above are empty and $HAZAPPS is set and points at a
-# dir containing the binary we need, use that.
+# Site fallback: $HAZAPPS is the conventional HAZARD install dir.  If
+# HAZARD_REAL / HAZPRED_REAL are unset and $HAZAPPS is exported, try a
+# handful of common install layouts:
+#   $HAZAPPS/bin/hazard[.exe]   (standard ./bin subdir, observed at
+#                                 sites shipping .exe-suffixed binaries)
+#   $HAZAPPS/hazard[.exe]       (flat install dir)
+#   $HAZAPPS                    ($HAZAPPS is the binary itself)
 if [ -z "$real_bin" ] && [ -n "${HAZAPPS:-}" ]; then
-    for candidate in "$HAZAPPS/$wrapper_name" "$HAZAPPS"; do
+    for candidate in \
+        "$HAZAPPS/bin/$wrapper_name" \
+        "$HAZAPPS/bin/$wrapper_name.exe" \
+        "$HAZAPPS/$wrapper_name" \
+        "$HAZAPPS/$wrapper_name.exe" \
+        "$HAZAPPS"; do
         if [ -x "$candidate" ] && [ -f "$candidate" ]; then
             real_bin="$candidate"
             break
