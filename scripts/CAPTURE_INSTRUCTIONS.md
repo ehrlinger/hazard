@@ -4,32 +4,99 @@
 
 The HAZARD C package (the `hazard` / `hazpred` binaries that SAS invokes as `PROC HAZARD` / `PROC HAZPRED`) is being modernised.  Before that work can proceed safely, we need a **reference corpus**: the exact inputs and outputs from a known-good legacy install running each example `.sas` file.  Once we have that, every future change to the code can be validated against it automatically — the new binary's output must match byte-for-byte.
 
-The capture you're about to do takes maybe 30 minutes of attended work plus however long your SAS runs take.  It's a one-time job.  The output is a tarball the hazard developers will drop into the `hazard` repo.
+The capture takes maybe 30 minutes of attended work plus however long your SAS runs take.  One-time job.  You ship back a tarball; the hazard developers take it from there.
 
 ---
 
-## Quick start (if HAZARD v4.3.1 is already installed)
+## Prerequisites
 
-If your site already has v4.3.1 and the SAS environment exports `$HAZAPPS` (install dir) + `$HZEXAMPLES` (example `.sas` dir), the wrapper script is the only thing you need.  Skip the kit tarball.
+- A Unix host with **SAS + a legacy HAZARD install** (what you'd normally run `PROC HAZARD` against).
+- **`bash`** on your PATH.  Every command in this doc and the wrapper itself assumes bash.  If your login shell is csh/tcsh/ksh, run `bash` first.
+- **`$HAZAPPS`** exported by your SAS environment, pointing at the HAZARD install dir.  Most sites do this automatically.  If unset, see "If `$HAZAPPS` isn't set" near the bottom.
+- **`$HZEXAMPLES`** exported, pointing at the dir with the `.sas` example files.  Same story — standard on most installs.  If unset, the kit tarball includes a bundled `sas/` fallback.
 
-> **Shell requirement:** all commands below and the wrapper itself assume **bash**.  If your default login shell is csh/tcsh/ksh, run `bash` first.  The wrapper refuses to run under non-bash shells with a clear error (it relies on `${PIPESTATUS[*]}` to capture the real binary's exit code).
+---
+
+## The workflow
+
+You'll build a `hazard-shadow-bin/` directory that contains the wrapper + two symlinks masquerading as the real `hazard` / `hazpred` binaries.  Putting that directory ahead of the real binaries on `$PATH` is what lets us intercept SAS's calls.  Everything you need lives in that one directory.
+
+### 1. Unpack the kit into `~/hazard-shadow-bin/`
 
 ```bash
-# Drop the wrapper on PATH as both `hazard` and `hazpred`
 mkdir -p ~/hazard-shadow-bin
-cp /path/to/capture-legacy.sh ~/hazard-shadow-bin/
-chmod +x ~/hazard-shadow-bin/capture-legacy.sh
-ln -sf ~/hazard-shadow-bin/capture-legacy.sh ~/hazard-shadow-bin/hazard
-ln -sf ~/hazard-shadow-bin/capture-legacy.sh ~/hazard-shadow-bin/hazpred
+cd ~/hazard-shadow-bin
+tar -xzf /path/to/hazard-capture-kit.tar.gz --strip-components=1
+ls
+# Expect:
+#   capture-legacy.sh       ← the wrapper
+#   capture-order.txt       ← dependency-ordered .sas list
+#   capture.env.example     ← optional site-config template
+#   README.md               ← this file
+#   sas/                    ← bundled .sas examples (fallback if $HZEXAMPLES unset)
+```
+
+### 2. Make the wrapper executable and create the symlinks
+
+**This is the step the first run missed.**  Without `chmod +x` and real symlinks, SAS quietly falls back to the real binary on PATH and your capture directory stays empty.
+
+```bash
+cd ~/hazard-shadow-bin
+chmod +x capture-legacy.sh
+ln -sf "$PWD/capture-legacy.sh" hazard
+ln -sf "$PWD/capture-legacy.sh" hazpred
+
+# Verify — all three should be executable, and hazard/hazpred should be symlinks
+ls -la capture-legacy.sh hazard hazpred
+# Expect:
+#   -rwxr-xr-x  ... capture-legacy.sh
+#   lrwxr-xr-x  ... hazard    -> /home/you/hazard-shadow-bin/capture-legacy.sh
+#   lrwxr-xr-x  ... hazpred   -> /home/you/hazard-shadow-bin/capture-legacy.sh
+```
+
+If any of those lack the `x` permission or the `l` prefix, fix that before continuing.
+
+### 3. Put the shadow dir first on PATH
+
+```bash
 export PATH=~/hazard-shadow-bin:$PATH
 
-# Run the example corpus through SAS IN DEPENDENCY ORDER.
-# Some scripts write estimate datasets under $HZEXAMPLES/sasest/ that
-# later scripts read — running out of order will produce wrong output.
-# capture-order.txt lists the correct sequence; the loop below reads it
-# and falls back to alphabetical for anything not listed.
+# Both should now resolve to the wrapper (NOT the real binary)
+which hazard
+which hazpred
+# Expect: /home/you/hazard-shadow-bin/hazard
+```
+
+If either still resolves to the real install's `bin/hazard`, PATH isn't right — fix that first.
+
+### 4. Smoke-test with one `.sas` file
+
+Before running all 23+ files, run one through SAS and confirm the wrapper fired.  `hm.death.AVC` is a good choice — small, self-contained, no dependencies on earlier runs.
+
+```bash
+SAS_DIR="${HZEXAMPLES:-$HOME/hazard-shadow-bin/sas}"
+sas -nodms -log /tmp/smoke.log -print /tmp/smoke.lst "$SAS_DIR/hm.death.AVC.sas"
+
+# Confirm the wrapper captured tuples
+ls ~/hazard-capture/hazard/
+# Expect a group of files with a shared uid prefix, something like:
+#   1745500432.12345.4711.stdin
+#   1745500432.12345.4711.lst
+#   1745500432.12345.4711.hzr.AVC.AVCS.dta
+#   1745500432.12345.4711.meta
+```
+
+If `~/hazard-capture/hazard/` is empty or missing, the wrapper didn't fire — jump to "If the wrapper isn't firing" before running the full batch.
+
+### 5. Run the full corpus in dependency order
+
+Some `.sas` scripts write estimate datasets under `$HZEXAMPLES/sasest/` that later scripts read.  Running them out of order will produce wrong output for the dependents.  `capture-order.txt` in the shadow-bin dir lists the correct sequence; the loop below reads it and falls back to alphabetical for anything not listed.
+
+```bash
+cd ~/hazard-shadow-bin
 SAS_DIR="${HZEXAMPLES:-$PWD/sas}"
-ORDER_FILE=/path/to/capture-order.txt
+ORDER_FILE=$PWD/capture-order.txt
+
 {
     # Listed files first, in the given order
     grep -vE '^\s*(#|$)' "$ORDER_FILE" | while read -r name; do
@@ -39,101 +106,10 @@ ORDER_FILE=/path/to/capture-order.txt
     listed=$(grep -vE '^\s*(#|$)' "$ORDER_FILE" | sed 's/\.sas$//' | sort -u)
     for sas in "$SAS_DIR"/*.sas; do
         b=$(basename "$sas" .sas)
-        grep -qx "$b" <<< "$listed" || echo "$sas"
+        grep -qxF "$b" <<< "$listed" || echo "$sas"
     done
 } | while read -r sas; do
     [ -f "$sas" ] || continue
-    name=$(basename "$sas" .sas)
-    echo "--- running $name ---"
-    sas -nodms -log /tmp/$name.log -print /tmp/$name.lst "$sas"
-done
-
-# Ship the results back
-tar -czf hazard-capture-results.tar.gz ~/hazard-capture/
-```
-
-That's it.  Tuples land in `~/hazard-capture/` (hazard/ and hazpred/ subdirs), uniquely IDed per invocation.  Rest of this doc is for cases where site conventions differ, or troubleshooting is needed.
-
----
-
-## What you need before starting
-
-- A Unix host (Linux, AIX, Solaris — anywhere the legacy `hazard` install runs)
-- **`bash`** on your PATH.  Every command in this doc and the wrapper itself assumes bash.  Start a bash session (`bash` at the prompt) before running anything below if your login shell is something else.
-- **SAS installed** with the HAZARD module configured — however you'd normally run `PROC HAZARD`
-- Your SAS session exports **`$HAZAPPS`** pointing at the HAZARD install dir (most sites do this automatically).  If it doesn't, you can set the binary paths by hand — see the "Alternate configuration" section below.
-- Your SAS session exports **`$HZEXAMPLES`** pointing at the dir with the `.sas` example files.  Same story — standard on most HAZARD installs.  If unset, the tarball you were sent includes a bundled `sas/` copy as a fallback.
-
----
-
-## One-time setup
-
-### 1. Unpack the kit
-
-```sh
-mkdir -p ~/hazard-capture-work
-cd ~/hazard-capture-work
-tar -xzf /path/to/hazard-capture-kit.tar.gz
-ls
-# You should see:
-#   capture-legacy.sh
-#   capture.env.example     (optional — only needed if $HAZAPPS isn't set)
-#   README.md               (this file)
-#   sas/                    (bundled .sas examples — fallback if $HZEXAMPLES isn't set)
-```
-
-### 2. Point SAS at the wrapper
-
-Build a "shadow bin" dir containing symlinks that masquerade as the real binaries, and put it first on `$PATH`:
-
-```sh
-mkdir -p ~/hazard-capture-work/shadow-bin
-ln -sf ~/hazard-capture-work/capture-legacy.sh ~/hazard-capture-work/shadow-bin/hazard
-ln -sf ~/hazard-capture-work/capture-legacy.sh ~/hazard-capture-work/shadow-bin/hazpred
-export PATH=~/hazard-capture-work/shadow-bin:$PATH
-
-# Sanity check — both should resolve to the wrapper, not the real binary
-which hazard
-which hazpred
-# Expected: /<home>/hazard-capture-work/shadow-bin/hazard
-```
-
-That's it.  The wrapper reads `$HAZAPPS` to find the real binaries and defaults the capture dir to `$HOME/hazard-capture/`.  No other env vars required.
-
-If `which hazard` still points at the real binary, your `$PATH` modification didn't stick — fix that or capture won't happen.
-
-### Alternate configuration (only if `$HAZAPPS` isn't set at your site)
-
-If `echo $HAZAPPS` is empty, tell the wrapper where the real binaries live by copying the example config:
-
-```sh
-cp capture.env.example capture.env
-# Then edit capture.env to set HAZARD_REAL and HAZPRED_REAL to the
-# absolute paths of the real hazard and hazpred executables.  The
-# wrapper auto-sources capture.env on every invocation.
-```
-
-Find the real binaries with:
-
-```sh
-find / -name hazard -type f -executable 2>/dev/null | head
-find / -name hazpred -type f -executable 2>/dev/null | head
-```
-
----
-
-## Run the captures
-
-Run each `.sas` file through SAS normally.  The wrapper silently records every invocation.  Preferred source: whatever the site has installed at `$HZEXAMPLES`.  Fallback: the bundled `sas/` directory.
-
-```sh
-cd ~/hazard-capture-work
-
-# Prefer the site's installed examples; fall back to the bundled copies
-SAS_DIR="${HZEXAMPLES:-$PWD/sas}"
-echo "Using .sas files from: $SAS_DIR"
-
-for sas in "$SAS_DIR"/*.sas; do
     name=$(basename "$sas" .sas)
     echo ""
     echo "=========================================="
@@ -144,109 +120,131 @@ for sas in "$SAS_DIR"/*.sas; do
 done
 ```
 
-A few of the `.sas` files may error out — that's fine, we want to capture whatever happens.  The wrapper doesn't care about exit status.
+Some `.sas` files may error out — that's fine, we want whatever happens.  The wrapper doesn't care about exit status.
 
-### How do I know it worked?
+### 6. Tarball and ship
 
-After each run, the capture directory should contain new tuples.  After all runs:
-
-```sh
-ls $HAZARD_CAPTURE_DIR/hazard/ | head -20
-ls $HAZARD_CAPTURE_DIR/hazpred/ | head -20
+```bash
+tar -czf ~/hazard-capture-results.tar.gz -C ~ hazard-capture
+ls -la ~/hazard-capture-results.tar.gz
+# Typical size: 5–15 MB (XPORT .dta files are most of the bulk)
 ```
 
-Each invocation produces a group of files with a matching `<uid>` prefix (a timestamp + pid + random number):
-
-```
-1745500432.12345.4711.stdin              # stdin text the binary read
-1745500432.12345.4711.lst                # the binary's stdout
-1745500432.12345.4711.hzr.AVC.AVCS.dta   # the XPORT dataset it read
-1745500432.12345.4711.meta               # our metadata — argv, timestamp, etc.
-```
-
-If you see those, capture is working.  Expect roughly 23 groups under `hazard/` plus some number under `hazpred/`.
+Ship `~/hazard-capture-results.tar.gz` back to whoever requested the capture.  You can also include your `/tmp/*.log` + `/tmp/*.lst` SAS outputs — the hazard developers may cross-reference them.
 
 ---
 
-## If something looks wrong
+## Verifying what was captured
 
-### The wrapper isn't firing (no files appear in $HAZARD_CAPTURE_DIR)
+After a full run:
 
-- `which hazard` — is it pointing at the wrapper or at the real binary?  If the real binary, PATH is wrong.
-- Is SAS perhaps hardcoding the path to the real binary in a config file (bypass `$PATH`)?  Common spots: `autoexec.sas`, `sasv9.cfg`, HAZARD's own config scripts.  Look for `HAZARD_BIN` or direct paths.  If hardcoded, change the config to use PATH resolution, or point it at the shadow-bin symlink.
-
-### The wrapper fires but the .dta file isn't captured
-
-- What's `$TMPDIR`?  The wrapper snapshots `$TMPDIR/hzr*.dta` before calling the real binary.  If SAS writes elsewhere (e.g. `$TMPQDIR`, `$HAZTEMP`), we need to adjust — flag this to the hazard developers and the wrapper can be patched.
-- Check `$HAZARD_CAPTURE_DIR/hazard/*.meta` — the `tmpdir=` line records which dir the wrapper looked in.
-
-### SAS reports an error but I don't know if it's from SAS or hazard
-
-- `/tmp/<name>.log` — the SAS log
-- `$HAZARD_CAPTURE_DIR/hazard/<uid>.meta` — `real_exit=N` tells you the hazard binary's exit code.  0 = fine, 16 = hazard called `hzfxit()` (a non-fatal but halting error; see the .lst for reason), 1 = segfault-equivalent.
-
----
-
-## When you're done
-
-Restore the original `PATH` in your shell (open a new one or `unset PATH`-then-re-source your profile) so nothing else accidentally runs through the wrapper.
-
-Then tarball the capture directory and send it back:
-
-```sh
-cd ~/hazard-capture-work
-tar -czf hazard-capture-results.tar.gz captured/
-ls -la hazard-capture-results.tar.gz
+```bash
+# Count invocation groups per kind
+ls ~/hazard-capture/hazard/ 2>/dev/null  | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+)\..*/\1/' | sort -u | wc -l
+ls ~/hazard-capture/hazpred/ 2>/dev/null | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+)\..*/\1/' | sort -u | wc -l
 ```
 
-Ship `hazard-capture-results.tar.gz` back to whoever requested the capture.  A typical tarball size is ~5–15 MB — the XPORT `.dta` files are most of the bulk.
+Expect roughly 23+ groups under `hazard/` and some number under `hazpred/`.
 
-That's it.  You can remove `~/hazard-capture-work/` once the tarball is safely delivered.
+Each group is a tuple with the same uid prefix:
 
----
-
-## Quick troubleshooting FAQ
-
-**Q. Can I re-run a single `.sas` file after an earlier failed run?**
-Yes.  Each invocation generates a new `<uid>`, so nothing overwrites.  Just run the one you want.  Extra tuples from failed attempts are harmless — we'll sort them out at the end.
-
-**Q. Do I need to run as a specific user?**
-Run as whoever you'd normally run `PROC HAZARD` as.  The wrapper inherits everything from your shell; it doesn't need root.
-
-**Q. Will this affect production SAS jobs?**
-Only in your shell session (because you set `PATH` in that shell).  Other users' sessions and cron jobs are unaffected.  The wrapper is only reachable through your modified `PATH`.
-
-**Q. My SAS writes output to a directory that auto-cleans after the run — will the .dta still get captured?**
-Yes.  The wrapper copies the `.dta` out of `$TMPDIR` *before* handing control to the real binary, and *before* SAS's cleanup runs.  Whatever's in `$TMPDIR` at wrapper-start time gets saved.
-
-**Q. I got a `SKIP: $TMPDIR not set` or similar from the wrapper — what now?**
-Export `TMPDIR`.  Point it at whatever dir SAS is actually using for scratch (often `/tmp` or `/var/tmp`).  Re-run.
-
-**Q. How long does the full 23-file capture take?**
-Depends on your hardware, but typically 5–20 minutes wall time.  Most examples fit trivially; a couple of the multiphase stepwise examples may take a minute or two each.
+| File | What it is |
+|---|---|
+| `<uid>.stdin` | The PROC options text SAS piped to the binary |
+| `<uid>.lst` | The binary's stdout (listing) |
+| `<uid>.hzr.<study>.<dset>.dta` | The XPORT dataset the binary read |
+| `<uid>.hzr.<study>.<dset>.haz` | (hazpred only) intermediate file from a prior hazard run |
+| `<uid>.meta` | Metadata: argv, real-binary exit code, timestamp |
 
 ---
 
-Send questions back through whoever requested the capture, or open an issue at https://github.com/ehrlinger/hazard/issues if you're comfortable doing so.  Worst case, ship whatever you captured and any error logs — partial captures are still useful.
+## If the wrapper isn't firing
+
+Symptom: `~/hazard-capture/` is empty or missing after running SAS, but SAS produced `.lst` / `.log` files as usual.  Diagnosis:
+
+- `ls -la ~/hazard-shadow-bin/hazard ~/hazard-shadow-bin/hazpred` — are they executable symlinks?  If they're plain files (no `l` prefix) or lack `x` permission, SAS failed to exec them and fell back to the real binary silently.  Redo step 2.
+- `which hazard` — is it pointing at the shadow-bin or at the real binary?  If the real binary, step 3 (PATH export) didn't stick in your current shell.  Redo it.
+- Is SAS hardcoding the binary path in a site config file (bypassing `$PATH`)?  Common spots: `autoexec.sas`, `sasv9.cfg`, HAZARD's own setup scripts.  Search for `HAZARD_BIN` / direct paths / `x` command invocations.  If hardcoded, either change the config to honour `$PATH`, or point the hardcoded path at `~/hazard-shadow-bin/hazard`.
+- `~/hazard-capture/` can be preexisting and empty from a prior failed attempt — that's fine, it just means nothing got written THIS run.
+
+## If the wrapper fires but `.dta` files aren't captured
+
+- Check one of the `<uid>.meta` files — the `tmpdir=` line records which dir the wrapper scanned.  If that dir doesn't match where SAS actually wrote the XPORT file, we need to adjust.
+- SAS may use a different env var: `$TMPQDIR`, `$HAZTEMP`, `$SASWORK`.  Let the hazard developers know which one and we can patch the wrapper.
+
+## If SAS reports an error
+
+- `/tmp/<name>.log` — the SAS log (what SAS saw)
+- `~/hazard-capture/hazard/<uid>.meta` → `real_exit=N` — what the hazard binary returned
+  - `0` = success
+  - `16` = hazard called `hzfxit()` (halting error; see the listing for the reason)
+  - `1` = segfault-equivalent
+
+Both signals together usually pinpoint the source.
 
 ---
 
-## Appendix — for hazard developers: building the capture-kit tarball
+## If `$HAZAPPS` isn't set
 
-Before handing this off to an operator, assemble the kit from the hazard repo:
+The wrapper uses `$HAZAPPS/hazard` and `$HAZAPPS/hazpred` as its fallback path to the real binaries.  At sites without `$HAZAPPS`, tell the wrapper explicitly by copying the example config file:
 
-```sh
+```bash
+cd ~/hazard-shadow-bin
+cp capture.env.example capture.env
+# Edit capture.env — uncomment and set:
+#   HAZARD_REAL=/absolute/path/to/hazard
+#   HAZPRED_REAL=/absolute/path/to/hazpred
+```
+
+The wrapper auto-sources `capture.env` (in the same dir as the script) on every invocation, so this persists across SAS runs without you re-exporting anything.
+
+Find the real binaries with:
+
+```bash
+find / -name hazard -type f -executable 2>/dev/null | grep -v shadow-bin | head
+find / -name hazpred -type f -executable 2>/dev/null | grep -v shadow-bin | head
+```
+
+---
+
+## FAQ
+
+**Can I re-run a single `.sas` after a failed attempt?**
+Yes.  Each invocation produces a unique uid; nothing overwrites.  Rerun the one you want — extra tuples from failures are harmless.
+
+**Do I need root?**
+No.  The wrapper inherits your shell's environment and doesn't touch anything outside `$HOME`.  Run as whoever normally runs `PROC HAZARD`.
+
+**Will this affect other users / cron jobs?**
+No.  The `$PATH` modification lives in your shell only.
+
+**SAS writes to an auto-cleaning scratch dir — will the `.dta` still get captured?**
+Yes.  The wrapper snapshots `$TMPDIR` *before* handing control to the real binary and *before* SAS's cleanup runs.
+
+**How long does the full run take?**
+Typically 5–20 minutes wall time.  A couple of the multiphase stepwise examples are the slowest; the rest fit trivially.
+
+**What goes back in the tarball?**
+Just `~/hazard-capture-results.tar.gz`.  You can throw away `~/hazard-shadow-bin/` once that tarball is delivered.
+
+---
+
+Questions → whoever requested the capture, or open an issue at https://github.com/ehrlinger/hazard/issues.  Partial captures are still useful — ship whatever you have if something goes sideways.
+
+---
+
+## Appendix — for hazard developers
+
+Building the kit tarball:
+
+```bash
 cd /path/to/hazard
 make capture-kit
 # Produces hazard-capture-kit.tar.gz at the repo root.
 ```
 
-The target (defined in `Makefile.am`) bundles:
-- `capture-legacy.sh` (this wrapper)
-- `capture.env.example` (optional site-config template)
-- `README.md` (a copy of this instructions doc)
-- `sas/` (all `.sas` examples from `tests/` and `examples/` as a fallback if `$HZEXAMPLES` isn't set at the operator's site)
+The target (in `Makefile.am`) bundles the wrapper, `capture-order.txt`, `capture.env.example`, this README, and a fallback `sas/` dir of all `.sas` examples.
 
-Ship `hazard-capture-kit.tar.gz` to the operator; it embeds its own `README.md` so no additional files are needed.
+If the operator already has HAZARD installed with `$HAZAPPS` / `$HZEXAMPLES` set AND can use the `.sas` files on their system directly, you can skip the tarball and just send them `scripts/capture-legacy.sh` + `scripts/capture-order.txt` + a pointer to this doc.  They'll drop both files into their own `~/hazard-shadow-bin/` and follow the workflow from step 2.
 
-If the operator already has HAZARD installed with `$HAZAPPS` / `$HZEXAMPLES` set, you can skip the tarball entirely — just send `scripts/capture-legacy.sh` and point them at the "Quick start" section above.
+**Before shipping the kit:** make sure `scripts/capture-order.txt` has the real dependency order filled in — it's a placeholder until the hazard developers populate it.
