@@ -33,18 +33,28 @@ asan:
 #   * README.md               — instructions (a copy of CAPTURE_INSTRUCTIONS.md)
 #   * sas/                    — fallback .sas examples, used only at sites that
 #                               do not export $HZEXAMPLES
+#   * macros/                 — bootstrap.hazard.sas, hazplot.sas, etc.  Some
+#                               .sas examples %INC these via !MACROS/...;
+#                               sites where the system MACROS dir is missing
+#                               them (e.g. CCF's /programs/apps/sas/macro.library)
+#                               point $MACROS at this shipped copy via -set.
 CAPTURE_KIT_DIR = hazard-capture-kit
 CAPTURE_KIT_TARBALL = hazard-capture-kit.tar.gz
 
 capture-kit:
 	rm -rf $(CAPTURE_KIT_DIR) $(CAPTURE_KIT_TARBALL)
-	mkdir -p $(CAPTURE_KIT_DIR)/sas
+	mkdir -p $(CAPTURE_KIT_DIR)/sas $(CAPTURE_KIT_DIR)/macros
 	cp $(top_srcdir)/scripts/capture-legacy.sh        $(CAPTURE_KIT_DIR)/
 	cp $(top_srcdir)/scripts/capture.env.example      $(CAPTURE_KIT_DIR)/
 	cp $(top_srcdir)/scripts/capture-order.txt        $(CAPTURE_KIT_DIR)/
 	cp $(top_srcdir)/scripts/CAPTURE_INSTRUCTIONS.md  $(CAPTURE_KIT_DIR)/README.md
 	cp $(top_srcdir)/tests/*.sas     $(CAPTURE_KIT_DIR)/sas/ 2>/dev/null || true
 	cp $(top_srcdir)/examples/*.sas  $(CAPTURE_KIT_DIR)/sas/ 2>/dev/null || true
+	cp $(top_srcdir)/macros/*.sas    $(CAPTURE_KIT_DIR)/macros/ 2>/dev/null || true
+	# Some sites' installed .sas examples %INC macros by unsuffixed name
+	# (e.g. FILENAME HAZBOOT ('$MACROS/bootstrap.hazard')), while the
+	# repo carries the .sas suffix.  Drop symlinks so both forms resolve.
+	cd $(CAPTURE_KIT_DIR)/macros && for f in *.sas; do ln -sf "$$f" "$${f%.sas}"; done
 	chmod +x $(CAPTURE_KIT_DIR)/capture-legacy.sh
 	tar -czf $(CAPTURE_KIT_TARBALL) $(CAPTURE_KIT_DIR)
 	rm -rf $(CAPTURE_KIT_DIR)

@@ -1,10 +1,10 @@
 # capture-order.txt
 #
 # Dependency-aware run order for the acceptance-corpus capture.
-# Some .sas scripts write estimate data sets (under $HZEXAMPLES/sasest/)
-# that later scripts read.  Running the corpus in dependency order is
-# required: a dependent script run before its producer will either fail
-# or produce wrong output.
+# Some .sas scripts write estimate data sets (under $HZEXAMPLES/sasest/
+# via LIBNAME EXAMPLES) that later scripts read with PROC HAZPRED
+# INHAZ=EXAMPLES.<dataset>.  A consumer run before its producer will
+# fail with exit=16 (SAS: data set not found) or produce wrong output.
 #
 # FORMAT
 #   - One .sas filename per line (basename only, no directory, no
@@ -19,24 +19,65 @@
 #   files present on-disk but NOT listed here are run AFTER the
 #   manifest, in alphabetical order, as a best-effort catch-all.
 #
-# STATUS — TO BE POPULATED
-#   The hazard developers will fill in the correct dependency order
-#   before handing this kit to an operator.  Lines below are
-#   placeholders showing the expected structure; they are not an
-#   authoritative order yet.
+# PROVENANCE
+#   Order derived 2026-04-22 by grepping LIBNAME EXAMPLES / OUTHAZ /
+#   INHAZ / DATA EXAMPLES.* statements across examples/*.sas.  The
+#   producer→consumer pairs surfaced were:
+#
+#     hz.death.AVC           OUTHAZ=EXAMPLES.HZDEATH
+#       └─ hp.death.AVC       INHAZ=EXAMPLES.HZDEATH
+#
+#     hm.death.AVC           DATA EXAMPLES.HMDEATH; SET OUTEST
+#       ├─ hp.death.AVC.hm1   INHAZ=EXAMPLES.HMDEATH
+#       ├─ hp.death.AVC.hm2   INHAZ=EXAMPLES.HMDEATH
+#       └─ hs.death.AVC.hm1   INHAZ=EXAMPLES.HMDEATH
+#
+#     bs.death.AVC           DATA EXAMPLES.BSAVC{E,C,L}
+#       └─ bs.death.AVC.summary SET EXAMPLES.BSAVC{E,C,L}
+#
+#   Other .sas examples either (a) write OUTHAZ=OUTEST to a purely-
+#   local WORK library and don't publish anything consumed elsewhere,
+#   or (b) read from external LIBNAMEs (CHSPTR94, TGASW, PTCAMHI,
+#   CABGKUL, VAMEDCBG) that aren't populated by any script in this
+#   corpus.  Those are run after the dependency-ordered block, order
+#   among them doesn't matter.
 
-# ---- Producers: write estimate datasets under $HZEXAMPLES/sasest/ ----
-# (examples — real order to be determined)
-# ac.death.AVC
-# hz.death.AVC
-# hz.deadp.KUL
+# ---- Producers: write estimate data sets consumed by later scripts ----
+hz.death.AVC
+hm.death.AVC
+bs.death.AVC
 
-# ---- Consumers: read the estimates produced above ----
-# bs.death.AVC
-# bs.death.AVC.summary
-# hp.death.AVC
-# hp.death.AVC.hm1
-# hp.death.AVC.hm2
-# hp.death.COMPARISON
-# hm.death.AVC
-# hm.death.patient
+# ---- Consumers of HZDEATH (needs hz.death.AVC) ----
+hp.death.AVC
+
+# ---- Consumers of HMDEATH (needs hm.death.AVC) ----
+hp.death.AVC.hm1
+hp.death.AVC.hm2
+hs.death.AVC.hm1
+
+# ---- Consumers of BSAVC{E,C,L} (needs bs.death.AVC) ----
+bs.death.AVC.summary
+
+# ---- Self-contained: OUTHAZ=OUTEST kept in WORK, nothing external reads ----
+ac.death.AVC
+hm.death.AVC.deciles
+hm.death.patient
+hm.deadp.VALVES
+hz.deadp.KUL
+hz.te123.OMC
+hz.tm123.OMC
+
+# ---- Reads external LIBNAMEs not populated by this corpus ----
+# These may fail at sites that don't have the referenced data sets
+# installed.  Run them last so a failure doesn't block the AVC chain.
+hp.dthip.PAIVS.time
+hs.dthar.TGA.setup
+hs.dthar.TGA.hs1
+hp.death.COMPARISON
+
+# ---- No PROC HAZARD / PROC HAZPRED call — produce no corpus inputs ----
+# Listed explicitly so the manifest covers every .sas file in examples/
+# and the operator doesn't wonder why they're silent in the capture log.
+lg.dead30d.AVC
+lg.deadlate.AVC
+lg.death.AVC
