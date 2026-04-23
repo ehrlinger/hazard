@@ -1,0 +1,134 @@
+name: Linux LL Check (one-shot)
+
+# One-shot investigation workflow for the v4.3/v4.4 numerical divergence.
+# Builds a chosen commit on ubuntu-latest and reports the Log-Likelihood
+# value that hm.deadp.VALVES converges to.  Classifies GOOD (v4.3.0-like,
+# LL ≈ -1864.76) vs BAD (v4.4.2-like, LL ≈ -1536.4).
+#
+# Goal: one Linux data point at v4.3.1 to confirm or refute that the
+# macOS vs Linux platform gap explains the full v4.3.0→v4.4.2 reference
+# discrepancy.  See ROOT-CAUSE-ANALYSIS.md.
+#
+# Triggered manually via the "Run workflow" button (workflow_dispatch).
+# Default is v4.3.1, but any git ref is accepted.  Delete this file once
+# the investigation is complete.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref (tag, branch, or SHA) to build & run'
+        required: true
+        default: 'v4.3.1'
+
+jobs:
+  ll-check:
+    name: LL check at ${{ inputs.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ${{ inputs.ref }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y gcc autoconf automake flex bison make
+
+      - name: Show toolchain versions
+        run: |
+          gcc --version | head -1
+          autoconf --version | head -1
+          automake --version | head -1
+          ldd --version | head -1
+
+      - name: Patch unportable '#' comment at start of rule in Makefile.am
+        # Modern automake (>=1.16) rejects '\t#' recipe-level comments.  Some
+        # refs in this repo have them inside the capture-kit target on the
+        # root Makefile.am; prepend "@: " to convert them into no-op recipes
+        # with a trailing shell comment.  This is a no-op on refs that don't
+        # have the pattern (e.g. v4.3.1).
+        run: |
+          for f in $(git ls-files 'Makefile.am' '**/Makefile.am'); do
+            if grep -qP '^\t#' "$f"; then
+              echo "patching $f"
+              perl -i -pe 's/^(\t)(#)/$1\@: $2/' "$f"
+            fi
+          done
+
+      - name: Bootstrap (autoreconf)
+        run: autoreconf -fi
+
+      - name: Configure (relaxed warnings for pre-modernisation code)
+        run: |
+          ./configure CC=gcc \
+            CFLAGS='-O2 -g -w -Wno-error -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-implicit-function-declaration -Wno-implicit-int -Wno-return-type'
+
+      - name: Build
+        run: make -j4 -s
+
+      - name: Locate built binary
+        id: locate
+        run: |
+          if [ -x src/hazard/hazard.exe ]; then
+            echo "bin=src/hazard/hazard.exe" >> "$GITHUB_OUTPUT"
+          else
+            echo "bin=src/hazard/hazard" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout release/4.4 corpus into a side dir
+        # Inputs (.input, .dta) live on release/4.4 but the build is at ${{ inputs.ref }};
+        # worktree lets us read them without mutating the build tree.
+        run: |
+          git worktree add /tmp/corpus release/4.4
+          ls /tmp/corpus/tests/corpus/hazard/inputs/ | head
+
+      - name: Run hm.deadp.VALVES through the binary
+        run: |
+          # Use a short TMPDIR because pre-fix binaries have the 80-byte
+          # buffer overflow; symlink the .dta / .haz inputs into it.
+          SHORT_TMP=$(mktemp -d /tmp/hz.XXXXXX)
+          for f in /tmp/corpus/tests/corpus/hazard/inputs/hzr.*.dta \
+                   /tmp/corpus/tests/corpus/hazard/inputs/hzr.*.haz; do
+            [ -f "$f" ] || continue
+            ln -sf "$f" "$SHORT_TMP/$(basename "$f")"
+          done
+
+          BIN="${{ steps.locate.outputs.bin }}"
+          echo "Using binary: $BIN"
+          TMPDIR="$SHORT_TMP" "./$BIN" \
+            < /tmp/corpus/tests/corpus/hazard/inputs/hm.deadp.VALVES.input \
+            > /tmp/got.lst 2>&1 || true
+
+          echo "=== output size: $(wc -c < /tmp/got.lst) bytes ==="
+
+      - name: Extract LL and classify
+        run: |
+          LL=$(grep -A1 "Log likelihood =" /tmp/got.lst | grep -m1 '^;' | tr -d ' ;')
+          echo "Log-likelihood: $LL"
+
+          case "$LL" in
+            -1864*|-1865*|-1863*)
+              echo "::notice::GOOD — v4.3.0-like LL ($LL) at ref=${{ inputs.ref }}"
+              ;;
+            -1536*|-1537*|-1535*)
+              echo "::notice::BAD — v4.4.2-like LL ($LL) at ref=${{ inputs.ref }}"
+              ;;
+            *)
+              echo "::warning::UNEXPECTED LL ($LL) at ref=${{ inputs.ref }}"
+              ;;
+          esac
+
+          echo "## Result" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Ref**: \`${{ inputs.ref }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Host**: ubuntu-latest (Linux, gcc, glibc)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **LL (hm.deadp.VALVES)**: \`$LL\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload full listing
+        uses: actions/upload-artifact@v4
+        with:
+          name: hm.deadp.VALVES.lst
+          path: /tmp/got.lst
+          retention-days: 14
