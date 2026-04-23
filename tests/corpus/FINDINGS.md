@@ -36,23 +36,32 @@ Example: `hm.death.AVC.1` (stepwise analysis).  Both versions start from the sam
 | Constant MUC (final) | `0.0001452016` | `8.403295E-05` |
 | Output size | 12,684 bytes | 49,191 bytes |
 
-**Root cause identified 2026-04-23 (see [ROOT-CAUSE-ANALYSIS.md](../../ROOT-CAUSE-ANALYSIS.md) §2):** the divergence is 100% cross-platform floating-point non-determinism (Linux/gcc/glibc vs macOS/Apple-clang/arm64/Apple-libm), **0%** contribution from the 92 commits between v4.3.1 and v4.4.2.
+**Root cause identified 2026-04-23 (see [ROOT-CAUSE-ANALYSIS.md](../../ROOT-CAUSE-ANALYSIS.md) §2):** the divergence is 100% cross-toolchain floating-point non-determinism (gcc + glibc-derived libm vs Apple clang + Apple libm on arm64), **0%** contribution from the 92 commits between v4.3.1 and v4.4.2.
 
-Evidence: workflow [linux-ll-check.yml](../../.github/workflows/linux-ll-check.yml) dispatched on `ubuntu-latest` at both v4.3.1 and v4.4.2 produced **LL = −1864.76** for `hm.deadp.VALVES` — matching the CCF v4.3.0 reference exactly at both tags.  The same experiment on macOS at both tags produces LL = −1536.4 (matching the macOS-captured `reference/v4.4.2/`).  Neither platform's numbers move across the commit range; only the platform axis moves them.
+Evidence: two one-shot `workflow_dispatch` workflows (added to `main` for the investigation and deleted after — commits `ed786ba`, `7cfd9fe`) produced the following `hm.deadp.VALVES` log-likelihoods across three platforms and two tags:
+
+| Ref | Linux (gcc+glibc, GHA ubuntu-latest) | Windows (MinGW-w64, GHA windows-latest) | macOS (Apple clang+Apple libm, local) |
+|---|---|---|---|
+| v4.3.1 | −1864.76 | N/A† | −1536.4 |
+| v4.4.2 | −1864.76 | **−1864.76** | −1536.4 |
+
+† v4.3.1's Windows build target was Cygwin; MinGW support landed during the v4.4 modernisation cycle.
+
+Intra-toolchain invariance: the 92 commits between v4.3.1 and v4.4.2 are numerically inert on each toolchain family measured.  Cross-toolchain, **two buckets**: gcc (Linux + Windows/MinGW) bit-matches the CCF v4.3.0 reference; Apple clang on arm64 bit-matches the macOS-captured v4.4.2 reference.
 
 The earlier "likely root cause: commit `557f3ef`" hypothesis was disproven by a direct test — old `swab(src,src,n)` and new `hzd_bswap_*` helpers produce bit-identical output on glibc.  The 557f3ef fix is still correct for Windows/UCRT, but it is not what moved the numbers here.
 
 **Implications:**
-- On **Linux** (including CCF RHEL 8), v4.4.x produces **byte-identical output to v4.3.0**.  CCF users upgrading see zero numerical drift.
-- On **macOS**, v4.4.x produces distinct-but-self-consistent output, invariant across the 92 commits.
-- On **Windows**, unverified — expected to produce a third, self-consistent output family.
+- On **any gcc-family build** (Linux including CCF RHEL 8, Windows/MinGW), v4.4.x produces **byte-identical output to v4.3.0** on the LL metric.  CCF users upgrading see zero numerical drift.
+- On **macOS / Apple clang / arm64**, v4.4.x produces distinct-but-self-consistent output, invariant across the 92 commits.
 
-**Decision (updated 2026-04-23):** maintain **per-platform** reference corpora.  Proposed layout:
-- `reference/v4.4-linux/`   — promote from `reference/v4.3.0/` (bit-identical per the CI runs above).  The canonical numerical reference.
-- `reference/v4.4-macos/`   — rename `reference/v4.4.2/` (all captures to date were on macOS).
-- `reference/v4.4-windows/` — TBD; one dispatch against `windows-latest` closes the table.
+**Decision (updated 2026-04-23):** maintain **two-bucket** reference corpora, keyed on toolchain family:
+- `reference/v4.4-gcc/`         — promote from `reference/v4.3.0/` (bit-identical to Linux/Windows gcc builds).  Canonical numerical reference for CCF production and any Linux + Windows/MinGW build.
+- `reference/v4.4-clang-apple/` — rename `reference/v4.4.2/` (all captures to date were on macOS/arm64).
 
-The tolerance policy in `docs/Claude_MODERNIZATION_GUIDE.md` §1 ("log-likelihoods and parameter estimates should be bit-exact vs the production baseline") is satisfied on Linux.  It is not satisfied cross-platform, and achieving that would require compiler-level intervention (`-ffp-contract=off`, FMA disable, common libm, fixed rounding modes) — v5.0-scale work, out of scope for v4.4.
+No Windows-specific bucket needed — MinGW output matches Linux gcc on the LL metric.  If the full listing on Windows turns out to differ in non-numerical formatting (version banner, path separators in comments, etc.), a Windows-specific reference can be added later without changing the numerical contract.
+
+The tolerance policy in `docs/Claude_MODERNIZATION_GUIDE.md` §1 ("log-likelihoods and parameter estimates should be bit-exact vs the production baseline") is satisfied within each toolchain family.  It is not satisfied cross-toolchain, and achieving that would require compiler-level intervention (`-ffp-contract=off`, FMA disable, common libm, fixed rounding modes) — v5.0-scale work, out of scope for v4.4.
 
 ### 2b. Hazpred SIGSEGVs under v4.4.2 *(fixed 2026-04-23)*
 

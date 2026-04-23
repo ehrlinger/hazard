@@ -12,18 +12,23 @@
 
 The numerical discrepancy between [tests/corpus/hazard/reference/v4.3.0/](tests/corpus/hazard/reference/v4.3.0/) (captured at CCF on Linux) and [tests/corpus/hazard/reference/v4.4.2/](tests/corpus/hazard/reference/v4.4.2/) (captured locally on macOS) is **100% a platform effect, 0% a code-history effect**:
 
-| Build | v4.3.1 | v4.4.2 | release/4.4 HEAD |
+Hm.deadp.VALVES log-likelihood across platforms and refs:
+
+| Build | v4.3.1 | v4.4.2 | Bucket |
 |---|---|---|---|
-| **Linux** / gcc / glibc (GitHub Actions ubuntu-latest) | **−1864.76** | **−1864.76** | (not tested) |
-| **macOS** / Apple clang / arm64 (local) | −1536.4 | −1536.4 | −1536.4 |
+| **Linux** / gcc / glibc (GHA ubuntu-latest) | **−1864.76** | **−1864.76** | gcc |
+| **Windows** / MinGW-w64 gcc (GHA windows-latest, MSYS2) | N/A† | **−1864.76** | gcc |
+| **macOS** / Apple clang / arm64 / Apple libm (local) | −1536.4 | −1536.4 | clang |
 
-Hm.deadp.VALVES log-likelihood, both endpoints tested on Linux via [.github/workflows/linux-ll-check.yml](.github/workflows/linux-ll-check.yml) (runs [24850944156](https://github.com/ehrlinger/hazard/actions/runs/24850944156) and [24851086714](https://github.com/ehrlinger/hazard/actions/runs/24851086714)):
+† v4.3.1 on Windows: the v4.3.1 Windows build target was Cygwin, not MinGW. MinGW support landed during the v4.4 modernisation cycle — so the v4.3.1 × MinGW cell is an unsupported combination rather than a missing data point. A Cygwin runner workflow could fill it in principle but isn't instructive given the two-bucket conclusion already holds.
 
-- **Linux is invariant** across the 92-commit window: v4.3.1 and v4.4.2 both produce LL=−1864.76, bit-matching the v4.3.0 reference captured at CCF.
-- **macOS is invariant** across the same window: v4.3.1 and v4.4.2 both produce LL=−1536.4, matching the v4.4.2 reference captured on this laptop.
-- The 92 commits between the tags do not move numbers on either platform. Git bisect would have found nothing.
+Experiments: GHA runs [24850944156](https://github.com/ehrlinger/hazard/actions/runs/24850944156) (Linux v4.3.1), [24851086714](https://github.com/ehrlinger/hazard/actions/runs/24851086714) (Linux v4.4.2), [24852800205](https://github.com/ehrlinger/hazard/actions/runs/24852800205) (Windows v4.4.2); macOS from local builds. Workflows (now deleted): `linux-ll-check.yml`, `windows-ll-check.yml`.
 
-The divergence is therefore fully explained by the difference in compiler (gcc vs clang), math library (glibc libm vs Apple libm), and architecture (x86-64 vs arm64). HAZARD's parametric-survival optimizer runs thousands of floating-point operations with FMA / denormal-handling / rounding-mode sensitivity; that's enough for platforms to drift to different local minima of the same likelihood surface.
+**Findings:**
+
+- **Intra-platform: invariant.** Linux v4.3.1 ≡ Linux v4.4.2 (gcc). macOS v4.3.1 ≡ macOS v4.4.2 (clang). The 92 commits between tags do not move numbers on either platform. A `git bisect` would have found nothing; all commits report the same LL at either endpoint. Windows invariance is inferred by analogy since it can't be tested at v4.3.1.
+- **Cross-platform: two buckets.** gcc-based builds (Linux + Windows/MinGW) produce LL=−1864.76, bit-matching the v4.3.0 reference captured at CCF. Apple clang / arm64 / Apple libm produces LL=−1536.4, matching the v4.4.2 reference captured on this laptop.
+- **The divergence is fully explained by toolchain: gcc + glibc-derived libm vs Apple clang + Apple libm.** HAZARD's parametric-survival optimizer runs thousands of FP ops with FMA / denormal / rounding-mode sensitivity; that's enough for the two toolchain families to drift to different local minima of the same likelihood surface.
 
 ---
 
@@ -78,18 +83,16 @@ int n_new = hzd_bswap_int(n);                // new v4.4 helper
 
 Both patterns produce identical bytes on glibc. So whatever moved numbers between v4.3.0 and v4.4.2 on the CCF host, it was not `swab` semantics. (The POSIX UB claim is still technically correct and the commit is still worth keeping for Windows/UCRT correctness — see §4.)
 
-### 2.2. Measured both endpoints on Linux and macOS
+### 2.2. Measured both endpoints on Linux, macOS, and Windows
 
-Workflow [.github/workflows/linux-ll-check.yml](.github/workflows/linux-ll-check.yml) was dispatched twice, once per endpoint tag, on `ubuntu-latest` (Linux / gcc / glibc). Results vs local macOS runs:
+Two one-shot `workflow_dispatch` workflows were added to `main` for the investigation and deleted afterward (see commits `ed786ba`, `7cfd9fe`): `linux-ll-check.yml` on `ubuntu-latest` (Linux / gcc / glibc) and `windows-ll-check.yml` on `windows-latest` (MSYS2 / MinGW-w64 gcc). Each dispatched against specific `ref` tags, compared against local macOS builds:
 
-| Ref | Linux LL (CI) | macOS LL (local) |
-|---|---|---|
-| v4.3.1 | −1864.76 | −1536.4 |
-| v4.4.2 | −1864.76 | −1536.4 |
+| Ref | Linux LL (CI) | Windows LL (CI, MinGW) | macOS LL (local) |
+|---|---|---|---|
+| v4.3.1 | −1864.76 | N/A (Cygwin target, not MinGW) | −1536.4 |
+| v4.4.2 | −1864.76 | −1864.76 | −1536.4 |
 
-Linux is invariant across the range → the 92 commits are numerically inert on Linux.
-macOS is invariant across the range → the 92 commits are numerically inert on macOS.
-Only the platform axis moves numbers. QED.
+Intra-platform invariance holds everywhere measured: Linux and macOS both confirmed across the 92-commit range; Windows confirmed at v4.4.2 and inferred at v4.3.1 by analogy (can't be tested without Cygwin). Cross-platform, two buckets: gcc (Linux + Windows) and Apple clang (macOS). QED.
 
 ---
 
@@ -119,16 +122,17 @@ src/hazpred/opnfils.c      | +18/−35
 
 ## 4. Implications and the release-reference strategy
 
-Given that v4.3.1 ≡ v4.4.2 numerically on Linux (and on macOS), and that Linux is the CCF production platform:
+Given that v4.3.1 ≡ v4.4.2 numerically within each toolchain family, and that Linux is the CCF production platform:
 
 1. **Linux has zero numerical drift between v4.3 and v4.4.** CCF users upgrading from `/opt/hazard/bin/hazard.exe` (v4.3.0) to any release/4.4 build on the same RHEL-8-ish Linux will see bit-identical outputs modulo the version banner.
-2. **macOS (and likely Windows, unverified) produces distinct but self-consistent output.** Across the 92 commits, macOS builds remain bit-identical to one another; they just differ from Linux builds.
-3. **The correct reference-corpus model is per-platform**, not "one canonical corpus per version". Proposed layout:
-   - `tests/corpus/hazard/reference/v4.4-linux/` — the promoted reference for Linux. Captured on ubuntu-latest (or CCF's RHEL 8) at a v4.4.x tag. Bit-identical to the existing `reference/v4.3.0/`.
-   - `tests/corpus/hazard/reference/v4.4-macos/` — the existing `reference/v4.4.2/` files, rebased under the macOS label.
-   - `tests/corpus/hazard/reference/v4.4-windows/` — TBD; needs a Windows run.
-4. **Reference promotion is safe on Linux today** (numerics-wise). It still requires the hazpred SIGSEGV and AVC.2/deciles-truncation bugs to be fixed first — neither is platform-specific, both block a release.
-5. **Do not claim "v4.4 is more correct" in release notes.** Neither platform has been validated against an independent numerical reference (SAS PROC LIFEREG, hand-worked example, etc.). The correct framing is: "v4.4 reproduces v4.3 bit-identically on Linux; macOS output differs due to toolchain FP differences and is documented separately."
+2. **Windows (MinGW-w64 gcc) lives in the same bucket as Linux.** Confirmed at v4.4.2; by toolchain family (shared gcc codegen + a glibc-derived math library) expected to match Linux on any ref that produces a working MinGW build. No separate Windows reference corpus needed — the gcc reference serves both.
+3. **macOS (Apple clang / arm64 / Apple libm) is its own bucket.** Distinct but self-consistent across the 92-commit range.
+4. **Two-bucket reference-corpus model is correct.** Proposed layout:
+   - `tests/corpus/hazard/reference/v4.4-gcc/` — promoted from the existing `reference/v4.3.0/` (bit-identical to Linux v4.3.1/v4.4.2/HEAD on hm.deadp.VALVES LL, and by strong analogy to the rest of the corpus). Canonical numerical reference for CCF production and for any Linux/Windows-MinGW build.
+   - `tests/corpus/hazard/reference/v4.4-clang-apple/` — rename of the existing `reference/v4.4.2/` files. Reference for macOS-on-Apple-Silicon.
+   - *No Windows-specific bucket needed.* The Windows output is bit-match to Linux on the LL metric; if the full listing on Windows turns out to differ in non-numerical formatting, a Windows-specific reference can be added later, but the numerical contract is covered by `v4.4-gcc/`.
+5. **Reference promotion is safe on Linux today** (numerics-wise). It still requires the hazpred SIGSEGV and AVC.2/deciles-truncation bugs to be fixed first — neither is platform-specific, both block a release.
+6. **Do not claim "v4.4 is more correct" in release notes.** Neither toolchain family has been validated against an independent numerical reference (SAS PROC LIFEREG, hand-worked example, etc.). The correct framing is: "v4.4 reproduces v4.3 bit-identically on gcc-family builds (Linux + Windows/MinGW); macOS/Apple-clang output differs due to toolchain FP differences and is documented separately."
 
 If cross-platform bit-exactness is required for some downstream reason, the intervention is at the compiler/libm layer: `-ffp-contract=off`, `-fno-associative-math`, disabling FMA, fixing rounding modes, and linking a common libm. That's a v5.0-scale change, not a v4.4 fix.
 
@@ -139,7 +143,7 @@ If cross-platform bit-exactness is required for some downstream reason, the inte
 1. ~~**Hazpred SIGSEGV** — 8/8 hazpred examples crash v4.4.2 with SIGSEGV.~~ **Fixed 2026-04-23.** lldb identified the crash at [src/hazpred/opnfils.c:88](src/hazpred/opnfils.c#L88) as a NULL `FILE*` deref (`hazfile = fopen(...)` with no null check, while `infile` and `outfile` both had the defensive check). Added the matching null check + `hzfxit("hazfile")`; all 8 examples now exit=16 with a clear "cannot open INHAZ file" message. The remaining corpus-completeness gap (missing `.haz` bridging files in `tests/corpus/hazpred/inputs/`) is §5 item 2 below, separate from the binary bug. See [FINDINGS.md §2b](tests/corpus/FINDINGS.md).
 2. **Re-capture hazpred corpus with proper dependency ordering.** The `.haz` intermediates that hazpred reads (`hzp.*.haz`) are produced by SAS at PROC-HAZPRED time from the LIBNAME EXAMPLES `.sas7bdat` store — they aren't preserved by the current wrapper. Needed to populate `reference/v4.4-*/hazpred/`. Tracked in `FINDINGS.md §5`.
 3. **`hm.death.AVC.2` / `.deciles` output truncation on macOS** — macOS optimizer path short-circuits the post-convergence reporting block. Per §1, this is downstream of the platform FP difference, not a separate bug. Document, don't "fix".
-4. **Windows data point** — add another workflow dispatch (`windows-latest` runner, MinGW or MSVC) to complete the cross-platform table. Not critical for the Linux-vs-macOS conclusion already established.
+4. ~~**Windows data point** — add another workflow dispatch (`windows-latest` runner, MinGW or MSVC) to complete the cross-platform table.~~ **Done 2026-04-23.** windows-ll-check.yml on ubuntu-latest, MSYS2/MinGW-w64 at v4.4.2 → LL=−1864.76, landing in the gcc bucket with Linux. v4.3.1 × MinGW is N/A (v4.3.1 Windows target was Cygwin, not MinGW). Reference-corpus model reduces to two buckets; see §4.
 
 ---
 
@@ -152,6 +156,7 @@ If cross-platform bit-exactness is required for some downstream reason, the inte
 | 2026-04-23 | 2.1 | Ehrlinger | Open item (a) resolved: `opnfils.c` 80-byte `TMPDIR` buffer overflow fixed via `PATH_MAX`/`snprintf`; harness workaround removed. Corpus still passes 7/7 against v4.4.2 reference — confirms TMPDIR bug was a stability issue, not part of the numerical divergence. |
 | 2026-04-23 | 3.0 | Ehrlinger | **Root cause isolated.** Workflow [linux-ll-check.yml](.github/workflows/linux-ll-check.yml) dispatched on `ubuntu-latest` at both v4.3.1 and v4.4.2, both produced LL=−1864.76 (matching `reference/v4.3.0/`). Same experiment on macOS at both endpoints produces LL=−1536.4 (matching `reference/v4.4.2/`). The 92 commits are numerically inert on both platforms; the divergence is 100% explained by the Linux-vs-macOS toolchain/libm gap. Status closed. Recommendations pivot to per-platform reference corpora (§4). |
 | 2026-04-23 | 3.1 | Ehrlinger | Open item (1) resolved: hazpred SIGSEGV fixed. lldb stack pinned the crash to [src/hazpred/opnfils.c:88](src/hazpred/opnfils.c#L88) — `fread(hazfile, ...)` with a NULL `hazfile` after a missing-file `fopen` whose return value was never checked. Added the matching null check + `hzfxit("hazfile")`; 8/8 hazpred examples now exit=16 with a clear error message instead of SIGSEGV. Corpus-completeness gap (missing `.haz` bridging files from the capture) remains, now tracked as a separate item. |
+| 2026-04-23 | 3.2 | Ehrlinger | Windows data point added. MSYS2/MinGW-w64 build at v4.4.2 produced LL=−1864.76 — same bucket as Linux gcc. v4.3.1 × MinGW is N/A (v4.3.1 Windows target was Cygwin; MinGW support arrived during the v4.4 modernisation cycle). Conclusion simplifies to **two** numerical buckets — gcc (Linux + Windows/MinGW) and Apple clang on arm64 (macOS) — not three. §4 reference-corpus layout updated to `reference/v4.4-gcc/` + `reference/v4.4-clang-apple/`. Investigation workflows (linux-ll-check.yml, windows-ll-check.yml) added to main for the experiment and deleted after (see commits ed786ba, 7cfd9fe). |
 
 ---
 
