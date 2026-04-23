@@ -8,27 +8,43 @@
 # corpus.  Any per-example diff is a failure; the diff itself is printed
 # so the operator can see what changed.
 #
-# Shipped reference sets (see tests/corpus/FINDINGS.md for provenance):
-#   v4.3.0   — archived legacy capture from the CCF production install.
-#              Comparing against this surfaces known drift (UB-fix-related,
-#              see FINDINGS §2a) and is expected to FAIL for most examples.
-#              Useful for audit / regression-hunting, not CI gating.
-#   v4.4.2   — self-consistency reference captured from the modern binary
-#              as of the feat/acceptance-harness PR.  Default for CI.  An
-#              all-PASS run against this reference means the binary still
-#              reproduces itself; FAIL here means a numerical code path
-#              changed.
+# Shipped reference sets (see tests/corpus/FINDINGS.md §2a for provenance
+# and the two-bucket cross-toolchain model):
+#
+#   v4.3.0                — archived CCF production capture (RHEL 8, gcc,
+#                           glibc).  Numerically bit-matches the gcc-family
+#                           bucket (Linux + Windows/MinGW) on the LL metric,
+#                           but the full .lst differs from v4.4.x on the
+#                           version banner and the "Cleveland Clinic" vs
+#                           "Cleveland Clinic Foundation" organisation
+#                           string.  Useful for audit against the CCF
+#                           ground truth; not a drop-in CI reference for
+#                           v4.4.x builds without a banner-normalising
+#                           patch (not yet implemented).
+#   v4.4.2-macos-arm64    — self-consistency reference captured from the
+#                           modern binary on macOS/Apple-clang/arm64.
+#                           Matches any v4.4.x build on the same
+#                           toolchain; the 92 commits v4.3.1 → v4.4.2 are
+#                           numerically inert on this toolchain.  Default
+#                           when host is Darwin/arm64.
+#
+#   (future) v4.4.N-linux-gcc     — recapture target for a v4.4.x build on
+#                                   Linux gcc; would replace v4.3.0 as the
+#                                   default for Linux/gcc hosts.
 #
 # Environment
 # -----------
 #   HAZARD_BIN    path to the hazard binary (default: ../src/hazard/hazard)
 #   HAZPRED_BIN   path to the hazpred binary (default: ../src/hazpred/hazpred)
-#   REFERENCE     reference version directory name (default: v4.4.2)
-#                 Current binary self-consistency check — should pass
-#                 trivially until someone modifies numerical code paths.
-#                 Set REFERENCE=v4.3.0 to diff against the archived legacy
-#                 (CCF captured) corpus; expect divergences per
-#                 tests/corpus/FINDINGS.md §2.
+#   REFERENCE     reference version directory name.  Default auto-selected
+#                 from host toolchain family:
+#                   Darwin/arm64  → v4.4.2-macos-arm64
+#                   Linux/Windows → v4.3.0  (gcc-bucket; expect banner and
+#                                            org-string diffs vs v4.4.x
+#                                            builds pending a Linux
+#                                            recapture)
+#                 Override with e.g. REFERENCE=v4.3.0 on macOS to force
+#                 the legacy comparison.
 #
 # Exit codes
 # ----------
@@ -50,7 +66,17 @@ NORMALIZE="${SCRIPT_DIR}/corpus_normalize.sh"
 
 HAZARD_BIN="${HAZARD_BIN:-${REPO_DIR}/src/hazard/hazard}"
 HAZPRED_BIN="${HAZPRED_BIN:-${REPO_DIR}/src/hazpred/hazpred}"
-REFERENCE="${REFERENCE:-v4.4.2}"
+
+# Auto-select reference based on host toolchain family, unless caller
+# overrode REFERENCE explicitly.  See header for the two-bucket model.
+if [ -z "${REFERENCE:-}" ]; then
+    _KERNEL="$(uname -s 2>/dev/null || echo unknown)"
+    _MACH="$(uname -m 2>/dev/null || echo unknown)"
+    case "$_KERNEL/$_MACH" in
+        Darwin/arm64)   REFERENCE=v4.4.2-macos-arm64 ;;
+        *)              REFERENCE=v4.3.0 ;;
+    esac
+fi
 
 PASSED=0
 FAILED=0
@@ -198,29 +224,32 @@ run_kind() {
 # Main                                                                #
 # ------------------------------------------------------------------ #
 
-# The v4.4.2 self-consistency reference was captured on macOS/clang.
-# Cross-platform float formatting and line-ending conventions differ
-# enough between macOS, Linux, and MinGW/Windows that byte-exact
-# comparison across platforms isn't meaningful without per-platform
-# reference sets, which we don't yet have.  Skip the whole harness on
-# non-host platforms until we capture more baselines.  Set
-# HZCORPUS_FORCE=1 to override (useful locally when iterating the
-# harness itself).
+# Toolchain-bucket auto-select (see REFERENCE defaults above).  We no
+# longer blanket-skip non-Darwin/Linux hosts now that the two-bucket
+# model is in place: Linux + Windows/MinGW both map to the gcc bucket
+# (v4.3.0), macOS/arm64 maps to the clang-apple bucket.  The one
+# remaining gap is a v4.4.x Linux recapture that would let Linux builds
+# byte-match a v4.4.x reference without banner/org normalisation — until
+# then, Linux + Windows runs against v4.3.0 will diff on the banner +
+# org string even when numerics match, so CI callers either pin
+# REFERENCE explicitly or accept those expected diffs.  Set
+# HZCORPUS_FORCE=1 to suppress the warning.
 HOST_KERNEL="$(uname -s 2>/dev/null || echo unknown)"
-case "$HOST_KERNEL" in
-    Darwin|Linux)
-        :  # Supported reference platforms (v4.4.2 was captured on Darwin,
-           # Linux CI runs are byte-compatible on the examples we ship)
+HOST_MACH="$(uname -m 2>/dev/null || echo unknown)"
+case "$HOST_KERNEL/$HOST_MACH" in
+    Darwin/arm64|Linux/*)
+        :  # Supported toolchain buckets
         ;;
     *)
         if [ "${HZCORPUS_FORCE:-0}" != "1" ]; then
             echo ""
             echo "=========================================="
-            echo "Acceptance corpus — skipped on $HOST_KERNEL"
+            echo "Acceptance corpus — not yet exercised on $HOST_KERNEL/$HOST_MACH"
             echo "=========================================="
-            echo "  v4.4.2 reference is macOS-captured; cross-platform"
-            echo "  float formatting differs.  Set HZCORPUS_FORCE=1 to"
-            echo "  run anyway (expect diffs)."
+            echo "  Bucket auto-detection covers Darwin/arm64 and Linux/*."
+            echo "  Windows/MinGW should work via REFERENCE=v4.3.0 but"
+            echo "  hasn't been run through this harness end-to-end."
+            echo "  Set HZCORPUS_FORCE=1 to run anyway."
             echo "=========================================="
             exit 0
         fi
