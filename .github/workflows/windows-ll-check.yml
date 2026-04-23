@@ -115,15 +115,33 @@ jobs:
           # Short TMPDIR: pre-fix binaries (everything before 60d785f on
           # release/4.4) have the 80-byte path-buffer overflow.  Symlink
           # the .dta / .haz inputs into it so opnfils.c's constructed
-          # $TMPDIR/hzr.<study>.<dset>.dta resolves.
+          # $TMPDIR/hzr.*.dta resolves.
+          #
+          # Critical Windows wrinkle: opnfils.c uses UNDERSCORES in the
+          # filename on Windows (`hzr_<study>_<dset>.dta`) but DOTS on
+          # Linux/macOS (`hzr.<study>.<dset>.dta`) — see opnfils.c
+          # `#if defined(__CYGWIN__) || defined(_WIN32)` block.  Our
+          # corpus on disk is dot-named (captured on Linux at CCF).
+          # Drop BOTH name forms into SHORT_TMP so whichever branch the
+          # built binary compiles with finds the file.
           SHORT_TMP=$(mktemp -d /tmp/hz.XXXXXX)
           for f in /tmp/corpus/tests/corpus/hazard/inputs/hzr.*.dta \
                    /tmp/corpus/tests/corpus/hazard/inputs/hzr.*.haz; do
             [ -f "$f" ] || continue
-            # On MSYS2, fallback to cp if ln -s doesn't behave as expected.
-            ln -sf "$f" "$SHORT_TMP/$(basename "$f")" 2>/dev/null || \
-              cp "$f" "$SHORT_TMP/$(basename "$f")"
+            base=$(basename "$f")                     # e.g. hzr.J970657.X3.dta
+            # Dot-named (macOS/Linux binary path)
+            ln -sf "$f" "$SHORT_TMP/$base" 2>/dev/null || cp "$f" "$SHORT_TMP/$base"
+            # Underscore-named (Windows binary path) —
+            # hzr.J970657.X3.dta → hzr_J970657_X3.dta
+            ext=${base##*.}                           # dta | haz
+            stem=${base%.*}                           # hzr.J970657.X3
+            uscored=$(echo "$stem" | tr '.' '_').${ext}
+            if [ "$uscored" != "$base" ]; then
+              ln -sf "$f" "$SHORT_TMP/$uscored" 2>/dev/null || cp "$f" "$SHORT_TMP/$uscored"
+            fi
           done
+          echo "=== files in SHORT_TMP ==="
+          ls "$SHORT_TMP" | head -20
 
           BIN="${{ steps.locate.outputs.bin }}"
           echo "Using binary: $BIN"
@@ -132,6 +150,10 @@ jobs:
             > /tmp/got.lst 2>&1 || true
 
           echo "=== output size: $(wc -c < /tmp/got.lst) bytes ==="
+          echo "=== head of output ==="
+          head -20 /tmp/got.lst
+          echo "=== tail of output ==="
+          tail -10 /tmp/got.lst
 
       - name: Extract LL and classify
         run: |
@@ -165,8 +187,10 @@ jobs:
           echo "- **Classification**: $CLASS" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload full listing
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: hm.deadp.VALVES-windows.lst
           path: /tmp/got.lst
           retention-days: 14
+          if-no-files-found: warn
