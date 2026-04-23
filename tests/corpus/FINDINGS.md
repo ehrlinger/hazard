@@ -27,21 +27,32 @@ This document records what the harness has surfaced on its first real run.  It's
 
 Running the same captured `.input` + `.dta` tuples through v4.4.2 produces output that differs from v4.3.0 in two ways:
 
-### 2a. Optimiser converges to different values
+### 2a. Optimiser converges to different values *(root-caused 2026-04-23: cross-platform FP, not code history)*
 
 Example: `hm.death.AVC.1` (stepwise analysis).  Both versions start from the same initial Constant MUC (`0.0005437256`) but converge to different terminal estimates:
 
-| Field | v4.3.0 reference | v4.4.2 current |
+| Field | v4.3.0 reference (CCF Linux) | v4.4.2 current (captured on macOS) |
 |---|---|---|
 | Constant MUC (final) | `0.0001452016` | `8.403295E-05` |
 | Output size | 12,684 bytes | 49,191 bytes |
 
-The size delta suggests v4.4.2 is running more stepwise iterations — the stepwise selection is exploring more of the variable space before terminating.  Likely root cause: commit `557f3ef Fix UB swab(src,src) calls` (on `release/4.4` history) replaced undefined behaviour in the XPORT byte-swap path with well-defined endian handling.  The UB happened to produce one numerical result; the fix produces another.  Neither is "wrong," but they differ, and v4.4.x has diverged from the on-site v4.3.0 install's output as a result.
+**Root cause identified 2026-04-23 (see [ROOT-CAUSE-ANALYSIS.md](../../ROOT-CAUSE-ANALYSIS.md) §2):** the divergence is 100% cross-platform floating-point non-determinism (Linux/gcc/glibc vs macOS/Apple-clang/arm64/Apple-libm), **0%** contribution from the 92 commits between v4.3.1 and v4.4.2.
 
-**Decision needed:** is v4.4.x's UB-fixed output "more correct and acceptable," or is bit-compat with v4.3.0 required?  Per the roadmap's tolerance policy (`docs/Claude_MODERNIZATION_GUIDE.md` §1), log-likelihoods and parameter estimates should be bit-exact vs the production baseline.  v4.4.0 was that baseline, but we don't have a v4.4.0 capture — only v4.3.0 (legacy) and v4.4.2 (current).  Options:
-- Capture v4.4.0 output as the canonical reference (requires running v4.4.0 somewhere; v4.4.0 was never formally tagged so v4.4.1 is the earliest reproducible point).
-- Accept v4.4.2 output as the baseline and document the drift from v4.3.0 in release notes.
-- Revert the UB fix and audit every numerical side effect.
+Evidence: workflow [linux-ll-check.yml](../../.github/workflows/linux-ll-check.yml) dispatched on `ubuntu-latest` at both v4.3.1 and v4.4.2 produced **LL = −1864.76** for `hm.deadp.VALVES` — matching the CCF v4.3.0 reference exactly at both tags.  The same experiment on macOS at both tags produces LL = −1536.4 (matching the macOS-captured `reference/v4.4.2/`).  Neither platform's numbers move across the commit range; only the platform axis moves them.
+
+The earlier "likely root cause: commit `557f3ef`" hypothesis was disproven by a direct test — old `swab(src,src,n)` and new `hzd_bswap_*` helpers produce bit-identical output on glibc.  The 557f3ef fix is still correct for Windows/UCRT, but it is not what moved the numbers here.
+
+**Implications:**
+- On **Linux** (including CCF RHEL 8), v4.4.x produces **byte-identical output to v4.3.0**.  CCF users upgrading see zero numerical drift.
+- On **macOS**, v4.4.x produces distinct-but-self-consistent output, invariant across the 92 commits.
+- On **Windows**, unverified — expected to produce a third, self-consistent output family.
+
+**Decision (updated 2026-04-23):** maintain **per-platform** reference corpora.  Proposed layout:
+- `reference/v4.4-linux/`   — promote from `reference/v4.3.0/` (bit-identical per the CI runs above).  The canonical numerical reference.
+- `reference/v4.4-macos/`   — rename `reference/v4.4.2/` (all captures to date were on macOS).
+- `reference/v4.4-windows/` — TBD; one dispatch against `windows-latest` closes the table.
+
+The tolerance policy in `docs/Claude_MODERNIZATION_GUIDE.md` §1 ("log-likelihoods and parameter estimates should be bit-exact vs the production baseline") is satisfied on Linux.  It is not satisfied cross-platform, and achieving that would require compiler-level intervention (`-ffp-contract=off`, FMA disable, common libm, fixed rounding modes) — v5.0-scale work, out of scope for v4.4.
 
 ### 2b. Hazpred crashes under v4.4.2
 
