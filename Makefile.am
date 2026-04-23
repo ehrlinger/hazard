@@ -48,12 +48,20 @@ capture-kit:
 	cp $(top_srcdir)/scripts/capture.env.example      $(CAPTURE_KIT_DIR)/
 	cp $(top_srcdir)/scripts/capture-order.txt        $(CAPTURE_KIT_DIR)/
 	cp $(top_srcdir)/scripts/CAPTURE_INSTRUCTIONS.md  $(CAPTURE_KIT_DIR)/README.md
+	@: # PROC HAZARD / PROC HAZPRED macros need to be findable at the
+	@: # overridden $HAZAPPS (= shadow-bin) so the macros register and the
+	@: # %let hazpgm=%sysget(HAZAPPS).../hazard.exe invocation resolves to
+	@: # our wrapper.  Without these files the site's -set HAZAPPS override
+	@: # breaks PROC HAZARD registration.  See hazard.sas:55.
+	cp $(top_srcdir)/src/scripts/hazard.sas           $(CAPTURE_KIT_DIR)/ 2>/dev/null || true
+	cp $(top_srcdir)/src/scripts/hazpred.sas          $(CAPTURE_KIT_DIR)/ 2>/dev/null || true
+	cp $(top_srcdir)/src/scripts/hazdolst.sas         $(CAPTURE_KIT_DIR)/ 2>/dev/null || true
 	cp $(top_srcdir)/tests/*.sas     $(CAPTURE_KIT_DIR)/sas/ 2>/dev/null || true
 	cp $(top_srcdir)/examples/*.sas  $(CAPTURE_KIT_DIR)/sas/ 2>/dev/null || true
 	cp $(top_srcdir)/macros/*.sas    $(CAPTURE_KIT_DIR)/macros/ 2>/dev/null || true
-	# Some sites' installed .sas examples %INC macros by unsuffixed name
-	# (e.g. FILENAME HAZBOOT ('$MACROS/bootstrap.hazard')), while the
-	# repo carries the .sas suffix.  Drop symlinks so both forms resolve.
+	@: # Some sites' installed .sas examples %INC macros by unsuffixed name
+	@: # (e.g. FILENAME HAZBOOT ('$MACROS/bootstrap.hazard')), while the
+	@: # repo carries the .sas suffix.  Drop symlinks so both forms resolve.
 	cd $(CAPTURE_KIT_DIR)/macros && for f in *.sas; do ln -sf "$$f" "$${f%.sas}"; done
 	chmod +x $(CAPTURE_KIT_DIR)/capture-legacy.sh
 	tar -czf $(CAPTURE_KIT_TARBALL) $(CAPTURE_KIT_DIR)

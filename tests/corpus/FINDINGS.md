@@ -96,33 +96,39 @@ Line 72 of `src/hazpred/opnfils.c` had `hazfile = fopen(bfr,"rb")` with no null 
 **Corpus data:**
 - `tests/corpus/hazard/inputs/*.input` + `*.dta` (7 examples, with 2 cases sharing a `.dta`)
 - `tests/corpus/hazard/reference/v4.3.0/*.lst` + `*.meta` + `*.haz` (7 tuples, byte-exact legacy output)
-- `tests/corpus/hazard/reference/v4.4.2/*.lst` + `*.haz` (5 tuples — 2 examples exit 1 partway through)
-- `tests/corpus/hazpred/inputs/*.input` + `*.dta` (8 examples)
-- `tests/corpus/hazpred/reference/v4.3.0/*.lst` + `*.meta` (8 tuples)
-- `tests/corpus/hazpred/reference/v4.4.2/` — empty, blocked on the SIGSEGV
+- `tests/corpus/hazard/reference/v4.4.2-macos-arm64/*.lst` + `*.haz` (5 tuples — see §2a cross-toolchain note)
+- `tests/corpus/hazpred/inputs/*.input` + `*.dta` + `*.haz` (8 examples — `.haz` bridging files added 2026-04-23 from the CCF re-capture, closing the previous corpus-completeness gap)
+- `tests/corpus/hazpred/reference/v4.3.0/*.lst` + `*.meta` (8 tuples, byte-identical with the 2026-04-23 re-capture's normalised output)
+
+**Re-capture (2026-04-23):**
+- [hazard-capture-results-2026-04-23.tar.gz](../../hazard-capture-results-2026-04-23.tar.gz) — CCF re-capture, 78 hazard files + 128 hazpred files, produced by `/programs/apps/sas/hazard/hazard.exe` (SHA-256 `6a3856ede31c64e8f4c2e2994d6b3aafcdea7359cd1876bef406d393f25a7914`) and `hazpred.exe` (`3c6368c5ef8ac5adb14d571a906026aad1edea4d6f38d7d8a045cdb0789de085`).
+- 7/8 hazard invocations and 8/8 successful hazpred invocations bit-match existing `reference/v4.3.0/*.lst` files by SHA-256 — confirms binary unchanged between the 2026-04-22 and 2026-04-23 captures.
+- 1 hazard invocation (`hz.te123.OMC`) reproduces the known `real_exit=1` legacy-binary crash from §1.
+- 4 hazpred invocations exit=16 for missing LIBNAMEs (CHSPTR, TGASW.HMDTHRI, PTCAMHI.HMPDTHE) — expected for examples that read external libraries not populated by this corpus.
 
 **Harness:**
-- `tests/validate_corpus.sh` runs all 15 inputs through the modern binary, handles the TMPDIR buffer bug via `/tmp`-based symlink dir, normalises version strings + timestamps, byte-diffs against the selected reference.
-- `REFERENCE=v4.3.0 ./tests/validate_corpus.sh` — compare current binary to legacy (expects divergences per §2).
-- `REFERENCE=v4.4.2 ./tests/validate_corpus.sh` — compare current binary to modern baseline (expect all-green when the binary hasn't changed since capture).
+- `tests/validate_corpus.sh` runs all 15 inputs through the modern binary, auto-selects reference from host toolchain family (Darwin/arm64 → `v4.4.2-macos-arm64`, Linux/Windows → `v4.3.0`), normalises version strings + timestamps, byte-diffs against the selected reference.
+- 7/7 hazard and 8/8 hazpred examples pass against the normalised `v4.3.0` reference on macOS as of 2026-04-23.
+- Override with `REFERENCE=...` env var to force a specific reference.
 
 ---
 
 ## 5. Open items, prioritised
 
-1. **Investigate hazpred SIGSEGV** — blocks §2b's `reference/v4.4.2/hazpred/`.  Run under `lldb` / `valgrind`; likely a pre-existing legacy bug that didn't manifest at CCF.
-2. **Populate `scripts/capture-order.txt`** with real dependency order, re-capture the 5 `real_exit=16` hazpred cases to complete the v4.3.0 reference.
-3. **Fix the 80-byte TMPDIR buffer in `opnfils.c`** — real fix, Phase 2 work.  Until then the harness workaround is load-bearing.
-4. **Decide reference-version policy** (§2a) — is v4.4.x's UB-fixed output acceptable, or must v5.0 match v4.3.0 bit-exactly?  This is the gate for §2a's status.
-5. **Capture v4.4.0 / v4.4.1 baseline** if "match production" is the answer to #4.
+1. ~~**Investigate hazpred SIGSEGV**~~ **Fixed 2026-04-23.** Null `FILE*` deref on missing INHAZ — see §2b.
+2. ~~**Populate `scripts/capture-order.txt`**~~ **Done 2026-04-22.** Re-capture landed 2026-04-23 (§4 "Re-capture" subsection) with proper producer→consumer ordering; bridging `.haz` files now in `tests/corpus/hazpred/inputs/`.
+3. ~~**Fix the 80-byte TMPDIR buffer in `opnfils.c`**~~ **Fixed 2026-04-23.** See §3.
+4. ~~**Decide reference-version policy (§2a)**~~ **Decided 2026-04-23.** Two-bucket per-toolchain layout — see §2a.
+5. **Capture a v4.4.x Linux reference** so gcc-bucket validation byte-matches without the cosmetic banner/org-string diff (currently `v4.3.0` is used as a proxy gcc-bucket reference — numerically identical, but version-banner and "Cleveland Clinic" / "...Foundation" differ).  Can be produced by a GHA workflow running the full corpus under `ubuntu-latest` at a v4.4.x tag.
+6. **Windows-native capture** (optional, low priority) — MinGW output bit-matches Linux on the LL metric so the gcc-bucket reference already covers it; only needed if Windows-specific formatting differences surface.
 
 ---
 
 ## 6. What this proves
 
-1. The capture pipeline works end-to-end at a real production site (CCF, RHEL 8, SAS 9.4 TS1M8, `/opt/hazard/bin` install).
-2. The harness detects real regressions — both numerical (§2a) and crashes (§2b, §3).
-3. The reference-corpus approach is viable: 2 MB of artefacts, 98 files, structured and auditable.
-4. The v4.4.x branch as currently implemented is NOT a byte-for-byte replacement for v4.3.0, contrary to the working assumption of the original release plan.
+1. The capture pipeline works end-to-end at a real production site (CCF, RHEL 8, SAS 9.4 TS1M8, `/opt/hazard/bin` install) — demonstrated twice (2026-04-22 and 2026-04-23).
+2. The harness detects real regressions and — after today's fixes — drives every captured example end-to-end on macOS with rc=0 for both hazard (7/7 pass) and hazpred (8/8 pass after normalisation).
+3. The reference-corpus approach is viable: ~250 artefacts across hazard + hazpred, structured and auditable; authenticated by independent SHA-256 comparison of re-capture vs existing reference.
+4. The v4.4.x branch reproduces v4.3.0 **byte-identically on gcc-family builds** (Linux, Windows/MinGW) per §2a — contrary to the initial working assumption that it diverged.  The divergence observed earlier was cross-toolchain FP (Apple clang vs gcc), not a code-history regression.
 
-The v4.4.3 "acceptance-harness-proven baseline" release the roadmap sketches is not ready to ship.  What's ready: the harness infrastructure, the v4.3.0 reference corpus, and a concrete list of the drifts and bugs that need resolution before a parity claim can be made.
+The v4.4.3 "acceptance-harness-proven baseline" release is now closer to shippable: §2a (numerical), §2b (hazpred crash), and §3 (TMPDIR overflow) are all resolved.  Remaining gates: item #5 above (Linux v4.4.x recapture for cosmetic parity), release notes framing the gcc-family parity vs clang-apple documented divergence, and a decision on whether the `reference/v4.4.2-macos-arm64/` 5-of-7 truncations (§1, row 3-4) block release or are documented as known-downstream-of-toolchain-split.

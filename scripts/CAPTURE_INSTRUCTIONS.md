@@ -40,20 +40,24 @@ ls
 
 ### 2. Make the wrapper executable and create the symlinks
 
-Without `chmod +x` and real symlinks, SAS silently falls back to the real binary on PATH and your capture directory stays empty — so verify the listing at the end of this step before moving on.
+Without `chmod +x` and real symlinks, SAS silently falls back to the real binary and your capture directory stays empty — so verify the listing at the end of this step before moving on.  **Create both `hazard` and `hazard.exe` symlinks** (and the `hazpred` pair) — sites where the PROC HAZARD macro invokes `%sysget(HAZAPPS)/hazard.exe` explicitly (CCF does this) need the `.exe` form to intercept.
 
 ```bash
 cd ~/hazard-shadow-bin
 chmod +x capture-legacy.sh
 ln -sf "$PWD/capture-legacy.sh" hazard
+ln -sf "$PWD/capture-legacy.sh" hazard.exe
 ln -sf "$PWD/capture-legacy.sh" hazpred
+ln -sf "$PWD/capture-legacy.sh" hazpred.exe
 
-# Verify — all three should be executable, and hazard/hazpred should be symlinks
-ls -la capture-legacy.sh hazard hazpred
+# Verify — five entries, wrapper executable, four symlinks
+ls -la capture-legacy.sh hazard hazard.exe hazpred hazpred.exe
 # Expect:
 #   -rwxr-xr-x  ... capture-legacy.sh
-#   lrwxr-xr-x  ... hazard    -> /home/you/hazard-shadow-bin/capture-legacy.sh
-#   lrwxr-xr-x  ... hazpred   -> /home/you/hazard-shadow-bin/capture-legacy.sh
+#   lrwxr-xr-x  ... hazard       -> .../capture-legacy.sh
+#   lrwxr-xr-x  ... hazard.exe   -> .../capture-legacy.sh
+#   lrwxr-xr-x  ... hazpred      -> .../capture-legacy.sh
+#   lrwxr-xr-x  ... hazpred.exe  -> .../capture-legacy.sh
 ```
 
 If any of those lack the `x` permission or the `l` prefix, fix that before continuing.
@@ -70,6 +74,32 @@ which hazpred
 ```
 
 If either still resolves to the real install's `bin/hazard`, PATH isn't right — fix that first.
+
+### 3a. Configure `capture.env` so the wrapper knows where the real binary lives
+
+**This step is mandatory when step 5 uses `-set HAZAPPS ~/hazard-shadow-bin`** (which most sites need — see the rationale in step 5).  Without it, the wrapper's fallback to find the real binary walks `$HAZAPPS/hazard.exe` → `~/hazard-shadow-bin/hazard.exe` → `capture-legacy.sh` → recursion → fork bomb.
+
+Tell the wrapper explicitly where the REAL binaries live:
+
+```bash
+cat > ~/hazard-shadow-bin/capture.env <<'EOF'
+HAZARD_REAL=/absolute/path/to/real/hazard.exe
+HAZPRED_REAL=/absolute/path/to/real/hazpred.exe
+EOF
+
+# Verify
+cat ~/hazard-shadow-bin/capture.env
+ls -la "$(grep '^HAZARD_REAL=' ~/hazard-shadow-bin/capture.env | cut -d= -f2)"
+ls -la "$(grep '^HAZPRED_REAL=' ~/hazard-shadow-bin/capture.env | cut -d= -f2)"
+```
+
+At CCF (`lri-sas-p-02`) the paths are:
+```
+HAZARD_REAL=/programs/apps/sas/hazard/hazard.exe
+HAZPRED_REAL=/programs/apps/sas/hazard/hazpred.exe
+```
+
+The wrapper auto-sources `capture.env` on every invocation, so this persists across SAS runs without you re-exporting anything.
 
 ### 4. Record the real binary's provenance
 
@@ -94,14 +124,19 @@ The file lands in `~/` and will be picked up by the tarball at step 7.
 
 Before running all 23+ files, run one through SAS and confirm the wrapper fired.  `hm.death.AVC` is a good choice — small, self-contained, no dependencies on earlier runs.
 
-> **Important — `-set HAZAPPS` and `-set TMPDIR`:** many sites wrap the `sas` command in a startup script that resets `HAZAPPS` (and strips `TMPDIR`) for "consistency" regardless of your shell environment.  Shell `export HAZAPPS=...` gets blown away before SAS's macro engine sees it.  The fix is to pass the overrides on the SAS command line via `-set`, which runs AFTER any wrapper's internal setup and survives into `%sysget()`, `%sysexec` subprocesses, and the spawned binary's environment.
+> **Why `-set HAZAPPS`:** the PROC HAZARD macro builds `%let hazpgm=%sysget(HAZAPPS)/hazard.exe` at run-time (see `hazard.sas`).  If `HAZAPPS` resolves to the real install, the macro invokes the real binary directly by absolute path — bypassing your shadow-bin on PATH.  Overriding `HAZAPPS` to your shadow-bin redirects that absolute path to the wrapper.  **The kit ships `hazard.sas` / `hazpred.sas` / `hazdolst.sas` inside the shadow-bin so PROC HAZARD registers under the overridden `HAZAPPS` — without those files, you'd see `ERROR 180-322: Statement is not valid` at PROC HAZARD.**
+
+> **Why `-sasuser ~/sasuser-priv`:** if any other SAS session you own has the shared `$HOME/sasuser*` profile open, your run errors with `Resource is write-locked by another user`.  A private per-run `sasuser` dir side-steps it.  Cheap insurance.
+
+> **Important on site SAS wrappers:** many sites wrap the `sas` command in a startup script that resets `HAZAPPS` (and strips `TMPDIR`) for "consistency" regardless of your shell environment.  Shell `export HAZAPPS=...` gets blown away before SAS's macro engine sees it.  Passing overrides via `-set` runs AFTER any site wrapper's setup and survives into `%sysget()`, `%sysexec` subprocesses, and the spawned binary's environment.  Do NOT `-set MACROS` — use the site's MACROS library so `bootstrap.hazard` (and other site helpers) resolve normally.
 
 ```bash
+mkdir -p ~/sasuser-priv
+
 SAS_DIR="${HZEXAMPLES:-$HOME/hazard-shadow-bin/sas}"
-sas -nodms \
+sas -nodms -sasuser ~/sasuser-priv \
     -set HAZAPPS ~/hazard-shadow-bin \
     -set TMPDIR /saswork \
-    -set MACROS ~/hazard-shadow-bin/macros \
     -log /tmp/smoke.log -print /tmp/smoke.lst \
     "$SAS_DIR/hm.death.AVC.sas"
 
@@ -149,16 +184,19 @@ SAS_DIR="${HZEXAMPLES:-$PWD/sas}"
     [ -f "$sas" ] || continue
     name=$(basename "$sas" .sas)
     echo "--- running $name ---"
-    # -set HAZAPPS / -set TMPDIR push env vars past the site SAS
-    # wrapper (which otherwise resets HAZAPPS and points TMPDIR at a
-    # path long enough to trigger the opnfils.c 80-byte overflow).
-    # -set MACROS points at the shipped macros/ dir so %INC of
-    # bootstrap.hazard.sas / hazplot.sas / etc. resolves even at sites
-    # where the system MACROS library is missing them.
-    sas -nodms \
+    # -sasuser ~/sasuser-priv     : avoid SASUSER profile lock if another
+    #                               session holds $HOME/sasuser*
+    # -set HAZAPPS ~/hazard-shadow-bin :
+    #   PROC HAZARD registers from hazard.sas in the shadow-bin, and
+    #   %let hazpgm=%sysget(HAZAPPS)/hazard.exe resolves to the wrapper.
+    #   See step 3a — capture.env MUST be set or this recurses.
+    # -set TMPDIR /saswork        : short TMPDIR (keeps the legacy v4.3.0
+    #                               binary's 80-byte buffer happy).
+    # Do NOT -set MACROS — use the site's installed macros library so
+    # bootstrap.hazard and other site helpers resolve normally.
+    sas -nodms -sasuser ~/sasuser-priv \
         -set HAZAPPS ~/hazard-shadow-bin \
         -set TMPDIR /saswork \
-        -set MACROS ~/hazard-shadow-bin/macros \
         -log ~/hz-logs/$name.log -print ~/hz-logs/$name.lst "$sas"
     echo "  exit=$? captures so far: $(ls ~/hazard-capture/hazard/ 2>/dev/null | wc -l)"
 done
@@ -211,10 +249,42 @@ Each group is a tuple with the same uid prefix:
 
 Symptom: `~/hazard-capture/` is empty or missing after running SAS, but SAS produced `.lst` / `.log` files as usual.  Diagnosis:
 
-- `ls -la ~/hazard-shadow-bin/hazard ~/hazard-shadow-bin/hazpred` — are they executable symlinks?  If they're plain files (no `l` prefix) or lack `x` permission, SAS failed to exec them and fell back to the real binary silently.  Redo step 2.
+- `ls -la ~/hazard-shadow-bin/hazard hazard.exe hazpred hazpred.exe` — are all four executable symlinks?  Sites where PROC HAZARD invokes `%sysget(HAZAPPS)/hazard.exe` directly (CCF does this) need the `.exe`-named symlinks too; without them the shell resolves the `.exe` path through the real install.  Redo step 2 if any are missing.
 - `which hazard` — is it pointing at the shadow-bin or at the real binary?  If the real binary, step 3 (PATH export) didn't stick in your current shell.  Redo it.
 - Is SAS hardcoding the binary path in a site config file (bypassing `$PATH`)?  Common spots: `autoexec.sas`, `sasv9.cfg`, HAZARD's own setup scripts.  Search for `HAZARD_BIN` / direct paths / `x` command invocations.  If hardcoded, either change the config to honour `$PATH`, or point the hardcoded path at `~/hazard-shadow-bin/hazard`.
 - `~/hazard-capture/` can be preexisting and empty from a prior failed attempt — that's fine, it just means nothing got written THIS run.
+
+## If `ERROR 180-322: Statement is not valid` appears at `PROC HAZARD`
+
+PROC HAZARD / PROC HAZPRED failed to register under the overridden `-set HAZAPPS ~/hazard-shadow-bin`.  The kit ships `hazard.sas` / `hazpred.sas` / `hazdolst.sas` inside the shadow-bin for exactly this — check they're present:
+
+```bash
+ls ~/hazard-shadow-bin/{hazard,hazpred,hazdolst}.sas
+```
+
+If any are missing (old kit predating this fix), copy from the real install:
+
+```bash
+cp "${HAZAPPS:-/programs/apps/sas/hazard}"/{hazard,hazpred,hazdolst}.sas ~/hazard-shadow-bin/
+```
+
+## If the SAS call hangs (or bash reports "shell level (1000) too high")
+
+Infinite-recursion: the wrapper re-exec'd itself.  Cause: `-set HAZAPPS ~/hazard-shadow-bin` redirected the wrapper's real-binary lookup (`$HAZAPPS/hazard.exe`) back at itself.  Fix: check `~/hazard-shadow-bin/capture.env` exists and contains `HAZARD_REAL=/absolute/path/to/real/hazard.exe` (step 3a).  If not, create it, then kill any surviving wrapper/`tee` processes (`pkill -9 -u "$USER" -f 'capture-legacy|hazard-shadow-bin'`) before retrying.
+
+## If `Resource is write-locked by another user` or `SASUSER.PROFILE ... will be opened instead`
+
+Another SAS session holds locks on your `$HOME/sasuser*` profile dir.  Two fixes:
+
+```bash
+# Find any lingering SAS processes and kill them
+ps -fu "$USER" | grep -iE 'sas|dms' | grep -v grep
+pkill -u "$USER" -f 'sas'
+
+# Use a private per-run sasuser dir (already in the sample commands above)
+mkdir -p ~/sasuser-priv
+sas -nodms -sasuser ~/sasuser-priv ...
+```
 
 ## If the wrapper fires but `.dta` files aren't captured
 
