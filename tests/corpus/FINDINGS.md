@@ -55,11 +55,11 @@ The earlier "likely root cause: commit `557f3ef`" hypothesis was disproven by a 
 - On **any gcc-family build** (Linux including CCF RHEL 8, Windows/MinGW), v4.4.x produces **byte-identical output to v4.3.0** on the LL metric.  CCF users upgrading see zero numerical drift.
 - On **macOS / Apple clang / arm64**, v4.4.x produces distinct-but-self-consistent output, invariant across the 92 commits.
 
-**Decision (updated 2026-04-23):** maintain **two-bucket** reference corpora, keyed on toolchain family:
-- `reference/v4.4-gcc/`         — promote from `reference/v4.3.0/` (bit-identical to Linux/Windows gcc builds).  Canonical numerical reference for CCF production and any Linux + Windows/MinGW build.
-- `reference/v4.4-clang-apple/` — rename `reference/v4.4.2/` (all captures to date were on macOS/arm64).
+**Decision (implemented 2026-04-23):** two-bucket reference corpora, keyed on toolchain family.  Directories keep their version-accurate names; bucket auto-select lives in `tests/validate_corpus.sh`.
+- `reference/v4.3.0/`              — CCF Linux capture, gcc bucket.  Default REFERENCE on Linux and Windows hosts.  Numerically bit-matches a v4.4.x Linux build on LL; cosmetic banner + org-string diffs pending a v4.4.x Linux recapture.
+- `reference/v4.4.2-macos-arm64/`  — macOS Apple-Silicon self-consistency capture, clang-apple bucket.  Default on Darwin/arm64 hosts.  Renamed from `reference/v4.4.2/` for explicit provenance.
 
-No Windows-specific bucket needed — MinGW output matches Linux gcc on the LL metric.  If the full listing on Windows turns out to differ in non-numerical formatting (version banner, path separators in comments, etc.), a Windows-specific reference can be added later without changing the numerical contract.
+No Windows-specific directory needed — MinGW output bit-matches Linux gcc on the LL metric, so Windows uses the same `v4.3.0` reference.  If the full Windows listing later turns out to differ in non-numerical formatting (version banner, path separators in comments, etc.), a Windows-specific reference can be added without changing the numerical contract.
 
 The tolerance policy in `docs/Claude_MODERNIZATION_GUIDE.md` §1 ("log-likelihoods and parameter estimates should be bit-exact vs the production baseline") is satisfied within each toolchain family.  It is not satisfied cross-toolchain, and achieving that would require compiler-level intervention (`-ffp-contract=off`, FMA disable, common libm, fixed rounding modes) — v5.0-scale work, out of scope for v4.4.
 

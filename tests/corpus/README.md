@@ -11,16 +11,19 @@ tests/corpus/
 │   │   ├── <name>.input              # PROC HAZARD options, fed to hazard's stdin
 │   │   └── hzr.J<jobid>.X<jobix>.dta # XPORT dataset, found via TMPDIR at runtime
 │   └── reference/
-│       ├── v4.3.0/                   # archived CCF legacy capture (exit=0 tuples)
-│       │   ├── <name>.lst            # byte-exact output from the legacy binary
-│       │   ├── <name>.meta           # wrapper metadata (real_exit, paths)
-│       │   └── <name>.haz            # (where PROC HAZARD used OUTHAZ=)
-│       └── v4.4.2/                   # self-consistency reference for current binary
-│           └── <name>.lst
+│       ├── v4.3.0/                       # archived CCF Linux capture (gcc bucket)
+│       │   ├── <name>.lst                # byte-exact output from the legacy binary
+│       │   ├── <name>.meta               # wrapper metadata (real_exit, paths)
+│       │   └── <name>.haz                # (where PROC HAZARD used OUTHAZ=)
+│       └── v4.4.2-macos-arm64/           # self-consistency reference for the
+│           └── <name>.lst                #   current binary on macOS Apple Silicon
 └── hazpred/
-    ├── inputs/                       # same shape — + hzp.J<jobid>.X<jobix>.dta/.haz
+    ├── inputs/                           # same shape — + hzp.J<jobid>.X<jobix>.dta/.haz
     └── reference/
-        └── v4.3.0/                   # (v4.4.2 hazpred not captured — SIGSEGV, see FINDINGS.md §2b)
+        └── v4.3.0/                       # (no macOS hazpred capture yet — SIGSEGV
+                                          #  was fixed 2026-04-23 but the bridging
+                                          #  .haz files aren't in inputs/ yet —
+                                          #  FINDINGS.md §2b)
 ```
 
 - `<name>` is the SAS example filename without the `.sas` extension (e.g. `hz.death.AVC`).  Multi-invocation examples get `.1` / `.2` ordinal suffixes.
@@ -54,13 +57,19 @@ for sas in tests/*.sas; do sas -nodms -log /dev/stderr "$sas"; done
 ./tests/validate_corpus.sh
 ```
 
-Default reference is `v4.4.2` (self-consistency — passes trivially until the current binary's numerical paths change).  Override to audit against the archived legacy capture:
+Default reference is auto-selected from the host toolchain family (see
+[`FINDINGS.md`](FINDINGS.md) §2a for the two-bucket cross-toolchain model):
 
-```sh
-REFERENCE=v4.3.0 ./tests/validate_corpus.sh
-```
+- **Darwin / arm64** → `v4.4.2-macos-arm64` (self-consistency on Apple Silicon;
+  passes trivially until someone modifies a numerical code path).
+- **Linux, Windows, anything else** → `v4.3.0` (gcc-bucket reference from CCF
+  production).  Current v4.4.x builds on Linux match at the numerical level but
+  differ on the version banner and "Cleveland Clinic Foundation" org string,
+  so expect cosmetic diffs until a v4.4.x Linux recapture lands.
 
-Expect that run to surface real diffs per [`FINDINGS.md`](FINDINGS.md) §2 — the v4.3.0 → v4.4.x numerical drift is known and documented, not yet decided.
+Override explicitly with e.g. `REFERENCE=v4.3.0 ./tests/validate_corpus.sh` to
+force the legacy comparison on any host (surfaces the cross-toolchain numerical
+drift on macOS — known, documented per [`FINDINGS.md`](FINDINGS.md) §2a).
 
 ## When a diff appears
 
