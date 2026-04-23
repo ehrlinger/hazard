@@ -54,11 +54,21 @@ The earlier "likely root cause: commit `557f3ef`" hypothesis was disproven by a 
 
 The tolerance policy in `docs/Claude_MODERNIZATION_GUIDE.md` §1 ("log-likelihoods and parameter estimates should be bit-exact vs the production baseline") is satisfied on Linux.  It is not satisfied cross-platform, and achieving that would require compiler-level intervention (`-ffp-contract=off`, FMA disable, common libm, fixed rounding modes) — v5.0-scale work, out of scope for v4.4.
 
-### 2b. Hazpred crashes under v4.4.2
+### 2b. Hazpred SIGSEGVs under v4.4.2 *(fixed 2026-04-23)*
 
-All 8 hazpred captures crash the v4.4.2 binary with SIGSEGV (exit=-11).  This is distinct from the hazard TMPDIR buffer issue (§3).  Reproduces with a short `TMPDIR`, so not a path length overflow.  Root cause unknown; needs investigation under a debugger.
+**History.** All 8 hazpred captures crashed the v4.4.2 binary with SIGSEGV (exit=−11).  Reproduced with a short `TMPDIR`, so not the §3 path-length overflow.
 
-Until this is diagnosed, no v4.4.2 references exist under `reference/v4.4.2/hazpred/` — the harness will skip hazpred comparisons with a clear message.
+**Diagnosis.** lldb stack at crash (reproduced on `hp.death.AVC`):
+```
+frame #0: flockfile + 28
+frame #1: fread + 116
+frame #2: hazpred`opnfils at opnfils.c:88
+```
+Line 72 of `src/hazpred/opnfils.c` had `hazfile = fopen(bfr,"rb")` with no null check; subsequent `fread(bfr, 80, 1, hazfile)` calls dereferenced a NULL `FILE*`.  `infile` and `outfile` both had the defensive null check right next to it; `hazfile` was the one missed.
+
+**Fix.** Added the matching null check + `hzfxit("hazfile")` call so a missing INHAZ file fails with a clear "cannot open INHAZ file" stderr line and exit=16 instead of SIGSEGV.
+
+**Corpus status after fix.** All 8 hazpred inputs now exit=16 with the missing-INHAZ message, since the bridging `.haz` files are absent from `tests/corpus/hazpred/inputs/` (the v4.3.0 capture never produced them — SAS writes them at PROC-HAZPRED time via the LIBNAME EXAMPLES `.sas7bdat` → XPORT conversion, which happens outside the wrapper scope).  This is a corpus-completeness gap (§5 item 2), not a binary bug.  Once the corpus is re-captured with proper producer→consumer ordering so the `.haz` intermediates land in `inputs/`, the `reference/v4.4-*/hazpred/` fixtures can be populated and the harness will start comparing them.
 
 ---
 

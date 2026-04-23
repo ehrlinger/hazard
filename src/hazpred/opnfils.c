@@ -68,8 +68,15 @@ void opnfils(void){
     fprintf(stderr, "ERROR: haz file path exceeds %zu bytes\n", sizeof bfr);
     hzfxit("haz file path too long");
   }
-  /* Open the input file for binary reading */
-  hazfile = fopen(bfr,"rb");
+  /* Open the INHAZ file produced by an earlier hazard run.  A missing
+   * .haz on disk means the upstream hazard example hasn't been captured
+   * or staged into $TMPDIR; subsequent fread(hazfile, ...) calls would
+   * deref a NULL FILE* and segfault (observed as the 8/8 SIGSEGV on the
+   * hazpred corpus — FINDINGS.md §2b).  Fail fast with a clear message. */
+  if(NULL==(hazfile = fopen(bfr,"rb"))) {
+    fprintf(stderr, "ERROR: cannot open INHAZ file: %s\n", bfr);
+    hzfxit("hazfile");
+  }
 
   n = snprintf(bfr, sizeof bfr, "%s.out", pfx);
   if(n < 0 || (size_t)n >= sizeof bfr){
