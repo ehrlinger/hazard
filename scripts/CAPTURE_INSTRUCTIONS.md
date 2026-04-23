@@ -40,7 +40,7 @@ ls
 
 ### 2. Make the wrapper executable and create the symlinks
 
-**This is the step the first run missed.**  Without `chmod +x` and real symlinks, SAS quietly falls back to the real binary on PATH and your capture directory stays empty.
+Without `chmod +x` and real symlinks, SAS silently falls back to the real binary on PATH and your capture directory stays empty — so verify the listing at the end of this step before moving on.
 
 ```bash
 cd ~/hazard-shadow-bin
@@ -88,7 +88,7 @@ One pre-flight line, so the tarball you ship back is self-describing. The SHA-25
 cat ~/hazard-capture-provenance.txt
 ```
 
-The file lands in `~/` and will be picked up by the tarball at step 6.
+The file lands in `~/` and will be picked up by the tarball at step 7.
 
 ### 5. Smoke-test with one `.sas` file
 
@@ -296,4 +296,4 @@ The target (in `Makefile.am`) bundles the wrapper, `capture-order.txt`, `capture
 
 If the operator already has HAZARD installed with `$HAZAPPS` / `$HZEXAMPLES` set AND can use the `.sas` files on their system directly, you can skip the tarball and just send them `scripts/capture-legacy.sh` + `scripts/capture-order.txt` + a pointer to this doc.  They'll drop both files into their own `~/hazard-shadow-bin/` and follow the workflow from step 2.
 
-**Before shipping the kit:** make sure `scripts/capture-order.txt` has the real dependency order filled in — it's a placeholder until the hazard developers populate it.
+**Before shipping the kit:** check `scripts/capture-order.txt`.  The dependency ordering was populated 2026-04-22 by grepping LIBNAME EXAMPLES / OUTHAZ= / INHAZ= / DATA EXAMPLES.* across `examples/*.sas`; update it if new examples have been added since.
