@@ -62,9 +62,14 @@ jobs:
         run: autoreconf -fi
 
       - name: Configure (relaxed warnings for pre-modernisation code)
+        # -fcommon restores pre-GCC-10 tentative-definition semantics so
+        # `int foo;` in headers doesn't trigger duplicate-symbol linker
+        # errors.  Later repo commits (e.g. b142b79 "Refactor hazrd4.h to
+        # use extern") eliminate the need for this, but v4.3.1 predates
+        # that fix and was built with older GCC that defaulted to -fcommon.
         run: |
           ./configure CC=gcc \
-            CFLAGS='-O2 -g -w -Wno-error -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-implicit-function-declaration -Wno-implicit-int -Wno-return-type'
+            CFLAGS='-O2 -g -fcommon -w -Wno-error -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-implicit-function-declaration -Wno-implicit-int -Wno-return-type'
 
       - name: Build
         run: make -j4 -s
