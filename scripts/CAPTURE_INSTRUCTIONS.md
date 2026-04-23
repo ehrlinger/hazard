@@ -34,6 +34,8 @@ ls
 #   capture.env.example     ← optional site-config template
 #   README.md               ← this file
 #   sas/                    ← bundled .sas examples (fallback if $HZEXAMPLES unset)
+#   macros/                 ← bootstrap.hazard.sas, hazplot.sas, etc.
+#                             ← used when the site's system MACROS dir is missing them
 ```
 
 ### 2. Make the wrapper executable and create the symlinks
@@ -80,6 +82,7 @@ SAS_DIR="${HZEXAMPLES:-$HOME/hazard-shadow-bin/sas}"
 sas -nodms \
     -set HAZAPPS ~/hazard-shadow-bin \
     -set TMPDIR /saswork \
+    -set MACROS ~/hazard-shadow-bin/macros \
     -log /tmp/smoke.log -print /tmp/smoke.lst \
     "$SAS_DIR/hm.death.AVC.sas"
 
@@ -103,9 +106,14 @@ If `~/hazard-capture/hazard/` is empty or missing, the wrapper didn't fire — j
 Some `.sas` scripts write estimate datasets under `$HZEXAMPLES/sasest/` that later scripts read.  Running them out of order will produce wrong output for the dependents.  `capture-order.txt` in the shadow-bin dir lists the correct sequence; the loop below reads it and falls back to alphabetical for anything not listed.
 
 ```bash
+# Fresh run: wipe any previous capture output, dump SAS logs to a
+# dedicated dir so they survive reboots and end up in the tarball.
+mkdir -p ~/hz-logs
+rm -rf ~/hazard-capture
+
 cd ~/hazard-shadow-bin
-SAS_DIR="${HZEXAMPLES:-$PWD/sas}"
 ORDER_FILE=$PWD/capture-order.txt
+SAS_DIR="${HZEXAMPLES:-$PWD/sas}"
 
 {
     # Listed files first, in the given order
@@ -121,12 +129,19 @@ ORDER_FILE=$PWD/capture-order.txt
 } | while read -r sas; do
     [ -f "$sas" ] || continue
     name=$(basename "$sas" .sas)
-    echo ""
-    echo "=========================================="
-    echo "Running $name"
-    echo "=========================================="
-    sas -nodms -log /tmp/$name.log -print /tmp/$name.lst "$sas"
-    echo "exit=$?"
+    echo "--- running $name ---"
+    # -set HAZAPPS / -set TMPDIR push env vars past the site SAS
+    # wrapper (which otherwise resets HAZAPPS and points TMPDIR at a
+    # path long enough to trigger the opnfils.c 80-byte overflow).
+    # -set MACROS points at the shipped macros/ dir so %INC of
+    # bootstrap.hazard.sas / hazplot.sas / etc. resolves even at sites
+    # where the system MACROS library is missing them.
+    sas -nodms \
+        -set HAZAPPS ~/hazard-shadow-bin \
+        -set TMPDIR /saswork \
+        -set MACROS ~/hazard-shadow-bin/macros \
+        -log ~/hz-logs/$name.log -print ~/hz-logs/$name.lst "$sas"
+    echo "  exit=$? captures so far: $(ls ~/hazard-capture/hazard/ 2>/dev/null | wc -l)"
 done
 ```
 
@@ -135,12 +150,14 @@ Some `.sas` files may error out — that's fine, we want whatever happens.  The 
 ### 6. Tarball and ship
 
 ```bash
-tar -czf ~/hazard-capture-results.tar.gz -C ~ hazard-capture
-ls -la ~/hazard-capture-results.tar.gz
+# Bundle capture artefacts + SAS logs so the developers can cross-
+# reference any exit=16 / non-zero runs against their log output.
+tar -czf ~/hazard-capture-results.tar.gz -C ~ hazard-capture hz-logs
+ls -lh ~/hazard-capture-results.tar.gz
 # Typical size: 5–15 MB (XPORT .dta files are most of the bulk)
 ```
 
-Ship `~/hazard-capture-results.tar.gz` back to whoever requested the capture.  You can also include your `/tmp/*.log` + `/tmp/*.lst` SAS outputs — the hazard developers may cross-reference them.
+Ship `~/hazard-capture-results.tar.gz` back to whoever requested the capture.
 
 ---
 
