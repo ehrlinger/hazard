@@ -1,8 +1,8 @@
 #include "swab_compat.h"
-#include <string.h>
+#include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "stmtfldname.h"
 #include "hazpred.h"
@@ -11,53 +11,71 @@
 #include "hzf_memget.h"
 /* SAS_TRANSPORT_BYTESWAP is defined by swab_compat.h on little-endian hosts. */
 
+#ifndef PATH_MAX
+#  define PATH_MAX 4096
+#endif
+/* Path buffer size used for $TMPDIR/hzp.<study>.<dset>.<ext> construction.
+ * The legacy 80-byte buffers overflow via strcat when $TMPDIR > ~53 chars. */
+#define HZ_PATH_BUF PATH_MAX
+
+/* Copy up to 8 chars from a space-padded SAS field and truncate at the
+ * first space, matching the legacy strncat + strchr(' ')='\0' pattern. */
+static void copy_field8(char out[9], const char *src){
+  int i;
+  for(i=0; i<8 && src[i] != '\0' && src[i] != ' '; i++) out[i] = src[i];
+  out[i] = '\0';
+}
+
 void opnfils(void){
-  char bfr[80],pfx[80],*ptr;
+  char bfr[HZ_PATH_BUF], pfx[HZ_PATH_BUF], *ptr;
+  char study[9], dset[9];
+  const char *tmpdir;
   size_t i;
-  int field_count;
+  int field_count, n;
 
   if(NULL==(ptr = getenv("TMPDIR")))
     if(NULL==(ptr = getenv("TEMPDIR")))
       if(NULL==(ptr = getenv("TMPQDIR")))
         if(NULL==(ptr = getenv("TEMP")))
           ptr = getenv("HAZTEMP");
-  if(ptr!=NULL)
-    strcpy(pfx,ptr);
-  else
-    *pfx = '\0';
+  tmpdir = (ptr != NULL) ? ptr : "";
 
+  copy_field8(study, stmtfldname(14));
+  copy_field8(dset,  stmtfldname(15));
 #if defined(__CYGWIN__) || defined(_WIN32)
-  /* Windows (Cygwin and MinGW/MSYS2) */
-  strcat(pfx,"/hzp_");
+  n = snprintf(pfx, sizeof pfx, "%s/hzp_%s_%s", tmpdir, study, dset);
 #else
-  /* Other platforms */
-  strcat(pfx,"/hzp.");
+  n = snprintf(pfx, sizeof pfx, "%s/hzp.%s.%s",  tmpdir, study, dset);
 #endif
-  strncat(pfx,stmtfldname(14),8);
-  if(NULL!=(ptr = strchr(pfx,' ')))
-    *ptr = '\0';
-#if defined(__CYGWIN__) || defined(_WIN32)
-  strcat(pfx,"_");
-#else
-  strcat(pfx,".");
-#endif
-  strncat(pfx,stmtfldname(15),8);
-  if(NULL!=(ptr = strchr(pfx,' ')))
-    *ptr = '\0';
-  strcpy(bfr,pfx);
-  strcat(bfr,".dta");
+  if(n < 0 || (size_t)n >= sizeof pfx){
+    fprintf(stderr, "ERROR: TMPDIR-based path prefix exceeds %zu bytes: %s\n",
+            sizeof pfx, tmpdir);
+    hzfxit("TMPDIR path too long");
+  }
+
+  n = snprintf(bfr, sizeof bfr, "%s.dta", pfx);
+  if(n < 0 || (size_t)n >= sizeof bfr){
+    fprintf(stderr, "ERROR: input data file path exceeds %zu bytes\n", sizeof bfr);
+    hzfxit("input file path too long");
+  }
   if(NULL==(infile = fopen(bfr,"rb"))) {
     fprintf(stderr, "ERROR: cannot open input data file: %s\n", bfr);
     hzfxit("infile");
   }
-  strcpy(bfr,pfx);
-  strcat(bfr,".haz");
 
+  n = snprintf(bfr, sizeof bfr, "%s.haz", pfx);
+  if(n < 0 || (size_t)n >= sizeof bfr){
+    fprintf(stderr, "ERROR: haz file path exceeds %zu bytes\n", sizeof bfr);
+    hzfxit("haz file path too long");
+  }
   /* Open the input file for binary reading */
   hazfile = fopen(bfr,"rb");
-  strcpy(bfr,pfx);
-  strcat(bfr,".out");
 
+  n = snprintf(bfr, sizeof bfr, "%s.out", pfx);
+  if(n < 0 || (size_t)n >= sizeof bfr){
+    fprintf(stderr, "ERROR: output file path exceeds %zu bytes\n", sizeof bfr);
+    hzfxit("output file path too long");
+  }
   /* Open the output file for binary writing */
   if(NULL==(outputDataFile = outfile = fopen(bfr,"wb")))
     hzfxit("outfile");

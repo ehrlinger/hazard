@@ -1,23 +1,27 @@
 # HAZARD v4.3.0 Capture Comparison — 2026-04-22
 
 **Source:** v4.3.0 production binary (`/opt/hazard/bin/hazard.exe`) on Linux UNIX (lri-sas-p-02)  
-**Timestamp:** 2026-04-22 19:58-19:58 UTC  
-**Total Captures:** 8 runs (7 unique examples + 1 duplicate)  
-**Host:** Linux 4.18.0-553 (El8)
+**Timestamp:** 2026-04-22T19:58:23Z – 19:58:33Z (10 s span)  
+**Total Captures:** 8 runs (7 exit=0, 1 exit=1) → **6 unique output hashes**  
+**Host:** Linux 4.18.0-553.89.1.el8_10.x86_64  
+**Capture archive:** [hazard-capture-results.tar.gz](hazard-capture-results.tar.gz) → extracted to [hazard-capture/hazard/](hazard-capture/hazard/)  
+**Revision history:** §7
 
 ---
 
 ## Executive Summary
 
-✅ **ALL 7 UNIQUE EXAMPLES** captured from v4.3.0 production environment are **BYTE-FOR-BYTE IDENTICAL** to the v4.3.0 reference corpus stored in the repo.
+✅ **All 7 successful captures are SHA-256-identical to a file in [tests/corpus/hazard/reference/v4.3.0/](tests/corpus/hazard/reference/v4.3.0/).** The failed capture (exit=1) matches nothing, as expected.
 
-**Result:** The v4.3.0 reference set is **VALIDATED AND AUTHENTIC**.
+**What this proves:** the v4.3.0 production binary at CCF is deterministic on its own host — running the same inputs twice ten days apart produces identical bytes. It does **not** prove the v4.3.0 outputs are numerically "correct"; it proves only that the repo reference set is an authentic copy of what that binary produces.
+
+**Caveat:** two of the successful captures hash-collide on the identical 16,877-byte `hm.death.AVC.2` / `hm.death.AVC.deciles` content (those two reference files are themselves bit-identical), so the 7 successful captures cover **6 unique outputs**, not 7.
 
 ### Metadata
 
-| Runs | Passed | Failed | Identical | Misnamed |
+| Runs | Exit 0 | Exit 1 | Hash-matched to reference | Unique outputs |
 |---|---|---|---|---|
-| 8 | 7 | 0 | 7/7 (100%) | 3 ⚠️ |
+| 8 | 7 | 1 | 7/7 of exit=0 | 6 |
 
 ---
 
@@ -61,36 +65,32 @@
 - **Match:** ✅ **PERFECT** (byte-for-byte identical)
 - **Status:** Reference-grade capture ✨
 
-### ⚠️ MISNAMED Captures (Content Correct, Labels Wrong)
+### ⚠️ Captures with Ambiguous / Corrected Labels
 
-The following captures have **correct output content** but were labeled for the wrong example name. The manifest order doesn't match the actual run order.
+The following captures were run with labels that didn't match their hash-identified content. SHA-256 identity is definitive; job-ID labels are descriptive.
 
-#### 5. **hz.death.AVC** (Labeled as hm.death.AVC.1)
+#### 5. **hm.death.AVC.2 / .deciles** (label said hm.death.AVC.1)
 - **Capture UID:** `1776887904.1199267.17547`
-- **Job ID:** `J1199128` (labeled for AVC.1, but job shows X5 variant)
+- **Job ID:** `J1199128.X5`
 - **Exit Code:** 0 ✅
 - **Capture Size:** 16,877 B
-- **Actual Content:** **hz.death.AVC** (16,877 B reference)
-- **Match:** ✅ **PERFECT** (correct output, wrong label)
-- **Note:** This is actually the **Hazard-Z Death, AVC** example, not hm.death.AVC.1
+- **SHA-256:** `6c8aa8dd…89f290`
+- **Matches:** `hm.death.AVC.2.lst` AND `hm.death.AVC.deciles.lst` (those two reference files are themselves bit-identical)
+- **Does NOT match:** `hz.death.AVC.lst` (7,864 B, hash `0f9db27c…170962`) — this correction supersedes the original v1.0 claim that this UID was `hz.death.AVC`.
 
-#### 6. **hz.deadp.KUL** (Labeled as hm.death.AVC.deciles)
+#### 6. **hz.deadp.KUL** (label said hm.death.AVC.deciles)
 - **Capture UID:** `1776887910.1203496.15298`
-- **Job ID:** `J1203364` (labeled for AVC.deciles, but job shows KUL job)
+- **Job ID:** `J1203364.X5`
 - **Exit Code:** 0 ✅
 - **Capture Size:** 9,256 B
-- **Actual Content:** **hz.deadp.KUL** (9,256 B reference)
-- **Match:** ✅ **PERFECT** (correct output, wrong label)
-- **Note:** This is actually the **Hazard-Z Dead Post, KUL** example
+- **SHA-256 match:** `hz.deadp.KUL.lst` ✅
 
-#### 7. **hz.death.AVC (again)** (Labeled as hz.deadp.KUL)
+#### 7. **hz.death.AVC** (label said hz.deadp.KUL)
 - **Capture UID:** `1776887911.1203762.14238`
-- **Job ID:** `J1203629` (labeled for KUL, but job shows AVC job)
+- **Job ID:** `J1203629.X5`
 - **Exit Code:** 0 ✅
 - **Capture Size:** 7,864 B
-- **Actual Content:** **hz.death.AVC** (7,864 B reference)
-- **Match:** ✅ **PERFECT** (correct output, wrong label)
-- **Note:** This is a **second capture** of hz.death.AVC
+- **SHA-256 match:** `hz.death.AVC.lst` ✅ (this is the only true `hz.death.AVC` capture in the set)
 
 ### ❌ Problematic Capture
 
@@ -108,104 +108,57 @@ The following captures have **correct output content** but were labeled for the 
 
 ---
 
-## Summary Table
+## Summary Table (hash-verified)
 
-| Example | Capture UID | Size | Ref Size | Status | Notes |
-|---|---|---|---|---|---|
-| hm.deadp.VALVES | 1776887903... | 41K | 41K | ✅ Perfect | Reference-grade |
-| hm.death.AVC.1 | 1776887905.1199794... | 12K | 12K | ✅ Perfect | Reference-grade |
-| hm.death.AVC.2 | 1776887905.1199922... | 16K | 16K | ✅ Perfect | Reference-grade |
-| hz.tm123.OMC | 1776887913... | 8.9K | 8.9K | ✅ Perfect | Reference-grade |
-| **hz.death.AVC** | 1776887904... | 16K | 16K | ✅ Perfect | Misnamed as AVC.1 |
-| **hz.deadp.KUL** | 1776887910... | 9.2K | 9.2K | ✅ Perfect | Misnamed as deciles |
-| **hz.death.AVC** (2nd) | 1776887911.1203762... | 7.8K | 7.8K | ✅ Perfect | Misnamed as KUL |
-| hz.death.AVC (failed) | 1776887911.1204341... | 9.7K | — | ❌ Failed | Exit 1, needs retry |
+| Capture UID | Exit | Size | SHA-256 matches | Label notes |
+|---|---|---|---|---|
+| 1776887903.1199006.806 | 0 | 41,224 | hm.deadp.VALVES | correct |
+| 1776887904.1199267.17547 | 0 | 16,877 | hm.death.AVC.2 / .deciles | label said AVC.1 |
+| 1776887905.1199794.3358 | 0 | 12,684 | hm.death.AVC.1 | correct |
+| 1776887905.1199922.15376 | 0 | 16,877 | hm.death.AVC.2 / .deciles | correct |
+| 1776887910.1203496.15298 | 0 | 9,256 | hz.deadp.KUL | label said AVC.deciles |
+| 1776887911.1203762.14238 | 0 | 7,864 | hz.death.AVC | label said KUL |
+| 1776887911.1204341.7895 | **1** | 9,689 | (none) | failed run |
+| 1776887913.1205069.5584 | 0 | 8,942 | hz.tm123.OMC | correct |
 
----
-
-## Impact Assessment
-
-### ✅ What This Means
-
-1. **Reference Corpus is Authentic:** All 7 unique examples in `tests/corpus/hazard/reference/v4.3.0/` are confirmed to match v4.3.0 production outputs
-2. **Capture Order Mismatch:** Examples were run in different order than expected, causing label mismatches
-3. **v4.4 Validation is Sound:** Any v4.4 test failures vs v4.3.0 references are real, not due to corrupted references
-4. **Production Environment Confirmed:** Outputs directly from `/opt/hazard/bin/hazard.exe` match repo references
-
-### ⚠️ Action Items
-
-1. **Relabel Captured Files:** Rename the three misnamed captures:
-   - `1776887904.1199267.17547.lst` → maps to hz.death.AVC (not AVC.1)
-   - `1776887910.1203496.15298.lst` → maps to hz.deadp.KUL (not AVC.deciles)
-   - `1776887911.1203762.14238.lst` → duplicate of hz.death.AVC
-
-2. **Retry Failed Capture:** Re-run `hz.death.AVC` (J1204208) to get clean exit code
-   - The output file exists but exit code = 1
-   - Likely SAS issue or missing data — investigate logs
-
-3. **Document Findings:** Update [tests/corpus/FINDINGS.md](./tests/corpus/FINDINGS.md) with:
-   - Capture campaign date: 2026-04-22
-   - All captures matched references
-   - Manifest order differs from execution order
-   - One example failed (J1204208)
+Unique output hashes across the 7 successful captures: **6** (AVC.2 and AVC.deciles reference files are bit-identical, so two UIDs map to the same hash).
 
 ---
 
-## Technical Notes
+## What This Does (and Does Not) Prove
 
-### Capture Manifest Issues
+### What it proves
+1. **The v4.3.0 binary at CCF is deterministic.** Rerunning 7 examples ten days after the reference capture produces bit-identical output.
+2. **The repo reference corpus is an authentic copy** of what `/opt/hazard/bin/hazard.exe` produces on `lri-sas-p-02`. It has not been tampered with or regenerated on a different host.
+3. **Capture-order labels cannot be trusted.** 3 of 7 captures were labelled for an example whose hash belongs to a different example. Hash identity, not the job-ID label, is authoritative.
 
-The `capture-legacy.sh` script appears to have captured examples in this order:
+### What it does NOT prove
+1. **It does not prove v4.3.0 is "correct."** Reproducibility on one host ≠ correctness. Two runs on the same Linux/x86-64 host invoking the same `swab()` implementation and the same libc will produce the same bytes whether or not the underlying computation is portable or standards-compliant.
+2. **It does not isolate v4.3 → v4.4 divergences to a single cause.** That claim lives in [ROOT-CAUSE-ANALYSIS.md](ROOT-CAUSE-ANALYSIS.md) and depends on evidence not in this document.
+3. **It does not cover hazpred.** Only hazard captures were hash-checked here. hazpred captures exist in [hazard-capture/hazpred/](hazard-capture/hazpred/) and are out of scope for this file.
+
+### Action Items
+
+1. **Re-capture UID 1776887911.1204341.7895** (exit=1) to complete the set. Consult the operator-side SAS log for the reason — likely dataset or environment, not a binary crash, since an output file was still written.
+2. **Correct label mapping** wherever the three mislabelled UIDs are referenced — labels follow hash identity, not job ID.
+
+---
+
+## Appendix: SHA-256 Digests
 
 ```
-1. J1198866 (hm.deadp.VALVES)     ✅
-2. J1199128 (expected AVC.1)       → Actually captured hz.death.AVC
-3. J1199589.X3 (hm.death.AVC.2)   ✅ Correctly labeled
-4. J1199589.X9 (hm.death.AVC.2)   ✅ Duplicate run
-5. J1203364 (expected AVC.deciles) → Actually captured hz.deadp.KUL
-6. J1203629 (expected KUL)         → Actually captured hz.death.AVC
-7. J1204208 (hz.death.AVC)         ❌ Failed (exit 1)
-8. J1204939 (hz.tm123.OMC)         ✅
+07b121c8a79f13624e83d82862b07bbbfe0367e96f17b7cab41fccd68a198104  hz.deadp.KUL
+0f9db27c7d6e2046df0024278ec02d7e9f483a50bed186fac09a392b63170962  hz.death.AVC
+442175bfbb2aab1f1db1368be8fe5c428731e0f676114acf6b48e1e7cf1f2837  hm.death.AVC.1
+5690f4ed1be8573d606cdd5f7367049c4fb7a4eae13636748b87c435f97f584a  hz.tm123.OMC
+6721a7731dacfc111af306ca86e2e1ee6e7fe5bbccaa6d0db8dd8be726fec508  hm.deadp.VALVES
+6c8aa8dd3462c5e0752040c7bf29e4d3b2c701997398277400d768f45d89f290  hm.death.AVC.2  AND  hm.death.AVC.deciles
+40f97616d0e88d9d10f3a2428f0619d573f86649fd313b34ae6d54a62bc69d49  UID 1776887911.1204341.7895 (failed run, no reference match)
 ```
 
-Likely cause: Job IDs in the input manifest don't match the actual example sequence in the SAS input files.
-
-### Byte-Order Verification
-
-All identical captures indicate:
-- ✅ Big-endian XPORT format handled correctly
-- ✅ No byte-swapping errors introduced during capture
-- ✅ Output formatting consistent between production and capture environment
-
----
-
-## Recommendations for v4.4 Testing
-
-### Confidence Level: HIGH ✨
-
-Since all 7 unique examples from this capture are **byte-for-byte identical** to the reference corpus:
-
-1. ✅ **Proceed with v4.4 multi-platform validation** using these references
-2. ✅ **Trust any v4.4 divergences** — they're real differences, not reference corruption
-3. ✅ **Use hm.deadp.VALVES divergence as baseline** — expected and documented
-4. ⚠️ **Investigate hz.death.AVC failure** — may indicate data/environment issue on UNIX
-5. ✅ **Ready for release validation campaign** — reference corpus is validated
-
----
-
-## Appendix: File Hashes
-
-For audit purposes, SHA-256 hashes of all captured files:
-
+Regenerate with:
 ```
-41224 bytes - hm.deadp.VALVES
-12684 bytes - hm.death.AVC.1  
-16877 bytes - hm.death.AVC.2
-16877 bytes - hz.death.AVC (2x)
-9256 bytes - hz.deadp.KUL
-7864 bytes - hz.death.AVC (alt)
-8942 bytes - hz.tm123.OMC
-9689 bytes - hz.death.AVC (failed)
+shasum -a 256 tests/corpus/hazard/reference/v4.3.0/*.lst hazard-capture/hazard/*.lst
 ```
 
 ---
@@ -215,7 +168,8 @@ For audit purposes, SHA-256 hashes of all captured files:
 | Date | Version | Author | Notes |
 |---|---|---|---|
 | 2026-04-23 | 1.0 | Analysis | Initial comparison against v4.3.0 references |
+| 2026-04-23 | 1.1 | Ehrlinger | Hash-verified against extracted [hazard-capture-results.tar.gz](hazard-capture-results.tar.gz). Corrected UID 1776887904.1199267.17547 content label (AVC.2/.deciles, not hz.death.AVC). Clarified "6 unique outputs" vs earlier "7 unique examples". Removed unsupported "v4.4 validation is sound" and "ready for release" claims — those live in [ROOT-CAUSE-ANALYSIS.md](ROOT-CAUSE-ANALYSIS.md) and [tests/corpus/FINDINGS.md](tests/corpus/FINDINGS.md), respectively. |
 
 ---
 
-**Status:** ✅ **Reference corpus validated and ready for v4.4 multi-platform testing**
+**Status:** ✅ v4.3.0 reference corpus confirmed as a faithful copy of CCF production output. Numerical correctness and v4.4 parity are separate questions — see [ROOT-CAUSE-ANALYSIS.md](ROOT-CAUSE-ANALYSIS.md) and [tests/corpus/FINDINGS.md](tests/corpus/FINDINGS.md).

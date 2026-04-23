@@ -51,15 +51,13 @@ Until this is diagnosed, no v4.4.2 references exist under `reference/v4.4.2/hazp
 
 ---
 
-## 3. Hazard binary — fixed-buffer overflow in `opnfils.c`
+## 3. Hazard binary — fixed-buffer overflow in `opnfils.c` *(fixed 2026-04-23)*
 
-Reproducing any hazard capture with an absolute `TMPDIR` longer than ~60 characters crashes the binary with SIGTRAP (exit 133, or -5 via Python `subprocess`).  Cause: `opnfils.c` uses an 80-byte `char bfr[80]` to construct `$TMPDIR/hzr.<study>.<dataset>.dta` via `strcat`.  Long absolute repo paths like `/Users/.../hazard/tests/corpus/hazard/inputs/hzr.J971099.X3.dta` exceed the buffer.
+**History.** Reproducing any hazard capture with an absolute `TMPDIR` longer than ~60 characters used to crash the binary with SIGTRAP (exit 133, or −5 via Python `subprocess`). Cause: `opnfils.c` used an 80-byte `char bfr[80]` to construct `$TMPDIR/hzr.<study>.<dataset>.dta` via `strcat`. Long absolute repo paths like `/Users/.../hazard/tests/corpus/hazard/inputs/hzr.J971099.X3.dta` exceeded the buffer. At the CCF capture site `$TMPDIR=/saswork` (9 chars), which is why the bug never bit the operator's workflow.
 
-**Workaround (in use):** `tests/validate_corpus.sh` creates a short `$TMPDIR` under `/tmp/hz.XXXXXX` via `mktemp -d` and symlinks the `.dta` / `.haz` files into it.  Binary then sees short paths, completes normally.
+**Fix.** [src/hazard/opnfils.c](../../src/hazard/opnfils.c) and [src/hazpred/opnfils.c](../../src/hazpred/opnfils.c) now size both path buffers to `PATH_MAX` (4096) and build filenames with length-checked `snprintf` calls. A too-long `$TMPDIR` now calls `hzfxit("TMPDIR path too long")` with a clear log message instead of SIGTRAP-ing.
 
-**Real fix:** replace the fixed buffer with dynamic sizing (`snprintf` into a heap buffer, or a length-checked write).  Phase 2/4 work in the v5.0 roadmap.  Until then, never pass the binary a long `$TMPDIR`.
-
-At the CCF capture site, `$TMPDIR=/saswork` — 9 characters — which is why the bug has never bitten the operator's workflow.
+**Harness impact.** [tests/validate_corpus.sh](../validate_corpus.sh) no longer needs its `/tmp/hz.XXXXXX` symlink shim — `TMPDIR` can point at the real `tests/corpus/hazard/inputs/` directory directly. The 7-example corpus passes 7/7 under the long `$TMPDIR` path post-fix.
 
 ---
 

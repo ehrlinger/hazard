@@ -150,30 +150,16 @@ run_kind() {
         fi
 
         # Run the binary with TMPDIR pointed at the inputs dir so
-        # hzr*.dta / hzr*.haz file lookups resolve against our captured
-        # copies.  Use a SHORT symlinked TMPDIR under /tmp to avoid an
-        # 80-byte path buffer overflow in opnfils.c (known legacy bug
-        # in pre-v5.0 binaries).  Each example gets its own tmpdir so
-        # concurrent runs don't collide, and symlinks are only created
-        # for .dta / .haz files the binary needs.
-        # Force /tmp (not /var/folders on macOS, where mktemp -t ignores
-        # TMPDIR) so the full $TMPDIR/hzr.J<job>.X<ix>.dta path stays
-        # under 80 bytes — otherwise the opnfils.c fixed buffer
-        # overflows and SIGTRAPs.  Pass absolute template directly so
-        # both GNU and BSD mktemp honour it.
-        local short_tmp
-        short_tmp="$(mktemp -d /tmp/hz.XXXXXXXX)"
-        for f in "$inputs_dir"/hz?*.dta "$inputs_dir"/hz?*.haz; do
-            [ -f "$f" ] || continue
-            ln -sf "$f" "$short_tmp/$(basename "$f")"
-        done
-        if ! TMPDIR="$short_tmp" "$bin" < "$input" > "$got_lst" 2>&1; then
+        # hzr*.dta / hzr*.haz file lookups resolve directly against the
+        # captured copies.  The opnfils.c 80-byte TMPDIR buffer overflow
+        # (formerly forcing a /tmp/hz.XXXXXX symlink shim here) was
+        # fixed — opnfils.c now uses PATH_MAX buffers and snprintf.
+        if ! TMPDIR="$inputs_dir" "$bin" < "$input" > "$got_lst" 2>&1; then
             # Non-zero exit isn't automatically a failure — the legacy
             # binary sometimes exits non-zero on expected-error fixtures.
             # The diff against the reference .lst is the real oracle.
             :
         fi
-        rm -rf "$short_tmp"
 
         norm_got="$work_dir/$name.got.norm"
         norm_ref="$work_dir/$name.ref.norm"
