@@ -44,6 +44,20 @@ jobs:
           automake --version | head -1
           ldd --version | head -1
 
+      - name: Patch unportable '#' comment at start of rule in Makefile.am
+        # Modern automake (>=1.16) rejects '\t#' recipe-level comments.  Some
+        # refs in this repo have them inside the capture-kit target on the
+        # root Makefile.am; prepend "@: " to convert them into no-op recipes
+        # with a trailing shell comment.  This is a no-op on refs that don't
+        # have the pattern (e.g. v4.3.1).
+        run: |
+          for f in $(git ls-files 'Makefile.am' '**/Makefile.am'); do
+            if grep -qP '^\t#' "$f"; then
+              echo "patching $f"
+              perl -i -pe 's/^(\t)(#)/$1\@: $2/' "$f"
+            fi
+          done
+
       - name: Bootstrap (autoreconf)
         run: autoreconf -fi
 
