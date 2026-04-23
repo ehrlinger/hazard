@@ -136,9 +136,10 @@ If cross-platform bit-exactness is required for some downstream reason, the inte
 
 ## 5. Remaining open items (not root-cause related)
 
-1. **Hazpred SIGSEGV** (`FINDINGS.md §2b`) — 8/8 hazpred examples crash v4.4.2 with SIGSEGV. Independent bug; likely pre-existing latent issue that CCF's workflow never exercised. Blocks `reference/v4.4-*/hazpred/` entirely.
-2. **`hm.death.AVC.2` / `.deciles` output truncation on macOS** — macOS optimizer path short-circuits the post-convergence reporting block. Per §1, this is downstream of the platform FP difference, not a separate bug. Document, don't "fix".
-3. **Windows data point** — add another workflow dispatch (`windows-latest` runner, MinGW or MSVC) to complete the cross-platform table. Not critical for the Linux-vs-macOS conclusion already established.
+1. ~~**Hazpred SIGSEGV** — 8/8 hazpred examples crash v4.4.2 with SIGSEGV.~~ **Fixed 2026-04-23.** lldb identified the crash at [src/hazpred/opnfils.c:88](src/hazpred/opnfils.c#L88) as a NULL `FILE*` deref (`hazfile = fopen(...)` with no null check, while `infile` and `outfile` both had the defensive check). Added the matching null check + `hzfxit("hazfile")`; all 8 examples now exit=16 with a clear "cannot open INHAZ file" message. The remaining corpus-completeness gap (missing `.haz` bridging files in `tests/corpus/hazpred/inputs/`) is §5 item 2 below, separate from the binary bug. See [FINDINGS.md §2b](tests/corpus/FINDINGS.md).
+2. **Re-capture hazpred corpus with proper dependency ordering.** The `.haz` intermediates that hazpred reads (`hzp.*.haz`) are produced by SAS at PROC-HAZPRED time from the LIBNAME EXAMPLES `.sas7bdat` store — they aren't preserved by the current wrapper. Needed to populate `reference/v4.4-*/hazpred/`. Tracked in `FINDINGS.md §5`.
+3. **`hm.death.AVC.2` / `.deciles` output truncation on macOS** — macOS optimizer path short-circuits the post-convergence reporting block. Per §1, this is downstream of the platform FP difference, not a separate bug. Document, don't "fix".
+4. **Windows data point** — add another workflow dispatch (`windows-latest` runner, MinGW or MSVC) to complete the cross-platform table. Not critical for the Linux-vs-macOS conclusion already established.
 
 ---
 
@@ -150,6 +151,7 @@ If cross-platform bit-exactness is required for some downstream reason, the inte
 | 2026-04-23 | 2.0 | Ehrlinger | Rewrite after validation. Corpus check shows 7/7 divergences, not 1. Empirical test: old and new byte-swap produce identical bytes on glibc — ruling 557f3ef out as the sole cause on the CCF host. 92 commits between v4.3.1 and v4.4.2; root cause marked requiring bisect. Status restored to "open". Added hazpred SIGSEGV and AVC.2/deciles truncation as separate open items. Corrected commit file-count (5 files incl. `hazard_l.l`, not 4). |
 | 2026-04-23 | 2.1 | Ehrlinger | Open item (a) resolved: `opnfils.c` 80-byte `TMPDIR` buffer overflow fixed via `PATH_MAX`/`snprintf`; harness workaround removed. Corpus still passes 7/7 against v4.4.2 reference — confirms TMPDIR bug was a stability issue, not part of the numerical divergence. |
 | 2026-04-23 | 3.0 | Ehrlinger | **Root cause isolated.** Workflow [linux-ll-check.yml](.github/workflows/linux-ll-check.yml) dispatched on `ubuntu-latest` at both v4.3.1 and v4.4.2, both produced LL=−1864.76 (matching `reference/v4.3.0/`). Same experiment on macOS at both endpoints produces LL=−1536.4 (matching `reference/v4.4.2/`). The 92 commits are numerically inert on both platforms; the divergence is 100% explained by the Linux-vs-macOS toolchain/libm gap. Status closed. Recommendations pivot to per-platform reference corpora (§4). |
+| 2026-04-23 | 3.1 | Ehrlinger | Open item (1) resolved: hazpred SIGSEGV fixed. lldb stack pinned the crash to [src/hazpred/opnfils.c:88](src/hazpred/opnfils.c#L88) — `fread(hazfile, ...)` with a NULL `hazfile` after a missing-file `fopen` whose return value was never checked. Added the matching null check + `hzfxit("hazfile")`; 8/8 hazpred examples now exit=16 with a clear error message instead of SIGSEGV. Corpus-completeness gap (missing `.haz` bridging files from the capture) remains, now tracked as a separate item. |
 
 ---
 
