@@ -71,7 +71,26 @@ which hazpred
 
 If either still resolves to the real install's `bin/hazard`, PATH isn't right — fix that first.
 
-### 4. Smoke-test with one `.sas` file
+### 4. Record the real binary's provenance
+
+One pre-flight line, so the tarball you ship back is self-describing. The SHA-256 lets the hazard developers confirm the v4.3.0 binary hasn't changed between capture runs.
+
+```bash
+{
+    echo "capture-date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    echo "host: $(uname -a)"
+    for bin in "${HAZARD_REAL:-$HAZAPPS/hazard}" "${HAZARD_REAL:-$HAZAPPS/hazard.exe}" \
+               "${HAZPRED_REAL:-$HAZAPPS/hazpred}" "${HAZPRED_REAL:-$HAZAPPS/hazpred.exe}"; do
+        [ -f "$bin" ] || continue
+        printf 'binary: %s  sha256: %s\n' "$bin" "$(sha256sum "$bin" 2>/dev/null | awk '{print $1}')"
+    done
+} > ~/hazard-capture-provenance.txt
+cat ~/hazard-capture-provenance.txt
+```
+
+The file lands in `~/` and will be picked up by the tarball at step 6.
+
+### 5. Smoke-test with one `.sas` file
 
 Before running all 23+ files, run one through SAS and confirm the wrapper fired.  `hm.death.AVC` is a good choice — small, self-contained, no dependencies on earlier runs.
 
@@ -101,7 +120,7 @@ If `~/hazard-capture/hazard/` is empty or missing, the wrapper didn't fire — j
 
 > **How to tell whether your site's SAS resets env vars:** run the probe at the bottom of this doc ("Diagnosing env-var inheritance") to see what `%sysget(HAZAPPS)` returns inside SAS.  If it's different from your shell's `$HAZAPPS`, a wrapper is intervening and you need the `-set` flag.  At all-Intel Cleveland Clinic HAZARD installs (where this was discovered), `-set HAZAPPS` is required.
 
-### 5. Run the full corpus in dependency order
+### 6. Run the full corpus in dependency order
 
 Some `.sas` scripts write estimate datasets under `$HZEXAMPLES/sasest/` that later scripts read.  Running them out of order will produce wrong output for the dependents.  `capture-order.txt` in the shadow-bin dir lists the correct sequence; the loop below reads it and falls back to alphabetical for anything not listed.
 
@@ -147,17 +166,20 @@ done
 
 Some `.sas` files may error out — that's fine, we want whatever happens.  The wrapper doesn't care about exit status.
 
-### 6. Tarball and ship
+### 7. Tarball and ship
 
 ```bash
-# Bundle capture artefacts + SAS logs so the developers can cross-
-# reference any exit=16 / non-zero runs against their log output.
-tar -czf ~/hazard-capture-results.tar.gz -C ~ hazard-capture hz-logs
-ls -lh ~/hazard-capture-results.tar.gz
+# Bundle capture artefacts + SAS logs + the provenance file (step 4) so
+# the developers can cross-reference any exit=16 / non-zero runs against
+# their log output and confirm the binary SHA against the reference set.
+TARBALL=~/hazard-capture-results-$(date -u +%Y-%m-%d).tar.gz
+tar -czf "$TARBALL" -C ~ \
+    hazard-capture hz-logs hazard-capture-provenance.txt
+ls -lh "$TARBALL"
 # Typical size: 5–15 MB (XPORT .dta files are most of the bulk)
 ```
 
-Ship `~/hazard-capture-results.tar.gz` back to whoever requested the capture.
+Ship the date-stamped tarball back to whoever requested the capture.  The date suffix prevents collisions when re-running for a second confirmation pass; the provenance file embeds the binary SHA so the developers can confirm the real binary hasn't shifted between captures.
 
 ---
 
@@ -252,7 +274,7 @@ Yes.  The wrapper snapshots `$TMPDIR` *before* handing control to the real binar
 Typically 5–20 minutes wall time.  A couple of the multiphase stepwise examples are the slowest; the rest fit trivially.
 
 **What goes back in the tarball?**
-Just `~/hazard-capture-results.tar.gz`.  You can throw away `~/hazard-shadow-bin/` once that tarball is delivered.
+Just the date-stamped `~/hazard-capture-results-YYYY-MM-DD.tar.gz` from step 7.  You can throw away `~/hazard-shadow-bin/` once that tarball is delivered.
 
 ---
 
