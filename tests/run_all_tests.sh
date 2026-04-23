@@ -191,11 +191,12 @@ if [ "${RUN_INTEGRATION}" -eq 1 ]; then
     fi
 
     # V8 — Acceptance corpus.  Black-box byte-diff of modern-binary
-    # output against the default v4.4.2 self-consistency reference
-    # (pass REFERENCE=v4.3.0 to audit against the archived legacy
-    # capture).  Skips cleanly on non-Darwin/Linux hosts and when the
-    # corpus or binary is missing.  See docs/VALIDATION_PLAN.md and
-    # tests/corpus/README.md.
+    # output against the auto-selected reference for the host toolchain
+    # family: Darwin/arm64 → v4.4.2-macos-arm64, Linux/Windows → v4.3.0
+    # (gcc-bucket CCF capture).  Override with REFERENCE=... env.  Skips
+    # cleanly when the corpus or binary is missing, or on hosts not yet
+    # exercised (e.g. Linux/aarch64).  See docs/VALIDATION_PLAN.md,
+    # tests/corpus/README.md, and tests/corpus/FINDINGS.md §2a.
     run_suite "V8: Acceptance Corpus" \
         "${SCRIPT_DIR}/validate_corpus.sh"
 fi
