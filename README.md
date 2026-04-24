@@ -314,12 +314,16 @@ hazard/
 │   ├── hazard/             PROC HAZARD executable
 │   └── hazpred/            PROC HAZPRED executable
 ├── docs/                   Documentation
-│   ├── hazard.pdf          PROC HAZARD user guide
-│   ├── hazpred.pdf         PROC HAZPRED user guide
-│   ├── overview.pdf        Parametric hazard analysis overview
-│   ├── CODEBASE_ANALYSIS.md    Architectural overview (internal)
-│   ├── MODERNIZATION_GUIDE.md  C modernization roadmap (internal)
-│   └── R_MIGRATION_GUIDE.md    R migration roadmap (internal)
+│   ├── vignettes/                  User-facing guides (Markdown)
+│   │   ├── introduction.md         Hazard function analysis primer
+│   │   ├── installation.md         Build, install, SAS config, testing
+│   │   ├── examples.md             Annotated walkthrough of included examples
+│   │   ├── hazard.md               PROC HAZARD reference
+│   │   ├── hazpred.md              PROC HAZPRED reference
+│   │   └── overview.md             Parametric hazard overview
+│   ├── Claude_CODEBASE_ANALYSIS.md     Architectural overview (internal)
+│   ├── Claude_MODERNIZATION_GUIDE.md   C modernization roadmap (internal)
+│   └── Claude_R_MIGRATION_GUIDE.md     R migration roadmap (internal)
 ├── examples/               Example SAS programs and datasets
 │   ├── hm.death.AVC.sas    Three-phase model: AV-canal repair mortality
 │   ├── hp.death.AVC.sas    Hazard prediction example
@@ -332,16 +336,6 @@ hazard/
 
 
 ## Documentation
-## Vignettes
-
-The following vignettes provide detailed guides and examples:
-
-- [Downloads](docs/vignettes/downloads.md)
-- [Analysis Examples](docs/vignettes/examples.md)
-- [Installation](docs/vignettes/installation.md)
-- [Introduction to Hazard Function Technology](docs/vignettes/introduction.md)
-- [SAS Utility Macros](docs/vignettes/macros.md)
-- [User Guides](docs/vignettes/user_guides.md)
 
 ### User Vignettes
 
@@ -349,26 +343,27 @@ The following vignettes provide detailed guides and examples:
 |---|---|
 | [Introduction](docs/vignettes/introduction.md) | What is hazard function analysis; multi-phase model overview |
 | [Downloads](docs/vignettes/downloads.md) | Binary distributions and source code |
-| [Installation](docs/vignettes/installation.md) | Build, install, and configure for Unix/Windows/SAS |
+| [Installation](docs/vignettes/installation.md) | Build, install, configure for Unix/Windows/SAS, run the test suite |
 | [Examples](docs/vignettes/examples.md) | Annotated walkthrough of all included example programs |
 | [SAS Utility Macros](docs/vignettes/macros.md) | Reference for all helper macros |
-| [User Guides](docs/vignettes/user_guides.md) | Full procedure reference documents |
 
-### Reference Manuals
+### Procedure References
 
-| Document | Formats |
+| Document | Description |
 |---|---|
-| Overview of Procedures | [HTML](docs/user_guides/overview.html) · [PDF](docs/user_guides/overview.pdf) |
-| The HAZARD Procedure | [HTML](docs/user_guides/hazard.html) · [PDF](docs/user_guides/hazard.pdf) |
-| The HAZPRED Procedure | [HTML](docs/user_guides/hazpred.html) · [PDF](docs/user_guides/hazpred.pdf) |
+| [Overview of Procedures](docs/vignettes/overview.md) | Parametric-hazard system overview and mathematical foundation |
+| [The HAZARD Procedure](docs/vignettes/hazard.md) | PROC HAZARD — complete syntax, options, and computational method |
+| [The HAZPRED Procedure](docs/vignettes/hazpred.md) | PROC HAZPRED — patient-level prediction from fitted parameter estimates |
+
+> Rendered HTML and PDF builds of the procedure references are not currently shipped. The Markdown files above carry the authoritative content.
 
 ### Developer Documentation
 
 | Document | Description |
 |---|---|
-| [`docs/CODEBASE_ANALYSIS.md`](docs/CODEBASE_ANALYSIS.md) | Architectural overview for contributors |
-| [`docs/MODERNIZATION_GUIDE.md`](docs/MODERNIZATION_GUIDE.md) | C modernization roadmap |
-| [`docs/R_MIGRATION_GUIDE.md`](docs/R_MIGRATION_GUIDE.md) | R migration roadmap |
+| [`docs/Claude_CODEBASE_ANALYSIS.md`](docs/Claude_CODEBASE_ANALYSIS.md) | Architectural overview for contributors |
+| [`docs/Claude_MODERNIZATION_GUIDE.md`](docs/Claude_MODERNIZATION_GUIDE.md) | C modernization roadmap |
+| [`docs/Claude_R_MIGRATION_GUIDE.md`](docs/Claude_R_MIGRATION_GUIDE.md) | R migration roadmap |
 
 ---
 
