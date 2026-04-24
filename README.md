@@ -13,34 +13,6 @@ HAZARD is a statistical computing package developed at [Cleveland Clinic](https:
 
 ---
 
-## Table of Contents
-
-- [HAZARD](#hazard)
-  - [Table of Contents](#table-of-contents)
-
-  - [Overview](#overview)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-    - [From Source (Unix/Linux/macOS)](#from-source-unixlinuxmacos)
-    - [From Source (Windows via MSYS2)](#from-source-windows-via-msys2)
-    - [From Binary Distribution](#from-binary-distribution)
-  - [Environment Setup](#environment-setup)
-    - [Unix/Linux/macOS](#unixlinuxmacos)
-    - [Windows](#windows)
-    - [SAS Configuration](#sas-configuration)
-  - [Quick Start](#quick-start)
-  - [Project Structure](#project-structure)
-  - [Documentation](#documentation)
-  - [Vignettes](#vignettes)
-  - [Citation](#citation)
-  - [License](#license)
-  - [Contact](#contact)
-
----
-
-
----
-
 ## Project Metadata & Links
 
 - [Authors](AUTHORS.md)

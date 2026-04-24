@@ -46,16 +46,26 @@ def parse_validation_log(log_file):
     if match := re.search(r'binary\s*:\s*(.+)', content):
         results['binary'] = match.group(1).strip()
     
-    # Extract test results (look for PASS/FAIL/SKIP lines)
+    # Extract test results.  PASS/FAIL lines are always per-example:
+    #   "  PASS: hm.deadp.VALVES"
+    # SKIP lines, however, are also emitted for harness preconditions:
+    #   "  SKIP: inputs dir missing — ..."
+    #   "  SKIP: binary '/.../hazard' not built"
+    #   "  SKIP: no v4.3.0 references captured for hazpred (...)"
+    # Naïvely capturing the first token after "SKIP:" would record
+    # "inputs" / "binary" / "no" as "test names".  Only accept a SKIP
+    # as a per-example result when the token after it looks like an
+    # example name (contains a dot, like "hm.deadp.VALVES").
     for line in content.split('\n'):
-        if match := re.match(r'\s+(PASS|FAIL|SKIP):\s+(\S+)', line):
+        if match := re.match(r'\s+(PASS|FAIL):\s+(\S+)', line):
             status, name = match.groups()
             if status == 'PASS':
                 results['passed'].append(name)
-            elif status == 'FAIL':
-                results['failed'].append(name)
             else:
-                results['skipped'].append(name)
+                results['failed'].append(name)
+            continue
+        if match := re.match(r'\s+SKIP:\s+(\S+\.[^\s]+)\s*(?:$|\(|-|—)', line):
+            results['skipped'].append(match.group(1))
     
     # Extract summary counts
     if match := re.search(r'passed\s*:\s*(\d+)', content):
@@ -151,43 +161,44 @@ reference: {reference}
 
 ## Known Expected Divergences
 
-The following differences are **expected and documented** when comparing v4.4 output against v4.3.0 reference:
+The following differences are **expected and documented** when comparing v4.4 output against the v4.3.0 reference (authoritative analysis in [`ROOT-CAUSE-ANALYSIS.md`](../ROOT-CAUSE-ANALYSIS.md) v3.x and [`tests/corpus/FINDINGS.md`](../tests/corpus/FINDINGS.md) §2a):
 
 ### 1. Organization String Update
 - **Reference (v4.3.0):** "The Cleveland Clinic"
 - **Current (v4.4):** "The Cleveland Clinic Foundation"
-- **Cause:** Metadata string updated in codebase
-- **Impact:** String matching only; no numerical effect
+- **Cause:** Metadata string updated in the codebase between versions
+- **Impact:** Cosmetic only; not normalised by `tests/corpus_normalize.sh`
 
-### 2. Numerical Convergence Divergence (hm.deadp.VALVES)
+### 2. Version Banner
+- Normalised by `tests/corpus_normalize.sh` (`C-Version X.Y.Z`)
+- Not flagged as a diff after normalisation
 
-**Expected:** One example (`hm.deadp.VALVES`) shows numerical parameter divergence:
+### 3. Cross-toolchain Numerical Divergence (macOS / Apple Silicon vs gcc family)
 
-| Parameter | v4.3.0 | v4.4 | Change |
-|---|---|---|---|
-| Iterations | 1 | 0 | Different depth |
-| Function evals | 3 | 8 | More steps explored |
-| Constant MUC | 0.0001452016 | 8.403295E-05 | −42% |
-| Log-likelihood | −1864.76 | −1536.4 | +150.4 |
-| Output size | 12,684 B | 49,191 B | +288% |
+On macOS / Apple clang / arm64, seven of the seven hazard examples produce output numerically distinct from — but self-consistent with — the gcc-family result. On Linux / gcc / glibc and Windows / MinGW-w64 gcc the output bit-matches v4.3.0 exactly on the log-likelihood metric.
 
-**Root Cause:** Commit `557f3ef` fixes undefined behaviour in XPORT byte-swapping:
-- **v4.3.0:** Used overlapping `swab()` calls (UB, corrupted variable metadata)
-- **v4.4:** Uses portable `hzd_bswap_short()` / `hzd_bswap_int()` helpers (well-defined)
-- **Result:** Different byte order → different parsed variable structure → different optimizer path
+| Example | Linux gcc (v4.3.1 and v4.4.2) | macOS clang-apple (v4.3.1 and v4.4.2) |
+|---|---|---|
+| hm.deadp.VALVES LL | −1864.76 | −1536.4 |
 
-**Why this is NOT a regression:**
-- ✅ v4.4 is **more correct** (UB fixed)
-- ✅ All v4.4 outputs should be **identical across platforms** (self-consistent)
-- ✅ This divergence is **documented** in `tests/corpus/FINDINGS.md` §2a
+**Root cause:** Cross-toolchain floating-point non-determinism (gcc + glibc-derived libm vs Apple clang + Apple libm on arm64) accumulated over the thousands of FP operations in the parametric-hazard optimiser. The 92 commits between v4.3.1 and v4.4.2 are numerically inert on both toolchains — confirmed by one-shot GHA `linux-ll-check.yml` + `windows-ll-check.yml` runs.
 
-For full technical analysis, see: [`docs/CODEBASE_ANALYSIS.md`](../docs/Claude_CODEBASE_ANALYSIS.md)
+**What this is NOT:**
+- ❌ Not caused by commit `557f3ef` (the XPORT byte-swap UB fix). That hypothesis was disproven by a direct test — old `swab(src,src)` and new `hzd_bswap_*` helpers produce bit-identical output on glibc.
+- ❌ Not a code-history regression. Git bisect between v4.3.1 and v4.4.2 would find nothing; both endpoints produce the same LL on each platform.
+
+**Implications for release:**
+- ✅ CCF Linux upgrades (v4.3.0 → v4.4.x) see **zero numerical drift**
+- ✅ Windows/MinGW output bit-matches Linux on the LL metric
+- ⚠️ macOS/Apple-Silicon output is distinct-but-self-consistent; reference corpus is split into a `v4.3.0` gcc-family bucket and a `v4.4.2-macos-arm64` clang-apple bucket; `tests/validate_corpus.sh` auto-selects by host
+
+Do **not** claim "v4.4 is more correct" — neither toolchain family has been validated against an independent numerical reference (e.g. SAS PROC LIFEREG, hand-worked example).
 
 ## Platform Consistency Check
 
 **For Release Validation:**
 
-1. ✅ All platforms should show **identical test results** for v4.4
+1. ✅ Within a toolchain family (gcc-family OR Apple-clang), all builds should produce **identical** test results for v4.4 across the 92-commit window
 2. ✅ Known divergence (hm.deadp.VALVES) should appear on all platforms
 3. ❌ Any platform-specific failures indicate a real bug
 4. ℹ️ Skipped tests (hazpred) are expected until hazpred references are captured
@@ -207,9 +218,8 @@ For full technical analysis, see: [`docs/CODEBASE_ANALYSIS.md`](../docs/Claude_C
 
 ## Related Documentation
 
-- **Codebase Analysis:** [`docs/CODEBASE_ANALYSIS.md`](../docs/Claude_CODEBASE_ANALYSIS.md) — Root cause of v4.3 → v4.4 differences
+- **Root-Cause Analysis:** [`ROOT-CAUSE-ANALYSIS.md`](../ROOT-CAUSE-ANALYSIS.md) — Definitive analysis of the v4.3 → v4.4 divergence (v3.x, closed)
 - **Corpus Findings:** [`tests/corpus/FINDINGS.md`](../tests/corpus/FINDINGS.md) — Acceptance harness findings and known issues
-- **Multi-Platform Workflow:** [`docs/MULTI-PLATFORM-VALIDATION.md`](./MULTI-PLATFORM-VALIDATION.md) — Step-by-step instructions for this validation campaign
 - **Modernization Policy:** [`docs/Claude_MODERNIZATION_GUIDE.md`](./Claude_MODERNIZATION_GUIDE.md) — Policy on numerical correctness and bit-compatibility
 
 ## Validation Campaign Metadata
