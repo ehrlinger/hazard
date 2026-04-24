@@ -184,21 +184,78 @@ The `-noxwait` option prevents SAS from leaving a DOS command window open after 
 
 ## Testing the Installation
 
-Run a quick local executable smoke test:
+HAZARD ships four test layers, from fastest to most thorough. Run them in order — if a lower layer fails, a higher one won't tell you anything more useful.
+
+### 1. Local executable smoke test
+
+Confirm the binaries built and launch:
 
 ```bash
 ./tests/run_local_example.sh hazard
 ./tests/run_local_example.sh hazpred
 ```
 
-Optionally run the integration test runner (skipping memory and concurrent suites for a fast check):
+Pass if both commands exit 0 and produce a non-empty listing.
+
+### 2. Unit tests
+
+Exercise the math helpers, shape functions, and OBS-layout primitives directly. No SAS required.
 
 ```bash
-HAZARD_BIN=$PWD/src/hazard/hazard.exe \
+make -C tests/unit check
+```
+
+Expect `ALL UNIT TESTS PASSED` at the end — 27 math-helper tests + 22 logger/error-path tests on a stock build. The suite compiles with `gcc` by default; override with `CC=clang` if `gcc` is unavailable.
+
+Memory-safety variant (slower, but catches heap bugs):
+
+```bash
+make -C tests/unit asan check
+```
+
+### 3. Integration tests
+
+End-to-end runs of the compiled binary against reference `.input`/`.lst` fixtures from `tests/integration/`. Skips gracefully if `HAZARD_BIN` isn't set or the reference files aren't installed.
+
+```bash
+HAZARD_BIN=$PWD/src/hazard/hazard \
   bash tests/run_all_tests.sh --integration-only --skip-memory --skip-concurrent
 ```
 
-Then run any example program from SAS:
+Drop `--skip-memory` to also run the ASan/UBSan integration job, and drop `--skip-concurrent` to exercise parallel-execution determinism.
+
+### 4. Acceptance corpus harness
+
+The heaviest test. Runs the current binary against every captured example in `tests/corpus/` and byte-diffs (after a small normalizer) against a reference corpus recorded from the CCF production install. Detects any numerical, formatting, or convergence-path regression.
+
+```bash
+./tests/validate_corpus.sh
+```
+
+The harness auto-selects the reference from the host's toolchain family:
+
+- **macOS / Apple Silicon** → `tests/corpus/hazard/reference/v4.4.2-macos-arm64/`
+- **Linux / Windows (MinGW)** → `tests/corpus/hazard/reference/v4.3.0/` (the CCF capture — gcc-family bit-matches on the log-likelihood metric; expect cosmetic banner + org-string diffs pending a v4.4.x Linux re-capture)
+
+Override explicitly:
+
+```bash
+REFERENCE=v4.3.0 ./tests/validate_corpus.sh      # force CCF Linux reference on any host
+```
+
+A fresh build should produce 7/7 hazard PASS and 8/8 hazpred PASS on macOS. On Linux/Windows (MinGW) the harness still auto-selects the `v4.3.0` CCF reference, which numerically bit-matches v4.4.x on the log-likelihood metric but contains two non-transient text differences the normalizer deliberately does NOT mask — the copyright banner and the "Cleveland Clinic" → "Cleveland Clinic Foundation" org string — so every example reports FAIL on the diff even though the numbers agree. That's an expected state until a v4.4.x Linux reference is captured; in the meantime any *additional* Linux/Windows diff is a real finding worth investigating. See [`tests/corpus/FINDINGS.md`](../../tests/corpus/FINDINGS.md) for the catalog of known divergences and the toolchain-bucket model.
+
+### 5. Full suite
+
+Runs layers 1–4 end to end. Takes a few minutes.
+
+```bash
+bash tests/run_all_tests.sh
+```
+
+### SAS-side smoke test
+
+Once the SAS configuration from the previous section is in place, run any example from SAS:
 
 ```sas
 %include '!HZEXAMPLES/hm.death.AVC.sas';
@@ -211,7 +268,7 @@ Events conserved = 70.000
 Convergence attained after 6 iterations, 9 function evaluations
 ```
 
-See [Examples](examples.md) for a full catalog of included example programs.
+See [Examples](examples.md) for the full catalog of included example programs.
 
 ---
 
