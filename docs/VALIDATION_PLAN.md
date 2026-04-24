@@ -1,7 +1,7 @@
 # HAZARD Acceptance Test Plan
 
 > Created: 2026-04-21
-> Status: scaffolding landing in v4.4.3; reference corpus capture outstanding
+> Status: landed in v4.4.3 — acceptance harness + two-bucket reference corpus (`v4.3.0` gcc + `v4.4.2-macos-arm64` clang-apple) checked in, CCF re-capture of 2026-04-23 complete. One open item: v4.4.x Linux recapture to retire the cosmetic banner/org-string diff against `v4.3.0` (see `tests/corpus/FINDINGS.md` §5 item 5).
 > Scope: C `hazard` (this doc) + C `hazpred` (same protocol); R `TemporalHazard` port covered by a parallel document in that repo.
 
 ---
