@@ -16,9 +16,9 @@ This directory contains the user documentation as standalone vignettes. Each vig
 ## Quick Navigation
 
 - **New to HAZARD?** Start with [Introduction](introduction.md), then [Installation](installation.md), then [Examples](examples.md).
-- **Need syntax details?** See [User Guides](user_guides.md) for links to the full procedure reference PDFs.
+- **Need syntax details?** See [User Guides](user_guides.md), or jump straight to [overview.md](overview.md), [hazard.md](hazard.md), or [hazpred.md](hazpred.md).
 - **Looking for a macro?** See [SAS Utility Macros](macros.md).
-- **Internal developer docs?** See [`CODEBASE_ANALYSIS.md`](../CODEBASE_ANALYSIS.md), [`MODERNIZATION_GUIDE.md`](../MODERNIZATION_GUIDE.md), [`R_MIGRATION_GUIDE.md`](../R_MIGRATION_GUIDE.md).
+- **Internal developer docs?** See [`Claude_CODEBASE_ANALYSIS.md`](../Claude_CODEBASE_ANALYSIS.md), [`Claude_MODERNIZATION_GUIDE.md`](../Claude_MODERNIZATION_GUIDE.md), [`Claude_R_MIGRATION_GUIDE.md`](../Claude_R_MIGRATION_GUIDE.md).
 
 ---
 
