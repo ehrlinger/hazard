@@ -9,3 +9,30 @@
 4.3.0 2012/02/26
 	Correct the likelihood function when using weighting. Update all
 	macros to latest versions from the CCF production set.
+
+4.4.3 2026-04-23
+	Acceptance-harness-proven baseline. Binary behaviour is identical
+	to v4.4.2; this release carries a parity certification, not new
+	features.
+
+	* Acceptance harness: tests/validate_corpus.sh runs all 15 hazard
+	  + 8 hazpred inputs through the modern binary, auto-selects the
+	  reference corpus from host toolchain family (Darwin/arm64 →
+	  v4.4.2-macos-arm64, Linux/Windows → v4.3.0), normalises version
+	  strings and timestamps, byte-diffs against the selected
+	  reference.
+	* Reference corpus: ships captured v4.3.0 CCF ground truth plus a
+	  v4.4.2-macos-arm64 self-consistency capture. Cross-platform FP
+	  divergence between gcc (Linux + Windows/MinGW) and Apple clang
+	  on arm64 is documented in ROOT-CAUSE-ANALYSIS.md and
+	  tests/corpus/FINDINGS.md — confirmed not a code-history
+	  regression.
+	* hazpred SIGSEGV fix: null FILE* deref at src/hazpred/opnfils.c
+	  on missing INHAZ now produces a clean exit=16 with
+	  "cannot open INHAZ file" instead of crashing.
+	* TMPDIR buffer overflow fix: 80-byte stack buffer in opnfils.c
+	  replaced with PATH_MAX + snprintf.
+	* Capture kit: `make capture-kit` produces a self-contained
+	  tarball of the operator-facing capture scripts, SAS macros, and
+	  instructions for regenerating the reference corpus on a CCF
+	  legacy host. See tests/CAPTURE_INSTRUCTIONS.md.
