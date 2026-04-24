@@ -243,7 +243,7 @@ Override explicitly:
 REFERENCE=v4.3.0 ./tests/validate_corpus.sh      # force CCF Linux reference on any host
 ```
 
-A fresh build should produce 7/7 hazard PASS and 8/8 hazpred PASS on macOS, and 7/7 hazard matches (with documented banner/org cosmetic diff) on Linux. Any other result is a real finding worth investigating — see [`tests/corpus/FINDINGS.md`](../../tests/corpus/FINDINGS.md) for the catalog of known divergences and the toolchain-bucket model.
+A fresh build should produce 7/7 hazard PASS and 8/8 hazpred PASS on macOS. On Linux/Windows (MinGW) the harness still auto-selects the `v4.3.0` CCF reference, which numerically bit-matches v4.4.x on the log-likelihood metric but contains two non-transient text differences the normalizer deliberately does NOT mask — the copyright banner and the "Cleveland Clinic" → "Cleveland Clinic Foundation" org string — so every example reports FAIL on the diff even though the numbers agree. That's an expected state until a v4.4.x Linux reference is captured; in the meantime any *additional* Linux/Windows diff is a real finding worth investigating. See [`tests/corpus/FINDINGS.md`](../../tests/corpus/FINDINGS.md) for the catalog of known divergences and the toolchain-bucket model.
 
 ### 5. Full suite
 
