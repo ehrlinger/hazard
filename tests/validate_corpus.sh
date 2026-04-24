@@ -74,6 +74,18 @@ if [ -z "${REFERENCE:-}" ]; then
     _MACH="$(uname -m 2>/dev/null || echo unknown)"
     case "$_KERNEL/$_MACH" in
         Darwin/arm64)   REFERENCE=v4.4.2-macos-arm64 ;;
+        # Linux / Windows builds use the CCF v4.3.0 capture as the
+        # gcc-family reference.  Numerically identical to a v4.4.x
+        # Linux build on the log-likelihood metric (confirmed via
+        # the linux-ll-check / windows-ll-check workflows — see
+        # ROOT-CAUSE-ANALYSIS.md §2.2), but the version banner and
+        # the "Cleveland Clinic" → "Cleveland Clinic Foundation"
+        # organisation string differ as genuine inter-version text
+        # changes that the normalizer deliberately does NOT mask.
+        # Expect per-example cosmetic FAILs under this default on
+        # Linux until a v4.4.x Linux reference is captured (see
+        # FINDINGS.md §5 item 5).  Override with REFERENCE=... to
+        # force a specific bucket.
         *)              REFERENCE=v4.3.0 ;;
     esac
 fi
@@ -115,7 +127,11 @@ run_kind() {
     local dev_dir="$CORPUS_DIR/$kind/deviations/$REFERENCE"
     local work_dir
     work_dir="$(mktemp -d)"
-    trap 'rm -rf "$work_dir"' RETURN
+    # Cleanup is done explicitly at every return site below — we
+    # deliberately do NOT use `trap 'rm -rf "$work_dir"' RETURN`: bash
+    # installs RETURN traps shell-wide rather than function-scoped, so
+    # the trap would fire on unrelated function returns and, with
+    # `set -u`, trip on the now-unset local `$work_dir`.
 
     echo ""
     echo "=========================================="
@@ -128,7 +144,7 @@ run_kind() {
     if [ ! -d "$inputs_dir" ]; then
         echo "  SKIP: inputs dir missing — $kind corpus not captured yet"
         SKIPPED=$((SKIPPED + 1))
-        return 0
+        rm -rf "$work_dir"; return 0
     fi
 
     shopt -s nullglob
@@ -138,13 +154,13 @@ run_kind() {
     if [ ${#inputs[@]} -eq 0 ]; then
         echo "  SKIP: no .input files under $inputs_dir"
         SKIPPED=$((SKIPPED + 1))
-        return 0
+        rm -rf "$work_dir"; return 0
     fi
 
     if [ ! -x "$bin" ]; then
         echo "  SKIP: binary '$bin' not built"
         SKIPPED=$((SKIPPED + 1))
-        return 0
+        rm -rf "$work_dir"; return 0
     fi
 
     if [ ! -d "$ref_dir" ]; then
@@ -154,7 +170,7 @@ run_kind() {
         # v4.4.2; see tests/corpus/FINDINGS.md §2b).
         echo "  SKIP: no $REFERENCE references captured for $kind ($ref_dir missing)"
         SKIPPED=$((SKIPPED + 1))
-        return 0
+        rm -rf "$work_dir"; return 0
     fi
 
     local input name ref_lst got_lst norm_got norm_ref dev_sed
@@ -209,15 +225,22 @@ run_kind() {
         else
             echo "  FAIL: $name"
             echo "    diff (reference vs. got):"
-            # `diff -u` returns 1 when files differ, which under
-            # `set -o pipefail` + `set -e` would abort the script on
-            # the first failure and suppress all subsequent output.
-            # Neutralise the expected non-zero so the harness keeps
-            # reporting every mismatch through to the summary.
-            { diff -u "$norm_ref" "$norm_got" || true; } | sed 's/^/      /' | head -40
+            # Two non-zero exits to tolerate under `set -euo pipefail`:
+            #   1. `diff -u` returns 1 whenever the files differ (the
+            #      whole reason we're in this branch).
+            #   2. `sed` takes SIGPIPE (exit 141) when `head -40`
+            #      closes its stdin early on long diffs, which
+            #      `pipefail` would otherwise propagate and abort the
+            #      harness on the first FAIL.
+            # Wrap the entire pipeline in a `|| true` so both are
+            # neutralised and subsequent mismatches still get reported.
+            { { diff -u "$norm_ref" "$norm_got" || true; } \
+                | sed 's/^/      /' \
+                | head -40; } || true
             FAILED=$((FAILED + 1))
         fi
     done
+    rm -rf "$work_dir"
 }
 
 # ------------------------------------------------------------------ #
