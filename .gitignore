@@ -110,6 +110,12 @@ plain-configure.log
 # curated fixtures used by the harness)
 /outputs/
 
+# Local harness run artefacts — PROC HAZARD writes .haz bridge files next
+# to its .dta inputs during acceptance runs.  Only the hazpred corpus
+# ships tracked .haz bridges (intentionally, see tests/corpus/hazpred/);
+# hazard-side .haz files are outputs and must stay untracked.
+tests/corpus/hazard/inputs/*.haz
+
 # =============================================================================
 # macOS
 # =============================================================================
