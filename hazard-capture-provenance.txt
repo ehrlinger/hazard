@@ -1,0 +1,4 @@
+capture-date: 2026-04-23T20:08:42Z
+host: Linux lri-sas-p-02.lerner.ccf.org 4.18.0-553.89.1.el8_10.x86_64 #1 SMP Sat Nov 29 00:49:18 EST 2025 x86_64 x86_64 x86_64 GNU/Linux
+binary: /programs/apps/sas/hazard/hazard.exe  sha256: 6a3856ede31c64e8f4c2e2994d6b3aafcdea7359cd1876bef406d393f25a7914
+binary: /programs/apps/sas/hazard/hazpred.exe  sha256: 3c6368c5ef8ac5adb14d571a906026aad1edea4d6f38d7d8a045cdb0789de085
