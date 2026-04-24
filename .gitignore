@@ -100,8 +100,15 @@ bin.proj
 build-*.log
 plain-configure.log
 
-# Local Copilot/Claude scratch worktrees (must never be tracked)
+# Local Copilot/Claude scratch worktrees + per-user settings
+# (must never be tracked — machine-local paths and tool allowlists leak
+# filesystem details)
 .claude/worktrees/
+.claude/settings.local.json
+
+# Historical capture artefacts (generated; see tests/corpus/ for the
+# curated fixtures used by the harness)
+/outputs/
 
 # =============================================================================
 # macOS

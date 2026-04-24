@@ -252,9 +252,25 @@ real_bin=$real_bin
 real_exit=$real_exit
 argv=$*
 timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-host=$(uname -a)
+host=$(
+    # Set HAZARD_CAPTURE_REDACT=1 to drop the site-specific hostname
+    # and user path from the .meta file before it lands in a shared
+    # corpus.  Default (unset) preserves full `uname -a` / `pwd` for
+    # a first-capture-site developer who wants the full provenance.
+    if [ "${HAZARD_CAPTURE_REDACT:-0}" = "1" ]; then
+        uname -s -m -r
+    else
+        uname -a
+    fi
+)
 tmpdir=${TMPDIR:-/tmp}
-pwd=$(pwd)
+pwd=$(
+    if [ "${HAZARD_CAPTURE_REDACT:-0}" = "1" ]; then
+        echo "<redacted>"
+    else
+        pwd
+    fi
+)
 META
 
 exit "$real_exit"

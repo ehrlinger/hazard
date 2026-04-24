@@ -204,6 +204,8 @@ done
 
 Some `.sas` files may error out — that's fine, we want whatever happens.  The wrapper doesn't care about exit status.
 
+> **Optional — redact host/pwd from captured metadata.**  By default the wrapper writes `host=$(uname -a)` and `pwd=$(pwd)` into each `.meta` file, so `lri-sas-p-02.lerner.ccf.org` and your full `$HOME` path end up in the corpus that ships back.  If that's not appropriate for your site, export `HAZARD_CAPTURE_REDACT=1` before the SAS loop — the wrapper will emit `uname -s -m -r` and `pwd=<redacted>` instead, keeping only OS/kernel + binary-hash provenance.
+
 ### 7. Tarball and ship
 
 ```bash
