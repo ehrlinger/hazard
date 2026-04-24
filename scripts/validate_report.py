@@ -19,7 +19,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def parse_validation_log(log_file):
@@ -89,7 +89,15 @@ def parse_validation_log(log_file):
 def generate_report(platform, version, reference, log_file, output_file):
     """Generate markdown validation report."""
     results = parse_validation_log(log_file)
-    
+
+    # Single timestamp captured once in UTC so front-matter `date`,
+    # the "Report Generated" header, and the "Test Timestamp" footer
+    # are internally consistent (Copilot flagged a local-time/UTC
+    # mismatch on an earlier revision).
+    now_utc = datetime.now(timezone.utc)
+    generated_iso = now_utc.isoformat()
+    generated_human = now_utc.strftime('%Y-%m-%d %H:%M UTC')
+
     # Map platform names for display
     platform_display = {
         'linux': 'Linux/UNIX',
@@ -97,13 +105,13 @@ def generate_report(platform, version, reference, log_file, output_file):
         'windows': 'Windows',
     }
     platform_name = platform_display.get(platform, platform.upper())
-    
+
     # Status emoji
     pass_status = "✅ PASS" if results['failed_count'] == 0 else "⚠️ ISSUES"
-    
+
     report = f"""---
 tags: [hazard, validation, v{version}, {platform}, test-harness]
-date: {datetime.now().isoformat()}
+date: {generated_iso}
 platform: {platform}
 version: v{version}
 reference: {reference}
@@ -111,10 +119,10 @@ reference: {reference}
 
 # HAZARD v{version} Validation Report — {platform_name}
 
-**Report Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}  
-**Platform:** {platform_name}  
-**Version Tested:** v{version}  
-**Reference Corpus:** {reference}  
+**Report Generated:** {generated_human}
+**Platform:** {platform_name}
+**Version Tested:** v{version}
+**Reference Corpus:** {reference}
 **Binary:** `{results.get('binary', 'unknown')}`
 
 ## Executive Summary
@@ -124,7 +132,7 @@ reference: {reference}
 | **Tests Passed** | {results['passed_count']} | ✅ |
 | **Tests Failed** | {results['failed_count']} | {"✅ None" if results['failed_count'] == 0 else f"❌ {results['failed_count']}"} |
 | **Tests Skipped** | {results['skipped_count']} | ℹ️ |
-| **Overall** | {pass_status} |
+| **Overall** | {pass_status} | |
 
 ## Test Results
 
@@ -155,9 +163,9 @@ reference: {reference}
 ## Platform Configuration
 
 - **Operating System:** {platform_name}
-- **Test Timestamp:** {datetime.now().isoformat()}
+- **Test Timestamp:** {generated_iso}
 - **Reference Source:** {reference}
-- **Log File:** [{Path(log_file).name}]({Path(log_file).absolute()})
+- **Log File:** {Path(log_file).name}
 
 ## Known Expected Divergences
 
@@ -228,8 +236,8 @@ Do **not** claim "v4.4 is more correct" — neither toolchain family has been va
 version: v{version}
 platform: {platform}
 reference: {reference}
-campaign_date: {datetime.now().strftime('%Y-%m-%d')}
-generated: {datetime.now().isoformat()}
+campaign_date: {now_utc.strftime('%Y-%m-%d')}
+generated: {generated_iso}
 binary: {results.get('binary', 'unknown')}
 tests_passed: {results['passed_count']}
 tests_failed: {results['failed_count']}

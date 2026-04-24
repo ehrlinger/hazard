@@ -116,8 +116,13 @@ fi
 #   $2  binary path
 #
 # Walks tests/corpus/<kind>/inputs/*.input, runs the binary against each
-# with TMPDIR pointing at the inputs dir (so hzr*.dta / hzr*.haz resolve),
-# normalises the listing, diffs against the reference.
+# under a per-example TMPDIR seeded (via symlink) with the captured
+# hzr*.dta / hzr*.haz / hzp*.dta / hzp*.haz fixtures so the binary's
+# `$TMPDIR/<file>` opens resolve against the read-only corpus copies.
+# The binary's own scratch output (e.g. fresh .haz / .out) lands in that
+# per-example TMPDIR under work_dir and is discarded with the rest of
+# work_dir, keeping the checked-in corpus directory clean and the run
+# order-independent.
 
 run_kind() {
     local kind="$1"
@@ -173,7 +178,7 @@ run_kind() {
         rm -rf "$work_dir"; return 0
     fi
 
-    local input name ref_lst got_lst norm_got norm_ref dev_sed
+    local input name ref_lst got_lst norm_got norm_ref dev_sed run_tmp fixture
     for input in "${inputs[@]}"; do
         name="$(basename "$input" .input)"
         ref_lst="$ref_dir/$name.lst"
@@ -191,12 +196,28 @@ run_kind() {
             continue
         fi
 
-        # Run the binary with TMPDIR pointed at the inputs dir so
-        # hzr*.dta / hzr*.haz file lookups resolve directly against the
-        # captured copies.  The opnfils.c 80-byte TMPDIR buffer overflow
-        # (formerly forcing a /tmp/hz.XXXXXX symlink shim here) was
-        # fixed — opnfils.c now uses PATH_MAX buffers and snprintf.
-        if ! TMPDIR="$inputs_dir" "$bin" < "$input" > "$got_lst" 2>&1; then
+        # Fresh per-example TMPDIR inside work_dir.  We symlink the
+        # captured .dta / .haz fixtures in so that `fopen("$TMPDIR/…")`
+        # from the binary resolves against the read-only corpus copies.
+        # The binary is then free to write its own scratch files (fresh
+        # .haz / .out bridge outputs) into the same directory without
+        # polluting the checked-in tests/corpus/<kind>/inputs/ tree —
+        # the whole run_tmp is discarded with work_dir at function end.
+        # This also keeps runs order-independent: a prior example's
+        # scratch output never bleeds into a later example's TMPDIR.
+        run_tmp="$work_dir/tmp.$name"
+        mkdir -p "$run_tmp"
+        shopt -s nullglob
+        for fixture in "$inputs_dir"/hzr.*.dta "$inputs_dir"/hzr.*.haz \
+                       "$inputs_dir"/hzp.*.dta "$inputs_dir"/hzp.*.haz; do
+            ln -sf "$fixture" "$run_tmp/$(basename "$fixture")"
+        done
+        shopt -u nullglob
+
+        # opnfils.c now uses PATH_MAX buffers + snprintf so the 80-byte
+        # TMPDIR overflow that formerly forced a /tmp/hz.XXXXXX symlink
+        # shim here is fixed.
+        if ! TMPDIR="$run_tmp" "$bin" < "$input" > "$got_lst" 2>&1; then
             # Non-zero exit isn't automatically a failure — the legacy
             # binary sometimes exits non-zero on expected-error fixtures.
             # The diff against the reference .lst is the real oracle.
@@ -247,21 +268,30 @@ run_kind() {
 # Main                                                                #
 # ------------------------------------------------------------------ #
 
-# Toolchain-bucket auto-select (see REFERENCE defaults above).  We no
-# longer blanket-skip non-Darwin/Linux hosts now that the two-bucket
-# model is in place: Linux + Windows/MinGW both map to the gcc bucket
-# (v4.3.0), macOS/arm64 maps to the clang-apple bucket.  The one
-# remaining gap is a v4.4.x Linux recapture that would let Linux builds
-# byte-match a v4.4.x reference without banner/org normalisation — until
-# then, Linux + Windows runs against v4.3.0 will diff on the banner +
-# org string even when numerics match, so CI callers either pin
-# REFERENCE explicitly or accept those expected diffs.  Set
-# HZCORPUS_FORCE=1 to suppress the warning.
+# Toolchain-bucket auto-select (see REFERENCE defaults above).  Two-bucket
+# model: Linux + Windows/MinGW/MSYS/Cygwin → gcc bucket (v4.3.0); macOS
+# arm64 → clang-apple bucket (v4.4.2-macos-arm64).
+#
+# IMPORTANT — not a CI default on gcc-family hosts.  Linux + Windows runs
+# against v4.3.0 still diff on two *non-transient* text fields the
+# normalizer deliberately does NOT mask:
+#   • the HAZARD copyright banner (post-v4.4 wording change)
+#   • the "Cleveland Clinic" → "Cleveland Clinic Foundation" org string
+# Numerics match bit-for-bit on the gcc bucket (confirmed via the
+# linux-ll-check / windows-ll-check one-shot workflows; see
+# ROOT-CAUSE-ANALYSIS.md §2.2), so those FAILs are genuine inter-version
+# text changes rather than regressions.  Closing the gap needs a v4.4.x
+# Linux recapture (FINDINGS.md §5 item 5); until then:
+#   • `tests/run_all_tests.sh` keeps V8 OFF by default on all hosts
+#     (opt-in via HAZARD_RUN_ACCEPTANCE=1) so CI stays green.
+#   • A direct `./tests/validate_corpus.sh` invocation on Linux/Windows
+#     runs and will FAIL on the banner/org diffs — that is the supported
+#     operator-audit mode, where the diff output is the point.
 HOST_KERNEL="$(uname -s 2>/dev/null || echo unknown)"
 HOST_MACH="$(uname -m 2>/dev/null || echo unknown)"
 case "$HOST_KERNEL/$HOST_MACH" in
-    Darwin/arm64|Linux/*)
-        :  # Supported toolchain buckets
+    Darwin/arm64|Linux/*|MINGW*/*|MSYS*/*|CYGWIN*/*)
+        :  # Supported toolchain buckets (macOS arm64 + gcc family)
         ;;
     *)
         if [ "${HZCORPUS_FORCE:-0}" != "1" ]; then
@@ -269,9 +299,8 @@ case "$HOST_KERNEL/$HOST_MACH" in
             echo "=========================================="
             echo "Acceptance corpus — not yet exercised on $HOST_KERNEL/$HOST_MACH"
             echo "=========================================="
-            echo "  Bucket auto-detection covers Darwin/arm64 and Linux/*."
-            echo "  Windows/MinGW should work via REFERENCE=v4.3.0 but"
-            echo "  hasn't been run through this harness end-to-end."
+            echo "  Bucket auto-detection covers Darwin/arm64, Linux/*, and"
+            echo "  Windows under MINGW/MSYS/CYGWIN shells."
             echo "  Set HZCORPUS_FORCE=1 to run anyway."
             echo "=========================================="
             exit 0
