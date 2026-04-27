@@ -4,6 +4,16 @@ See the [NEWS.md](NEWS.md) file for a detailed history of visible changes.
 
 ---
 
+## Version 4.4.4 — 2026-04-27
+
+Cosmetic-only maintenance release. SAS macro hygiene fix; binary behaviour and `.lst` output content are byte-identical to v4.4.3 modulo SAS-side timestamp drift.
+
+- Replace `%sysget(OSTYPE)` OS-detection probe in `src/scripts/hazard.sas` and `src/scripts/hazpred.sas` with SAS automatic macro variables `&SYSSCP` / `&SYSSCPL`. Silences the benign `WARNING: The argument to macro function %SYSGET is not defined as a system variable` that fired on every Windows invocation, flipping 13 of 22 example drivers from SAS exit=1 to exit=0 with no functional change.
+- Add explicit macOS branch via `&SYSSCPL` containing `Darwin`; previously macOS was silently classified as Windows when the Linux `OSTYPE` env var was unset.
+- Commit Windows v4.4.3 reference baseline (18 of 22 driver `.lst` outputs; 4 unrunnable on the validation host due to absent CHSS/TGA source datasets). Captured 2026-04-27 on `windows-sas-host` (Windows Server 2019, SAS 9.4). See `WINDOWS-VALIDATION-2026-04-27.md`.
+
+---
+
 ## Version 4.4.3 — 2026-04-23
 
 Acceptance-harness-proven baseline. Binary behaviour is identical to v4.4.2; this release carries a parity certification, not new features.
