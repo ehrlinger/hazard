@@ -36,3 +36,24 @@
 	  tarball of the operator-facing capture scripts, SAS macros, and
 	  instructions for regenerating the reference corpus on a CCF
 	  legacy host. See tests/CAPTURE_INSTRUCTIONS.md.
+
+4.4.4 2026-04-27
+	Cosmetic-only maintenance release. SAS macro hygiene fix; binary
+	behaviour and .lst output content are byte-identical to v4.4.3
+	modulo SAS-side timestamp drift in page headers.
+
+	* Replace %sysget(OSTYPE) OS-detection probe in
+	  src/scripts/hazard.sas and src/scripts/hazpred.sas with SAS
+	  automatic macro variables &SYSSCP / &SYSSCPL.  Silences the
+	  benign "WARNING: The argument to macro function %SYSGET is not
+	  defined as a system variable" that fired on every Windows
+	  invocation, flipping 13 of 22 example drivers from SAS exit=1
+	  to exit=0 with no functional change.
+	* Add explicit macOS branch via &SYSSCPL containing "Darwin".
+	  Previously macOS was silently classified as Windows when the
+	  Linux OSTYPE env var was unset.
+	* Commit Windows v4.4.3 reference baseline (18 of 22 driver .lst
+	  outputs; 4 unrunnable on the validation host due to absent
+	  CHSS/TGA source datasets). Captured 2026-04-27 on
+	  AWOR-PDSASAPP03 (Windows Server 2019, SAS 9.4). See
+	  WINDOWS-VALIDATION-2026-04-27.md.
