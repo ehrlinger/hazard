@@ -4,14 +4,14 @@ This directory now ships 18 `.lst` reference outputs captured under SAS 9.4 Foun
 
 ## Capture provenance
 
-| | |
-|---|---|
-| Date | 2026-04-27 |
-| Host | `windows-sas-host` |
-| OS | Windows Server 2019 Datacenter (10.0.17763) |
-| SAS | Foundation 9.4 |
-| Hazard binary | v4.4.3 (`C:\hazard\bin\hazard.exe`) |
-| Capture script | `Run-HazardCapture.ps1` (Cowork session, 2026-04-27) |
+| Field          | Value                                                       |
+|----------------|-------------------------------------------------------------|
+| Date           | 2026-04-27                                                  |
+| Host           | `windows-sas-host`                                           |
+| OS             | Windows Server 2019 Datacenter (10.0.17763)                 |
+| SAS            | Foundation 9.4                                              |
+| Hazard binary  | v4.4.3 (`C:\hazard\bin\hazard.exe`)                         |
+| Capture script | `Run-HazardCapture.ps1` (Cowork session, 2026-04-27)        |
 
 Full details in `../WINDOWS-VALIDATION-2026-04-27.md`.
 

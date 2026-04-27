@@ -69,9 +69,15 @@ Applied identically in `src/scripts/hazard.sas` and `src/scripts/hazpred.sas`.
 
 ## Reference baseline
 
-The 18 capture `.lst` outputs are committed under `examples/` as the canonical v4.4.3 Windows reference. When v4.4.4 ships, these files become the regression target for `validate_corpus.sh` on Windows hosts.
+The 18 capture `.lst` outputs are committed under `examples/` as the canonical v4.4.3 Windows reference. When v4.4.4 ships, these files are the **direct-diff** regression target for an operator on a Windows + SAS host: capture v4.4.4 outputs, mask SAS page-header timestamps (recipe in `examples/README-windows-baseline.md`), and `diff` against the committed `.lst`s.
 
-Suggested follow-up: relocate to `tests/corpus/hazard/reference/v4.4.3-windows-x64/` to slot into the existing reference-corpus structure, alongside `v4.3.0/` (Linux/Windows MinGW gcc) and `v4.4.2-macos-arm64/` (Apple clang). That placement makes the validate harness auto-select the right reference per host.
+These files are **not** yet wired into `tests/validate_corpus.sh`. That harness reads from `tests/corpus/<kind>/reference/<version>/` and currently auto-selects between `v4.3.0/` (Linux/Windows MinGW gcc) and `v4.4.2-macos-arm64/` (Apple clang). To make the validate-harness pick up these Windows + SAS outputs, a follow-up PR should:
+
+1. Relocate / copy the `.lst` set to `tests/corpus/hazard/reference/v4.4.3-windows-x64/` alongside the existing buckets.
+2. Teach `validate_corpus.sh` (or its normalizer) to mask the SAS page-header timestamp pattern documented in `examples/README-windows-baseline.md` before the byte-diff.
+3. Extend the host-auto-select logic to route Windows + SAS hosts to the new bucket.
+
+That follow-up is intentionally out of scope for this PR, which is the cosmetic SAS-macro fix plus the baseline capture itself.
 
 ## Capture provenance
 
