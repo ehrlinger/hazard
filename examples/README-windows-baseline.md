@@ -44,6 +44,8 @@ After masking, all 18 files are expected to be byte-identical between v4.4.3 and
 
 These will only validate on a CCF host with the original study librefs mounted.
 
-## Future placement
+## Relationship to `tests/validate_corpus.sh`
 
-These files belong long-term in `tests/corpus/hazard/reference/v4.4.3-windows-x64/` to slot into the existing `validate_corpus.sh` host-toolchain auto-selection (alongside `v4.3.0/` and `v4.4.2-macos-arm64/`). They were placed in `examples/` for the v4.4.4 release in keeping with the historic placement of `examples/hm.death.patient.lst`, but a follow-up commit can relocate them once the harness is updated.
+These files are **not** consumed by `tests/validate_corpus.sh`. That harness runs `hazard.exe` directly with captured `.input` files on stdin and diffs the bare stdout — a different artifact type from these SAS-wrapped listings. The direct-binary harness already validates v4.4.x cross-platform (Linux + macOS in CI; Windows MSYS2/UCRT64 verified manually), and the v4.4.4 SAS-macro fix does not touch the binary path.
+
+These `examples/*.lst` files are the **operator-driven** SAS-level reference: capture, mask, `diff`. A future PR may add a sister harness that automates that flow against a parallel Unix + SAS capture once a v4.4.x Linux SAS build is available.
