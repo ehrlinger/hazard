@@ -69,15 +69,29 @@ Applied identically in `src/scripts/hazard.sas` and `src/scripts/hazpred.sas`.
 
 ## Reference baseline
 
-The 18 capture `.lst` outputs are committed under `examples/` as the canonical v4.4.3 Windows reference. When v4.4.4 ships, these files are the **direct-diff** regression target for an operator on a Windows + SAS host: capture v4.4.4 outputs, mask SAS page-header timestamps (recipe in `examples/README-windows-baseline.md`), and `diff` against the committed `.lst`s.
+The 18 capture `.lst` outputs are committed under `examples/` as the canonical v4.4.3 Windows + SAS reference. When v4.4.4 ships, these files are the **direct-diff regression target** for an operator on a Windows + SAS host: capture v4.4.4 outputs, mask SAS page-header timestamps (recipe in `examples/README-windows-baseline.md`), and `diff` against the committed `.lst`s.
 
-These files are **not** yet wired into `tests/validate_corpus.sh`. That harness reads from `tests/corpus/<kind>/reference/<version>/` and currently auto-selects between `v4.3.0/` (Linux/Windows MinGW gcc) and `v4.4.2-macos-arm64/` (Apple clang). To make the validate-harness pick up these Windows + SAS outputs, a follow-up PR should:
+### How this relates to `tests/validate_corpus.sh`
 
-1. Relocate / copy the `.lst` set to `tests/corpus/hazard/reference/v4.4.3-windows-x64/` alongside the existing buckets.
-2. Teach `validate_corpus.sh` (or its normalizer) to mask the SAS page-header timestamp pattern documented in `examples/README-windows-baseline.md` before the byte-diff.
-3. Extend the host-auto-select logic to route Windows + SAS hosts to the new bucket.
+The two artifact types serve different validation flows and are **not** byte-comparable:
 
-That follow-up is intentionally out of scope for this PR, which is the cosmetic SAS-macro fix plus the baseline capture itself.
+| Artifact | Capture mechanism | Content | Consumer |
+|---|---|---|---|
+| `tests/corpus/hazard/reference/v*/*.lst` | PATH-shadow wrapper (`scripts/capture-legacy.sh`) | Bare `hazard.exe` stdout from `.input` on stdin | `tests/validate_corpus.sh` (direct-binary harness, runs in CI) |
+| `examples/*.lst` (this PR) | SAS `PROC HAZARD` | SAS-wrapped listing: page headers, surrounding DATA-step output, "Procedure HAZARD completed successfully" footer | Manual operator diff (per `examples/README-windows-baseline.md`) |
+
+The existing direct-binary harness (`validate_corpus.sh`) already covers cross-platform validation for this PR: it runs on Linux + macOS in CI and was independently verified on Windows MSYS2/UCRT64 (V1/V2/V3 all green vs `v4.3.0` reference, see `WINDOWS-VALIDATION-2026-04-24.md`). The v4.4.4 SAS-macro change does not affect the binary path it exercises, so no harness changes are required for this release.
+
+### Future SAS-driven validation harness (not in this PR)
+
+A separate sister harness that runs SAS, captures `.lst`, masks page-header timestamps, and diffs against `examples/*.lst` would close the SAS-level coverage gap. That work is gated on:
+
+1. A Unix + SAS recapture of the same 18 examples against a v4.4.x Linux build (the user is compiling/testing v4.4.x on Unix after this PR).
+2. A new `tests/validate_examples_sas.sh` (or extension to `validate_corpus.sh`) that wraps the SAS invocation pattern.
+3. SAS page-header timestamp masking added to `tests/corpus_normalize.sh`.
+4. CI runner with SAS available (CCF self-hosted), or a manual gate.
+
+Tracked as a follow-up; intentionally out of scope for this v4.4.4 cosmetic release.
 
 ## Capture provenance
 
