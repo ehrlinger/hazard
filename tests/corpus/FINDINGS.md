@@ -36,7 +36,7 @@ Example: `hm.death.AVC.1` (stepwise analysis).  Both versions start from the sam
 | Constant MUC (final) | `0.0001452016` | `8.403295E-05` |
 | Output size | 12,684 bytes | 49,191 bytes |
 
-**Root cause identified 2026-04-23 (see [ROOT-CAUSE-ANALYSIS.md](../../ROOT-CAUSE-ANALYSIS.md) §2):** the divergence is 100% cross-toolchain floating-point non-determinism (gcc + glibc-derived libm vs Apple clang + Apple libm on arm64), **0%** contribution from the 92 commits between v4.3.1 and v4.4.2.
+**Root cause identified 2026-04-23 (see [ROOT-CAUSE-ANALYSIS.md](../../docs/validation-reports/ROOT-CAUSE-ANALYSIS.md) §2):** the divergence is 100% cross-toolchain floating-point non-determinism (gcc + glibc-derived libm vs Apple clang + Apple libm on arm64), **0%** contribution from the 92 commits between v4.3.1 and v4.4.2.
 
 Evidence: two one-shot `workflow_dispatch` workflows (added to `main` for the investigation and deleted after — commits `ed786ba`, `7cfd9fe`) produced the following `hm.deadp.VALVES` log-likelihoods across three platforms and two tags:
 
@@ -104,7 +104,7 @@ Line 72 of `src/hazpred/opnfils.c` had `hazfile = fopen(bfr,"rb")` with no null 
 - `tests/corpus/hazpred/reference/v4.3.0/*.lst` + `*.meta` (8 tuples, byte-identical with the 2026-04-23 re-capture's normalised output)
 
 **Re-capture (2026-04-23):**
-- [hazard-capture-results-2026-04-23.tar.gz](../../hazard-capture-results-2026-04-23.tar.gz) — CCF re-capture, 78 hazard files + 128 hazpred files, produced by `/programs/apps/sas/hazard/hazard.exe` (SHA-256 `6a3856ede31c64e8f4c2e2994d6b3aafcdea7359cd1876bef406d393f25a7914`) and `hazpred.exe` (`3c6368c5ef8ac5adb14d571a906026aad1edea4d6f38d7d8a045cdb0789de085`).
+- [hazard-capture-results-2026-04-23.tar.gz](../archives/hazard-capture-results-2026-04-23.tar.gz) — CCF re-capture, 78 hazard files + 128 hazpred files, produced by `/programs/apps/sas/hazard/hazard.exe` (SHA-256 `6a3856ede31c64e8f4c2e2994d6b3aafcdea7359cd1876bef406d393f25a7914`) and `hazpred.exe` (`3c6368c5ef8ac5adb14d571a906026aad1edea4d6f38d7d8a045cdb0789de085`).
 - 7/8 hazard invocations and 8/8 successful hazpred invocations bit-match existing `reference/v4.3.0/*.lst` files by SHA-256 — confirms binary unchanged between the 2026-04-22 and 2026-04-23 captures.
 - 1 hazard invocation (`hz.te123.OMC`) reproduces the known `real_exit=1` legacy-binary crash from §1.
 - 4 hazpred invocations exit=16 for missing LIBNAMEs (CHSPTR, TGASW.HMDTHRI, PTCAMHI.HMPDTHE) — expected for examples that read external libraries not populated by this corpus.
