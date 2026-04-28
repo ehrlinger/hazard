@@ -21,12 +21,19 @@
 #                           ground truth; not a drop-in CI reference for
 #                           v4.4.x builds without a banner-normalising
 #                           patch (not yet implemented).
-#   v4.4.2-macos-arm64    — self-consistency reference captured from the
-#                           modern binary on macOS/Apple-clang/arm64.
-#                           Matches any v4.4.x build on the same
-#                           toolchain; the 92 commits v4.3.1 → v4.4.2 are
-#                           numerically inert on this toolchain.  Default
-#                           when host is Darwin/arm64.
+#   v4.4.4-macos-arm64    — self-consistency reference captured from the
+#                           v4.4.4 binary on macOS / Apple-clang / arm64.
+#                           Matches any v4.4.x build on the same toolchain;
+#                           the v4.3.1→v4.4.4 commits are numerically inert
+#                           on this toolchain.  Includes both hazard and
+#                           hazpred buckets — the latter was newly capturable
+#                           after the 2026-04-23 SIGSEGV-on-missing-INHAZ
+#                           fix in src/hazpred/opnfils.c, which a literal
+#                           v4.4.2 binary lacked.  Default when host is
+#                           Darwin/arm64.  (Replaces the prior
+#                           v4.4.2-macos-arm64 bucket, which was misleading:
+#                           the captures came from a binary post-dating
+#                           v4.4.2 — see FINDINGS.md §2b.)
 #
 #   (future) v4.4.N-linux-gcc     — recapture target for a v4.4.x build on
 #                                   Linux gcc; would replace v4.3.0 as the
@@ -38,7 +45,7 @@
 #   HAZPRED_BIN   path to the hazpred binary (default: ../src/hazpred/hazpred)
 #   REFERENCE     reference version directory name.  Default auto-selected
 #                 from host toolchain family:
-#                   Darwin/arm64  → v4.4.2-macos-arm64
+#                   Darwin/arm64  → v4.4.4-macos-arm64
 #                   Linux/Windows → v4.3.0  (gcc-bucket; expect banner and
 #                                            org-string diffs vs v4.4.x
 #                                            builds pending a Linux
@@ -73,7 +80,7 @@ if [ -z "${REFERENCE:-}" ]; then
     _KERNEL="$(uname -s 2>/dev/null || echo unknown)"
     _MACH="$(uname -m 2>/dev/null || echo unknown)"
     case "$_KERNEL/$_MACH" in
-        Darwin/arm64)   REFERENCE=v4.4.2-macos-arm64 ;;
+        Darwin/arm64)   REFERENCE=v4.4.4-macos-arm64 ;;
         # Linux / Windows builds use the CCF v4.3.0 capture as the
         # gcc-family reference.  Numerically identical to a v4.4.x
         # Linux build on the log-likelihood metric (confirmed via
@@ -270,7 +277,7 @@ run_kind() {
 
 # Toolchain-bucket auto-select (see REFERENCE defaults above).  Two-bucket
 # model: Linux + Windows/MinGW/MSYS/Cygwin → gcc bucket (v4.3.0); macOS
-# arm64 → clang-apple bucket (v4.4.2-macos-arm64).
+# arm64 → clang-apple bucket (v4.4.4-macos-arm64).
 #
 # IMPORTANT — not a CI default on gcc-family hosts.  Linux + Windows runs
 # against v4.3.0 still diff on two *non-transient* text fields the

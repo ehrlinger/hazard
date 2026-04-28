@@ -192,7 +192,7 @@ if [ "${RUN_INTEGRATION}" -eq 1 ]; then
 
     # V8 — Acceptance corpus.  Black-box byte-diff of modern-binary
     # output against the auto-selected reference for the host toolchain
-    # family: Darwin/arm64 → v4.4.2-macos-arm64, Linux/Windows → v4.3.0
+    # family: Darwin/arm64 → v4.4.4-macos-arm64, Linux/Windows → v4.3.0
     # (gcc-bucket CCF capture).
     #
     # Off by default: on gcc-family hosts the default v4.3.0 reference

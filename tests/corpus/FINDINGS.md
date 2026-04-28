@@ -57,7 +57,7 @@ The earlier "likely root cause: commit `557f3ef`" hypothesis was disproven by a 
 
 **Decision (implemented 2026-04-23):** two-bucket reference corpora, keyed on toolchain family.  Directories keep their version-accurate names; bucket auto-select lives in `tests/validate_corpus.sh`.
 - `reference/v4.3.0/`              — CCF Linux capture, gcc bucket.  Default REFERENCE on Linux and Windows hosts.  Numerically bit-matches a v4.4.x Linux build on LL; cosmetic banner + org-string diffs pending a v4.4.x Linux recapture.
-- `reference/v4.4.2-macos-arm64/`  — macOS Apple-Silicon self-consistency capture, clang-apple bucket.  Default on Darwin/arm64 hosts.  Renamed from `reference/v4.4.2/` for explicit provenance.
+- `reference/v4.4.4-macos-arm64/`  — macOS Apple-Silicon self-consistency capture, clang-apple bucket.  Default on Darwin/arm64 hosts.  Captured from a v4.4.4 binary (numerically equivalent to v4.4.x at all post-2026-04-23 commits).  Renamed on 2026-04-28 from `reference/v4.4.2-macos-arm64/` to honestly reflect the binary version that produced the captures: a literal v4.4.2 binary cannot reproduce these outputs because v4.4.2 hazpred SIGSEGVs on missing INHAZ (see §2b — fix landed 2026-04-23, post-v4.4.2). The bucket now contains both hazard and hazpred reference sets.
 
 No Windows-specific directory needed — MinGW output bit-matches Linux gcc on the LL metric, so Windows uses the same `v4.3.0` reference.  If the full Windows listing later turns out to differ in non-numerical formatting (version banner, path separators in comments, etc.), a Windows-specific reference can be added without changing the numerical contract.
 
@@ -79,6 +79,8 @@ Line 72 of `src/hazpred/opnfils.c` had `hazfile = fopen(bfr,"rb")` with no null 
 
 **Corpus status after fix.** All 8 hazpred inputs now exit=16 with the missing-INHAZ message, since the bridging `.haz` files are absent from `tests/corpus/hazpred/inputs/` (the v4.3.0 capture never produced them — SAS writes them at PROC-HAZPRED time via the LIBNAME EXAMPLES `.sas7bdat` → XPORT conversion, which happens outside the wrapper scope).  This is a corpus-completeness gap (§5 item 2), not a binary bug.  Once the corpus is re-captured with proper producer→consumer ordering so the `.haz` intermediates land in `inputs/`, the `reference/v4.4-*/hazpred/` fixtures can be populated and the harness will start comparing them.
 
+**Status update 2026-04-28.** Bridging `.haz` files have been in `tests/corpus/hazpred/inputs/` since the 2026-04-23 re-capture (§4); macOS hazpred captures were produced via `tests/refresh-macos-corpus.sh` and now live alongside the hazard captures in the renamed `reference/v4.4.4-macos-arm64/` bucket.  Both kinds validate self-consistently on Darwin/arm64.  The v4.4.2 bucket label was retired in the same commit because a literal v4.4.2 binary (lacking this fix) cannot reproduce these hazpred outputs.
+
 ---
 
 ## 3. Hazard binary — fixed-buffer overflow in `opnfils.c` *(fixed 2026-04-23)*
@@ -96,7 +98,8 @@ Line 72 of `src/hazpred/opnfils.c` had `hazfile = fopen(bfr,"rb")` with no null 
 **Corpus data:**
 - `tests/corpus/hazard/inputs/*.input` + `*.dta` (7 examples, with 2 cases sharing a `.dta`)
 - `tests/corpus/hazard/reference/v4.3.0/*.lst` + `*.meta` + `*.haz` (7 tuples, byte-exact legacy output)
-- `tests/corpus/hazard/reference/v4.4.2-macos-arm64/*.lst` + `*.haz` (5 tuples — see §2a cross-toolchain note)
+- `tests/corpus/hazard/reference/v4.4.4-macos-arm64/*.lst` + `*.haz` (7 tuples — see §2a cross-toolchain note; renamed 2026-04-28 from `v4.4.2-macos-arm64/`, see §2b)
+- `tests/corpus/hazpred/reference/v4.4.4-macos-arm64/*.lst` + `*.meta` (8 tuples — captured 2026-04-28 via `tests/refresh-macos-corpus.sh`)
 - `tests/corpus/hazpred/inputs/*.input` + `*.dta` + `*.haz` (8 examples — `.haz` bridging files added 2026-04-23 from the CCF re-capture, closing the previous corpus-completeness gap)
 - `tests/corpus/hazpred/reference/v4.3.0/*.lst` + `*.meta` (8 tuples, byte-identical with the 2026-04-23 re-capture's normalised output)
 
@@ -107,7 +110,7 @@ Line 72 of `src/hazpred/opnfils.c` had `hazfile = fopen(bfr,"rb")` with no null 
 - 4 hazpred invocations exit=16 for missing LIBNAMEs (CHSPTR, TGASW.HMDTHRI, PTCAMHI.HMPDTHE) — expected for examples that read external libraries not populated by this corpus.
 
 **Harness:**
-- `tests/validate_corpus.sh` runs all 15 inputs through the modern binary, auto-selects reference from host toolchain family (Darwin/arm64 → `v4.4.2-macos-arm64`, Linux/Windows → `v4.3.0`), normalises version strings + timestamps, byte-diffs against the selected reference.
+- `tests/validate_corpus.sh` runs all 15 inputs through the modern binary, auto-selects reference from host toolchain family (Darwin/arm64 → `v4.4.4-macos-arm64`, Linux/Windows → `v4.3.0`), normalises version strings + timestamps, byte-diffs against the selected reference.
 - 7/7 hazard and 8/8 hazpred examples pass against the normalised `v4.3.0` reference on macOS as of 2026-04-23.
 - Override with `REFERENCE=...` env var to force a specific reference.
 
@@ -131,4 +134,4 @@ Line 72 of `src/hazpred/opnfils.c` had `hazfile = fopen(bfr,"rb")` with no null 
 3. The reference-corpus approach is viable: ~250 artefacts across hazard + hazpred, structured and auditable; authenticated by independent SHA-256 comparison of re-capture vs existing reference.
 4. The v4.4.x branch reproduces v4.3.0 **byte-identically on gcc-family builds** (Linux, Windows/MinGW) per §2a — contrary to the initial working assumption that it diverged.  The divergence observed earlier was cross-toolchain FP (Apple clang vs gcc), not a code-history regression.
 
-The v4.4.3 "acceptance-harness-proven baseline" release is now closer to shippable: §2a (numerical), §2b (hazpred crash), and §3 (TMPDIR overflow) are all resolved.  Remaining gates: item #5 above (Linux v4.4.x recapture for cosmetic parity), release notes framing the gcc-family parity vs clang-apple documented divergence, and a decision on whether the `reference/v4.4.2-macos-arm64/` 5-of-7 truncations (§1, row 3-4) block release or are documented as known-downstream-of-toolchain-split.
+The v4.4.3 "acceptance-harness-proven baseline" release is now closer to shippable: §2a (numerical), §2b (hazpred crash), and §3 (TMPDIR overflow) are all resolved.  Remaining gates: item #5 above (Linux v4.4.x recapture for cosmetic parity), release notes framing the gcc-family parity vs clang-apple documented divergence, and a decision on whether the `reference/v4.4.4-macos-arm64/` truncations on `hm.death.AVC.2` / `hm.death.AVC.deciles` (§1, row 3-4) block release or are documented as known-downstream-of-toolchain-split.
