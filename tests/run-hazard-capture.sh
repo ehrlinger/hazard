@@ -304,14 +304,51 @@ if $run_sas; then
 
         # Linux SAS honors CWD for output; -log/-print pin paths anyway so
         # this script behaves identically across SAS configs. -batch is the
-        # default on Linux but explicit is safer across versions. -set
-        # SASAUTOS prepends the user-supplied macros dir to SAS's autocall
-        # search path so PROC HAZARD can find %HAZARD / %HAZPRED without
-        # requiring the user to edit sasv9.cfg first. The "(...)" syntax
-        # adds to the existing path rather than replacing it.
+        # default on Linux but explicit is safer across versions.
+        #
+        # Three SAS-side namespaces have to resolve correctly:
+        #
+        #   -set SASAUTOS "(...)"   autocall search path used by macro-call-
+        #                           time resolution of %HAZARD / %HAZPRED
+        #                           and the supporting macros.  Includes
+        #                           BOTH the HAZAPPS bin dir (where the
+        #                           entry-point hazard.sas / hazpred.sas
+        #                           are conventionally installed alongside
+        #                           the binary, per /opt/hazard/bin/ on
+        #                           CCF and the autotools install layout)
+        #                           AND the MACROS dir (for the helper
+        #                           library: bootstrap.*, kaplan.sas,
+        #                           nelsont.sas, chisqgf.sas).  The "(...)"
+        #                           syntax appends rather than replaces
+        #                           any site default.
+        #
+        #   -set MACROS <path>      sets SAS's MACROS environment variable
+        #                           that the example .sas drivers reference
+        #                           via FILENAME ('!MACROS/foo.sas').  This
+        #                           is a separate namespace from SASAUTOS
+        #                           and from the OS env var; the OS-level
+        #                           MACROS does NOT auto-propagate to
+        #                           SAS's internal MACROS.  Without this,
+        #                           a site sasv9.cfg's default (e.g.
+        #                           /programs/apps/sas/macro.library/)
+        #                           wins and %INC '!MACROS/kaplan.sas'
+        #                           may resolve to the wrong dir.
+        #
+        # HAZAPPS does NOT need -set: hazard.sas reads it via %sysget()
+        # which fetches from the SAS process's OS environment, and the
+        # user-set OS env var does propagate to the SAS subprocess.
         sas_args=(-batch -sysin "$name" -log "$log_path" -print "$lst_path")
+        bin_dir="$(dirname "$hazard_bin")"
+        sasautos_dirs=()
+        if [[ -d "$bin_dir" ]];    then sasautos_dirs+=("\"$bin_dir\""); fi
         if [[ -n "$macros_dir" && -d "$macros_dir" ]]; then
-            sas_args+=(-set SASAUTOS "(\"$macros_dir\")")
+            sasautos_dirs+=("\"$macros_dir\"")
+        fi
+        if [[ ${#sasautos_dirs[@]} -gt 0 ]]; then
+            sas_args+=(-set SASAUTOS "(${sasautos_dirs[*]})")
+        fi
+        if [[ -n "$macros_dir" && -d "$macros_dir" ]]; then
+            sas_args+=(-set MACROS "$macros_dir")
         fi
         set +e
         ( cd "$work_dir" \

@@ -1,0 +1,86 @@
+                                                     Arterial Switch Operations                    07:34 Tuesday, April 28, 2026   1
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                      Patient, Procedure, Support, and Experience Risk Factors
+                                                Output Predictions For Each Patient
+
+                                                       The CONTENTS Procedure
+
+                            Data Set Name        ARTSWT.HSDTARXC               Observations          0 
+                            Member Type          DATA                          Variables             2 
+                            Engine               V9                            Indexes               0 
+                            Created              04/27/2026 13:50:58           Observation Length    16
+                            Last Modified        04/27/2026 13:50:58           Deleted Observations  0 
+                            Protection                                         Compressed            NO
+                            Data Set Type                                      Sorted                NO
+                            Label                                                                      
+                            Data Representation  WINDOWS_64                                            
+                            Encoding             wlatin1  Western (Windows)                            
+
+
+                                                 Engine/Host Dependent Information
+
+                Data Set Page Size          65536                                                                  
+                Number of Data Set Pages    1                                                                      
+                First Data Page             1                                                                      
+                Max Obs per Page            4062                                                                   
+                Obs in First Data Page      0                                                                      
+                Number of Data Set Repairs  0                                                                      
+                ExtendObsCounter            YES                                                                    
+                Filename                    C:\Users\John_Ehrlinger\Documents\dist\examples\\data\hsdtarxc.sas7bdat
+                Release Created             9.0401M8                                                               
+                Host Created                X64_DSRV19                                                             
+                Owner Name                  AM\John_Ehrlinger                                                      
+                File Size                   128KB                                                                  
+                File Size (bytes)           131072                                                                 
+
+
+                                             Alphabetic List of Variables and Attributes
+ 
+                                                    #    Variable    Type    Len
+
+                                                    1    CUM_HAZ     Num       8
+                                                    2    PROB        Num       8
+                                                     Arterial Switch Operations                    07:34 Tuesday, April 28, 2026   2
+                                                       Death After Operation
+                                               Multivariable Analysis of Risk Factors
+                                      Patient, Procedure, Support, and Experience Risk Factors
+                                                Output Predictions For Each Patient
+
+                                                       The CONTENTS Procedure
+
+                            Data Set Name        ARTSWT.HSDTARXP               Observations          0 
+                            Member Type          DATA                          Variables             2 
+                            Engine               V9                            Indexes               0 
+                            Created              04/27/2026 13:50:58           Observation Length    16
+                            Last Modified        04/27/2026 13:50:58           Deleted Observations  0 
+                            Protection                                         Compressed            NO
+                            Data Set Type                                      Sorted                NO
+                            Label                                                                      
+                            Data Representation  WINDOWS_64                                            
+                            Encoding             wlatin1  Western (Windows)                            
+
+
+                                                 Engine/Host Dependent Information
+
+                Data Set Page Size          65536                                                                  
+                Number of Data Set Pages    1                                                                      
+                First Data Page             1                                                                      
+                Max Obs per Page            4062                                                                   
+                Obs in First Data Page      0                                                                      
+                Number of Data Set Repairs  0                                                                      
+                ExtendObsCounter            YES                                                                    
+                Filename                    C:\Users\John_Ehrlinger\Documents\dist\examples\\data\hsdtarxp.sas7bdat
+                Release Created             9.0401M8                                                               
+                Host Created                X64_DSRV19                                                             
+                Owner Name                  AM\John_Ehrlinger                                                      
+                File Size                   128KB                                                                  
+                File Size (bytes)           131072                                                                 
+
+
+                                             Alphabetic List of Variables and Attributes
+ 
+                                                    #    Variable    Type    Len
+
+                                                    1    DIGITAL     Num       8
+                                                    2    MONTHS      Num       8
