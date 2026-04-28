@@ -128,3 +128,14 @@ tests/corpus/hazard/inputs/*.haz
 *.dSYM/
 *.gch
 *.pch
+
+# =============================================================================
+# Local install trees (e.g. `make install --prefix=$HOME/hazard` or
+# `--prefix=./dist` while testing the v4.4.x SAS-driven capture scripts) and
+# capture-script-produced archive artefacts.
+# =============================================================================
+/dist/
+/hazard-capture-*/
+/hazard-capture-*.zip
+/hazard-capture-*.tar.gz
+/capture-windows-outputs.ps1.zip
