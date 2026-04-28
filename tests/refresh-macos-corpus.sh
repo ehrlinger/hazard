@@ -29,7 +29,7 @@
 #   $ ./tests/refresh-macos-corpus.sh --version 4.4.5
 #
 #   # Capture only hazpred to close the v4.4.2 gap:
-#   $ ./tests/refresh-macos-corpus.sh --kind hazpred --ref-name v4.4.2-macos-arm64
+#   $ ./tests/refresh-macos-corpus.sh --kind hazpred --ref-name v4.4.4-macos-arm64
 #
 # Exit codes
 # ----------
