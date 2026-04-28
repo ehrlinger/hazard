@@ -304,14 +304,33 @@ if $run_sas; then
 
         # Linux SAS honors CWD for output; -log/-print pin paths anyway so
         # this script behaves identically across SAS configs. -batch is the
-        # default on Linux but explicit is safer across versions. -set
-        # SASAUTOS prepends the user-supplied macros dir to SAS's autocall
-        # search path so PROC HAZARD can find %HAZARD / %HAZPRED without
-        # requiring the user to edit sasv9.cfg first. The "(...)" syntax
-        # adds to the existing path rather than replacing it.
+        # default on Linux but explicit is safer across versions.
+        #
+        # Two SAS-side namespaces both have to resolve to MACROS:
+        #
+        #   -set SASAUTOS "(...)"   prepends to the autocall search path,
+        #                           so SAS finds %HAZARD / %HAZPRED for
+        #                           macro-call-time resolution.  The
+        #                           "(...)" syntax appends to existing
+        #                           SASAUTOS rather than replacing.
+        #
+        #   -set MACROS <path>      sets SAS's MACROS environment variable
+        #                           that the example .sas drivers reference
+        #                           via FILENAME ('!MACROS/foo.sas').  This
+        #                           is a separate namespace from the OS env
+        #                           var (which the user passed in via
+        #                           HAZAPPS / HZEXAMPLES / MACROS) and from
+        #                           SASAUTOS; the OS-level MACROS does NOT
+        #                           propagate to SAS's internal MACROS.
+        #                           Without this, a site sasv9.cfg's
+        #                           default (e.g. /programs/apps/sas/
+        #                           macro.library/) wins, and
+        #                           %INC '!MACROS/kaplan.sas' may not
+        #                           resolve to anything useful.
         sas_args=(-batch -sysin "$name" -log "$log_path" -print "$lst_path")
         if [[ -n "$macros_dir" && -d "$macros_dir" ]]; then
             sas_args+=(-set SASAUTOS "(\"$macros_dir\")")
+            sas_args+=(-set MACROS "$macros_dir")
         fi
         set +e
         ( cd "$work_dir" \
