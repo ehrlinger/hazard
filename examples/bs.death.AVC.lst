@@ -1,0 +1,39 @@
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:49 Monday, April 27, 2026   1
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                                 
+                                                              Early
+
+    Obs       E0          AGE        STATUS     COM_IV      OPMOS          OP_AGE    RESAMPL    ORIFICE      MAL      INC_SURG
+
+     1     -0.88523    -0.026047    0.56803    1.21440    -0.020803    .000169346       1        .          .           .     
+     2     -4.34306      .          0.88679    1.88130    -0.006684    .                2       1.03031     .           .     
+     3     -3.96948    -0.004045    0.39308    1.28574      .          .                3       0.84740    0.53014     0.36123
+     4     -0.89717    -0.035053    0.47555    1.09732    -0.017921    .000223470       4       0.81261    0.78662      .     
+     5     -2.42808    -0.027784    0.78749    1.63352    -0.015761    .000168363       5       0.96766     .           .     
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:49 Monday, April 27, 2026   2
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                                 
+                                                             Constant
+
+            Obs       C0       AGE    STATUS    COM_IV      OPMOS     OP_AGE    RESAMPL    ORIFICE    MAL    INC_SURG
+
+             1     -5.00311     .        .         .      -0.06537       .         1        .          .         .   
+             2     -4.92983     .        .         .      -0.07614       .         2        .          .         .   
+             3     -4.67788     .        .         .      -0.10102       .         3       6.15304     .         .   
+             4     -4.83476     .        .         .      -0.08564       .         4       5.39938     .         .   
+             5     -4.92740     .        .         .      -0.09786       .         5       6.20819     .         .   
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:49 Monday, April 27, 2026   3
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                                 
+                                                               Late
+
+                 Obs    L0    AGE    STATUS    COM_IV    OPMOS    OP_AGE    RESAMPL    ORIFICE    MAL    INC_SURG
+
+                  1      .     .        .         .        .         .         1          .        .         .   
+                  2      .     .        .         .        .         .         2          .        .         .   
+                  3      .     .        .         .        .         .         3          .        .         .   
+                  4      .     .        .         .        .         .         4          .        .         .   
+                  5      .     .        .         .        .         .         5          .        .         .   
