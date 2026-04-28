@@ -1,0 +1,10 @@
+# refresh-macos-corpus.sh metadata
+uid=1777391001.3014921614.61868
+bin_kind=hazard
+real_bin=/Users/ehrlinj/Documents/GitHub/hazard/src/hazard/hazard
+real_exit=0
+argv=
+timestamp=2026-04-28T15:43:21Z
+host=Darwin ehrlinj4F71 25.4.0 arm64
+tmpdir=/var/folders/r2/142tmkt53tjd02y0s7qv_47m0000gr/T/refresh-macos-hazard.XXXXXX.6DAqJtFqiX/hm.death.AVC.1
+pwd=/Users/ehrlinj/Documents/GitHub/hazard
