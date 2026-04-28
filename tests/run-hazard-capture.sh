@@ -165,8 +165,11 @@ fi
 
 if [[ -z "$version" ]]; then
     if [[ -f "$REPO_ROOT/configure.ac" ]]; then
-        version=$(grep -oE 'AC_INIT\(\[Hazard_Package\],\[[0-9.]+\]' \
-                  "$REPO_ROOT/configure.ac" 2>/dev/null \
+        # Skip commented-out AC_INIT lines (the file conventionally keeps
+        # a `# AC_INIT([Hazard_Package],[4.3.0])` historical reference
+        # above the active AC_INIT).
+        version=$(grep -v '^[[:space:]]*#' "$REPO_ROOT/configure.ac" \
+                  | grep -oE 'AC_INIT\(\[Hazard_Package\],\[[0-9.]+\]' \
                   | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)
     fi
     : "${version:=unknown}"
