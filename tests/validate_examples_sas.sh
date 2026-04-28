@@ -63,16 +63,28 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CORPUS_DIR="${SCRIPT_DIR}/corpus"
 NORMALIZE="${SCRIPT_DIR}/corpus_normalize.sh"
 
 got_dir=""
 
+# Argument parsing.  Each flag that takes a value explicitly checks that a
+# value follows -- under `set -u`, accessing $2 when it doesn't exist would
+# abort with "unbound variable" rather than emit a useful error message.
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --got-dir)    got_dir="$2"; shift 2 ;;
-        --normalize)  NORMALIZE="$2"; shift 2 ;;
+        --got-dir)
+            if [[ $# -lt 2 ]]; then
+                echo "ERROR: missing value for --got-dir" >&2
+                exit 2
+            fi
+            got_dir="$2"; shift 2 ;;
+        --normalize)
+            if [[ $# -lt 2 ]]; then
+                echo "ERROR: missing value for --normalize" >&2
+                exit 2
+            fi
+            NORMALIZE="$2"; shift 2 ;;
         --help|-h)
             sed -nE '2,/^# Exit codes/{s/^# ?//; /^!/d; p;}' "${BASH_SOURCE[0]}"
             exit 0 ;;
