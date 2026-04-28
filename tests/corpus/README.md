@@ -15,7 +15,7 @@ tests/corpus/
 │       │   ├── <name>.lst                # byte-exact output from the legacy binary
 │       │   ├── <name>.meta               # wrapper metadata (real_exit, paths)
 │       │   └── <name>.haz                # (where PROC HAZARD used OUTHAZ=)
-│       └── v4.4.2-macos-arm64/           # self-consistency reference for the
+│       └── v4.4.4-macos-arm64/           # self-consistency reference for the
 │           └── <name>.lst                #   current binary on macOS Apple Silicon
 └── hazpred/
     ├── inputs/                           # same shape — + hzp.J<jobid>.X<jobix>.dta/.haz
@@ -60,7 +60,7 @@ for sas in tests/*.sas; do sas -nodms -log /dev/stderr "$sas"; done
 Default reference is auto-selected from the host toolchain family (see
 [`FINDINGS.md`](FINDINGS.md) §2a for the two-bucket cross-toolchain model):
 
-- **Darwin / arm64** → `v4.4.2-macos-arm64` (self-consistency on Apple Silicon;
+- **Darwin / arm64** → `v4.4.4-macos-arm64` (self-consistency on Apple Silicon;
   passes trivially until someone modifies a numerical code path).
 - **Linux, Windows, anything else** → `v4.3.0` (gcc-bucket reference from CCF
   production).  Current v4.4.x builds on Linux match at the numerical level but
