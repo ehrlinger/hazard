@@ -4,6 +4,30 @@ See the [NEWS.md](NEWS.md) file for a detailed history of visible changes.
 
 ---
 
+## Version 4.4.5 — 2026-04-28
+
+Validation-tooling release. Adds the cross-platform SAS-driven validation harness, ships the Windows + SAS reference corpus that v4.4.4 enabled, and lays groundwork for the v5 startup-XPORT-validation work that will close the remaining Linux + SAS gap.
+
+**No functional code changes.** The hazard / hazpred binary algorithms and `.lst` outputs are unchanged from v4.4.4 — only the embedded `VERSION` string in the binary differs after a rebuild from this tag.
+
+### What shipped
+
+- **`tests/validate_examples_sas.sh`** — sister harness to `tests/validate_corpus.sh`. Where `validate_corpus.sh` exercises the bare hazard / hazpred binaries with captured `.input` stdin and byte-diffs the bare-binary stdout, this new harness compares **SAS-wrapped** `.lst` outputs (page headers, surrounding DATA-step output, "Procedure HAZARD completed successfully" footers) against a SAS-driven reference bucket. Auto-selects `REFERENCE` per host: `Linux → v4.4.5-linux-x64-sas`, `Windows / Cygwin / MSYS → v4.4.5-windows-x64-sas`, `Darwin` errors out (no SAS-on-macOS bucket exists since SAS Foundation does not ship for macOS).
+
+- **`tests/corpus_normalize.sh`** — gains a third sed rule that scrubs the SAS page-header timestamp pattern (`HH:MM Weekday, Month DD, YYYY`) emitted by SAS-wrapped `.lst` outputs. Absorbs flanking whitespace too so weekday-name length variance ("Monday" vs "Tuesday") doesn't leak into the byte-diff. No-op on bare-binary captures.
+
+- **`tests/run-hazard-capture.sh`** — fixes for SAS-on-Linux invocation: passes `-set MACROS "$macros_dir"` (the SAS-internal `MACROS` namespace, separate from the OS env var), adds the HAZAPPS bin dir to `SASAUTOS` so SAS finds the entry-point `hazard.sas` / `hazpred.sas` regardless of whether the install puts them in `bin/` (production convention) or `macros/` (manual-overlay convention). Together these unblock SAS-driven captures against the production `/opt/hazard/` install on the CCF Linux box.
+
+- **Windows + SAS reference corpus**: `tests/corpus/hazard/reference/v4.4.5-windows-x64-sas/` — 22 driver `.lst` outputs captured on `AWOR-PDSASAPP03` (Edwards, Windows Server 2019, SAS Foundation 9.4) against the v4.4.4 patched macros. Replaces the prior loose `examples/*.lst` placement from v4.4.4 with a corpus-bucketed structure that `validate_examples_sas.sh` consumes directly.
+
+### Known gap
+
+Linux + SAS reference corpus is **not** shipped in v4.4.5. Investigation on `lri-sas-p-02.lerner.ccf.org` (CCF Linux SAS host) found that bootstrap-mode example drivers (`bs.*`, `lg.*`) silently fail at the binary↔SAS protocol layer regardless of which hazard binary is invoked (fresh v4.4.5 build *and* `/opt/hazard/bin/hazard` production binary fail identically). The binary exits `rc=0` with 0 bytes of output in NOPRINT mode; the SAS bootstrap macro then loops on the resulting brief stand-in output for 10,000+ iterations before being killed. Full root-cause and v5 design implications: [`docs/v5-design-input/2026-04-28-silent-failure-postmortem.md`](docs/v5-design-input/2026-04-28-silent-failure-postmortem.md).
+
+The closing fix is the v5 roadmap item "detect / validate XPORT input format at hazard.exe startup" — combined with stderr-always-on diagnostics and exit-code propagation through `%sysexec`, the binary will be able to refuse-to-proceed cleanly on the inputs that today silently produce empty output. Until then, Linux + SAS validation is out-of-band; direct-binary validation continues via `tests/validate_corpus.sh` against the `v4.3.0` reference (FINDINGS-documented cosmetic banner / org-string FAILs are expected and unrelated to this gap).
+
+---
+
 ## Version 4.4.4 — 2026-04-27
 
 Cosmetic-only maintenance release. SAS macro hygiene fix; binary behaviour and `.lst` output content are byte-identical to v4.4.3 modulo SAS-side timestamp drift.

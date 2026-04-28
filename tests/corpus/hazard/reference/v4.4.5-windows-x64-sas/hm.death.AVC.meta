@@ -1,0 +1,10 @@
+# Edwards SAS capture metadata (synthesized at corpus-staging time)
+uid=1777377600.000000.0
+bin_kind=hazard
+real_bin=C:\hazard\bin\hazard.exe
+real_exit=0
+argv=
+timestamp=2026-04-28T07:33:23Z
+host=Windows AWOR-PDSASAPP03 Server2019 x86_64
+tmpdir=C:\Users\John_Ehrlinger\Documents\dist\examples\
+pwd=C:\hazard\bin
