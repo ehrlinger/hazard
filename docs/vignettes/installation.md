@@ -234,7 +234,7 @@ The heaviest test. Runs the current binary against every captured example in `te
 
 The harness auto-selects the reference from the host's toolchain family:
 
-- **macOS / Apple Silicon** → `tests/corpus/hazard/reference/v4.4.2-macos-arm64/`
+- **macOS / Apple Silicon** → `tests/corpus/hazard/reference/v4.4.4-macos-arm64/`
 - **Linux / Windows (MinGW)** → `tests/corpus/hazard/reference/v4.3.0/` (the CCF capture — gcc-family bit-matches on the log-likelihood metric; expect cosmetic banner + org-string diffs pending a v4.4.x Linux re-capture)
 
 Override explicitly:

@@ -27,7 +27,7 @@ The v4.4.3 release-readiness artefacts now live in the canonical files, not in t
 ```
 
 Auto-selects the reference corpus from the host toolchain family:
-- Darwin / arm64 → `tests/corpus/hazard/reference/v4.4.2-macos-arm64/`
+- Darwin / arm64 → `tests/corpus/hazard/reference/v4.4.4-macos-arm64/`
 - Linux / Windows (MinGW) → `tests/corpus/hazard/reference/v4.3.0/` (gcc-family bucket; numerical parity, cosmetic banner/org diffs pending a v4.4.x Linux recapture)
 
 ### Re-capture from CCF
