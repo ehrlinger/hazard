@@ -27,13 +27,27 @@ option nonotes;
 %let outhaznm=%qscan(&codeblk,1,%str(; ));
 %start:
 
-/* Figure out what platform we are running on */
-%if %length(%sysget(OSTYPE)) gt 0 %then %do;
-    %let os=%substr(%sysget(OSTYPE),1,5);
+/* Figure out what platform we are running on, using SAS automatic    */
+/* variables &SYSSCP and &SYSSCPL.  These are populated by SAS at      */
+/* init on every platform and never warn, replacing the                */
+/* %sysget(OSTYPE) probe that fired a benign                           */
+/* "WARNING: The argument to macro function %SYSGET is not defined as  */
+/* a system variable" on Windows where OSTYPE is not an OS env var.    */
+%if &SYSSCP = WIN %then %do;
+    %let os=%str(Windows);
+%end;
+%else %if %index(&SYSSCPL, Linux) %then %do;
+    %let os=%str(linux);
+%end;
+%else %if %index(&SYSSCPL, Darwin) %then %do;
+    %let os=%str(macos);
+%end;
+%else %if %substr(&SYSSCP,1,3) = SUN %then %do;
+    %let os=%str(solaris);
 %end;
 %else %do;
-    %let os=%str(Windows);
-    %end;
+    %let os=%lowcase(%substr(&SYSSCP,1,5));
+%end;
 
 /* If we are running on a Windows platform, we need */
 /* to set up the correct separator character and remove command */

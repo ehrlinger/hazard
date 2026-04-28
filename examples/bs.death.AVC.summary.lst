@@ -1,0 +1,338 @@
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:50 Monday, April 27, 2026   1
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                        Summary of Results
+                                                                 
+                                                                 
+                                                        Early Phase Models
+
+                                                     The UNIVARIATE Procedure
+                                                        Variable:  NMODEL
+
+                                                             Moments
+
+                                 N                           5    Sum Weights                  5
+                                 Mean                      6.2    Sum Observations            31
+                                 Std Deviation      0.83666003    Variance                   0.7
+                                 Skewness           -0.5122408    Kurtosis            -0.6122449
+                                 Uncorrected SS            195    Corrected SS               2.8
+                                 Coeff Variation    13.4945166    Std Error Mean      0.37416574
+
+
+                                                    Basic Statistical Measures
+ 
+                                          Location                    Variability
+
+                                      Mean     6.200000     Std Deviation            0.83666
+                                      Median   6.000000     Variance                 0.70000
+                                      Mode     6.000000     Range                    2.00000
+                                                            Interquartile Range      1.00000
+
+                              Note: The mode displayed is the smallest of 2 modes with a count of 2.
+
+
+                                                    Tests for Location: Mu0=0
+ 
+                                         Test           -Statistic-    -----p Value------
+
+                                         Student's t    t   16.5702    Pr > |t|    <.0001
+                                         Sign           M       2.5    Pr >= |M|   0.0625
+                                         Signed Rank    S       7.5    Pr >= |S|   0.0625
+
+
+                                                     Quantiles (Definition 5)
+ 
+                                                      Level         Quantile
+
+                                                      100% Max             7
+                                                      99%                  7
+                                                      95%                  7
+                                                      90%                  7
+                                                      75% Q3               7
+                                                      50% Median           6
+                                                      25% Q1               6
+                                                      10%                  5
+                                                      5%                   5
+                                                      1%                   5
+                                                      0% Min               5
+
+
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:50 Monday, April 27, 2026   2
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                        Summary of Results
+                                                                 
+                                                                 
+                                                        Early Phase Models
+
+                                                     The UNIVARIATE Procedure
+                                                        Variable:  NMODEL
+
+                                                       Extreme Observations
+ 
+                                               ----Lowest----        ----Highest---
+ 
+                                               Value      Obs        Value      Obs
+
+                                                   5        2            5        2
+                                                   6        3            6        1
+                                                   6        1            6        3
+                                                   7        5            7        4
+                                                   7        4            7        5
+
+
+                                                         Frequency Counts
+ 
+                                                                   Percents
+                                                     Value Count  Cell   Cum
+
+                                                         5     1  20.0  20.0
+                                                         6     2  40.0  60.0
+                                                         7     2  40.0 100.0
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:50 Monday, April 27, 2026   3
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                        Summary of Results
+                                                                 
+                                                                 
+                                                        Early Phase Models
+
+              Obs    _NAME_      N    PCTMODEL       MIN         MAX        MEAN        STD       T_SCORE      PRT
+
+                1    E0          5       100      -4.34306    -0.88523    -2.50460    1.63843    -1.52866    0.20108
+                2    STATUS      5       100       0.39308     0.88679     0.62219    0.20872     2.98090    0.04070
+                3    COM_IV      5       100       1.09732     1.88130     1.42245    0.32511     4.37534    0.01192
+                4    NMODEL      5       100       5.00000     7.00000     6.20000    0.83666     7.41042    0.00177
+                5    AGE         4        80      -0.03505    -0.00405    -0.02323    0.01337    -1.73727    0.18073
+                6    OPMOS       4        80      -0.02080    -0.00668    -0.01529    0.00610    -2.50738    0.08714
+                7    ORIFICE     4        80       0.81261     1.03031     0.91450    0.10185     8.97863    0.00292
+                8    OP_AGE      3        60       0.00017     0.00022     0.00019    0.00003     5.93162    0.02726
+                9    MAL         2        40       0.53014     0.78662     0.65838    0.18136     3.63025    0.17112
+               10    INC_SURG    1        20       0.36123     0.36123     0.36123     .           .          .     
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:50 Monday, April 27, 2026   4
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                        Summary of Results
+                                                                 
+                                                                 
+                                                      Constant Phase Models
+
+                                                     The UNIVARIATE Procedure
+                                                        Variable:  NMODEL
+
+                                                             Moments
+
+                                 N                           5    Sum Weights                  5
+                                 Mean                      2.6    Sum Observations            13
+                                 Std Deviation      0.54772256    Variance                   0.3
+                                 Skewness           -0.6085806    Kurtosis            -3.3333333
+                                 Uncorrected SS             35    Corrected SS               1.2
+                                 Coeff Variation    21.0662522    Std Error Mean      0.24494897
+
+
+                                                    Basic Statistical Measures
+ 
+                                          Location                    Variability
+
+                                      Mean     2.600000     Std Deviation            0.54772
+                                      Median   3.000000     Variance                 0.30000
+                                      Mode     3.000000     Range                    1.00000
+                                                            Interquartile Range      1.00000
+
+
+                                                    Tests for Location: Mu0=0
+ 
+                                         Test           -Statistic-    -----p Value------
+
+                                         Student's t    t  10.61446    Pr > |t|    0.0004
+                                         Sign           M       2.5    Pr >= |M|   0.0625
+                                         Signed Rank    S       7.5    Pr >= |S|   0.0625
+
+
+                                                     Quantiles (Definition 5)
+ 
+                                                      Level         Quantile
+
+                                                      100% Max             3
+                                                      99%                  3
+                                                      95%                  3
+                                                      90%                  3
+                                                      75% Q3               3
+                                                      50% Median           3
+                                                      25% Q1               2
+                                                      10%                  2
+                                                      5%                   2
+                                                      1%                   2
+                                                      0% Min               2
+
+
+                                                       Extreme Observations
+ 
+                                               ----Lowest----        ----Highest---
+ 
+                                               Value      Obs        Value      Obs
+
+                                                   2        2            2        1
+                                                   2        1            2        2
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:50 Monday, April 27, 2026   5
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                        Summary of Results
+                                                                 
+                                                                 
+                                                      Constant Phase Models
+
+                                                     The UNIVARIATE Procedure
+                                                        Variable:  NMODEL
+
+                                                       Extreme Observations
+ 
+                                               ----Lowest----        ----Highest---
+ 
+                                               Value      Obs        Value      Obs
+
+                                                   3        5            3        3
+                                                   3        4            3        4
+                                                   3        3            3        5
+
+
+                                                         Frequency Counts
+ 
+                                                                   Percents
+                                                     Value Count  Cell   Cum
+
+                                                         2     2  40.0  40.0
+                                                         3     3  60.0 100.0
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:50 Monday, April 27, 2026   6
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                        Summary of Results
+                                                                 
+                                                                 
+                                                      Constant Phase Models
+
+            Obs    _NAME_      N    PCTMODEL       MIN         MAX        MEAN        STD       T_SCORE           PRT
+
+              1    C0          5       100      -5.00311    -4.67788    -4.87460    0.12514    -38.9540    .000010000
+              2    OPMOS       5       100      -0.10102    -0.06537    -0.08521    0.01488     -5.7255    .004606493
+              3    NMODEL      5       100       2.00000     3.00000     2.60000    0.54772      4.7469    .008991200
+              4    ORIFICE     3        60       5.39938     6.20819     5.92020    0.45189     13.1010    .005775825
+              5    AGE         0         0        .           .           .          .            .        .         
+              6    STATUS      0         0        .           .           .          .            .        .         
+              7    COM_IV      0         0        .           .           .          .            .        .         
+              8    OP_AGE      0         0        .           .           .          .            .        .         
+              9    MAL         0         0        .           .           .          .            .        .         
+             10    INC_SURG    0         0        .           .           .          .            .        .         
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:50 Monday, April 27, 2026   7
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                        Summary of Results
+                                                                 
+                                                                 
+                                                        Late Phase Models
+
+                                                     The UNIVARIATE Procedure
+                                                        Variable:  NMODEL
+
+                                                             Moments
+
+                                 N                           5    Sum Weights                  5
+                                 Mean                        1    Sum Observations             5
+                                 Std Deviation               0    Variance                     0
+                                 Skewness                    .    Kurtosis                     .
+                                 Uncorrected SS              5    Corrected SS                 0
+                                 Coeff Variation             0    Std Error Mean               0
+
+
+                                                    Basic Statistical Measures
+ 
+                                          Location                    Variability
+
+                                      Mean     1.000000     Std Deviation                  0
+                                      Median   1.000000     Variance                       0
+                                      Mode     1.000000     Range                          0
+                                                            Interquartile Range            0
+
+
+                                                    Tests for Location: Mu0=0
+ 
+                                         Test           -Statistic-    -----p Value------
+
+                                         Student's t    t         .    Pr > |t|     .    
+                                         Sign           M       2.5    Pr >= |M|   0.0625
+                                         Signed Rank    S       7.5    Pr >= |S|   0.0625
+
+
+                                                     Quantiles (Definition 5)
+ 
+                                                      Level         Quantile
+
+                                                      100% Max             1
+                                                      99%                  1
+                                                      95%                  1
+                                                      90%                  1
+                                                      75% Q3               1
+                                                      50% Median           1
+                                                      25% Q1               1
+                                                      10%                  1
+                                                      5%                   1
+                                                      1%                   1
+                                                      0% Min               1
+
+
+                                                       Extreme Observations
+ 
+                                               ----Lowest----        ----Highest---
+ 
+                                               Value      Obs        Value      Obs
+
+                                                   1        5            1        1
+                                                   1        4            1        2
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:50 Monday, April 27, 2026   8
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                        Summary of Results
+                                                                 
+                                                                 
+                                                        Late Phase Models
+
+                                                     The UNIVARIATE Procedure
+                                                        Variable:  NMODEL
+
+                                                       Extreme Observations
+ 
+                                               ----Lowest----        ----Highest---
+ 
+                                               Value      Obs        Value      Obs
+
+                                                   1        3            1        3
+                                                   1        2            1        4
+                                                   1        1            1        5
+
+
+                                                         Frequency Counts
+ 
+                                                                   Percents
+                                                     Value Count  Cell   Cum
+
+                                                         1     5 100.0 100.0
+                                      Repair of Atrioventricular Septal (A-V Canal) Defects       13:50 Monday, April 27, 2026   9
+                                                         Example Data Set
+                                      Bootstrap Multivariable Analysis of Death After Repair
+                                                        Summary of Results
+                                                                 
+                                                                 
+                                                        Late Phase Models
+
+                         Obs    _NAME_      N    PCTMODEL    MIN    MAX    MEAN    STD    T_SCORE    PRT
+
+                           1    NMODEL      5       100       1      1       1      0        .        . 
+                           2    L0          0         0       .      .       .      .        .        . 
+                           3    AGE         0         0       .      .       .      .        .        . 
+                           4    STATUS      0         0       .      .       .      .        .        . 
+                           5    COM_IV      0         0       .      .       .      .        .        . 
+                           6    OPMOS       0         0       .      .       .      .        .        . 
+                           7    OP_AGE      0         0       .      .       .      .        .        . 
+                           8    ORIFICE     0         0       .      .       .      .        .        . 
+                           9    MAL         0         0       .      .       .      .        .        . 
+                          10    INC_SURG    0         0       .      .       .      .        .        . 
