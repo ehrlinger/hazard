@@ -121,20 +121,25 @@ capture_kind() {
     echo " $kind  ->  $ref_dir"
     echo "==================================================="
 
+    # Setup-error conditions (rc=2 per script header docs): missing binary
+    # or missing inputs dir is a real misconfiguration the caller probably
+    # wants to know about, not a benign skip.  No-input-files in an existing
+    # inputs dir IS still treated as a (rc=0) skip — that's a legitimate
+    # "this kind has no captured corpus to refresh" state.
     if [[ ! -x "$bin" ]]; then
-        echo "  SKIP: binary not found or not executable: $bin"
-        return 0
+        echo "  ERROR: binary not found or not executable: $bin" >&2
+        return 2
     fi
     if [[ ! -d "$inputs_dir" ]]; then
-        echo "  SKIP: no inputs dir at $inputs_dir"
-        return 0
+        echo "  ERROR: no inputs dir at $inputs_dir" >&2
+        return 2
     fi
 
     shopt -s nullglob
     local inputs=("$inputs_dir"/*.input)
     shopt -u nullglob
     if [[ ${#inputs[@]} -eq 0 ]]; then
-        echo "  SKIP: no *.input files in $inputs_dir"
+        echo "  SKIP: no *.input files in $inputs_dir (corpus not yet captured for $kind)"
         return 0
     fi
 
@@ -152,11 +157,23 @@ capture_kind() {
         return 0
     fi
 
-    rm -rf "$ref_dir"
+    # Surgical cleanup: only delete the file types this script produces
+    # (.lst and .meta).  Preserve any committed .haz fixtures, since this
+    # direct-binary capture path does not reproduce them — they come from
+    # the SAS PROC HAZARD wrapper used by scripts/capture-legacy.sh, which
+    # writes OUTHAZ= bridging files that the present script can't replicate.
+    # Wiping the whole ref dir would orphan those.
     mkdir -p "$ref_dir"
+    shopt -s nullglob
+    local stale
+    for stale in "$ref_dir"/*.lst "$ref_dir"/*.meta; do rm -f -- "$stale"; done
+    shopt -u nullglob
 
+    # NOTE: bash `trap ... RETURN` is shell-scoped, not function-scoped --
+    # it would persist past this function and fire on later returns with
+    # $work_root out of scope.  Use explicit cleanup at every exit path
+    # below, mirroring the pattern in tests/validate_corpus.sh.
     local work_root; work_root="$(mktemp -d -t "refresh-macos-${kind}.XXXXXX")"
-    trap 'rm -rf "$work_root"' RETURN
 
     local empty=0 success=0
     for input in "${inputs[@]}"; do
@@ -180,27 +197,42 @@ capture_kind() {
             rc=$?
         fi
 
-        # Capture any new .haz produced by the run (binary writes to TMPDIR;
-        # we copy fresh files, ignoring the symlinked input fixtures).
-        local out_haz
-        for out_haz in "$run_tmp"/*.haz; do
-            [[ -f "$out_haz" && ! -L "$out_haz" ]] || continue
-            cp "$out_haz" "$ref_dir/$(basename "$out_haz")"
-        done
+        # NOTE: deliberately not copying *.haz files the binary may write
+        # into TMPDIR.  Direct-binary invocation produces hzr.J<id>.X<id>.haz
+        # outputs with internal-job-id names that don't map to the
+        # case-name <case>.haz convention used by the committed bridging
+        # fixtures (which come from scripts/capture-legacy.sh's SAS PROC
+        # HAZARD wrapper).  Copying them would orphan them under
+        # different names than the committed reference set.  The committed
+        # <case>.haz files are preserved by the surgical-cleanup pass above.
 
         # Write .meta — matching scripts/capture-legacy.sh schema where it
-        # makes sense; real_exit is honest (the binary's actual rc).
+        # makes sense; real_exit is honest (the binary's actual rc).  Honour
+        # HAZARD_CAPTURE_REDACT=1 for shared-corpus commits so host /
+        # tmpdir / pwd / real_bin don't leak developer-workstation paths.
+        local meta_host meta_tmpdir meta_pwd meta_bin
+        if [[ "${HAZARD_CAPTURE_REDACT:-0}" = "1" ]]; then
+            meta_host="$(uname -s) $(uname -r) $(uname -m)"
+            meta_tmpdir='<redacted>'
+            meta_pwd='<redacted>'
+            meta_bin="$(basename "$bin")"
+        else
+            meta_host="$(host_line)"
+            meta_tmpdir="$run_tmp"
+            meta_pwd="$(pwd)"
+            meta_bin="$bin"
+        fi
         {
             echo "# refresh-macos-corpus.sh metadata"
             echo "uid=$(new_uid)"
             echo "bin_kind=$kind"
-            echo "real_bin=$bin"
+            echo "real_bin=$meta_bin"
             echo "real_exit=$rc"
             echo "argv="
             echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "host=$(host_line)"
-            echo "tmpdir=$run_tmp"
-            echo "pwd=$(pwd)"
+            echo "host=$meta_host"
+            echo "tmpdir=$meta_tmpdir"
+            echo "pwd=$meta_pwd"
         } > "$ref_dir/$name.meta"
 
         if [[ -s "$got_lst" ]]; then
@@ -211,6 +243,10 @@ capture_kind() {
             printf '  EMPTY: %-30s rc=%d  (binary produced no output)\n' "$name" "$rc"
         fi
     done
+
+    # Explicit cleanup of the per-function work_root — not a trap RETURN,
+    # see comment above the mktemp call.
+    rm -rf "$work_root"
 
     echo
     echo "  $kind: $success captured, $empty empty"
@@ -231,17 +267,26 @@ echo
 
 overall_rc=0
 
+# Preserve capture_kind's rc precisely (1 = empty captures, 2 = setup error)
+# rather than collapsing all non-zero to 1.  A setup error in either kind
+# should override an empty-captures rc from the other.
+run_kind() {
+    capture_kind "$1" "$2"
+    local rc=$?
+    if [[ $rc -gt $overall_rc ]]; then overall_rc=$rc; fi
+}
+
 if [[ "$kind" == "both" || "$kind" == "hazard" ]]; then
-    capture_kind hazard "$hazard_bin" || overall_rc=1
+    run_kind hazard "$hazard_bin"
 fi
 if [[ "$kind" == "both" || "$kind" == "hazpred" ]]; then
-    capture_kind hazpred "$hazpred_bin" || overall_rc=1
+    run_kind hazpred "$hazpred_bin"
 fi
 
 echo
-if [[ $overall_rc -eq 0 ]]; then
-    echo "Done. Run tests/validate_corpus.sh REFERENCE=$ref_name to confirm self-consistency."
-else
-    echo "Some inputs produced no output — check binary and inputs."
-fi
+case $overall_rc in
+    0) echo "Done. Run tests/validate_corpus.sh REFERENCE=$ref_name to confirm self-consistency." ;;
+    1) echo "Some inputs produced no output -- check binary and inputs." ;;
+    2) echo "Setup error -- check that the binary path and inputs dir exist (see header)." ;;
+esac
 exit $overall_rc
