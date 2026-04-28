@@ -123,11 +123,13 @@ tests/corpus/hazard/inputs/*.haz
 .AppleDouble
 
 # =============================================================================
-# Debug symbols
+# Debug symbols + IDE build trees
 # =============================================================================
 *.dSYM/
 *.gch
 *.pch
+/Debug/
+/Release/
 
 # =============================================================================
 # Local install trees (e.g. `make install --prefix=$HOME/hazard` or

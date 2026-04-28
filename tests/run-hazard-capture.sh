@@ -406,7 +406,7 @@ This is the SAS-wrapped \`.lst\` reference set (PROC HAZARD output, page-headers
 and DATA-step boilerplate present). It is consumed by the future
 \`tests/validate_examples_sas.sh\` harness, NOT by \`tests/validate_corpus.sh\`
 (which expects bare hazard.exe stdout — see \`examples/README-windows-baseline.md\`
-and \`WINDOWS-VALIDATION-2026-04-27.md\` for the artifact-type split).
+and \`docs/validation-reports/WINDOWS-VALIDATION-2026-04-27.md\` for the artifact-type split).
 
 To install on a repo machine:
 

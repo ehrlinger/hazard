@@ -13,7 +13,7 @@ This directory now ships 18 `.lst` reference outputs captured under SAS 9.4 Foun
 | Hazard binary  | v4.4.3 (`C:\hazard\bin\hazard.exe`)                         |
 | Capture script | `Run-HazardCapture.ps1` (Cowork session, 2026-04-27)        |
 
-Full details in `../WINDOWS-VALIDATION-2026-04-27.md`.
+Full details in `../docs/validation-reports/WINDOWS-VALIDATION-2026-04-27.md`.
 
 ## Diff convention
 
