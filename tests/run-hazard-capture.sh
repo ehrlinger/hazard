@@ -86,7 +86,21 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # Defaults
 # ---------------------------------------------------------------------------
-SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")"
+# Resolve the script's absolute path with a chain of fallbacks:
+#   1. GNU `readlink -f` (Linux + Homebrew coreutils on macOS)
+#   2. python3 (POSIX-portable, but not always installed on minimal CCF
+#      hosts)
+#   3. raw $BASH_SOURCE -- works for `--help` and the rare invocation
+#      from a path that's already absolute, just doesn't resolve symlinks
+# Without the 3rd fallback, a host without python3 would abort under
+# `set -e` even when the path is only used for the docstring extraction.
+if SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null); then
+    :
+elif SCRIPT_PATH=$(python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}" 2>/dev/null); then
+    :
+else
+    SCRIPT_PATH="${BASH_SOURCE[0]}"
+fi
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
@@ -204,6 +218,23 @@ write_meta() {
     local real_bin="$3"
     local argv="$4"
     local pwd_path="$5"
+
+    # Honour HAZARD_CAPTURE_REDACT=1 (matches scripts/capture-legacy.sh) so
+    # host / tmpdir / pwd / real_bin don't leak developer-workstation paths
+    # when the .meta lands in a shared corpus.
+    local meta_host meta_tmpdir meta_pwd meta_bin
+    if [[ "${HAZARD_CAPTURE_REDACT:-0}" = "1" ]]; then
+        meta_host="$(uname -s) $(uname -r) $(uname -m)"
+        meta_tmpdir='<redacted>'
+        meta_pwd='<redacted>'
+        meta_bin="$(basename "$real_bin")"
+    else
+        meta_host="$(host_line)"
+        meta_tmpdir="${TMPDIR:-/tmp}"
+        meta_pwd="$pwd_path"
+        meta_bin="$real_bin"
+    fi
+
     {
         echo "# run-hazard-capture.sh metadata"
         echo "# NOTE: real_exit is recorded as the SAS-process exit code, not"
@@ -213,13 +244,13 @@ write_meta() {
         echo "# (PATH-shadow wrapper) instead."
         echo "uid=$(new_uid)"
         echo "bin_kind=$bin_kind"
-        echo "real_bin=$real_bin"
+        echo "real_bin=$meta_bin"
         echo "real_exit=0"
         echo "argv=$argv"
         echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-        echo "host=$(host_line)"
-        echo "tmpdir=${TMPDIR:-/tmp}"
-        echo "pwd=$pwd_path"
+        echo "host=$meta_host"
+        echo "tmpdir=$meta_tmpdir"
+        echo "pwd=$meta_pwd"
     } > "$path"
 }
 
