@@ -63,8 +63,9 @@
 	validation harness, ships the Windows + SAS reference corpus that
 	v4.4.4 enabled, and lays groundwork for the v5 startup-XPORT-
 	validation work that closes the remaining Linux + SAS gap. No
-	binary code changes; hazard / hazpred binaries are byte-identical
-	to v4.4.4.
+	functional code changes to the hazard / hazpred binaries; no
+	algorithmic changes from v4.4.4 (only the embedded VERSION string
+	changes after a rebuild from this tag).
 
 	* New tests/validate_examples_sas.sh: sister harness to
 	  validate_corpus.sh that compares SAS-wrapped .lst outputs (page

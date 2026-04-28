@@ -8,7 +8,7 @@ See the [NEWS.md](NEWS.md) file for a detailed history of visible changes.
 
 Validation-tooling release. Adds the cross-platform SAS-driven validation harness, ships the Windows + SAS reference corpus that v4.4.4 enabled, and lays groundwork for the v5 startup-XPORT-validation work that will close the remaining Linux + SAS gap.
 
-**No binary code changes.** The hazard / hazpred binaries are byte-identical to v4.4.4.
+**No functional code changes.** The hazard / hazpred binary algorithms and `.lst` outputs are unchanged from v4.4.4 — only the embedded `VERSION` string in the binary differs after a rebuild from this tag.
 
 ### What shipped
 
