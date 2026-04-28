@@ -4,7 +4,7 @@
 **Timestamp:** 2026-04-22T19:58:23Z – 19:58:33Z (10 s span)  
 **Total Captures:** 8 runs (7 exit=0, 1 exit=1) → **6 unique output hashes**  
 **Host:** Linux 4.18.0-553.89.1.el8_10.x86_64  
-**Capture archive:** [hazard-capture-results.tar.gz](hazard-capture-results.tar.gz) → extracted to [hazard-capture/hazard/](hazard-capture/hazard/)  
+**Capture archive:** [hazard-capture-results.tar.gz](../../tests/corpus/archives/hazard-capture-results.tar.gz) → extracted to [hazard-capture/hazard/](../../tests/corpus/archives/hazard-capture/hazard/)  
 **Revision history:** §7
 
 ---
@@ -135,7 +135,7 @@ Unique output hashes across the 7 successful captures: **6** (AVC.2 and AVC.deci
 ### What it does NOT prove
 1. **It does not prove v4.3.0 is "correct."** Reproducibility on one host ≠ correctness. Two runs on the same Linux/x86-64 host invoking the same `swab()` implementation and the same libc will produce the same bytes whether or not the underlying computation is portable or standards-compliant.
 2. **It does not isolate v4.3 → v4.4 divergences to a single cause.** That claim lives in [ROOT-CAUSE-ANALYSIS.md](ROOT-CAUSE-ANALYSIS.md) and depends on evidence not in this document.
-3. **It does not cover hazpred.** Only hazard captures were hash-checked here. hazpred captures exist in [hazard-capture/hazpred/](hazard-capture/hazpred/) and are out of scope for this file.
+3. **It does not cover hazpred.** Only hazard captures were hash-checked here. hazpred captures exist in [hazard-capture/hazpred/](../../tests/corpus/archives/hazard-capture/hazpred/) and are out of scope for this file.
 
 ### Action Items
 
@@ -168,8 +168,8 @@ shasum -a 256 tests/corpus/hazard/reference/v4.3.0/*.lst hazard-capture/hazard/*
 | Date | Version | Author | Notes |
 |---|---|---|---|
 | 2026-04-23 | 1.0 | Analysis | Initial comparison against v4.3.0 references |
-| 2026-04-23 | 1.1 | Ehrlinger | Hash-verified against extracted [hazard-capture-results.tar.gz](hazard-capture-results.tar.gz). Corrected UID 1776887904.1199267.17547 content label (AVC.2/.deciles, not hz.death.AVC). Clarified "6 unique outputs" vs earlier "7 unique examples". Removed unsupported "v4.4 validation is sound" and "ready for release" claims — those live in [ROOT-CAUSE-ANALYSIS.md](ROOT-CAUSE-ANALYSIS.md) and [tests/corpus/FINDINGS.md](tests/corpus/FINDINGS.md), respectively. |
+| 2026-04-23 | 1.1 | Ehrlinger | Hash-verified against extracted [hazard-capture-results.tar.gz](../../tests/corpus/archives/hazard-capture-results.tar.gz). Corrected UID 1776887904.1199267.17547 content label (AVC.2/.deciles, not hz.death.AVC). Clarified "6 unique outputs" vs earlier "7 unique examples". Removed unsupported "v4.4 validation is sound" and "ready for release" claims — those live in [ROOT-CAUSE-ANALYSIS.md](ROOT-CAUSE-ANALYSIS.md) and [tests/corpus/FINDINGS.md](../../tests/corpus/FINDINGS.md), respectively. |
 
 ---
 
-**Status:** ✅ v4.3.0 reference corpus confirmed as a faithful copy of CCF production output. Numerical correctness and v4.4 parity are separate questions — see [ROOT-CAUSE-ANALYSIS.md](ROOT-CAUSE-ANALYSIS.md) and [tests/corpus/FINDINGS.md](tests/corpus/FINDINGS.md).
+**Status:** ✅ v4.3.0 reference corpus confirmed as a faithful copy of CCF production output. Numerical correctness and v4.4 parity are separate questions — see [ROOT-CAUSE-ANALYSIS.md](ROOT-CAUSE-ANALYSIS.md) and [tests/corpus/FINDINGS.md](../../tests/corpus/FINDINGS.md).

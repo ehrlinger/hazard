@@ -8,13 +8,13 @@ The v4.4.3 release-readiness artefacts now live in the canonical files, not in t
 
 | Topic | Authoritative doc |
 |---|---|
-| v4.3→v4.4 divergence root cause (closed) | [`ROOT-CAUSE-ANALYSIS.md`](../ROOT-CAUSE-ANALYSIS.md) v3.x |
+| v4.3→v4.4 divergence root cause (closed) | [`validation-reports/ROOT-CAUSE-ANALYSIS.md`](validation-reports/ROOT-CAUSE-ANALYSIS.md) v3.x |
 | Corpus authenticity + findings | [`tests/corpus/FINDINGS.md`](../tests/corpus/FINDINGS.md) |
 | Capture re-run procedure | [`scripts/CAPTURE_INSTRUCTIONS.md`](../scripts/CAPTURE_INSTRUCTIONS.md) |
 | Corpus layout + normalisation | [`tests/corpus/README.md`](../tests/corpus/README.md) |
 | Validation harness | [`tests/validate_corpus.sh`](../tests/validate_corpus.sh) |
 | Report generator | [`scripts/validate_report.py`](../scripts/validate_report.py) |
-| Two-bucket reference model | `FINDINGS.md` §2a, `ROOT-CAUSE-ANALYSIS.md` §4 |
+| Two-bucket reference model | `FINDINGS.md` §2a, `validation-reports/ROOT-CAUSE-ANALYSIS.md` §4 |
 
 ---
 
@@ -32,11 +32,11 @@ Auto-selects the reference corpus from the host toolchain family:
 
 ### Re-capture from CCF
 
-See `scripts/CAPTURE_INSTRUCTIONS.md` for the operator-facing procedure (kit built via `make capture-kit`). Most recent capture archive: `hazard-capture-results-2026-04-23.tar.gz`, binary SHAs recorded in `hazard-capture-provenance.txt`.
+See `scripts/CAPTURE_INSTRUCTIONS.md` for the operator-facing procedure (kit built via `make capture-kit`). Most recent capture archive: `../tests/corpus/archives/hazard-capture-results-2026-04-23.tar.gz`, binary SHAs recorded in `../tests/corpus/archives/hazard-capture-provenance.txt`.
 
 ### Cross-toolchain evidence (investigation workflows, now retired)
 
-Two one-shot GitHub Actions workflows (`linux-ll-check.yml`, `windows-ll-check.yml`) were used to confirm the v4.3→v4.4 divergence is 100% cross-toolchain FP, 0% code history. They were dispatched, data collected, and deleted — see `ROOT-CAUSE-ANALYSIS.md` §2.2 for the resulting four-cell table.
+Two one-shot GitHub Actions workflows (`linux-ll-check.yml`, `windows-ll-check.yml`) were used to confirm the v4.3→v4.4 divergence is 100% cross-toolchain FP, 0% code history. They were dispatched, data collected, and deleted — see `validation-reports/ROOT-CAUSE-ANALYSIS.md` §2.2 for the resulting four-cell table.
 
 ---
 
@@ -44,7 +44,7 @@ Two one-shot GitHub Actions workflows (`linux-ll-check.yml`, `windows-ll-check.y
 
 This document previously carried a five-phase validation-campaign plan, a "commit 557f3ef as root cause" write-up, and machine-local paths (`~/Documents/GitHub/hazard/...`, `~/Documents/ObsidianVault/...`).  All of that is wrong or duplicative now:
 
-- The 557f3ef-as-root-cause hypothesis was disproven on 2026-04-23 — see `ROOT-CAUSE-ANALYSIS.md` §2.1. Accurate story lives there.
+- The 557f3ef-as-root-cause hypothesis was disproven on 2026-04-23 — see `validation-reports/ROOT-CAUSE-ANALYSIS.md` §2.1. Accurate story lives there.
 - The five-phase plan is replaced by the auto-selecting harness above plus the kit-based capture procedure.
 - Machine-local paths removed.
 
