@@ -164,9 +164,9 @@ If cross-platform bit-exactness is required for some downstream reason, the inte
 
 ## References
 
-- [tests/corpus/FINDINGS.md](tests/corpus/FINDINGS.md) — canonical findings document
+- [tests/corpus/FINDINGS.md](../../tests/corpus/FINDINGS.md) — canonical findings document
 - [CAPTURE-COMPARISON-2026-04-22.md](CAPTURE-COMPARISON-2026-04-22.md) — v4.3.0 reference authenticity
-- [hazard-capture-results.tar.gz](hazard-capture-results.tar.gz) → [hazard-capture/](hazard-capture/) — 2026-04-22 CCF capture archive
+- [hazard-capture-results.tar.gz](../../tests/corpus/archives/hazard-capture-results.tar.gz) → [hazard-capture/](../../tests/corpus/archives/hazard-capture/) — 2026-04-22 CCF capture archive
 - [.github/workflows/linux-ll-check.yml](.github/workflows/linux-ll-check.yml) — one-shot Linux oracle (investigation; delete after close-out)
 - GitHub Actions runs [24850944156](https://github.com/ehrlinger/hazard/actions/runs/24850944156) (v4.3.1 → −1864.76) and [24851086714](https://github.com/ehrlinger/hazard/actions/runs/24851086714) (v4.4.2 → −1864.76)
 - `git show 557f3ef` — the commit formerly blamed

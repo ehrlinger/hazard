@@ -85,7 +85,7 @@ if [ -z "${REFERENCE:-}" ]; then
         # gcc-family reference.  Numerically identical to a v4.4.x
         # Linux build on the log-likelihood metric (confirmed via
         # the linux-ll-check / windows-ll-check workflows — see
-        # ROOT-CAUSE-ANALYSIS.md §2.2), but the version banner and
+        # docs/validation-reports/ROOT-CAUSE-ANALYSIS.md §2.2), but the version banner and
         # the "Cleveland Clinic" → "Cleveland Clinic Foundation"
         # organisation string differ as genuine inter-version text
         # changes that the normalizer deliberately does NOT mask.
@@ -286,7 +286,7 @@ run_kind() {
 #   • the "Cleveland Clinic" → "Cleveland Clinic Foundation" org string
 # Numerics match bit-for-bit on the gcc bucket (confirmed via the
 # linux-ll-check / windows-ll-check one-shot workflows; see
-# ROOT-CAUSE-ANALYSIS.md §2.2), so those FAILs are genuine inter-version
+# docs/validation-reports/ROOT-CAUSE-ANALYSIS.md §2.2), so those FAILs are genuine inter-version
 # text changes rather than regressions.  Closing the gap needs a v4.4.x
 # Linux recapture (FINDINGS.md §5 item 5); until then:
 #   • `tests/run_all_tests.sh` keeps V8 OFF by default on all hosts
