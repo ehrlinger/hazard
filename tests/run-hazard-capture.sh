@@ -270,11 +270,18 @@ if $run_sas; then
 
         # Linux SAS honors CWD for output; -log/-print pin paths anyway so
         # this script behaves identically across SAS configs. -batch is the
-        # default on Linux but explicit is safer across versions.
+        # default on Linux but explicit is safer across versions. -set
+        # SASAUTOS prepends the user-supplied macros dir to SAS's autocall
+        # search path so PROC HAZARD can find %HAZARD / %HAZPRED without
+        # requiring the user to edit sasv9.cfg first. The "(...)" syntax
+        # adds to the existing path rather than replacing it.
+        sas_args=(-batch -sysin "$name" -log "$log_path" -print "$lst_path")
+        if [[ -n "$macros_dir" && -d "$macros_dir" ]]; then
+            sas_args+=(-set SASAUTOS "(\"$macros_dir\")")
+        fi
         set +e
         ( cd "$work_dir" \
-          && "$sas_cmd" -batch -sysin "$name" -log "$log_path" -print "$lst_path" \
-              </dev/null >/dev/null 2>&1 )
+          && "$sas_cmd" "${sas_args[@]}" </dev/null >/dev/null 2>&1 )
         rc=$?
         set -e
 
