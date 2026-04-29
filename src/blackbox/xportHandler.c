@@ -334,8 +334,8 @@ void getParms(FILE *file, char* buf, int obsSize, int obsNum,
   for (i=0; i<obsNum-6; i++) {
     /* Start reading the observations. */
     if (fread(buf, obsSize, 1, file) != 1){
-      perror("getParms");
-      exit (1);
+      hzd_emit_error("XPORT_INVALID_HEADER", "getParms: truncated transport file");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }else{
       /* estimate */
       cnxptiee(buf+8, 1, to, 0);
@@ -398,12 +398,12 @@ double getFlag(char *flag, FILE *file, char* buf, int obsSize,
   
   char to[8];	/* store IEEE flag value */
   if (fread(buf, obsSize, 1, file) != 1){
-    perror("getFlag");
-    exit (1);
+    hzd_emit_error("XPORT_INVALID_HEADER", "getFlag: truncated transport file");
+    xexit(HAZARD_EXIT_XPORT_INVALID);
   }else{
     if (memcmp(buf, flag, 8) != 0){
-      perror("getFlag: unmatch flag name");
-      exit (1);
+      hzd_emit_error("XPORT_INVALID_HEADER", "getFlag: flag name mismatch");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }else{
       cnxptiee(buf+pos, 1, to, 0);
 #ifdef DEBUG
@@ -432,17 +432,16 @@ void setCountsInCommon(int obsNum, int varNum)
    
   /* old code may wrong: Common->Ntheta<6 */
   if ((obsNum-17)%3 || Common.Ntheta<9){
-    fprintf(stderr, "setCountsInCommon: improper number of obs\n");
-    exit(1);
+    hzd_emit_error("XPORT_INVALID_HEADER", "setCountsInCommon: improper number of obs");
+    xexit(HAZARD_EXIT_XPORT_INVALID);
   }
-  
+
   if ((Common.Ntheta+3) != varNum){
     if (varNum == 3)
       Common.hzpstr->noCL = 1;
     else{
-      fprintf(stderr, "setCountsInCommon: incorrect file format\n");
-      exit (1);
-
+      hzd_emit_error("XPORT_INVALID_HEADER", "setCountsInCommon: incorrect file format");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }
   }
 }
@@ -536,34 +535,32 @@ void checkNamestr(struct namestr *namestr, int numVar){
 
 
   if (numVar < 3){
-    perror("checkNamestr: improper transport file (<3 columns)\n\t");
-    exit(1);
+    hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: improper transport file (<3 columns)");
+    xexit(HAZARD_EXIT_XPORT_INVALID);
   }
-
 
   /* check variable type */
   if (namestr->ntype != 2){
-    fprintf(stderr,"namestr->ntype: %d\n", namestr->ntype);
-    perror("checkNamestr: 1st column should be char\n ");
-    exit(1);
+    hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: 1st column should be char");
+    xexit(HAZARD_EXIT_XPORT_INVALID);
   }
   for (i=1; i<numVar; i++){
     if ((namestr+i)->ntype != 1){
-      fprintf(stderr, "checkNamestr: column %d is not numerical\n", i+1);
-      exit (1);
+      hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: non-numerical column");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }
   }
 
   /* check other fields */
   for (i=0; i<numVar; i++){
     if ((namestr+i)->nlng != 8){
-      fprintf(stderr, "checkNamestr: var length should be 8\n");
-      exit (1);
+      hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: var length should be 8");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }
 
     if ((namestr+i)->npos != i*8){
-      fprintf(stderr, "checkNamestr: star position wrong\n");
-      exit (1);
+      hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: start position wrong");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }
   }
 }
