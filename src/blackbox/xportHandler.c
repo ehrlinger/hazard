@@ -13,6 +13,10 @@
 #endif /*  */
 
 #include "xportHandler.h"
+#include "xport_version.h"
+#include "hzd_error_marker.h"
+#include "hzd_exit_codes.h"
+#include "xexit.h"
 
 #include <hzpm.h>
 #include "ibmieee.h"
@@ -74,81 +78,124 @@ void openTransport(char *filename)
   
   if ((fPtr = fopen(filename, "rb")) == NULL){
     perror("openTransport");
-    exit (1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error opening XPORT file");
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
   /* Each record is integral 80 bytes long, padded with blanks if needed */
   /* first header record #1 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #1)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #1 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #1 : %.80s\n", buf);
 #endif /* DEBUG */
- 
+
   /* first real header record #2 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #2)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #2 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #2 : %s\n", buf);
 #endif /* DEBUG */
-  
-  /* second real header record #3 */
-  if (fread(buf, 80, 1, fPtr) == -1){
-    perror("openTransport (header #3)");
-    exit(1);
+
+  /* v4.4.6: validate XPORT version before continuing.
+     V5 is the only supported format; V8 is rejected with a clear
+     migration message; anything else is rejected as malformed. */
+  {
+    enum xport_version v = xport_detect_version(buf, 80);
+    if (v == XPORT_VERSION_V8) {
+      hzd_emit_error("XPORT_V8_REJECTED",
+        "This file appears to be SAS XPORT V8. Hazard reads V5 only -- "
+        "V8's long variable names are silently lost. "
+        "Either re-export as V5 with `LIBNAME ... XPORT;` (variable names "
+        "truncated to 8 chars by SAS - check SAS log for warnings), or use "
+        "Parquet for full long-name support (hazard v5.0+ reads it natively; "
+        "export from SAS with `PROC EXPORT DBMS=PARQUET;` requires SAS 9.4M8+).");
+      fclose(fPtr);
+      xexit(HAZARD_EXIT_XPORT_V8_REJECTED);  /* = 16 */
+    }
+    if (v == XPORT_VERSION_UNKNOWN) {
+      hzd_emit_error("XPORT_INVALID_HEADER",
+        "XPORT header banner not recognized as V5. File may be corrupt "
+        "or not an XPORT file.");
+      fclose(fPtr);
+      xexit(HAZARD_EXIT_XPORT_INVALID);  /* = 17 */
+    }
+    /* V5: continue with existing code path. */
   }
-#ifdef DEBUG 
-  printf("Header #3 : %s\n", buf); 
+
+  /* second real header record #3 */
+  if (fread(buf, 80, 1, fPtr) != 1){
+    perror("openTransport (header #3)");
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
+  }
+#ifdef DEBUG
+  printf("Header #3 : %.80s\n", buf);
 #endif /* DEBUG */
 
   /* member header records #4 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #4)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #4 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #4 : %.80s\n", buf);
 #endif /* DEBUG */
 
   /* get the size of variable descripter (namestr) from the 4th header line*/
   sscanf(buf+75, "%3d", &desLength);
 
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #5)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #5 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #5 : %.80s\n", buf);
 #endif /* DEBUG */
 
   /* member header data #6 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #6)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #6 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #6 : %.80s\n", buf);
 #endif /* DEBUG */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #7)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #7 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #7 : %.80s\n", buf);
 #endif /* DEBUG */
 
   /* namestr header record #8 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #8)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
   /* get number of variables */
   sscanf(buf+54, "%4d", &varNum);
-#ifdef DEBUG 
-  printf("Header #8 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #8 : %.80s\n", buf);
 #endif /* DEBUG */
 
 #ifdef DEBUG
@@ -167,9 +214,11 @@ void openTransport(char *filename)
 #endif /*  HAVE_ASM_BYTEORDER_H*/
 
   for (i=0; i<varNum; i++){
-    if (fread(namestr+i, desLength, 1, fPtr) == -1){
+    if (fread(namestr+i, desLength, 1, fPtr) != 1){
       perror("openTransport (#7)");
-      exit(1);
+      hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+      fclose(fPtr);
+      xexit(HAZARD_EXIT_INTERNAL_ERROR);
     }
   
 #ifdef  HAVE_ASM_BYTEORDER_H
@@ -217,12 +266,14 @@ void openTransport(char *filename)
 	 namestr[varNum-1].npos, namestr[varNum-1].nlng);
 #endif
   /* make up 80 chars even */
-  if (fread(buf, 80-desLength*varNum%80, 1, fPtr) == -1){
+  if (fread(buf, 80-desLength*varNum%80, 1, fPtr) != 1){
     perror("openTransport (#8)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
 #ifdef DEBUG
-  printf("Header #9 : %s\n", buf); 
+  printf("Header #9 : %.80s\n", buf);
 #endif /* DEBUG */
   
   int fpos;	/* current file position */
@@ -230,12 +281,14 @@ void openTransport(char *filename)
   fpos = ftell(fPtr);
   
   /* observation header #10 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (#9)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
 #ifdef DEBUG
-  printf("Header #10 : %s\n", buf); 
+  printf("Header #10 : %.80s\n", buf);
 #endif /* DEBUG */
   if(strspn(buf,"G1FLAG")> 0){
   /* recover the previous position */   
@@ -280,9 +333,9 @@ void getParms(FILE *file, char* buf, int obsSize, int obsNum,
   /* first 6 obs are flags which have been read */
   for (i=0; i<obsNum-6; i++) {
     /* Start reading the observations. */
-    if (fread(buf, obsSize, 1, file) == -1){
-      perror("getParms");
-      exit (1);
+    if (fread(buf, obsSize, 1, file) != 1){
+      hzd_emit_error("XPORT_INVALID_HEADER", "getParms: truncated transport file");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }else{
       /* estimate */
       cnxptiee(buf+8, 1, to, 0);
@@ -344,13 +397,13 @@ double getFlag(char *flag, FILE *file, char* buf, int obsSize,
 #endif /*DEBUG*/
   
   char to[8];	/* store IEEE flag value */
-  if (fread(buf, obsSize, 1, file) == -1){
-    perror("getFlag");
-    exit (1);
+  if (fread(buf, obsSize, 1, file) != 1){
+    hzd_emit_error("XPORT_INVALID_HEADER", "getFlag: truncated transport file");
+    xexit(HAZARD_EXIT_XPORT_INVALID);
   }else{
     if (memcmp(buf, flag, 8) != 0){
-      perror("getFlag: unmatch flag name");
-      exit (1);
+      hzd_emit_error("XPORT_INVALID_HEADER", "getFlag: flag name mismatch");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }else{
       cnxptiee(buf+pos, 1, to, 0);
 #ifdef DEBUG
@@ -379,17 +432,16 @@ void setCountsInCommon(int obsNum, int varNum)
    
   /* old code may wrong: Common->Ntheta<6 */
   if ((obsNum-17)%3 || Common.Ntheta<9){
-    fprintf(stderr, "setCountsInCommon: improper number of obs\n");
-    exit(1);
+    hzd_emit_error("XPORT_INVALID_HEADER", "setCountsInCommon: improper number of obs");
+    xexit(HAZARD_EXIT_XPORT_INVALID);
   }
-  
+
   if ((Common.Ntheta+3) != varNum){
     if (varNum == 3)
       Common.hzpstr->noCL = 1;
     else{
-      fprintf(stderr, "setCountsInCommon: incorrect file format\n");
-      exit (1);
-
+      hzd_emit_error("XPORT_INVALID_HEADER", "setCountsInCommon: incorrect file format");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }
   }
 }
@@ -483,34 +535,32 @@ void checkNamestr(struct namestr *namestr, int numVar){
 
 
   if (numVar < 3){
-    perror("checkNamestr: improper transport file (<3 columns)\n\t");
-    exit(1);
+    hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: improper transport file (<3 columns)");
+    xexit(HAZARD_EXIT_XPORT_INVALID);
   }
-
 
   /* check variable type */
   if (namestr->ntype != 2){
-    fprintf(stderr,"namestr->ntype: %d\n", namestr->ntype);
-    perror("checkNamestr: 1st column should be char\n ");
-    exit(1);
+    hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: 1st column should be char");
+    xexit(HAZARD_EXIT_XPORT_INVALID);
   }
   for (i=1; i<numVar; i++){
     if ((namestr+i)->ntype != 1){
-      fprintf(stderr, "checkNamestr: column %d is not numerical\n", i+1);
-      exit (1);
+      hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: non-numerical column");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }
   }
 
   /* check other fields */
   for (i=0; i<numVar; i++){
     if ((namestr+i)->nlng != 8){
-      fprintf(stderr, "checkNamestr: var length should be 8\n");
-      exit (1);
+      hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: var length should be 8");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }
 
     if ((namestr+i)->npos != i*8){
-      fprintf(stderr, "checkNamestr: star position wrong\n");
-      exit (1);
+      hzd_emit_error("XPORT_INVALID_HEADER", "checkNamestr: start position wrong");
+      xexit(HAZARD_EXIT_XPORT_INVALID);
     }
   }
 }

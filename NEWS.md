@@ -4,6 +4,73 @@ See the [NEWS.md](NEWS.md) file for a detailed history of visible changes.
 
 ---
 
+## v4.4.6 — Hardened startup validation + invocation telemetry (2026-04-29)
+
+### New behavior
+
+* **XPORT V8 input is now rejected** with a structured stderr error
+  pointing users at Parquet (in v5.0+) or V5 fallback. Previously, V8
+  files were processed with silently-truncated SAS-generated short
+  variable names, producing "variable not found" errors downstream.
+  Exit code: 16 (`HAZARD_EXIT_XPORT_V8_REJECTED`).
+* **Malformed XPORT files are now rejected** at the I/O boundary with
+  a clear error. Exit code: 17 (`HAZARD_EXIT_XPORT_INVALID`).
+* **Structured stderr error markers** of the form
+  `HAZARD_ERROR_<CODE> <message>` are now emitted on every fatal
+  error path. SAS macros and external wrappers can detect failures
+  by parsing stderr instead of guessing from `.lst` content.
+* **Differentiated non-zero exit codes** replace the universal `exit(16)`
+  pattern. New codes: 16 (V8 rejected), 17 (XPORT malformed), 20
+  (internal error). Existing codes (12, 14) preserved.
+* **Always-on stderr diagnostics**. `NOPRINT` PROC option silences the
+  listing only; errors and `HAZARD_ERROR_*` markers always reach stderr.
+
+### New: invocation telemetry
+
+* **Append-only JSONL log** of every hazard invocation. Captures (per
+  schema v1): timestamp, host, user, version, input/output format,
+  file size, exit code, duration, n_obs, n_vars, parent_job_id (for
+  bootstrap aggregation, populated by SAS macros in v4.4.7+).
+* **PHI-safe by design.** Schema explicitly excludes variable names,
+  values, labels, formats, control file content. Adding fields requires
+  a `schema_version` bump and privacy review.
+* **Path resolution fallback chain**:
+    1. `$HAZARD_TELEMETRY_LOG`
+    2. `/var/log/hazard/events.log` (if dir exists + group-writable)
+    3. `$XDG_STATE_HOME/hazard/events.log` (Linux)
+    4. `$HOME/.hazard/events.log` (universal Unix fallback)
+    5. `%LOCALAPPDATA%\hazard\events.log` (Windows)
+    6. (none — silently disabled with one HZD_LOG_WARN)
+* **Opt-out**: `HAZARD_NO_TELEMETRY=1` env var or `--no-telemetry` CLI flag.
+* **Self-rotation**: 10 MB threshold; one rotation kept (`events.log.1`).
+* **No SAS-side changes in this release.** v4.4.7 will add the SAS-side
+  protocol (sentinel file + bootstrap_job_id env var setting + macro
+  updates) plus a Python summary script (`hazard-telemetry-summary.py`).
+
+### Behavior changes affecting existing users
+
+* Exit codes: previously most failures exited 16 regardless. Now they
+  reflect the failure class. Wrappers that branched on "any non-zero"
+  continue to work; wrappers that branched specifically on `=16`
+  may need updates.
+* Stderr volume: failures now produce one additional line per error
+  (`HAZARD_ERROR_<code> <msg>`). Successful runs are unaffected.
+
+### No functional / numerical changes
+
+V1 + V3 bit-exact regression tested against v4.4.5 reference outputs.
+No changes to the numerical core. PROC HAZARD call structure unchanged.
+
+### Coordination
+
+This release is the first half of the binary↔SAS protocol hardening
+work. v4.4.7 closes the loop with the SAS macro updates + sentinel file +
+Python summary script.
+
+Full v5.0 design context: `docs/superpowers/specs/2026-04-28-hazard-v5-design.md`.
+
+---
+
 ## Version 4.4.5 — 2026-04-28
 
 Validation-tooling release. Adds the cross-platform SAS-driven validation harness, ships the Windows + SAS reference corpus that v4.4.4 enabled, and lays groundwork for the v5 startup-XPORT-validation work that will close the remaining Linux + SAS gap.

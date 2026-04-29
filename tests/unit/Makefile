@@ -18,6 +18,7 @@ ifeq ($(origin CC), default)
 CC := gcc
 endif
 SRCDIR   = ../../src/common
+BLACKBOX = ../../src/blackbox
 CFLAGS   = -std=c99 -Wall -Wextra -Wno-unused-parameter -g \
            -I$(SRCDIR)
 
@@ -39,6 +40,7 @@ COMMON_SHAPING = \
     $(SRCDIR)/hzd_ln_eeX_min1.c    \
     $(SRCDIR)/hzd_ln_1min_enegX.c  \
     $(SRCDIR)/hzd_Error.c          \
+    $(SRCDIR)/hzd_error_marker.c   \
     $(SRCDIR)/hzd_log.c
 
 # Global storage + init (must appear exactly once per binary).
@@ -83,10 +85,35 @@ test_log: test_log.c test_harness_hooks.c $(SRCDIR)/hzd_log.c
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # ------------------------------------------------------------------ #
+# test_error_markers                                                   #
+#   Tests: HAZARD_ERROR_<code> <msg> stderr format                    #
+# ------------------------------------------------------------------ #
+test_error_markers: test_error_markers.c test_harness_hooks.c \
+                    $(SRCDIR)/hzd_error_marker.c
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+# ------------------------------------------------------------------ #
+# test_xport_v8_detection                                              #
+#   Tests: XPORT V5/V8/unknown banner classification                  #
+# ------------------------------------------------------------------ #
+test_xport_v8_detection: test_xport_v8_detection.c test_harness_hooks.c \
+                         $(BLACKBOX)/xport_version.c
+	$(CC) $(CFLAGS) -I$(BLACKBOX) -o $@ $^ -lm
+
+# ------------------------------------------------------------------ #
+# test_telemetry                                                       #
+#   Tests: invocation log path resolution, opt-out, schema, PHI inv   #
+# ------------------------------------------------------------------ #
+test_telemetry: test_telemetry.c test_harness_hooks.c \
+                $(SRCDIR)/hzd_telemetry.c $(SRCDIR)/hzd_log.c
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+# ------------------------------------------------------------------ #
 # Aggregate targets                                                    #
 # ------------------------------------------------------------------ #
 ALL_BINS = test_math_helpers test_shaping_functions test_obs_layout \
-           test_error_describe test_log
+           test_error_describe test_log test_error_markers \
+           test_xport_v8_detection test_telemetry
 
 all: $(ALL_BINS)
 
@@ -180,6 +207,7 @@ COV_COMMON_SHAPE = \
     $(COV_DIR)/hzd_ln_eeX_min1.o    \
     $(COV_DIR)/hzd_ln_1min_enegX.o  \
     $(COV_DIR)/hzd_Error.o          \
+    $(COV_DIR)/hzd_error_marker.o   \
     $(COV_DIR)/hzd_log.o
 
 # ---- coverage binaries ---------------------------------------------

@@ -83,6 +83,8 @@
 #include <xexit.h>
 #include <hzd_log.h>
 #include <hzd_error_describe.h>
+#include <hzd_telemetry.h>
+#include <sys/stat.h>
 
 #include "hzrg.h"
 #include "hzri.h"
@@ -90,11 +92,19 @@
 #define DBG(...) HZD_LOG_DEBUG(__VA_ARGS__)
 
 /****************************************************************/
-int main(void){
+int main(int argc, char **argv){
   /* volatile: survives longjmp in error trap */
   volatile char in_file_name[80];
   volatile const char *last_step = "init";
   int err;
+  int no_telemetry = 0;
+  int i;
+  for (i = 1; i < argc; ++i) {
+    if (strcmp(argv[i], "--no-telemetry") == 0) {
+      no_telemetry = 1;
+    }
+  }
+  hzd_telemetry_begin(no_telemetry);
 
   DBG("Starting Hazard executable");
 
@@ -180,6 +190,16 @@ int main(void){
   opnfils((char *)in_file_name);
   DBG("Input file: %s", in_file_name);
 
+  /* v4.4.6 telemetry: capture input info now that file is open. */
+  {
+    struct stat hzd_st;
+    if (stat((const char *)in_file_name, &hzd_st) == 0) {
+      hzd_telemetry_set_input_size_bytes((long long)hzd_st.st_size);
+    }
+    hzd_telemetry_set_input_format(HZD_TELEMETRY_INPUT_XPORT_V5);
+    hzd_telemetry_set_output_format(HZD_TELEMETRY_OUTPUT_XPORT_V5);
+  }
+
   last_step = "stmtprc";
   DBG("Initialize variables");
   stmtprc();
@@ -187,6 +207,7 @@ int main(void){
   last_step = "cntobs";
   DBG("cntobs");
   cntobs();
+  hzd_telemetry_set_n_obs((long long)C->Nobs);
 
   last_step = "getconc";
   DBG("getconc");
@@ -195,6 +216,7 @@ int main(void){
   last_step = "getrisk";
   DBG("getrisk");
   getrisk();
+  hzd_telemetry_set_n_vars((long long)C->p);
 
   /* Check for errors to this point */
   if(semerr) {
