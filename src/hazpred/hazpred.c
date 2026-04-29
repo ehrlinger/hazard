@@ -30,6 +30,8 @@
 #include "hzf_log1.h"
 #include "hzfxit.h"
 #include "xvpute.h"
+#include "hzd_telemetry.h"
+#include "xexit.h"
 
 /*
 #include "stmtopts.h"
@@ -64,10 +66,19 @@
 #include "hzpi.h"
 #include "hzpm.h"
 
-int main(void){
+int main(int argc, char **argv){
   size_t i;
   int j;
+  int no_telemetry = 0;
+  int ai;
   struct namestr *k;
+
+  for (ai = 1; ai < argc; ++ai) {
+    if (strcmp(argv[ai], "--no-telemetry") == 0) {
+      no_telemetry = 1;
+    }
+  }
+  hzd_telemetry_begin(no_telemetry);
 
   curr_xlmode=2;
 
@@ -79,6 +90,8 @@ int main(void){
   xinit();
   initprz();
   opnfils();
+  hzd_telemetry_set_input_format(HZD_TELEMETRY_INPUT_XPORT_V5);
+  hzd_telemetry_set_output_format(HZD_TELEMETRY_OUTPUT_XPORT_V5);
   stmtprc();
   cntobsh();
   if(!setjmp(C->errtrap))
@@ -96,6 +109,8 @@ int main(void){
     }
   }
   cntobsi();
+  hzd_telemetry_set_n_obs((long long)totalobs);
+  hzd_telemetry_set_n_vars((long long)nvars);
   alocmem();
   gethazr();
   termin = FALSE;
@@ -151,8 +166,8 @@ int main(void){
   fclose(hazfile);
   fclose(outfile);
   hzf_log1("Note: Procedure HAZPRED completed successfully.");
-  exit(0);
-  
+  xexit(0);
+
   /* This return is unecessary, but shuts up compiler warnings */
   return(0);
 }
