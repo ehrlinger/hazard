@@ -2,6 +2,11 @@
 test_math_helpers
 test_shaping_functions
 test_obs_layout
+test_error_describe
+test_log
+test_error_markers
+test_xport_v8_detection
+test_telemetry
 *.dSYM/
 .cov/
 coverage.info
