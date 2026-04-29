@@ -40,6 +40,7 @@ COMMON_SHAPING = \
     $(SRCDIR)/hzd_ln_eeX_min1.c    \
     $(SRCDIR)/hzd_ln_1min_enegX.c  \
     $(SRCDIR)/hzd_Error.c          \
+    $(SRCDIR)/hzd_error_marker.c   \
     $(SRCDIR)/hzd_log.c
 
 # Global storage + init (must appear exactly once per binary).
@@ -206,6 +207,7 @@ COV_COMMON_SHAPE = \
     $(COV_DIR)/hzd_ln_eeX_min1.o    \
     $(COV_DIR)/hzd_ln_1min_enegX.o  \
     $(COV_DIR)/hzd_Error.o          \
+    $(COV_DIR)/hzd_error_marker.o   \
     $(COV_DIR)/hzd_log.o
 
 # ---- coverage binaries ---------------------------------------------

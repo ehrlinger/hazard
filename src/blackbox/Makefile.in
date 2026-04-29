@@ -107,16 +107,17 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_blackbox_OBJECTS = blackbox.$(OBJEXT) xportHandler.$(OBJEXT) \
-	ibmieee.$(OBJEXT)
+	ibmieee.$(OBJEXT) xport_version.$(OBJEXT)
 blackbox_OBJECTS = $(am_blackbox_OBJECTS)
 blackbox_LDADD = $(LDADD)
 blackbox_DEPENDENCIES =
 am_hzpexmpl_OBJECTS = hzpexmpl.$(OBJEXT) xportHandler.$(OBJEXT) \
-	ibmieee.$(OBJEXT)
+	ibmieee.$(OBJEXT) xport_version.$(OBJEXT)
 hzpexmpl_OBJECTS = $(am_hzpexmpl_OBJECTS)
 hzpexmpl_LDADD = $(LDADD)
 hzpexmpl_DEPENDENCIES =
-am_xpt2ascii_OBJECTS = xpt2ascii.$(OBJEXT) ibmieee.$(OBJEXT)
+am_xpt2ascii_OBJECTS = xpt2ascii.$(OBJEXT) ibmieee.$(OBJEXT) \
+	xport_version.$(OBJEXT)
 xpt2ascii_OBJECTS = $(am_xpt2ascii_OBJECTS)
 xpt2ascii_LDADD = $(LDADD)
 xpt2ascii_DEPENDENCIES =
@@ -137,7 +138,7 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/blackbox.Po ./$(DEPDIR)/hzpexmpl.Po \
 	./$(DEPDIR)/ibmieee.Po ./$(DEPDIR)/xportHandler.Po \
-	./$(DEPDIR)/xpt2ascii.Po
+	./$(DEPDIR)/xport_version.Po ./$(DEPDIR)/xpt2ascii.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -309,12 +310,12 @@ hazpred_source = ..
 AM_CPPFLAGS = -I$(hazpred_source)/libhazp -I$(hazpred_source)/common
 AM_LDFLAGS = -L$(hazpred_source)/libhazp -L$(hazpred_source)/common
 LDADD = -lhazpred -lcommon
-hzpexmpl_SOURCES = hzpexmpl.c xportHandler.c ibmieee.c
-blackbox_SOURCES = blackbox.c xportHandler.c ibmieee.c
-xpt2ascii_SOURCES = xpt2ascii.c ibmieee.c
+hzpexmpl_SOURCES = hzpexmpl.c xportHandler.c ibmieee.c xport_version.c
+blackbox_SOURCES = blackbox.c xportHandler.c ibmieee.c xport_version.c
+xpt2ascii_SOURCES = xpt2ascii.c ibmieee.c xport_version.c
 
 #testieee_SOURCES = testieee.c ibmieee.c
-noinst_HEADERS = xportHandler.h ibmieee.h
+noinst_HEADERS = xportHandler.h ibmieee.h xport_version.h
 all: all-am
 
 .SUFFIXES:
@@ -413,6 +414,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hzpexmpl.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ibmieee.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xportHandler.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xport_version.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xpt2ascii.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -566,6 +568,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/hzpexmpl.Po
 	-rm -f ./$(DEPDIR)/ibmieee.Po
 	-rm -f ./$(DEPDIR)/xportHandler.Po
+	-rm -f ./$(DEPDIR)/xport_version.Po
 	-rm -f ./$(DEPDIR)/xpt2ascii.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -616,6 +619,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/hzpexmpl.Po
 	-rm -f ./$(DEPDIR)/ibmieee.Po
 	-rm -f ./$(DEPDIR)/xportHandler.Po
+	-rm -f ./$(DEPDIR)/xport_version.Po
 	-rm -f ./$(DEPDIR)/xpt2ascii.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
