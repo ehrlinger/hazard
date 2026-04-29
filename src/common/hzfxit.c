@@ -25,9 +25,9 @@ void hzfxit_at(const char *file, int line, const char *func, const char *type){
                 file ? file : "?", line,
                 func ? func : "?");
 
-  /* v4.4.6: also emit structured marker (legacy types like "ERROR",
-     "SEMANTIC" pass code_is_valid). */
-  hzd_emit_error(safe_type, "fatal exit (legacy hzfxit path)");
+  /* Emit with a stable code; safe_type goes in the message since legacy
+     callers pass arbitrary strings that may not satisfy code_is_valid(). */
+  hzd_emit_error("LEGACY_HZFXIT", safe_type);
 
   xexit(HAZARD_EXIT_XPORT_V8_REJECTED);  /* = 16, preserved value */
 }

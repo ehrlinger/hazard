@@ -36,6 +36,15 @@
 #include "hzd_telemetry.h"
 #include "test_harness.h"
 
+/* Portable env helpers — avoids putenv() lifetime UB. */
+#ifdef _WIN32
+#  define hzd_test_setenv(k, v)   _putenv_s((k), (v))
+#  define hzd_test_unsetenv(k)    _putenv_s((k), "")
+#else
+#  define hzd_test_setenv(k, v)   setenv((k), (v), 1)
+#  define hzd_test_unsetenv(k)    unsetenv((k))
+#endif
+
 /* ---------- Helpers ------------------------------------------------- */
 
 static char *read_file_to_string(const char *path)
@@ -66,10 +75,8 @@ static void test_explicit_env_override(void)
     snprintf(path, sizeof(path), "/tmp/hzd_telemetry_test_%d.log", (int)getpid());
     unlink(path);
 
-    char env_buf[300];
-    snprintf(env_buf, sizeof(env_buf), "HAZARD_TELEMETRY_LOG=%s", path);
-    putenv(env_buf);
-    putenv((char *)"HAZARD_NO_TELEMETRY=");
+    hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
+    hzd_test_unsetenv("HAZARD_NO_TELEMETRY");
 
     hzd_telemetry_test_reset();
     hzd_telemetry_begin(0);
@@ -90,7 +97,7 @@ static void test_fallback_to_home_when_env_unset(void)
     /* Ensure HAZARD_TELEMETRY_LOG is unset; ensure /var/log/hazard not
        writable in test env (shouldn't be). HOME-based fallback gets used. */
 
-    putenv((char *)"HAZARD_TELEMETRY_LOG=");  /* clear */
+    hzd_test_unsetenv("HAZARD_TELEMETRY_LOG");  /* clear */
 
     char home[256];
     snprintf(home, sizeof(home), "/tmp/hzd_telemetry_home_%d", (int)getpid());
@@ -98,11 +105,9 @@ static void test_fallback_to_home_when_env_unset(void)
     snprintf(rm_cmd, sizeof(rm_cmd), "rm -rf %s && mkdir -p %s", home, home);
     system(rm_cmd);
 
-    char home_env[300];
-    snprintf(home_env, sizeof(home_env), "HOME=%s", home);
-    putenv(home_env);
+    hzd_test_setenv("HOME", home);
     /* Also clear XDG_STATE_HOME so HOME wins */
-    putenv((char *)"XDG_STATE_HOME=");
+    hzd_test_unsetenv("XDG_STATE_HOME");
 
     hzd_telemetry_test_reset();
     hzd_telemetry_begin(0);
@@ -124,10 +129,8 @@ static void test_opt_out_via_env(void)
     snprintf(path, sizeof(path), "/tmp/hzd_telemetry_optout_%d.log", (int)getpid());
     unlink(path);
 
-    char env_buf[300];
-    snprintf(env_buf, sizeof(env_buf), "HAZARD_TELEMETRY_LOG=%s", path);
-    putenv(env_buf);
-    putenv((char *)"HAZARD_NO_TELEMETRY=1");
+    hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
+    hzd_test_setenv("HAZARD_NO_TELEMETRY", "1");
 
     hzd_telemetry_test_reset();
     hzd_telemetry_begin(0);
@@ -137,7 +140,7 @@ static void test_opt_out_via_env(void)
     /* File MUST NOT be created. */
     ASSERT_TRUE(!file_exists(path));
 
-    putenv((char *)"HAZARD_NO_TELEMETRY=");  /* clear for subsequent tests */
+    hzd_test_unsetenv("HAZARD_NO_TELEMETRY");  /* clear for subsequent tests */
 }
 
 static void test_opt_out_via_flag(void)
@@ -146,10 +149,8 @@ static void test_opt_out_via_flag(void)
     snprintf(path, sizeof(path), "/tmp/hzd_telemetry_flag_%d.log", (int)getpid());
     unlink(path);
 
-    char env_buf[300];
-    snprintf(env_buf, sizeof(env_buf), "HAZARD_TELEMETRY_LOG=%s", path);
-    putenv(env_buf);
-    putenv((char *)"HAZARD_NO_TELEMETRY=");  /* not set */
+    hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
+    hzd_test_unsetenv("HAZARD_NO_TELEMETRY");  /* not set */
 
     hzd_telemetry_test_reset();
     hzd_telemetry_begin(1);  /* no_telemetry=1 from --no-telemetry */
@@ -167,10 +168,8 @@ static void test_schema_required_fields(void)
     snprintf(path, sizeof(path), "/tmp/hzd_telemetry_schema_%d.log", (int)getpid());
     unlink(path);
 
-    char env_buf[300];
-    snprintf(env_buf, sizeof(env_buf), "HAZARD_TELEMETRY_LOG=%s", path);
-    putenv(env_buf);
-    putenv((char *)"HAZARD_NO_TELEMETRY=");
+    hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
+    hzd_test_unsetenv("HAZARD_NO_TELEMETRY");
 
     hzd_telemetry_test_reset();
     hzd_telemetry_begin(0);
@@ -212,9 +211,7 @@ static void test_schema_null_for_unset_fields(void)
     char path[256];
     snprintf(path, sizeof(path), "/tmp/hzd_telemetry_null_%d.log", (int)getpid());
     unlink(path);
-    char env_buf[300];
-    snprintf(env_buf, sizeof(env_buf), "HAZARD_TELEMETRY_LOG=%s", path);
-    putenv(env_buf);
+    hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
 
     hzd_telemetry_test_reset();
     hzd_telemetry_begin(0);
@@ -239,12 +236,10 @@ static void test_phi_no_var_names_in_log(void)
     char path[256];
     snprintf(path, sizeof(path), "/tmp/hzd_telemetry_phi_%d.log", (int)getpid());
     unlink(path);
-    char env_buf[300];
-    snprintf(env_buf, sizeof(env_buf), "HAZARD_TELEMETRY_LOG=%s", path);
-    putenv(env_buf);
+    hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
 
     /* Plant a "variable name" into HAZARD_BOOTSTRAP_JOB_ID. */
-    putenv((char *)"HAZARD_BOOTSTRAP_JOB_ID=BIOPSY_RESULT_PHI_TOKEN_xyz");
+    hzd_test_setenv("HAZARD_BOOTSTRAP_JOB_ID", "BIOPSY_RESULT_PHI_TOKEN_xyz");
 
     hzd_telemetry_test_reset();
     hzd_telemetry_begin(0);
@@ -263,7 +258,7 @@ static void test_phi_no_var_names_in_log(void)
     ASSERT_EQ_INT(count, 1);
     ASSERT_TRUE(strstr(c, "\"parent_job_id\":\"BIOPSY_RESULT_PHI_TOKEN_xyz\"") != NULL);
 
-    putenv((char *)"HAZARD_BOOTSTRAP_JOB_ID=");
+    hzd_test_unsetenv("HAZARD_BOOTSTRAP_JOB_ID");
     free(c);
     unlink(path);
 }

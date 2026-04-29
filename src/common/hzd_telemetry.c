@@ -289,6 +289,28 @@ void hzd_telemetry_set_n_vars(long long n)
     S.have_n_vars = 1;
 }
 
+/* Write `src` to `fp` as a JSON string value (with surrounding quotes).
+   Escapes: backslash, double-quote, and control characters (U+0000–U+001F).
+   Truncates at 512 chars to bound output size. */
+static void json_write_string(FILE *fp, const char *src)
+{
+    fputc('"', fp);
+    if (src) {
+        int count = 0;
+        for (const char *p = src; *p && count < 512; ++p, ++count) {
+            unsigned char c = (unsigned char)*p;
+            if      (c == '"')  { fputs("\\\"", fp); }
+            else if (c == '\\') { fputs("\\\\", fp); }
+            else if (c == '\n') { fputs("\\n",  fp); }
+            else if (c == '\r') { fputs("\\r",  fp); }
+            else if (c == '\t') { fputs("\\t",  fp); }
+            else if (c < 0x20)  { fprintf(fp, "\\u%04x", (unsigned)c); }
+            else                { fputc(c, fp); }
+        }
+    }
+    fputc('"', fp);
+}
+
 /* Return ISO-8601 UTC timestamp. */
 static void format_ts(char *out, size_t n)
 {
@@ -363,19 +385,13 @@ void hzd_telemetry_end(int exit_code)
 
     const char *out_fmt = output_format_str(S.output_format, S.have_output_format);
 
-    fprintf(fp,
-        "{"
-        "\"event\":\"invocation\","
-        "\"schema_version\":%d,"
-        "\"ts\":\"%s\","
-        "\"host\":\"%s\","
-        "\"user\":\"%s\","
-        "\"hazard_version\":\"%s\","
-        "\"input_format\":\"%s\","
-        ,
-        TELEMETRY_SCHEMA_VERSION, ts, S.host, S.user, S.hazard_version,
-        input_format_str(S.input_format, S.have_input_format)
-    );
+    fprintf(fp, "{\"event\":\"invocation\",\"schema_version\":%d,\"ts\":\"%s\",",
+            TELEMETRY_SCHEMA_VERSION, ts);
+    fputs("\"host\":", fp);   json_write_string(fp, S.host);
+    fputs(",\"user\":", fp);  json_write_string(fp, S.user);
+    fputs(",\"hazard_version\":", fp); json_write_string(fp, S.hazard_version);
+    fprintf(fp, ",\"input_format\":\"%s\",",
+            input_format_str(S.input_format, S.have_input_format));
 
     /* input_size_bytes: number or null */
     if (S.have_input_size) fprintf(fp, "\"input_size_bytes\":%lld,", S.input_size_bytes);
@@ -394,8 +410,12 @@ void hzd_telemetry_end(int exit_code)
     if (S.have_n_vars) fprintf(fp, "\"n_vars\":%lld,", S.n_vars);
     else               fprintf(fp, "\"n_vars\":null,");
 
-    if (S.parent_job_id[0]) fprintf(fp, "\"parent_job_id\":\"%s\"", S.parent_job_id);
-    else                    fprintf(fp, "\"parent_job_id\":null");
+    if (S.parent_job_id[0]) {
+        fputs("\"parent_job_id\":", fp);
+        json_write_string(fp, S.parent_job_id);
+    } else {
+        fputs("\"parent_job_id\":null", fp);
+    }
 
     fprintf(fp, "}\n");
     fclose(fp);

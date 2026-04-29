@@ -78,22 +78,27 @@ void openTransport(char *filename)
   
   if ((fPtr = fopen(filename, "rb")) == NULL){
     perror("openTransport");
-    exit (1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error opening XPORT file");
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
   /* Each record is integral 80 bytes long, padded with blanks if needed */
   /* first header record #1 */
   if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #1)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #1 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #1 : %.80s\n", buf);
 #endif /* DEBUG */
- 
+
   /* first real header record #2 */
   if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #2)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
 #ifdef DEBUG
   printf("Header #2 : %s\n", buf);
@@ -128,19 +133,23 @@ void openTransport(char *filename)
   /* second real header record #3 */
   if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #3)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #3 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #3 : %.80s\n", buf);
 #endif /* DEBUG */
 
   /* member header records #4 */
   if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #4)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #4 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #4 : %.80s\n", buf);
 #endif /* DEBUG */
 
   /* get the size of variable descripter (namestr) from the 4th header line*/
@@ -148,37 +157,45 @@ void openTransport(char *filename)
 
   if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #5)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #5 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #5 : %.80s\n", buf);
 #endif /* DEBUG */
 
   /* member header data #6 */
   if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #6)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #6 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #6 : %.80s\n", buf);
 #endif /* DEBUG */
   if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #7)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
-#ifdef DEBUG 
-  printf("Header #7 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #7 : %.80s\n", buf);
 #endif /* DEBUG */
 
   /* namestr header record #8 */
   if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #8)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
   /* get number of variables */
   sscanf(buf+54, "%4d", &varNum);
-#ifdef DEBUG 
-  printf("Header #8 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #8 : %.80s\n", buf);
 #endif /* DEBUG */
 
 #ifdef DEBUG
@@ -199,7 +216,9 @@ void openTransport(char *filename)
   for (i=0; i<varNum; i++){
     if (fread(namestr+i, desLength, 1, fPtr) != 1){
       perror("openTransport (#7)");
-      exit(1);
+      hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+      fclose(fPtr);
+      xexit(HAZARD_EXIT_INTERNAL_ERROR);
     }
   
 #ifdef  HAVE_ASM_BYTEORDER_H
@@ -249,10 +268,12 @@ void openTransport(char *filename)
   /* make up 80 chars even */
   if (fread(buf, 80-desLength*varNum%80, 1, fPtr) != 1){
     perror("openTransport (#8)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
 #ifdef DEBUG
-  printf("Header #9 : %s\n", buf); 
+  printf("Header #9 : %.80s\n", buf);
 #endif /* DEBUG */
   
   int fpos;	/* current file position */
@@ -262,10 +283,12 @@ void openTransport(char *filename)
   /* observation header #10 */
   if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (#9)");
-    exit(1);
+    hzd_emit_error("XPORT_INTERNAL_ERROR", "fatal I/O error reading XPORT headers");
+    fclose(fPtr);
+    xexit(HAZARD_EXIT_INTERNAL_ERROR);
   }
 #ifdef DEBUG
-  printf("Header #10 : %s\n", buf); 
+  printf("Header #10 : %.80s\n", buf);
 #endif /* DEBUG */
   if(strspn(buf,"G1FLAG")> 0){
   /* recover the previous position */   
