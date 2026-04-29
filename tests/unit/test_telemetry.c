@@ -26,7 +26,9 @@
 #include <sys/stat.h>
 #ifdef _WIN32
 #include <io.h>
-#define unlink _unlink
+#include <process.h>   /* _getpid */
+#define unlink  _unlink
+#define getpid  _getpid
 #else
 #include <unistd.h>
 #endif
