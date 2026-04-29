@@ -83,10 +83,18 @@ test_log: test_log.c test_harness_hooks.c $(SRCDIR)/hzd_log.c
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # ------------------------------------------------------------------ #
+# test_error_markers                                                   #
+#   Tests: HAZARD_ERROR_<code> <msg> stderr format                    #
+# ------------------------------------------------------------------ #
+test_error_markers: test_error_markers.c test_harness_hooks.c \
+                    $(SRCDIR)/hzd_error_marker.c
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+# ------------------------------------------------------------------ #
 # Aggregate targets                                                    #
 # ------------------------------------------------------------------ #
 ALL_BINS = test_math_helpers test_shaping_functions test_obs_layout \
-           test_error_describe test_log
+           test_error_describe test_log test_error_markers
 
 all: $(ALL_BINS)
 
