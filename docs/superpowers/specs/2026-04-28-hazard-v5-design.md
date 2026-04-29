@@ -1068,4 +1068,333 @@ Spec amendment process: amendments only for decision-revisit gate flips, postmor
 
 ---
 
+## Amendment 2026-04-29 — Telemetry subsystem
+
+**Amends:** §4.1 (v4.4.6 + v4.4.7 scope), §7 (adds §7.7, §7.8), Appendix C (glossary).
+**Process:** per §8.5, this amendment is appended dated and committed as a follow-on to the original spec; original 8-section design preserved as the audit trail of the 2026-04-28 brainstorming session.
+**Driver:** during spec review the user observed that v4.4.6's structured-error rejection of XPORT V8 surfaces the bug to individual users but doesn't aggregate the data — the v5.0-alpha decision gate ("if >25% of users on V8 → add V8 reader") still requires a manual user-base survey with all the response-bias problems that entails. Adding a telemetry log converts the gate from "survey" to "empirical query." The user then noted the telemetry must log every invocation (not just V8 rejections) so the gate has a denominator, and that a utility script is needed to make the log actionable.
+
+---
+
+### A.1 Motivation & strategic value
+
+The original spec relied on a manual post-v4.4.6 outreach survey to determine V8 prevalence. That has three problems:
+1. **Response bias.** Users who don't respond ≠ users who don't use V8.
+2. **Counts wrong things.** "Users who answered the email" is not the same as "users actually running hazard."
+3. **One-shot.** A survey at month 1 doesn't catch the user who runs hazard once a quarter.
+
+A passive log written by the binary itself eliminates all three. As a side benefit, the same infrastructure resolves the v5.0-beta decision gate ("default Parquet by output?") with the same machinery — measure `OUT_FORMAT=PARQUET` adoption directly instead of guessing.
+
+This is reusable infrastructure: ~230 LoC of write-side machinery in v4.4.6 + ~330 LoC of read-side tooling in v4.4.7, against a payoff of empirically-resolvable architecture decisions across the entire v5.x cycle.
+
+---
+
+### A.2 Effect on §4.1 — scope amendments
+
+**v4.4.6 scope gains a bullet:**
+> • **Telemetry log (write side):** append-only JSONL log of every `invocation` event capturing input format, output format, exit code, duration, scale, and bootstrap-job marker. PHI-safe by construction (no variable names, no content). Path resolved via fallback chain ending at `~/.hazard/events.log` so the feature works without admin coordination. Opt-out via `HAZARD_NO_TELEMETRY=1` or `--no-telemetry`. Self-rotates at 10 MB or 30 days. Specified in §7.7.
+
+**v4.4.6 effort estimate:** updated from `~150 LoC binary + 30 LoC tests` to `~300 LoC binary + 70 LoC tests`.
+
+**v4.4.7 scope gains a bullet:**
+> • **Telemetry summary script (read side):** `scripts/hazard-telemetry-summary.py` — Python 3 stdlib-only. Default invocation produces a single-screen summary that directly evaluates the v5.0-alpha "add V8 reader?" gate and the v5.0-beta "default Parquet?" gate. Supports multi-log merging, time-windowed analysis, per-user breakdown, machine-readable CSV/JSON output. Specified in §7.8.
+
+**v4.4.7 effort estimate:** updated from `~200 LoC binary + 100 LoC SAS macro + tests` to `~200 LoC binary + 100 LoC SAS macro + 250 LoC Python + 80 LoC Python tests`.
+
+**v4.4.6 → v4.4.7 split rationale:** putting the read-side script in v4.4.7 lets v4.4.6's telemetry log accumulate ~3-4 weeks of data before the summary tool ships against it. The v4.4.7 release narrative also strengthens — "now with usage analytics" instead of just "protocol fixes."
+
+---
+
+### A.3 §7.7 — Telemetry contract (NEW)
+
+#### A.3.1 Event schema (JSONL, one event per line)
+
+```json
+{
+  "event": "invocation",
+  "schema_version": 1,
+  "ts": "2026-04-29T14:23:11Z",
+  "host": "lri-sas-p-02.lerner.ccf.org",
+  "user": "ehrlinj",
+  "hazard_version": "4.4.6",
+  "input_format": "XPORT_V5",
+  "input_size_bytes": 124816,
+  "output_format": "XPORT_V5",
+  "exit_code": 0,
+  "duration_ms": 1247,
+  "n_obs": 1500,
+  "n_vars": 12,
+  "parent_job_id": null
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `event` | string | Always `"invocation"` in v4.4.6. Reserved for future event types. |
+| `schema_version` | int | Currently `1`. Bumped on any breaking schema change. |
+| `ts` | RFC 3339 string | UTC. Parseable by every standard library. |
+| `host` | string | `gethostname(2)`. |
+| `user` | string | `$USER` env, falling back to `getpwuid(getuid())->pw_name`. |
+| `hazard_version` | string | Compile-time version string. |
+| `input_format` | enum | `XPORT_V5`, `XPORT_V8`, `PARQUET`, `UNKNOWN`. |
+| `input_size_bytes` | int | `stat(2)` of input file. Null if input unreadable. |
+| `output_format` | enum/null | `XPORT_V5` (default), `PARQUET` (when `OUT_FORMAT=PARQUET`), null on rejection. |
+| `exit_code` | int | 0 on success; 12-20 on structured failure (per §7.2 table). |
+| `duration_ms` | int | Wall-clock from `main()` entry to `exit()`. Millisecond precision. |
+| `n_obs` | int/null | Observation count actually processed. Null on rejection. |
+| `n_vars` | int/null | Variable count from input. Null on rejection. |
+| `parent_job_id` | string/null | Bootstrap job marker (from SAS macro env var `HAZARD_BOOTSTRAP_JOB_ID` if set). Null for non-bootstrap invocations. |
+
+#### A.3.2 Privacy invariants — what is NEVER logged
+
+The schema is fixed at v4.4.6. Adding fields requires a `schema_version` bump and a privacy review. The following are excluded **by design**:
+
+- Variable names (the columns themselves)
+- Variable values, labels, formats, informats
+- Raw bytes from the input file (beyond size in bytes)
+- Contents of the SAS control file (PROC HAZARD options)
+- Hostname components beyond `gethostname()` (no domain enrichment, no reverse DNS)
+- IP addresses
+- Anything that could identify a study, subject, or PHI element
+
+If a future use case requires logging something not on the existing field list, the answer is to revisit this section explicitly, not to add the field silently.
+
+#### A.3.3 Path resolution (fallback chain)
+
+```
+1. $HAZARD_TELEMETRY_LOG       (explicit override)
+2. /var/log/hazard/events.log  (system install — admin-deployed; only if dir exists and is group-writable)
+3. $XDG_STATE_HOME/hazard/events.log  (Linux user install if XDG_STATE_HOME is set)
+4. $HOME/.hazard/events.log    (universal fallback)
+5. (none — telemetry silently disabled)
+```
+
+**Critical: the binary never errors because of telemetry-write failure.** If every path in the chain is unwritable, the invocation completes normally with a single one-time `HZD_LOG_WARN` line on stderr noting that telemetry was disabled. Telemetry is observability, not a correctness path.
+
+#### A.3.4 Opt-out
+
+- **Environment:** `HAZARD_NO_TELEMETRY=1` skips the log write entirely.
+- **CLI flag:** `--no-telemetry` for direct-binary invocations.
+- **PROC option:** none — telemetry runs even under `NOPRINT NOLOG`. The PROC options control the listing, not the binary's own observability.
+
+The opt-out is a first-class feature, not a hidden escape hatch. Documented alongside the telemetry contract.
+
+#### A.3.5 Rotation
+
+Self-rotation by the binary itself, no external `logrotate` required:
+- Trigger: log file size ≥ 10 MB OR oldest event ≥ 30 days old.
+- Action: rename `events.log` → `events.log.1`, start fresh `events.log`. Keep one rotation; delete `events.log.2` on next rotation. Bounded ≤ 20 MB on disk per host.
+- Centralized deployments (`/var/log/hazard/`) MAY install a `logrotate` config that takes precedence; the binary detects an external `events.log.1` newer than its own rotation and skips its own rotate.
+
+#### A.3.6 Bootstrap aggregation strategy
+
+Bootstrap mode invokes hazard ~1000× per `bs.death.AVC` job. Without aggregation, bootstrap dominates the log and skews any per-user denominator.
+
+**Approach:** the bootstrap macros in `macros/bootstrap.hazard.sas` set `HAZARD_BOOTSTRAP_JOB_ID` as an env var before each iteration's `%sysexec`. The binary copies it into `parent_job_id` on the event. The summary script (§7.8) groups events by `parent_job_id` for aggregate statistics, while preserving per-iteration data for users who want it.
+
+**Fallback if env-var detection turns out to be fiddly during v4.4.7 SAS macro work:** drop `parent_job_id` from v4.4.6's payload; log every iteration raw. The summary script uses time-clustering (events within 100 ms from same user with same input path) as a heuristic. Strictly worse than the env-var path but still functional.
+
+#### A.3.7 Mechanism choice — flat file vs syslog (admin-coordinated)
+
+Two implementation paths for the centralized log on shared servers. The v4.4.6 binary supports both; the **deployment choice** is made after the admin team conversation.
+
+**Path (a) — flat file (`/var/log/hazard/events.log`):**
+- Binary calls `fopen()` / `fprintf()` / `fclose()` per event.
+- Requires: `/var/log/hazard/` directory created by root with group ownership (`hazard` group), mode 0775, sticky group bit (`chmod g+s`).
+- Requires: SAS users added to `hazard` group at server-setup time.
+- Optional: `/etc/logrotate.d/hazard` config installed for system-side rotation.
+- Pro: simple, no syslog facility allocation, file locality matches user mental model.
+- Con: admin has to manage a new log file in their backup/monitoring policy.
+
+**Path (b) — syslog (`syslog(LOG_INFO, ...)` with `LOG_LOCAL0` facility):**
+- Binary calls `syslog(3)` per event.
+- Requires: institutional syslog already running (it usually is); facility `LOG_LOCAL0` (or whichever) allocated to hazard.
+- Pro: zero new files for admin to manage; events flow into existing centralized aggregation (Splunk / ELK / SIEM); admin already has rotation, retention, monitoring.
+- Con: events are interleaved with other syslog traffic; the summary script needs to filter by program name; slightly more friction for ad-hoc grep.
+
+**Decision:** ask admin team which they prefer. Both paths share the same JSON event payload — only the write call differs. The binary chooses based on a compile-time flag (`-DHAZARD_TELEMETRY_BACKEND=FILE` or `=SYSLOG`).
+
+**Default for v4.4.6 if admin conversation hasn't happened by ship time:** path (a) flat file with the user-local fallback chain doing all the work; centralized path remains unconfigured. Zero binary changes when admin later approves either deployment.
+
+---
+
+### A.4 §7.8 — Telemetry summary script (NEW)
+
+#### A.4.1 Tool: `scripts/hazard-telemetry-summary.py`
+
+- **Language:** Python 3, **stdlib only**. No `pandas`, no `jq`, no third-party deps. Runs on every shared SAS server out of the box (Linux, macOS, Windows MSYS2).
+- **Ships in:** v4.4.7.
+- **Documented in:** `docs/BINARY-SAS-PROTOCOL.md` §telemetry, with cross-reference from `docs/MIGRATING.md`.
+
+#### A.4.2 Default output (canonical example)
+
+```
+$ hazard-telemetry-summary
+Hazard telemetry summary
+========================
+Period:  2026-04-29 → 2026-05-29 (30 days)
+Source:  /var/log/hazard/events.log  (24,318 events)
+
+By input format:
+  XPORT_V5     18,231   74.9%  ████████████████████████████
+  XPORT_V8      1,847    7.6%  ███
+  PARQUET         821    3.4%  █
+  (rejected)    3,419   14.1%  █████   ← of which V8: 1,847 / format errors: 3 / other: 1,569
+
+By output format (successful runs, n=20,902):
+  XPORT_V5 (default)  20,081   96.1%
+  PARQUET                821    3.9%   ← v5.0-beta "Parquet by default?" datapoint
+
+Distinct users: 14
+  V5  users: 12
+  V8  users:  4    ← 28.6% of users
+  Pq  users:  3
+
+────────────────────────────────────────────────────────
+DECISION GATES
+────────────────────────────────────────────────────────
+v5.0-alpha "add V8 reader?" gate (threshold: >25% of users on V8)
+  → 4/14 users = 28.6%   TRIGGERED — recommend adding V8 reader
+
+v5.0-beta "Parquet by default?" gate (threshold: >50% of runs use OUT_FORMAT=PARQUET)
+  → 821/20,902 runs = 3.9%   NOT TRIGGERED — defer to v6.0
+
+────────────────────────────────────────────────────────
+TOP V8 USERS (for outreach)
+────────────────────────────────────────────────────────
+  ehrlinj         612 V8 events
+  user_b          478 V8 events
+  user_c          412 V8 events
+  user_d          345 V8 events
+
+Bootstrap aggregation: 21,344 invocations grouped into 47 distinct jobs.
+  Non-bootstrap denominator: 2,974 invocations (these reflect "real" usage).
+```
+
+A single screen directly evaluating both v5.0 decision gates is the explicit design target. If the script's default output requires more than one screen to read, the design has drifted.
+
+#### A.4.3 CLI flags
+
+| Flag | Default | Behavior |
+|---|---|---|
+| `--log <path>` | (fallback chain) | Read specific log file. Repeat to merge multiple sources. |
+| `--since <YYYY-MM-DD>` | 30 days ago | Inclusive start of analysis window. |
+| `--until <YYYY-MM-DD>` | today | Inclusive end. |
+| `--csv` | off | Machine-readable CSV (for piping to R / Excel). |
+| `--json` | off | Machine-readable JSON. |
+| `--per-user` | off | Detail breakdown per user with full event count by format. |
+| `--per-day` | off | Daily time series with format split. |
+| `--bootstrap-mode {include\|exclude\|only}` | `include` | How to handle bootstrap invocations. `include` reports both raw + aggregated; `exclude` drops them entirely; `only` shows just bootstrap. |
+| `--gates` | off | Print only the gate evaluations, suppress everything else (for automation). |
+| `--help` | — | Standard. |
+
+Exit code: 0 on success; 1 on log read failure; 2 on no events in window. `--gates` mode additionally exits 3 if any gate is triggered (for CI automation that wants to fire on threshold cross).
+
+#### A.4.4 Awk cookbook (in script docstring)
+
+For SAS-shop users not running Python:
+
+```bash
+# Format breakdown
+awk -F'"input_format":"' '{print $2}' events.log | cut -d'"' -f1 | sort | uniq -c
+
+# V8 users
+awk -F'"' '/XPORT_V8/ {for(i=1;i<=NF;i++) if($i=="user") print $(i+2)}' events.log | sort | uniq -c
+
+# Daily volume
+awk -F'"' '/"ts":"/{print substr($4,1,10)}' events.log | sort | uniq -c
+```
+
+These spot-check the same questions the summary script answers in detail. Documented as fallback when Python isn't available.
+
+#### A.4.5 Multi-source merging
+
+Common case: a user with `~/.hazard/events.log` from their laptop wants to see their personal usage merged with the shared-server log they have read access to. Or: an admin wants to combine logs from multiple SAS servers.
+
+```bash
+hazard-telemetry-summary \
+  --log /var/log/hazard/events.log@lri-sas-p-02 \
+  --log /var/log/hazard/events.log@AWOR-PDSASAPP03 \
+  --log ~/.hazard/events.log
+```
+
+Logs are concatenated, deduplicated by `(ts, host, user, ts_ns)` tuple, sorted by timestamp, then aggregated. Host attribution preserved — the per-user breakdown can group by host or roll up.
+
+---
+
+### A.5 Infrastructure prerequisites & admin-team coordination
+
+The telemetry feature is designed to **ship in v4.4.6 without any admin involvement** — the user-local fallback at `~/.hazard/events.log` works for every user immediately. Admin coordination unlocks the centralized deployment, which is strictly an upgrade, not a prerequisite for the feature itself.
+
+#### A.5.1 What ships independently of admin
+
+| Capability | Mechanism |
+|---|---|
+| Telemetry feature works | Fallback chain ends at `~/.hazard/events.log`, always writable |
+| Per-user analytics | User runs `hazard-telemetry-summary` on their own log |
+| V8 detection user-visible | Structured stderr message (independent of telemetry) |
+| Opt-out | `HAZARD_NO_TELEMETRY=1`, `--no-telemetry` flag |
+
+#### A.5.2 What requires admin coordination
+
+| Capability | Requires |
+|---|---|
+| Centralized log at `/var/log/hazard/` | root-created dir, `hazard` group, group membership for SAS users, optional logrotate config |
+| Syslog forwarding alternative | facility allocation (e.g., `LOG_LOCAL0`), institutional aggregator routing rules |
+| Aggregate analytics across all server users | Whichever centralized path above |
+| User notification before v4.4.6 ship | Communication channel decision (email blast, DWH-team standup, etc.) |
+| Policy review | "Is application-level telemetry OK on shared servers?" institutional sign-off |
+
+#### A.5.3 Three asks for the admin conversation
+
+1. **Policy:** is application-level telemetry (invocation logging, no PHI, opt-out available) on shared SAS servers OK? Is there an existing policy or precedent for similar tools?
+2. **Mechanism:** preferred — (a) flat file at `/var/log/hazard/` with logrotate config, (b) syslog forwarding with dedicated facility, or (c) something institutional we should plug into?
+3. **Communication:** do users need to be notified before v4.4.6 ships, and through what channel?
+
+The admin conversation runs in parallel with v4.4.6 development. Outcome shapes the deployment, not the binary feature.
+
+---
+
+### A.6 Updated effort estimates
+
+| Release | Original | With amendment | Delta |
+|---|---|---|---|
+| v4.4.6 | ~150 LoC binary + ~30 LoC tests | ~300 LoC binary (incl. ~150 LoC telemetry write side) + ~70 LoC tests | +120 binary, +40 tests |
+| v4.4.7 | ~200 LoC binary + ~100 LoC SAS macros + tests | ~200 LoC binary + ~100 LoC SAS macros + ~250 LoC Python + ~80 LoC Python tests | +250 Python, +80 Python tests |
+| v5.0-alpha | unchanged | unchanged | 0 |
+| v5.0-beta | unchanged | unchanged | 0 |
+
+**Net amendment cost:** ~370 LoC new code + ~120 LoC tests across two maintenance releases. Both releases remain comfortably maintenance-scoped.
+
+---
+
+### A.7 Decision gates this amendment enables
+
+| Gate | Original mechanism | Post-amendment mechanism |
+|---|---|---|
+| v5.0-alpha "add V8 reader?" | Manual user survey, response-bias-vulnerable | `hazard-telemetry-summary --gates`, empirical |
+| v5.0-beta "default Parquet?" | Defer to v6.0 (no data) | `hazard-telemetry-summary` (`OUT_FORMAT=PARQUET` adoption rate visible from day one of v4.4.6) |
+| Future: "deprecate XPORT V5?" | TBD in v6.0 planning | Trend data already accruing — `XPORT_V5` invocation count over 12 months gives a real basis |
+| Future: "is hazard usage growing or shrinking?" | Anecdotal | Direct from log |
+
+Telemetry is paying for itself before v5.0 even ships.
+
+---
+
+### A.8 Glossary additions (Appendix C)
+
+| Term | Meaning |
+|---|---|
+| `events.log` | Hazard's append-only JSONL telemetry log. Path resolved via fallback chain. PHI-safe by schema design. v4.4.6+. |
+| `parent_job_id` | Bootstrap-job marker propagated from SAS bootstrap macros via env var. Lets the summary script aggregate bootstrap iterations. v4.4.6+. |
+| `hazard-telemetry-summary` | Python stdlib-only utility script that summarizes `events.log`. Default output evaluates v5.0 decision gates directly. v4.4.7+. |
+| Telemetry opt-out | `HAZARD_NO_TELEMETRY=1` env var or `--no-telemetry` CLI flag. First-class feature, not hidden. |
+| `LOG_LOCAL0` | syslog facility candidate for hazard if admin team prefers syslog over flat file. Decision deferred to admin-team conversation. |
+
+---
+
+*End of Amendment 2026-04-29.*
+
+---
+
 *End of spec.*
