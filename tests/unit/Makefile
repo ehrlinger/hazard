@@ -100,11 +100,19 @@ test_xport_v8_detection: test_xport_v8_detection.c test_harness_hooks.c \
 	$(CC) $(CFLAGS) -I$(BLACKBOX) -o $@ $^ -lm
 
 # ------------------------------------------------------------------ #
+# test_telemetry                                                       #
+#   Tests: invocation log path resolution, opt-out, schema, PHI inv   #
+# ------------------------------------------------------------------ #
+test_telemetry: test_telemetry.c test_harness_hooks.c \
+                $(SRCDIR)/hzd_telemetry.c $(SRCDIR)/hzd_log.c
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+# ------------------------------------------------------------------ #
 # Aggregate targets                                                    #
 # ------------------------------------------------------------------ #
 ALL_BINS = test_math_helpers test_shaping_functions test_obs_layout \
            test_error_describe test_log test_error_markers \
-           test_xport_v8_detection
+           test_xport_v8_detection test_telemetry
 
 all: $(ALL_BINS)
 
