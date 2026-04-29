@@ -10,6 +10,36 @@
 	Correct the likelihood function when using weighting. Update all
 	macros to latest versions from the CCF production set.
 
+4.4.6 2026-04-29
+	Hardened startup validation + invocation telemetry. Rejects XPORT V8
+	and malformed XPORT files at the I/O boundary with structured stderr
+	error markers and differentiated exit codes. Adds append-only JSONL
+	invocation telemetry (PHI-safe schema v1). No changes to the
+	numerical core; V1 + V3 bit-exact regression passes against v4.4.5.
+
+	* src/common/hzd_exit_codes.h (new): canonical exit code constants
+	  (HAZARD_EXIT_XPORT_V8_REJECTED=16, HAZARD_EXIT_XPORT_INVALID=17,
+	  HAZARD_EXIT_INTERNAL=20); replaces ad-hoc exit(16) pattern.
+	* src/common/hzd_error_marker.{c,h} (new): hzd_emit_error() emits
+	  HAZARD_ERROR_<CODE> <message> to stderr on every fatal path.
+	  Always-on; not suppressible by NOPRINT.
+	* src/blackbox/xport_version.{c,h} (new): pure
+	  xport_detect_version() classifier; detects V5 vs V8 vs invalid
+	  XPORT at the file header without reading observations.
+	* src/common/hzd_telemetry.{c,h} (new): append-only JSONL invocation
+	  log. Path resolution: $HAZARD_TELEMETRY_LOG ->
+	  /var/log/hazard/events.log -> $XDG_STATE_HOME -> $HOME/.hazard ->
+	  %LOCALAPPDATA%. Opt-out: HAZARD_NO_TELEMETRY=1 or --no-telemetry.
+	  Self-rotates at 10 MB (one rotation kept).
+	* tests/unit/test_error_markers.c (new): 8 assertions for
+	  hzd_emit_error output format and stderr routing.
+	* tests/unit/test_xport_v8_detection.c (new): 5 assertions for
+	  xport_detect_version (V5, V8, truncated, empty, invalid magic).
+	* tests/unit/test_telemetry.c (new): 30 assertions covering path
+	  resolution fallback chain, opt-out, JSONL schema fields, and PHI
+	  exclusion invariants.
+	* tests/unit/Makefile: adds three new test binaries; total 193 tests.
+
 4.4.3 2026-04-23
 	Acceptance-harness-proven baseline. Binary behaviour is identical
 	to v4.4.2; this release carries a parity certification, not new
