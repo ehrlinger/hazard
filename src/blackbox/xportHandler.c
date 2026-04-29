@@ -82,7 +82,7 @@ void openTransport(char *filename)
   }
   /* Each record is integral 80 bytes long, padded with blanks if needed */
   /* first header record #1 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #1)");
     exit(1);
   }
@@ -91,7 +91,7 @@ void openTransport(char *filename)
 #endif /* DEBUG */
  
   /* first real header record #2 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #2)");
     exit(1);
   }
@@ -126,7 +126,7 @@ void openTransport(char *filename)
   }
 
   /* second real header record #3 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #3)");
     exit(1);
   }
@@ -135,7 +135,7 @@ void openTransport(char *filename)
 #endif /* DEBUG */
 
   /* member header records #4 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #4)");
     exit(1);
   }
@@ -146,7 +146,7 @@ void openTransport(char *filename)
   /* get the size of variable descripter (namestr) from the 4th header line*/
   sscanf(buf+75, "%3d", &desLength);
 
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #5)");
     exit(1);
   }
@@ -155,14 +155,14 @@ void openTransport(char *filename)
 #endif /* DEBUG */
 
   /* member header data #6 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #6)");
     exit(1);
   }
 #ifdef DEBUG 
   printf("Header #6 : %s\n", buf); 
 #endif /* DEBUG */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #7)");
     exit(1);
   }
@@ -171,7 +171,7 @@ void openTransport(char *filename)
 #endif /* DEBUG */
 
   /* namestr header record #8 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (header #8)");
     exit(1);
   }
@@ -197,7 +197,7 @@ void openTransport(char *filename)
 #endif /*  HAVE_ASM_BYTEORDER_H*/
 
   for (i=0; i<varNum; i++){
-    if (fread(namestr+i, desLength, 1, fPtr) == -1){
+    if (fread(namestr+i, desLength, 1, fPtr) != 1){
       perror("openTransport (#7)");
       exit(1);
     }
@@ -247,7 +247,7 @@ void openTransport(char *filename)
 	 namestr[varNum-1].npos, namestr[varNum-1].nlng);
 #endif
   /* make up 80 chars even */
-  if (fread(buf, 80-desLength*varNum%80, 1, fPtr) == -1){
+  if (fread(buf, 80-desLength*varNum%80, 1, fPtr) != 1){
     perror("openTransport (#8)");
     exit(1);
   }
@@ -260,7 +260,7 @@ void openTransport(char *filename)
   fpos = ftell(fPtr);
   
   /* observation header #10 */
-  if (fread(buf, 80, 1, fPtr) == -1){
+  if (fread(buf, 80, 1, fPtr) != 1){
     perror("openTransport (#9)");
     exit(1);
   }
@@ -310,7 +310,7 @@ void getParms(FILE *file, char* buf, int obsSize, int obsNum,
   /* first 6 obs are flags which have been read */
   for (i=0; i<obsNum-6; i++) {
     /* Start reading the observations. */
-    if (fread(buf, obsSize, 1, file) == -1){
+    if (fread(buf, obsSize, 1, file) != 1){
       perror("getParms");
       exit (1);
     }else{
@@ -374,7 +374,7 @@ double getFlag(char *flag, FILE *file, char* buf, int obsSize,
 #endif /*DEBUG*/
   
   char to[8];	/* store IEEE flag value */
-  if (fread(buf, obsSize, 1, file) == -1){
+  if (fread(buf, obsSize, 1, file) != 1){
     perror("getFlag");
     exit (1);
   }else{
