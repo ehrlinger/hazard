@@ -133,7 +133,8 @@ static int resolve_path(void)
     /* (3) XDG_STATE_HOME (Linux) */
     env = getenv("XDG_STATE_HOME");
     if (env && *env) {
-        char dir[1024];
+        /* dir must leave room for "/events.log" (11 chars) in S.path. */
+        char dir[1012];
         snprintf(dir, sizeof(dir), "%s/hazard", env);
         if (mkdir_p(dir) == 0) {
             snprintf(S.path, sizeof(S.path), "%s/events.log", dir);
@@ -145,7 +146,7 @@ static int resolve_path(void)
     /* (4w) %LOCALAPPDATA%\hazard\events.log */
     env = getenv("LOCALAPPDATA");
     if (env && *env) {
-        char dir[1024];
+        char dir[1012];
         snprintf(dir, sizeof(dir), "%s\\hazard", env);
         if (mkdir_p(dir) == 0) {
             snprintf(S.path, sizeof(S.path), "%s\\events.log", dir);
@@ -155,7 +156,7 @@ static int resolve_path(void)
     /* (5w) %USERPROFILE%\.hazard\events.log */
     env = getenv("USERPROFILE");
     if (env && *env) {
-        char dir[1024];
+        char dir[1012];
         snprintf(dir, sizeof(dir), "%s\\.hazard", env);
         if (mkdir_p(dir) == 0) {
             snprintf(S.path, sizeof(S.path), "%s\\events.log", dir);
@@ -166,7 +167,7 @@ static int resolve_path(void)
     /* (4u) $HOME/.hazard/events.log */
     env = getenv("HOME");
     if (env && *env) {
-        char dir[1024];
+        char dir[1012];
         snprintf(dir, sizeof(dir), "%s/.hazard", env);
         if (mkdir_p(dir) == 0) {
             snprintf(S.path, sizeof(S.path), "%s/events.log", dir);

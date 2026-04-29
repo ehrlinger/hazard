@@ -92,6 +92,7 @@ static void test_explicit_env_override(void)
     unlink(path);
 }
 
+#ifndef _WIN32
 static void test_fallback_to_home_when_env_unset(void)
 {
     /* Ensure HAZARD_TELEMETRY_LOG is unset; ensure /var/log/hazard not
@@ -101,9 +102,13 @@ static void test_fallback_to_home_when_env_unset(void)
 
     char home[256];
     snprintf(home, sizeof(home), "/tmp/hzd_telemetry_home_%d", (int)getpid());
-    char rm_cmd[300];
-    snprintf(rm_cmd, sizeof(rm_cmd), "rm -rf %s && mkdir -p %s", home, home);
+    /* Use separate commands to avoid truncation: each fits comfortably in 512. */
+    char rm_cmd[512];
+    snprintf(rm_cmd, sizeof(rm_cmd), "rm -rf %s", home);
     system(rm_cmd);
+    char mk_cmd[512];
+    snprintf(mk_cmd, sizeof(mk_cmd), "mkdir -p %s", home);
+    system(mk_cmd);
 
     hzd_test_setenv("HOME", home);
     /* Also clear XDG_STATE_HOME so HOME wins */
@@ -113,13 +118,48 @@ static void test_fallback_to_home_when_env_unset(void)
     hzd_telemetry_begin(0);
     hzd_telemetry_end(0);
 
-    char expected[300];
+    char expected[512];
     snprintf(expected, sizeof(expected), "%s/.hazard/events.log", home);
     ASSERT_TRUE(file_exists(expected));
 
     snprintf(rm_cmd, sizeof(rm_cmd), "rm -rf %s", home);
     system(rm_cmd);
 }
+#else
+/*
+ * On Windows the HOME-based fallback is not compiled (telemetry uses
+ * LOCALAPPDATA / USERPROFILE instead).  Exercise XDG_STATE_HOME (step 3
+ * of the fallback chain), which uses POSIX-style paths that MSYS2
+ * handles correctly and is platform-neutral code.
+ */
+static void test_fallback_to_xdg_when_env_unset(void)
+{
+    hzd_test_unsetenv("HAZARD_TELEMETRY_LOG");
+
+    char xdg[256];
+    snprintf(xdg, sizeof(xdg), "/tmp/hzd_telemetry_xdg_%d", (int)getpid());
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "rm -rf %s", xdg);
+    system(cmd);
+    snprintf(cmd, sizeof(cmd), "mkdir -p %s", xdg);
+    system(cmd);
+
+    hzd_test_setenv("XDG_STATE_HOME", xdg);
+
+    hzd_telemetry_test_reset();
+    hzd_telemetry_begin(0);
+    hzd_telemetry_end(0);
+
+    char expected[512];
+    snprintf(expected, sizeof(expected), "%s/hazard/events.log", xdg);
+    ASSERT_TRUE(file_exists(expected));
+
+    snprintf(cmd, sizeof(cmd), "rm -rf %s", xdg);
+    system(cmd);
+
+    hzd_test_unsetenv("XDG_STATE_HOME");
+}
+#endif
 
 /* ---------- Group 2: Opt-out --------------------------------------- */
 
@@ -269,7 +309,11 @@ int main(void)
 {
     TEST_SUITE("hzd_telemetry — path resolution");
     RUN_TEST(test_explicit_env_override);
+#ifndef _WIN32
     RUN_TEST(test_fallback_to_home_when_env_unset);
+#else
+    RUN_TEST(test_fallback_to_xdg_when_env_unset);
+#endif
 
     TEST_SUITE("hzd_telemetry — opt-out");
     RUN_TEST(test_opt_out_via_env);
