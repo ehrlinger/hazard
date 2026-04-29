@@ -27,6 +27,7 @@
 #ifdef _WIN32
 #include <io.h>
 #include <process.h>   /* _getpid */
+#include <direct.h>    /* _mkdir, _rmdir */
 #define unlink  _unlink
 #define getpid  _getpid
 #else
