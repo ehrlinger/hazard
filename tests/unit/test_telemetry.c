@@ -45,6 +45,32 @@
 #  define hzd_test_unsetenv(k)    unsetenv((k))
 #endif
 
+/*
+ * Portable temp directory.
+ *
+ * MSYS2 UCRT64 test binaries are native Windows PE executables whose C
+ * runtime (ucrt) does NOT translate MSYS2 virtual paths (e.g. "/tmp").
+ * We must use a real Windows path.  On POSIX, "/tmp" is always writable.
+ */
+#ifdef _WIN32
+static const char *get_tmp_dir(void)
+{
+    const char *t = getenv("TEMP");
+    if (!t || !*t) t = getenv("TMP");
+    if (!t || !*t) t = "C:\\Temp";
+    return t;
+}
+#  define TDIR       get_tmp_dir()
+#  define TSEP       "\\"
+#else
+#  define TDIR       "/tmp"
+#  define TSEP       "/"
+#endif
+
+/* Build a per-test temp path: <TDIR><TSEP><stem>_<pid> */
+#define MAKE_TMP(buf, sz, stem) \
+    snprintf((buf), (sz), "%s%s%s_%d", TDIR, TSEP, (stem), (int)getpid())
+
 /* ---------- Helpers ------------------------------------------------- */
 
 static char *read_file_to_string(const char *path)
@@ -72,7 +98,7 @@ static int file_exists(const char *path)
 static void test_explicit_env_override(void)
 {
     char path[256];
-    snprintf(path, sizeof(path), "/tmp/hzd_telemetry_test_%d.log", (int)getpid());
+    MAKE_TMP(path, sizeof(path), "hzd_telemetry_test.log");
     unlink(path);
 
     hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
@@ -101,7 +127,7 @@ static void test_fallback_to_home_when_env_unset(void)
     hzd_test_unsetenv("HAZARD_TELEMETRY_LOG");  /* clear */
 
     char home[256];
-    snprintf(home, sizeof(home), "/tmp/hzd_telemetry_home_%d", (int)getpid());
+    MAKE_TMP(home, sizeof(home), "hzd_telemetry_home");
     /* Use separate commands to avoid truncation: each fits comfortably in 512. */
     char rm_cmd[512];
     snprintf(rm_cmd, sizeof(rm_cmd), "rm -rf %s", home);
@@ -129,33 +155,43 @@ static void test_fallback_to_home_when_env_unset(void)
 /*
  * On Windows the HOME-based fallback is not compiled (telemetry uses
  * LOCALAPPDATA / USERPROFILE instead).  Exercise XDG_STATE_HOME (step 3
- * of the fallback chain), which uses POSIX-style paths that MSYS2
- * handles correctly and is platform-neutral code.
+ * of the fallback chain).
+ *
+ * IMPORTANT: MSYS2 UCRT64 test binaries are native Windows PE executables
+ * whose C runtime (ucrt) does NOT translate MSYS2 virtual paths such as
+ * "/tmp".  We must use a real Windows path from %TEMP%.  The XDG branch in
+ * hzd_telemetry.c uses forward slashes ("%s/hazard") which ucrt's mkdir /
+ * fopen accept as valid path separators on Windows.
  */
 static void test_fallback_to_xdg_when_env_unset(void)
 {
     hzd_test_unsetenv("HAZARD_TELEMETRY_LOG");
 
+    /* Build XDG base dir using a real Windows temp path. */
     char xdg[256];
-    snprintf(xdg, sizeof(xdg), "/tmp/hzd_telemetry_xdg_%d", (int)getpid());
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "rm -rf %s", xdg);
-    system(cmd);
-    snprintf(cmd, sizeof(cmd), "mkdir -p %s", xdg);
-    system(cmd);
+    MAKE_TMP(xdg, sizeof(xdg), "hzd_telemetry_xdg");
+
+    /* Create the directory.  _mkdir is already defined in <direct.h>. */
+    _mkdir(xdg);
 
     hzd_test_setenv("XDG_STATE_HOME", xdg);
+    hzd_test_unsetenv("HAZARD_NO_TELEMETRY");
 
     hzd_telemetry_test_reset();
     hzd_telemetry_begin(0);
     hzd_telemetry_end(0);
 
+    /* Telemetry creates xdg/hazard/ and writes events.log there. */
     char expected[512];
     snprintf(expected, sizeof(expected), "%s/hazard/events.log", xdg);
     ASSERT_TRUE(file_exists(expected));
 
-    snprintf(cmd, sizeof(cmd), "rm -rf %s", xdg);
-    system(cmd);
+    /* Best-effort cleanup. */
+    remove(expected);
+    char hazdir[512];
+    snprintf(hazdir, sizeof(hazdir), "%s/hazard", xdg);
+    _rmdir(hazdir);
+    _rmdir(xdg);
 
     hzd_test_unsetenv("XDG_STATE_HOME");
 }
@@ -166,7 +202,7 @@ static void test_fallback_to_xdg_when_env_unset(void)
 static void test_opt_out_via_env(void)
 {
     char path[256];
-    snprintf(path, sizeof(path), "/tmp/hzd_telemetry_optout_%d.log", (int)getpid());
+    MAKE_TMP(path, sizeof(path), "hzd_telemetry_optout.log");
     unlink(path);
 
     hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
@@ -186,7 +222,7 @@ static void test_opt_out_via_env(void)
 static void test_opt_out_via_flag(void)
 {
     char path[256];
-    snprintf(path, sizeof(path), "/tmp/hzd_telemetry_flag_%d.log", (int)getpid());
+    MAKE_TMP(path, sizeof(path), "hzd_telemetry_flag.log");
     unlink(path);
 
     hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
@@ -205,7 +241,7 @@ static void test_opt_out_via_flag(void)
 static void test_schema_required_fields(void)
 {
     char path[256];
-    snprintf(path, sizeof(path), "/tmp/hzd_telemetry_schema_%d.log", (int)getpid());
+    MAKE_TMP(path, sizeof(path), "hzd_telemetry_schema.log");
     unlink(path);
 
     hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
@@ -249,7 +285,7 @@ static void test_schema_required_fields(void)
 static void test_schema_null_for_unset_fields(void)
 {
     char path[256];
-    snprintf(path, sizeof(path), "/tmp/hzd_telemetry_null_%d.log", (int)getpid());
+    MAKE_TMP(path, sizeof(path), "hzd_telemetry_null.log");
     unlink(path);
     hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
 
@@ -274,7 +310,7 @@ static void test_schema_null_for_unset_fields(void)
 static void test_phi_no_var_names_in_log(void)
 {
     char path[256];
-    snprintf(path, sizeof(path), "/tmp/hzd_telemetry_phi_%d.log", (int)getpid());
+    MAKE_TMP(path, sizeof(path), "hzd_telemetry_phi.log");
     unlink(path);
     hzd_test_setenv("HAZARD_TELEMETRY_LOG", path);
 
