@@ -24,7 +24,7 @@ noinst_HEADERS = hzf_log2.h hzfpag.h hzfxpi.h notspec.h xMISSgot.h xpmode.h \
 	hzd_ln_G1_and_SG1.h hzd_ln_G3_and_SG3_m.h hzd_ln_G3_and_SG3.h \
 	hzd_ln_eBXmin1divB.h setparm.h setopt.h setvar.h errtext.h yyparse.h \
 	yyerror.h common.h hzd_log.h hzd_error_describe.h \
-	hzd_error_marker.h hzd_exit_codes.h
+	hzd_error_marker.h hzd_exit_codes.h hzd_telemetry.h
 
 libcommon_a_SOURCES = hzf_log2.c hzfpag.c hzfxpi.c notspec.c xMISSgot.c \
 	xpmode.c xvputd.c hzf_put.c hzfskp.c hzfxpr.c stmtfld.c isblank.c \
@@ -39,4 +39,4 @@ libcommon_a_SOURCES = hzf_log2.c hzfpag.c hzfxpi.c notspec.c xMISSgot.c \
 	hzd_ln_G1_and_SG1_m.c hzd_ln_G1_and_SG1.c hzd_ln_G3_and_SG3_m.c \
 	hzd_ln_G3_and_SG3.c hzd_ln_eBXmin1divB.c setparm.c setopt.c setvar.c \
 	errtext.c yyerror.c yywrap.c hzd_log.c hzd_error_describe.c \
-	hzd_error_marker.c
+	hzd_error_marker.c hzd_telemetry.c
