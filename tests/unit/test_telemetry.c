@@ -1,3 +1,8 @@
+/* Request POSIX.1-2008 APIs (putenv, unlink, etc.) before any system header. */
+#ifndef _WIN32
+#  define _POSIX_C_SOURCE 200809L
+#endif
+
 /*
  * tests/unit/test_telemetry.c
  *

@@ -2,6 +2,13 @@
  *
  * Telemetry subsystem implementation. See hzd_telemetry.h for contract.
  */
+
+/* Request POSIX.1-2008 APIs (clock_gettime, gethostname, gmtime_r, etc.)
+   Must appear before any system header. */
+#ifndef _WIN32
+#  define _POSIX_C_SOURCE 200809L
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -17,6 +24,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <io.h>
+#include <process.h>   /* _getpid */
+#include <direct.h>    /* _mkdir  */
 #define HZD_GETPID  _getpid
 #define mkdir(path, mode) _mkdir(path)
 #else
