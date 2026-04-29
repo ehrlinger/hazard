@@ -13,6 +13,10 @@
 #endif /*  */
 
 #include "xportHandler.h"
+#include "xport_version.h"
+#include "hzd_error_marker.h"
+#include "hzd_exit_codes.h"
+#include "xexit.h"
 
 #include <hzpm.h>
 #include "ibmieee.h"
@@ -91,10 +95,36 @@ void openTransport(char *filename)
     perror("openTransport (header #2)");
     exit(1);
   }
-#ifdef DEBUG 
-  printf("Header #2 : %s\n", buf); 
+#ifdef DEBUG
+  printf("Header #2 : %s\n", buf);
 #endif /* DEBUG */
-  
+
+  /* v4.4.6: validate XPORT version before continuing.
+     V5 is the only supported format; V8 is rejected with a clear
+     migration message; anything else is rejected as malformed. */
+  {
+    enum xport_version v = xport_detect_version(buf, 80);
+    if (v == XPORT_VERSION_V8) {
+      hzd_emit_error("XPORT_V8_REJECTED",
+        "This file appears to be SAS XPORT V8. Hazard reads V5 only -- "
+        "V8's long variable names are silently lost. "
+        "Either re-export as V5 with `LIBNAME ... XPORT;` (variable names "
+        "truncated to 8 chars by SAS - check SAS log for warnings), or use "
+        "Parquet for full long-name support (hazard v5.0+ reads it natively; "
+        "export from SAS with `PROC EXPORT DBMS=PARQUET;` requires SAS 9.4M8+).");
+      fclose(fPtr);
+      xexit(HAZARD_EXIT_XPORT_V8_REJECTED);  /* = 16 */
+    }
+    if (v == XPORT_VERSION_UNKNOWN) {
+      hzd_emit_error("XPORT_INVALID_HEADER",
+        "XPORT header banner not recognized as V5. File may be corrupt "
+        "or not an XPORT file.");
+      fclose(fPtr);
+      xexit(HAZARD_EXIT_XPORT_INVALID);  /* = 17 */
+    }
+    /* V5: continue with existing code path. */
+  }
+
   /* second real header record #3 */
   if (fread(buf, 80, 1, fPtr) == -1){
     perror("openTransport (header #3)");
