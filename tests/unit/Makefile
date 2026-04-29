@@ -18,6 +18,7 @@ ifeq ($(origin CC), default)
 CC := gcc
 endif
 SRCDIR   = ../../src/common
+BLACKBOX = ../../src/blackbox
 CFLAGS   = -std=c99 -Wall -Wextra -Wno-unused-parameter -g \
            -I$(SRCDIR)
 
@@ -91,10 +92,19 @@ test_error_markers: test_error_markers.c test_harness_hooks.c \
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # ------------------------------------------------------------------ #
+# test_xport_v8_detection                                              #
+#   Tests: XPORT V5/V8/unknown banner classification                  #
+# ------------------------------------------------------------------ #
+test_xport_v8_detection: test_xport_v8_detection.c test_harness_hooks.c \
+                         $(BLACKBOX)/xport_version.c
+	$(CC) $(CFLAGS) -I$(BLACKBOX) -o $@ $^ -lm
+
+# ------------------------------------------------------------------ #
 # Aggregate targets                                                    #
 # ------------------------------------------------------------------ #
 ALL_BINS = test_math_helpers test_shaping_functions test_obs_layout \
-           test_error_describe test_log test_error_markers
+           test_error_describe test_log test_error_markers \
+           test_xport_v8_detection
 
 all: $(ALL_BINS)
 
