@@ -1,0 +1,12 @@
+# codecov.yml
+#
+# flag_management.default_rules.carryforward: true
+#   When a flag is not uploaded for a given commit (e.g. the full-build
+#   coverage job only runs on release/4.4, not on main), Codecov carries
+#   the most recent upload for that flag forward to the current commit.
+#   This lets the main branch badge reflect both unit-tests and full-build
+#   coverage combined, even though full-build only runs on release/4.4.
+
+flag_management:
+  default_rules:
+    carryforward: true
