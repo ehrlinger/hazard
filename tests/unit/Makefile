@@ -20,7 +20,8 @@ endif
 SRCDIR   = ../../src/common
 BLACKBOX = ../../src/blackbox
 CFLAGS   = -std=c99 -Wall -Wextra -Wno-unused-parameter -g \
-           -I$(SRCDIR)
+           -I$(SRCDIR) $(EXTRA_CFLAGS)
+LDFLAGS  = $(EXTRA_LDFLAGS)
 
 # All source files from src/common/ required by the unit tests.
 # Grouped by what they provide.
@@ -52,7 +53,7 @@ GLOBALS = test_globals.c test_harness_hooks.c
 #          dlgaob                                                      #
 # ------------------------------------------------------------------ #
 test_math_helpers: $(GLOBALS) $(COMMON_MATH) test_math_helpers.c
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lm
 
 # ------------------------------------------------------------------ #
 # test_shaping_functions                                               #
@@ -60,14 +61,14 @@ test_math_helpers: $(GLOBALS) $(COMMON_MATH) test_math_helpers.c
 # ------------------------------------------------------------------ #
 test_shaping_functions: $(GLOBALS) $(COMMON_MATH) $(COMMON_SHAPING) \
                          test_shaping_functions.c
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lm
 
 # ------------------------------------------------------------------ #
 # test_obs_layout                                                      #
 #   Tests: OBS array indexing constants — no global state needed      #
 # ------------------------------------------------------------------ #
 test_obs_layout: test_obs_layout.c test_harness_hooks.c
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lm
 
 # ------------------------------------------------------------------ #
 # test_error_describe                                                  #
@@ -75,14 +76,14 @@ test_obs_layout: test_obs_layout.c test_harness_hooks.c
 # ------------------------------------------------------------------ #
 test_error_describe: test_error_describe.c test_harness_hooks.c \
                      $(SRCDIR)/hzd_error_describe.c
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lm
 
 # ------------------------------------------------------------------ #
 # test_log                                                             #
 #   Tests: levelled logger threshold + emission format                #
 # ------------------------------------------------------------------ #
 test_log: test_log.c test_harness_hooks.c $(SRCDIR)/hzd_log.c
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lm
 
 # ------------------------------------------------------------------ #
 # test_error_markers                                                   #
@@ -90,7 +91,7 @@ test_log: test_log.c test_harness_hooks.c $(SRCDIR)/hzd_log.c
 # ------------------------------------------------------------------ #
 test_error_markers: test_error_markers.c test_harness_hooks.c \
                     $(SRCDIR)/hzd_error_marker.c
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lm
 
 # ------------------------------------------------------------------ #
 # test_xport_v8_detection                                              #
@@ -106,7 +107,7 @@ test_xport_v8_detection: test_xport_v8_detection.c test_harness_hooks.c \
 # ------------------------------------------------------------------ #
 test_telemetry: test_telemetry.c test_harness_hooks.c \
                 $(SRCDIR)/hzd_telemetry.c $(SRCDIR)/hzd_log.c
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lm
 
 # ------------------------------------------------------------------ #
 # Aggregate targets                                                    #

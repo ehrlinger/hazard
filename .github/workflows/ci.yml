@@ -143,7 +143,79 @@ jobs:
           verbose: true
 
   # ------------------------------------------------------------------ #
-  # Job 5: Native Windows build (MSYS2/MinGW-w64, no Cygwin runtime)   #
+  # Job 5: Full autotools coverage (release/4.4 branch and its PRs)   #
+  #                                                                    #
+  # Builds the complete distributed binary with --coverage, runs the  #
+  # integration suite, and uploads a "full-build" flag to Codecov.    #
+  # This covers code paths (xportHandler, hazard/hazpred main, etc.)  #
+  # that the unit-only coverage job cannot reach.                     #
+  # ------------------------------------------------------------------ #
+  coverage-full:
+    name: Full-Build Coverage (release/4.4)
+    runs-on: ubuntu-latest
+    if: |
+      github.ref == 'refs/heads/release/4.4' ||
+      github.base_ref == 'release/4.4'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools + lcov
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y gcc autoconf automake flex bison lcov
+
+      - name: Bootstrap (autoreconf)
+        run: autoreconf -fi
+
+      - name: Configure with coverage instrumentation
+        run: |
+          ./configure \
+            CFLAGS="-O0 -g --coverage" \
+            LDFLAGS="--coverage"
+
+      - name: Build
+        run: make -j$(nproc)
+
+      - name: Run integration tests against instrumented binary
+        run: bash tests/run_all_tests.sh --integration-only --skip-memory --skip-concurrent
+        env:
+          HAZARD_BIN: ${{ github.workspace }}/hazard
+
+      - name: Run unit tests against instrumented sources
+        # Compile unit tests with --coverage pointing at the same source
+        # files so their .gcda output merges with the autotools .gcda set.
+        run: |
+          make -C tests/unit clean
+          make -C tests/unit \
+            EXTRA_CFLAGS="--coverage" \
+            EXTRA_LDFLAGS="--coverage" \
+            all check
+
+      - name: Collect and filter coverage
+        run: |
+          lcov --capture --directory . \
+               --output-file full_coverage.info
+          # Strip system headers, generated files, and test drivers
+          lcov --remove full_coverage.info \
+               '/usr/*' \
+               '*/conftest*' \
+               '*/tests/unit/test_*.c' \
+               --output-file full_coverage.info
+          lcov --summary full_coverage.info
+
+      - name: Upload full-build coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: full_coverage.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: full-build
+          name: hazard-full-coverage
+          fail_ci_if_error: false
+          verbose: true
+
+  # ------------------------------------------------------------------ #
+  # Job 6: Native Windows build (MSYS2/MinGW-w64, no Cygwin runtime)   #
   # ------------------------------------------------------------------ #
   windows-native-build:
     name: Windows Native Build (MSYS2/MinGW)
