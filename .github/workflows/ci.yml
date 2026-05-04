@@ -196,12 +196,15 @@ jobs:
         run: |
           lcov --capture --directory . \
                --output-file full_coverage.info
-          # Strip system headers, generated files, and test drivers
+          # Strip system headers, generated files, and test drivers.
+          # --ignore-errors unused suppresses exit 25 when a pattern
+          # matches nothing (e.g. /usr/* when integration tests skip).
           lcov --remove full_coverage.info \
                '/usr/*' \
                '*/conftest*' \
                '*/tests/unit/test_*.c' \
-               --output-file full_coverage.info
+               --output-file full_coverage.info \
+               --ignore-errors unused
           lcov --summary full_coverage.info
 
       - name: Upload full-build coverage to Codecov
