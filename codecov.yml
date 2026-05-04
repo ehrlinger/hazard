@@ -7,6 +7,9 @@
 #   This lets the main branch badge reflect both unit-tests and full-build
 #   coverage combined, even though full-build only runs on release/4.4.
 
+codecov:
+  branch: main
+
 flag_management:
   default_rules:
     carryforward: true
