@@ -110,11 +110,29 @@ test_telemetry: test_telemetry.c test_harness_hooks.c \
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lm
 
 # ------------------------------------------------------------------ #
+# test_transforms                                                      #
+#   Tests: hzd_early_p2t, hzd_early_t2p, hzd_late_p2t, hzd_late_t2p #
+# ------------------------------------------------------------------ #
+TRANSFORM_SRCS = \
+    $(SRCDIR)/hzd_early_p2t.c  \
+    $(SRCDIR)/hzd_early_t2p.c  \
+    $(SRCDIR)/hzd_late_p2t.c   \
+    $(SRCDIR)/hzd_late_t2p.c   \
+    $(SRCDIR)/hzd_Error.c      \
+    $(SRCDIR)/hzd_error_marker.c \
+    $(SRCDIR)/hzd_log.c        \
+    $(SRCDIR)/hzd_set_Machn.c  \
+    $(SRCDIR)/hzd_set_LnLim.c
+
+test_transforms: $(GLOBALS) $(TRANSFORM_SRCS) test_transforms.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lm
+
+# ------------------------------------------------------------------ #
 # Aggregate targets                                                    #
 # ------------------------------------------------------------------ #
 ALL_BINS = test_math_helpers test_shaping_functions test_obs_layout \
            test_error_describe test_log test_error_markers \
-           test_xport_v8_detection test_telemetry
+           test_xport_v8_detection test_telemetry test_transforms
 
 all: $(ALL_BINS)
 
