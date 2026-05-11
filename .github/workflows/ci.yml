@@ -63,15 +63,15 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y gcc autoconf automake flex bison
+          sudo apt-get install -y gcc autoconf automake flex bison glibc-static musl-tools
 
       - name: Bootstrap (autoreconf)
         run: autoreconf -fi
 
-      - name: Configure
+      - name: Configure (dynamic — for integration tests)
         run: ./configure
 
-      - name: Build
+      - name: Build (dynamic)
         run: make -j$(nproc)
 
       - name: Run integration tests
@@ -84,14 +84,26 @@ jobs:
           HAZARD_BIN: ${{ github.workspace }}/src/hazard/hazard
           HAZPRED_BIN: ${{ github.workspace }}/src/hazpred/hazpred
 
-      - name: Upload hazard binary as artifact
+      - name: Build static binaries for deployment
+        # Static binaries run on any Linux x86-64 regardless of glibc version
+        # (RHEL 7/8, Ubuntu 18+, musl systems, etc.)
+        run: |
+          make clean
+          ./configure LDFLAGS=-static CFLAGS="-O2"
+          make -j$(nproc)
+          mkdir -p dist-static
+          cp src/hazard/hazard dist-static/hazard
+          cp src/hazpred/hazpred dist-static/hazpred
+          file dist-static/hazard dist-static/hazpred
+
+      - name: Upload static Linux binaries as artifact
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: hazard-linux-glibc-${{ github.sha }}
+          name: hazard-linux-x64-static-${{ github.sha }}
           path: |
-            src/hazard/hazard
-            src/hazpred/hazpred
+            dist-static/hazard
+            dist-static/hazpred
           retention-days: 30
 
       - name: Verify version badge is current
