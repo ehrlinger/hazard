@@ -81,15 +81,18 @@ jobs:
         # when inputs are absent.
         run: bash tests/run_all_tests.sh --integration-only --skip-memory --skip-concurrent
         env:
-          HAZARD_BIN: ${{ github.workspace }}/hazard
+          HAZARD_BIN: ${{ github.workspace }}/src/hazard/hazard
+          HAZPRED_BIN: ${{ github.workspace }}/src/hazpred/hazpred
 
       - name: Upload hazard binary as artifact
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: hazard-binary-${{ github.sha }}
-          path: hazard
-          retention-days: 7
+          name: hazard-linux-glibc-${{ github.sha }}
+          path: |
+            src/hazard/hazard
+            src/hazpred/hazpred
+          retention-days: 30
 
       - name: Verify version badge is current
         # version-badge.json must be updated manually as part of any
