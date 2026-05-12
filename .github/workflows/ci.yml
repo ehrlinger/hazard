@@ -89,7 +89,7 @@ jobs:
         # (RHEL 7/8, Ubuntu 18+, musl systems, etc.)
         run: |
           make clean
-          ./configure LDFLAGS=-static CFLAGS="-O2"
+          ./configure LDFLAGS=-static
           make -j$(nproc)
           mkdir -p dist-static
           cp src/hazard/hazard dist-static/hazard
