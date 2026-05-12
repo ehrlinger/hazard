@@ -84,6 +84,15 @@ jobs:
           HAZARD_BIN: ${{ github.workspace }}/src/hazard/hazard
           HAZPRED_BIN: ${{ github.workspace }}/src/hazpred/hazpred
 
+      - name: Upload dynamic Linux binaries as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hazard-linux-x64-glibc-${{ github.sha }}
+          path: |
+            src/hazard/hazard
+            src/hazpred/hazpred
+          retention-days: 30
+
       - name: Build static binaries for deployment
         # Static binaries run on any Linux x86-64 regardless of glibc version
         # (RHEL 7/8, Ubuntu 18+, musl systems, etc.)
