@@ -1,0 +1,10 @@
+# refresh-macos-corpus.sh metadata
+uid=1778593518.3085822023.21222
+bin_kind=hazpred
+real_bin=hazpred
+real_exit=0
+argv=
+timestamp=2026-05-12T13:45:18Z
+host=Darwin 25.4.0 arm64
+tmpdir=<redacted>
+pwd=<redacted>
