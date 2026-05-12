@@ -63,15 +63,15 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y gcc autoconf automake flex bison
+          sudo apt-get install -y gcc autoconf automake flex bison musl-tools
 
       - name: Bootstrap (autoreconf)
         run: autoreconf -fi
 
-      - name: Configure
+      - name: Configure (dynamic — for integration tests)
         run: ./configure
 
-      - name: Build
+      - name: Build (dynamic)
         run: make -j$(nproc)
 
       - name: Run integration tests
@@ -81,15 +81,39 @@ jobs:
         # when inputs are absent.
         run: bash tests/run_all_tests.sh --integration-only --skip-memory --skip-concurrent
         env:
-          HAZARD_BIN: ${{ github.workspace }}/hazard
+          HAZARD_BIN: ${{ github.workspace }}/src/hazard/hazard
+          HAZPRED_BIN: ${{ github.workspace }}/src/hazpred/hazpred
 
-      - name: Upload hazard binary as artifact
+      - name: Upload dynamic Linux binaries as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hazard-linux-x64-glibc-${{ github.sha }}
+          path: |
+            src/hazard/hazard
+            src/hazpred/hazpred
+          retention-days: 30
+
+      - name: Build static binaries for deployment
+        # Static binaries run on any Linux x86-64 regardless of glibc version
+        # (RHEL 7/8, Ubuntu 18+, musl systems, etc.)
+        run: |
+          make clean
+          ./configure LDFLAGS=-static
+          make -j$(nproc)
+          mkdir -p dist-static
+          cp src/hazard/hazard dist-static/hazard
+          cp src/hazpred/hazpred dist-static/hazpred
+          file dist-static/hazard dist-static/hazpred
+
+      - name: Upload static Linux binaries as artifact
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: hazard-binary-${{ github.sha }}
-          path: hazard
-          retention-days: 7
+          name: hazard-linux-x64-static-${{ github.sha }}
+          path: |
+            dist-static/hazard
+            dist-static/hazpred
+          retention-days: 30
 
       - name: Verify version badge is current
         # version-badge.json must be updated manually as part of any
