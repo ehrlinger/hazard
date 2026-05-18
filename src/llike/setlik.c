@@ -1,3 +1,18 @@
+/**
+ * @file setlik.c
+ * @brief Log-likelihood function evaluation for the three-phase hazard model.
+ *
+ * Evaluates \f$\ell(\theta)\f$ and precomputes quantities needed for
+ * analytical derivatives. Handles exact events, right-censored, and
+ * interval-censored observations with optional observation weights.
+ *
+ * **FORTRAN origin:** `llike91/setlik` (SETLIK subroutine); successive
+ * revisions in `setlik91`, `setlik94`, `setlik96`.
+ *
+ * @see setcoe() for the conservation-of-events coefficient setup that
+ *      must precede each likelihood evaluation.
+ * @see DHAZRD() for the optimizer entry point that calls this function.
+ */
 #include <string.h>
 #include <math.h>
 #include <common.h>
@@ -15,9 +30,9 @@
 logical SETLIK_obs_loop(void);
 
 /* static void SETLIK(void) */
- 
-/***********************************************************************
- 
+
+/************************************************************************
+
    DETERMINATION OF THE LOG LIKELIHOOD FUNCTION
  
    PURPOSE
