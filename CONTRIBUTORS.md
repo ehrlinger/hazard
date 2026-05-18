@@ -52,3 +52,12 @@ written October 1985, revised May 1986 and July 1987.
 
 **L. Manderson**
 Additional stepwise variable selection support routines (`SWVARI`, `SWVARQ`, `SWVARX`).
+
+---
+
+## Related Projects
+
+**[TemporalHazard](https://github.com/ehrlinger/TemporalHazard)** — R package
+by John Ehrlinger. A faithful port of the HAZARD numerical core to R, maintained
+in parallel with this codebase. See the [Doxygen documentation](https://ehrlinger.github.io/hazard/)
+for a full C-to-R function correspondence table.
