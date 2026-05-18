@@ -1,3 +1,13 @@
+/**
+ * @file hzd_ln_G3_and_SG3_m.c
+ * @brief G3/SG3 variant with unconstrained parameters.
+ *
+ * Mirrors hzd_ln_G3_and_SG3.c for estimation contexts where alpha
+ * is treated as a continuous parameter rather than a flag-selected case.
+ *
+ * **FORTRAN origin:** `model91/dlg3` variant paths.
+ * @see hzd_ln_G3_and_SG3.c for the flag-dispatch version.
+ */
 #include <string.h>
 #include "structures.h"
 
