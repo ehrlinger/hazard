@@ -6,6 +6,18 @@ mathematical theory, FORTRAN implementation, or C port.
 
 ---
 
+## Principal Investigator
+
+**Eugene H. Blackstone, M.D.**
+Department of Thoracic and Cardiovascular Surgery, Cleveland Clinic Foundation.
+Head of the group that owns HAZARD and guiding force throughout the entire
+history of the codebase, from inception in 1985 to the present. Primary FORTRAN
+implementer (1985–1986): authored the math helper subroutines (`DLEXM1`,
+`DLEXP1`, `DL1MEX`, `DLGAOB`, `DTRSFM`, and others), the optimizer interface,
+and successive revisions through 1996.
+
+---
+
 ## Mathematical Model
 
 **Malcolm E. Turner Jr., Ph.D.**
@@ -24,12 +36,6 @@ Original C port of the FORTRAN implementation.
 ---
 
 ## FORTRAN Implementation (1985–1996)
-
-**Eugene H. Blackstone, M.D.**
-Department of Thoracic and Cardiovascular Surgery, Cleveland Clinic Foundation.
-Primary FORTRAN implementer (1985–1986). Authored the math helper subroutines
-(`DLEXM1`, `DLEXP1`, `DL1MEX`, `DLGAOB`, `DTRSFM`, and others), the optimizer
-interface, and successive revisions through 1996.
 
 **Charles R. Katholi, Ph.D.**
 Department of Biostatistics, University of Alabama at Birmingham.
