@@ -108,27 +108,24 @@ $(document).ready(function(){initNavTree('hzd__Error_8h_source.html',''); initRe
   <div class="headertitle"><div class="title">hzd_Error.h</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef HZD_ERROR_H</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define HZD_ERROR_H</span></div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">/* Enriched longjmp-based error path.</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">   Call sites use hzd_Error(msgtext, errnum) — the macro captures</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">   __FILE__ / __LINE__ / __func__ at the call site so that the error catcher</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">   in main() can report where the failure originated. */</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keywordtype">void</span> hzd_Error_at(<span class="keyword">const</span> <span class="keywordtype">char</span> *file, <span class="keywordtype">int</span> line, <span class="keyword">const</span> <span class="keywordtype">char</span> *func,</div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>                  <span class="keyword">const</span> <span class="keywordtype">char</span> *msgtext, <span class="keywordtype">int</span> errnum);</div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#define hzd_Error(msg, errnum) \</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">  hzd_Error_at(__FILE__, __LINE__, __func__, (msg), (errnum))</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#endif </span><span class="comment">/* HZD_ERROR_H */</span><span class="preprocessor"></span></div>
+<a href="hzd__Error_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="preprocessor">#ifndef HZD_ERROR_H</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#define HZD_ERROR_H</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="keywordtype">void</span> <a class="code hl_function" href="hzd__Error_8h.html#a505db364439a061d5b576a8a22ca12be">hzd_Error_at</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *file, <span class="keywordtype">int</span> line, <span class="keyword">const</span> <span class="keywordtype">char</span> *func,</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>                  <span class="keyword">const</span> <span class="keywordtype">char</span> *msgtext, <span class="keywordtype">int</span> errnum);</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="preprocessor">#define hzd_Error(msg, errnum) \</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">  hzd_Error_at(__FILE__, __LINE__, __func__, (msg), (errnum))</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="preprocessor">#endif </span><span class="comment">/* HZD_ERROR_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="ahzd__Error_8h_html_a505db364439a061d5b576a8a22ca12be"><div class="ttname"><a href="hzd__Error_8h.html#a505db364439a061d5b576a8a22ca12be">hzd_Error_at</a></div><div class="ttdeci">void hzd_Error_at(const char *file, int line, const char *func, const char *msgtext, int errnum)</div><div class="ttdoc">Record error location and longjmp to Common.errtrap.</div><div class="ttdef"><b>Definition</b> hzd_Error.c:10</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><b>hzd_Error.h</b></li>
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="hzd__Error_8h.html">hzd_Error.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

@@ -36,7 +36,14 @@ var NAVTREE =
       ] ]
     ] ],
     [ "Files", "files.html", [
-      [ "File List", "files.html", "files_dup" ]
+      [ "File List", "files.html", "files_dup" ],
+      [ "File Members", "globals.html", [
+        [ "All", "globals.html", null ],
+        [ "Functions", "globals_func.html", null ],
+        [ "Enumerations", "globals_enum.html", null ],
+        [ "Enumerator", "globals_eval.html", null ],
+        [ "Macros", "globals_defs.html", null ]
+      ] ]
     ] ]
   ] ]
 ];
@@ -44,7 +51,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "addvars_8h_source.html",
-"setg3_8h_source.html"
+"jacrot_8h_source.html",
+"writeOutputDatafile_8h_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

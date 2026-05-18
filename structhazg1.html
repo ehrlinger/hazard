@@ -106,19 +106,70 @@ $(document).ready(function(){initNavTree('structhazg1.html',''); initResizable()
   <div class="headertitle"><div class="title">hazg1 Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Per-evaluation inputs/outputs for the G1 shaping function.  
+ <a href="structhazg1.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="structures_8h_source.html">structures.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a68679c997c0d6ab63d132e02ffbb219a" id="r_a68679c997c0d6ab63d132e02ffbb219a"><td class="memItemLeft" align="right" valign="top"><a id="a68679c997c0d6ab63d132e02ffbb219a" name="a68679c997c0d6ab63d132e02ffbb219a"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>T</b></td></tr>
+<tr class="memitem:a68679c997c0d6ab63d132e02ffbb219a" id="r_a68679c997c0d6ab63d132e02ffbb219a"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhazg1.html#a68679c997c0d6ab63d132e02ffbb219a">T</a></td></tr>
 <tr class="separator:a68679c997c0d6ab63d132e02ffbb219a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac19139e7eaecfe2fd37810263b684530" id="r_ac19139e7eaecfe2fd37810263b684530"><td class="memItemLeft" align="right" valign="top"><a id="ac19139e7eaecfe2fd37810263b684530" name="ac19139e7eaecfe2fd37810263b684530"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>lnG1</b></td></tr>
+<tr class="memitem:ac19139e7eaecfe2fd37810263b684530" id="r_ac19139e7eaecfe2fd37810263b684530"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhazg1.html#ac19139e7eaecfe2fd37810263b684530">lnG1</a></td></tr>
 <tr class="separator:ac19139e7eaecfe2fd37810263b684530"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3afdfb8d98af6ce408eb0dfc38bff65f" id="r_a3afdfb8d98af6ce408eb0dfc38bff65f"><td class="memItemLeft" align="right" valign="top"><a id="a3afdfb8d98af6ce408eb0dfc38bff65f" name="a3afdfb8d98af6ce408eb0dfc38bff65f"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>lnSG1</b></td></tr>
+<tr class="memitem:a3afdfb8d98af6ce408eb0dfc38bff65f" id="r_a3afdfb8d98af6ce408eb0dfc38bff65f"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhazg1.html#a3afdfb8d98af6ce408eb0dfc38bff65f">lnSG1</a></td></tr>
 <tr class="separator:a3afdfb8d98af6ce408eb0dfc38bff65f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Per-evaluation inputs/outputs for the G1 shaping function. </p>
+<p>Set <code>HazG1.T</code> to the evaluation time, then call <a class="el" href="hzd__ln__G1__and__SG1_8c.html#a891e76e57d03701b6c57b31e3710ef0f" title="Compute  and  (early-phase shaping functions).">hzd_ln_G1_and_SG1()</a>. Results appear in <code>HazG1.lnG1</code> and <code>HazG1.lnSG1</code>. </p>
+</div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="ac19139e7eaecfe2fd37810263b684530" name="ac19139e7eaecfe2fd37810263b684530"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac19139e7eaecfe2fd37810263b684530">&#9670;&#160;</a></span>lnG1</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double hazg1::lnG1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Output: ln(G1(t)) — log cumulative hazard shaping. </p>
+
+</div>
+</div>
+<a id="a3afdfb8d98af6ce408eb0dfc38bff65f" name="a3afdfb8d98af6ce408eb0dfc38bff65f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3afdfb8d98af6ce408eb0dfc38bff65f">&#9670;&#160;</a></span>lnSG1</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double hazg1::lnSG1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Output: ln(SG1(t)) — log hazard shaping (time derivative). </p>
+
+</div>
+</div>
+<a id="a68679c997c0d6ab63d132e02ffbb219a" name="a68679c997c0d6ab63d132e02ffbb219a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68679c997c0d6ab63d132e02ffbb219a">&#9670;&#160;</a></span>T</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double hazg1::T</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Evaluation time t. </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li>src/common/<a class="el" href="structures_8h_source.html">structures.h</a></li>
 </ul>

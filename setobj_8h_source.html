@@ -108,35 +108,44 @@ $(document).ready(function(){initNavTree('setobj_8h_source.html',''); initResiza
   <div class="headertitle"><div class="title">setobj.h</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef SETOBJ_H</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define SETOBJ_H</span></div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;structures.h&gt;</span> <span class="comment">/* Defines the logical data type */</span></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span> </div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#ifdef SETOBJ_DEFS</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#define EXTERN</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#define EXTERN extern</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>EXTERN <span class="keyword">struct </span>{</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>  xtended lnlike;</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>  <span class="keywordtype">double</span> lfactr;</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>  logical facall;</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>} Setobj;</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keywordtype">void</span> DHAZRD(<span class="keywordtype">double</span> *beta,<span class="keywordtype">double</span> *fx,<span class="keywordtype">int</span> nvar);</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keywordtype">void</span> DCEOBJ(<span class="keywordtype">double</span> *fx);</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keywordtype">void</span> DCEOBJ_main_logic(<span class="keywordtype">double</span> *fx);</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>logical DCEOBJ_obs_loop(<span class="keywordtype">void</span>);</div>
+<a href="setobj_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#ifndef SETOBJ_H</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#define SETOBJ_H</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &lt;<a class="code" href="structures_8h.html">structures.h</a>&gt;</span> <span class="comment">/* Defines the logical data type */</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#ifdef SETOBJ_DEFS</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#define EXTERN</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#define EXTERN extern</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#undef EXTERN</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#endif </span><span class="comment">/* SETOBJ_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>EXTERN <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>  xtended lnlike;</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  <span class="keywordtype">double</span> lfactr;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>  logical facall;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>} Setobj;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keywordtype">void</span> <a class="code hl_function" href="setobj_8h.html#adc17db0469fae0ef597c9933b0fe7627">DHAZRD</a>(<span class="keywordtype">double</span> *beta,<span class="keywordtype">double</span> *fx,<span class="keywordtype">int</span> nvar);</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="keywordtype">void</span> <a class="code hl_function" href="setobj_8h.html#ae2c3e8d3650eace1dd8446e777d4240d">DCEOBJ</a>(<span class="keywordtype">double</span> *fx);</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keywordtype">void</span> <a class="code hl_function" href="setobj_8h.html#ab1afc6b625955e0c61ab87e78b45daa9">DCEOBJ_main_logic</a>(<span class="keywordtype">double</span> *fx);</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>logical <a class="code hl_function" href="setobj_8h.html#a1d3e922d2d854a35e533fd1b907a8c6a">DCEOBJ_obs_loop</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="preprocessor">#undef EXTERN</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="preprocessor">#endif </span><span class="comment">/* SETOBJ_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="asetobj_8h_html_a1d3e922d2d854a35e533fd1b907a8c6a"><div class="ttname"><a href="setobj_8h.html#a1d3e922d2d854a35e533fd1b907a8c6a">DCEOBJ_obs_loop</a></div><div class="ttdeci">logical DCEOBJ_obs_loop(void)</div><div class="ttdoc">Per-observation loop for DCEOBJ.</div><div class="ttdef"><b>Definition</b> setobj.c:392</div></div>
+<div class="ttc" id="asetobj_8h_html_ab1afc6b625955e0c61ab87e78b45daa9"><div class="ttname"><a href="setobj_8h.html#ab1afc6b625955e0c61ab87e78b45daa9">DCEOBJ_main_logic</a></div><div class="ttdeci">void DCEOBJ_main_logic(double *fx)</div><div class="ttdoc">Main logic for DCEOBJ (no theta transform).</div><div class="ttdef"><b>Definition</b> setobj.c:374</div></div>
+<div class="ttc" id="asetobj_8h_html_adc17db0469fae0ef597c9933b0fe7627"><div class="ttname"><a href="setobj_8h.html#adc17db0469fae0ef597c9933b0fe7627">DHAZRD</a></div><div class="ttdeci">void DHAZRD(double *beta, double *fx, int nvar)</div><div class="ttdoc">Optimizer entry point: evaluate −LNLIKE at beta.</div><div class="ttdef"><b>Definition</b> setobj.c:313</div></div>
+<div class="ttc" id="asetobj_8h_html_ae2c3e8d3650eace1dd8446e777d4240d"><div class="ttname"><a href="setobj_8h.html#ae2c3e8d3650eace1dd8446e777d4240d">DCEOBJ</a></div><div class="ttdeci">void DCEOBJ(double *fx)</div><div class="ttdoc">Conservation-of-events objective entry point.</div><div class="ttdef"><b>Definition</b> setobj.c:369</div></div>
+<div class="ttc" id="astructures_8h_html"><div class="ttname"><a href="structures_8h.html">structures.h</a></div><div class="ttdoc">Global struct definitions and the STRUCT/HAZARD macro pattern.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_7b00c1fea16f7e8d91b903f51cde6bd6.html">llike</a></li><li class="navelem"><b>setobj.h</b></li>
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_7b00c1fea16f7e8d91b903f51cde6bd6.html">llike</a></li><li class="navelem"><a class="el" href="setobj_8h.html">setobj.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

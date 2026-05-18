@@ -105,13 +105,14 @@ $(document).ready(function(){initNavTree('architecture.html',''); initResizable(
 <div class="contents">
 <div class="textblock"><h2><a class="anchor" id="autotoc_md10"></a>
 Global State and the STRUCT/HAZARD Macro Pattern</h2>
-<p>All model state lives in a set of global C structs declared in <code><a class="el" href="structures_8h_source.html">src/common/structures.h</a></code>. The <code>#ifdef STRUCT</code> / <code>#define EXTERN</code> pattern ensures exactly one translation unit allocates storage:</p>
+<p>All model state lives in a set of global C structs declared in <code><a class="el" href="structures_8h.html" title="Global struct definitions and the STRUCT/HAZARD macro pattern.">src/common/structures.h</a></code>. The <code>#ifdef STRUCT</code> / <code>#define EXTERN</code> pattern ensures exactly one translation unit allocates storage:</p>
 <div class="fragment"><div class="line"><span class="comment">// In exactly ONE .c file (hazard.c or hazpred.c):</span></div>
 <div class="line"><span class="preprocessor">#define STRUCT</span></div>
-<div class="line"><span class="preprocessor">#include &quot;structures.h&quot;</span>   <span class="comment">// allocates storage for all global structs</span></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="structures_8h.html">structures.h</a>&quot;</span>   <span class="comment">// allocates storage for all global structs</span></div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// In all other .c files:</span></div>
-<div class="line"><span class="preprocessor">#include &quot;structures.h&quot;</span>   <span class="comment">// gets extern declarations only</span></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="structures_8h.html">structures.h</a>&quot;</span>   <span class="comment">// gets extern declarations only</span></div>
+<div class="ttc" id="astructures_8h_html"><div class="ttname"><a href="structures_8h.html">structures.h</a></div><div class="ttdoc">Global struct definitions and the STRUCT/HAZARD macro pattern.</div></div>
 </div><!-- fragment --><p>Key global structs:</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -134,19 +135,21 @@ Global State and the STRUCT/HAZARD Macro Pattern</h2>
 Error Handling — setjmp/longjmp Pattern</h2>
 <p>Errors propagate via <code>setjmp</code>/<code>longjmp</code> rather than return codes. This allows numerical subroutines deep in the call stack to abort without threading error returns through every caller.</p>
 <div class="fragment"><div class="line"><span class="comment">// At program start (in hazard.c or hazpred.c main()):</span></div>
-<div class="line"><span class="keywordflow">if</span> (setjmp(Common.errtrap) != 0) {</div>
+<div class="line"><span class="keywordflow">if</span> (setjmp(Common.<a class="code hl_variable" href="structcommon.html#abdb9b51232fb0612102e9d54c26b367f">errtrap</a>) != 0) {</div>
 <div class="line">    <span class="comment">// Landed here from hzd_Error() deep in the call stack.</span></div>
 <div class="line">    <span class="comment">// Common.errorno holds the error code.</span></div>
 <div class="line">    <span class="comment">// Clean up and exit — never returns normally from this branch.</span></div>
-<div class="line">    hzd_exit(Common.errorno);</div>
+<div class="line">    hzd_exit(Common.<a class="code hl_variable" href="structcommon.html#aa3f34a101187f1d4973ce9d2db1ac215">errorno</a>);</div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Deep inside a numerical subroutine:</span></div>
 <div class="line"><span class="keywordflow">if</span> (x &lt;= 0.0) {</div>
 <div class="line">    hzd_Error(<span class="stringliteral">&quot;DLG1900&quot;</span>, 2);  <span class="comment">// longjmps to errtrap; never returns</span></div>
 <div class="line">}</div>
+<div class="ttc" id="astructcommon_html_aa3f34a101187f1d4973ce9d2db1ac215"><div class="ttname"><a href="structcommon.html#aa3f34a101187f1d4973ce9d2db1ac215">common::errorno</a></div><div class="ttdeci">int errorno</div><div class="ttdef"><b>Definition</b> structures.h:169</div></div>
+<div class="ttc" id="astructcommon_html_abdb9b51232fb0612102e9d54c26b367f"><div class="ttname"><a href="structcommon.html#abdb9b51232fb0612102e9d54c26b367f">common::errtrap</a></div><div class="ttdeci">jmp_buf errtrap</div><div class="ttdef"><b>Definition</b> structures.h:175</div></div>
 </div><!-- fragment --><p><code>ErrorPassBack(code)</code> is used when a function returns a value and cannot safely call <code>hzd_Error()</code> directly; it sets <code>Common.errorno</code> and returns a sentinel, expecting the caller to check and propagate.</p>
-<p>See <a class="el" href="hzd__Error_8h_source.html">hzd_Error.h</a> and <a class="el" href="hzd__exit__codes_8h_source.html">hzd_exit_codes.h</a> for the error code catalogue.</p>
+<p>See <a class="el" href="hzd__Error_8h.html" title="Non-local error signalling via longjmp.">hzd_Error.h</a> and <a class="el" href="hzd__exit__codes_8h.html" title="Canonical exit codes for the hazard and hazpred binaries.">hzd_exit_codes.h</a> for the error code catalogue.</p>
 <h2><a class="anchor" id="autotoc_md12"></a>
 OBS Array Layout</h2>
 <p>Patient observation data is stored in a flat 1-D <code>double</code> array with <code>pp7 = 7</code> values per row (one row per patient):</p>

@@ -108,120 +108,150 @@ $(document).ready(function(){initNavTree('hazpred_2hazpred_8h_source.html',''); 
   <div class="headertitle"><div class="title">hazpred.h</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef HAZPRED_H</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define HAZPRED_H</span></div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;structures.h&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#define HZPVER 400</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
-<div class="foldopen" id="foldopen00007" data-start="{" data-end="};">
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno"><a class="line" href="structhzpstr.html">    7</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structhzpstr.html">hzpstr</a> {</div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>  <span class="keywordtype">double</span> Surviv,earlyS,constS,lateS;</div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>  <span class="keywordtype">double</span> Hazard,earlyH,constH,lateH;</div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>  <span class="keywordtype">double</span> CL_L_S,CL_U_S,CL_L_H,CL_U_H;</div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>  <span class="keywordtype">double</span> CLimit;</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>  <span class="keywordtype">double</span> Pvalue;</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>  <span class="keywordtype">double</span> Znormal;</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>  <span class="keywordtype">short</span> <span class="keywordtype">int</span> noCL;</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>  <span class="keywordtype">short</span> <span class="keywordtype">int</span> Hflag,Sflag;</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>};</div>
+<a href="hazpred_2hazpred_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#ifndef HAZPRED_H</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#define HAZPRED_H</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="structures_8h.html">structures.h</a>&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#define HZPVER 400</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="foldopen" id="foldopen00021" data-start="{" data-end="};">
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="structhzpstr.html">   21</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structhzpstr.html">hzpstr</a> {</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="structhzpstr.html#a59934848a4385ff65521dc86baa69f13">   22</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a59934848a4385ff65521dc86baa69f13">Surviv</a>;    </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="structhzpstr.html#a341f96fa2179ed084ee2ca90fac0c98b">   23</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a341f96fa2179ed084ee2ca90fac0c98b">earlyS</a>;    </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="structhzpstr.html#ac83310f4dc8e0bee32b456122f528554">   24</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#ac83310f4dc8e0bee32b456122f528554">constS</a>;    </div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="structhzpstr.html#aca8b61899b7f71bcdcc7a4f626844281">   25</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#aca8b61899b7f71bcdcc7a4f626844281">lateS</a>;     </div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="structhzpstr.html#a7108f814ec0a9abfd5e5d05c498fd02c">   26</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a7108f814ec0a9abfd5e5d05c498fd02c">Hazard</a>;    </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="structhzpstr.html#a5913ac965ddc1f1e75fa55f51e3b005d">   27</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a5913ac965ddc1f1e75fa55f51e3b005d">earlyH</a>;    </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="structhzpstr.html#ad72d7ccfdd1a7182d4c60cbc5d2518b9">   28</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#ad72d7ccfdd1a7182d4c60cbc5d2518b9">constH</a>;    </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno"><a class="line" href="structhzpstr.html#a07e8742e228488c793f559939f502b24">   29</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a07e8742e228488c793f559939f502b24">lateH</a>;     </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="structhzpstr.html#a7ec5815e35869d226585e4c3e1c9c991">   30</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a7ec5815e35869d226585e4c3e1c9c991">CL_L_S</a>;    </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="structhzpstr.html#aeb472b3c521b86cc630a5eefb5e2ca46">   31</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#aeb472b3c521b86cc630a5eefb5e2ca46">CL_U_S</a>;    </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="structhzpstr.html#a7d71b266e93d7bd2b36414878c3b40ca">   32</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a7d71b266e93d7bd2b36414878c3b40ca">CL_L_H</a>;    </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="structhzpstr.html#ab5b5211e40533ed51f481cd0575bf23b">   33</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#ab5b5211e40533ed51f481cd0575bf23b">CL_U_H</a>;    </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="structhzpstr.html#a8bb2a11f1d849ad20205e8ca8a3f0b52">   34</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a8bb2a11f1d849ad20205e8ca8a3f0b52">CLimit</a>;    </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="structhzpstr.html#a10cbd07231380be45bacd767fdf8708a">   35</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a10cbd07231380be45bacd767fdf8708a">Pvalue</a>;    </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="structhzpstr.html#a79732081a6b662be2ef6c44934fc89cf">   36</a></span>  <span class="keywordtype">double</span> <a class="code hl_variable" href="structhzpstr.html#a79732081a6b662be2ef6c44934fc89cf">Znormal</a>;   </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="structhzpstr.html#a128bf9e5ff13dd3dde50dd6961137dd4">   37</a></span>  <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="structhzpstr.html#a128bf9e5ff13dd3dde50dd6961137dd4">noCL</a>;   </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno"><a class="line" href="structhzpstr.html#a67f0df9e6c7c7dec94904280078b6fe0">   38</a></span>  <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="structhzpstr.html#a67f0df9e6c7c7dec94904280078b6fe0">Hflag</a>;  </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="structhzpstr.html#a1bf666609c3a049f48b1b30c5da85184">   39</a></span>  <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="structhzpstr.html#a1bf666609c3a049f48b1b30c5da85184">Sflag</a>;  </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>};</div>
 </div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#ifdef HAZPRED</span></div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#define EXTERN</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#define EXTERN extern</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structhzpstr.html">hzpstr</a> *H;</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structnamestr.html">namestr</a> *ID_ns;</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structnamestr.html">namestr</a> *data_ns;</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structnamestr.html">namestr</a> *inhaz_ns;</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structnamestr.html">namestr</a> *out_ns;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structxvgetstr.html">xvgetstr</a> *data_xv;</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structxvgetstr.html">xvgetstr</a> *inhaz_xv;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>EXTERN FILE *infile;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>EXTERN FILE *hazfile;</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>EXTERN FILE *outfile;</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>EXTERN <span class="keywordtype">int</span> data_ln;</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>EXTERN <span class="keywordtype">int</span> inhaz_ln;</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>EXTERN <span class="keywordtype">size_t</span> infilect;</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>EXTERN <span class="keywordtype">size_t</span> nvars;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>EXTERN <span class="keywordtype">int</span> obscnt,totalobs;</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>EXTERN <span class="keywordtype">char</span> **buffer;</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>EXTERN <span class="keywordtype">char</span> *id_curr;</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>EXTERN <span class="keywordtype">char</span> *id_prev;</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>EXTERN <span class="keywordtype">short</span> *buftyp;</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>EXTERN charVarName in_name;</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>EXTERN <span class="keywordtype">double</span> in_est,in_status;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>EXTERN charVarName *names,*namev;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>EXTERN charVarName tname;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>EXTERN <span class="keywordtype">char</span> msgbfr[80];</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>EXTERN <span class="keywordtype">int</span> idleng;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>EXTERN logical termin,errlast,gotID;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>EXTERN FILE *outputDataFile;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structhzpstr.html">hzpstr</a> HZPstr;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>EXTERN <span class="keywordtype">int</span> i;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>EXTERN <span class="keywordtype">int</span> indexp;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>EXTERN <span class="keywordtype">int</span> j;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>EXTERN <span class="keywordtype">int</span> ji;</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>EXTERN <span class="keywordtype">int</span> j1p0;</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>EXTERN <span class="keywordtype">int</span> j1p1;</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>EXTERN <span class="keywordtype">int</span> j1pp;</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>EXTERN <span class="keywordtype">int</span> pj1;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>EXTERN <span class="keywordtype">int</span> pp1;</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>EXTERN <span class="keywordtype">int</span> jind;</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>EXTERN <span class="keywordtype">int</span> mp;</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>EXTERN <span class="keywordtype">int</span> optmz;</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>EXTERN <span class="keywordtype">double</span> Time;</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>EXTERN <span class="keywordtype">double</span> lnTime;</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>EXTERN <span class="keywordtype">double</span> lnMu[3];</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>EXTERN <span class="keywordtype">double</span> lnCf[3];</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>EXTERN <span class="keywordtype">double</span> lnHf[3];</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>EXTERN <span class="keywordtype">double</span> Cf[3];</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>EXTERN <span class="keywordtype">double</span> Hf[3];</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>EXTERN <span class="keywordtype">double</span> sqrEps;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>EXTERN <span class="keywordtype">double</span> lnCf_;</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>EXTERN <span class="keywordtype">double</span> lnHf_;</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>EXTERN <span class="keywordtype">double</span> tempj;</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>EXTERN <span class="keywordtype">double</span> Cf_;</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>EXTERN <span class="keywordtype">double</span> Hf_;</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>EXTERN <span class="keywordtype">double</span> *dCf;</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>EXTERN <span class="keywordtype">double</span> *dHf;</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>EXTERN <span class="keywordtype">double</span> *p1;</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>EXTERN <span class="keywordtype">double</span> *p2;</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>EXTERN <span class="keywordtype">double</span> CXsX;</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>EXTERN <span class="keywordtype">double</span> HXsX;</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>EXTERN <span class="keywordtype">double</span> cumHaz;</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>EXTERN <span class="keywordtype">double</span> Z;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>EXTERN <span class="keywordtype">double</span> Zl;</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>EXTERN <span class="keywordtype">double</span> Zu;</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>EXTERN <span class="keywordtype">double</span> seZ;</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>EXTERN <span class="keywordtype">double</span> DlnG[8];</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>EXTERN <span class="keywordtype">double</span> DlnSG[8];</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>EXTERN <span class="keywordtype">double</span> step[8];</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structearly.html">early</a> SaveE;</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structlate.html">late</a> SaveL;</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="preprocessor">#define Chgd_Time 1</span></div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="preprocessor">#define Chgd_Obs  2</span></div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="preprocessor">#define Chgd_Both 3</span></div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="preprocessor">#undef EXTERN</span></div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="preprocessor">#endif </span><span class="comment">/* HAZPRED_H */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="astructearly_html"><div class="ttname"><a href="structearly.html">early</a></div><div class="ttdef"><b>Definition</b> structures.h:51</div></div>
-<div class="ttc" id="astructhzpstr_html"><div class="ttname"><a href="structhzpstr.html">hzpstr</a></div><div class="ttdef"><b>Definition</b> hazpred.h:7</div></div>
-<div class="ttc" id="astructlate_html"><div class="ttname"><a href="structlate.html">late</a></div><div class="ttdef"><b>Definition</b> structures.h:74</div></div>
-<div class="ttc" id="astructnamestr_html"><div class="ttname"><a href="structnamestr.html">namestr</a></div><div class="ttdef"><b>Definition</b> structures.h:150</div></div>
-<div class="ttc" id="astructxvgetstr_html"><div class="ttname"><a href="structxvgetstr.html">xvgetstr</a></div><div class="ttdef"><b>Definition</b> structures.h:182</div></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#ifdef HAZPRED</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="preprocessor">#define EXTERN</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="preprocessor">#define EXTERN extern</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structhzpstr.html">hzpstr</a> *H;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structnamestr.html">namestr</a> *ID_ns;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structnamestr.html">namestr</a> *data_ns;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structnamestr.html">namestr</a> *inhaz_ns;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structnamestr.html">namestr</a> *out_ns;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structxvgetstr.html">xvgetstr</a> *data_xv;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structxvgetstr.html">xvgetstr</a> *inhaz_xv;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>EXTERN FILE *infile;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>EXTERN FILE *hazfile;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>EXTERN FILE *outfile;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>EXTERN <span class="keywordtype">int</span> data_ln;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>EXTERN <span class="keywordtype">int</span> inhaz_ln;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>EXTERN <span class="keywordtype">size_t</span> infilect;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>EXTERN <span class="keywordtype">size_t</span> nvars;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>EXTERN <span class="keywordtype">int</span> obscnt,totalobs;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>EXTERN <span class="keywordtype">char</span> **buffer;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>EXTERN <span class="keywordtype">char</span> *id_curr;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>EXTERN <span class="keywordtype">char</span> *id_prev;</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>EXTERN <span class="keywordtype">short</span> *buftyp;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>EXTERN charVarName in_name;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>EXTERN <span class="keywordtype">double</span> in_est,in_status;</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>EXTERN charVarName *names,*namev;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>EXTERN charVarName tname;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>EXTERN <span class="keywordtype">char</span> msgbfr[80];</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>EXTERN <span class="keywordtype">int</span> idleng;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>EXTERN logical termin,errlast,gotID;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>EXTERN FILE *outputDataFile;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structhzpstr.html">hzpstr</a> HZPstr;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>EXTERN <span class="keywordtype">int</span> i;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>EXTERN <span class="keywordtype">int</span> indexp;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>EXTERN <span class="keywordtype">int</span> j;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>EXTERN <span class="keywordtype">int</span> ji;</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>EXTERN <span class="keywordtype">int</span> j1p0;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>EXTERN <span class="keywordtype">int</span> j1p1;</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>EXTERN <span class="keywordtype">int</span> j1pp;</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>EXTERN <span class="keywordtype">int</span> pj1;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>EXTERN <span class="keywordtype">int</span> pp1;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>EXTERN <span class="keywordtype">int</span> jind;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>EXTERN <span class="keywordtype">int</span> mp;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>EXTERN <span class="keywordtype">int</span> optmz;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>EXTERN <span class="keywordtype">double</span> Time;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>EXTERN <span class="keywordtype">double</span> lnTime;</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>EXTERN <span class="keywordtype">double</span> lnMu[3];</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>EXTERN <span class="keywordtype">double</span> lnCf[3];</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>EXTERN <span class="keywordtype">double</span> lnHf[3];</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>EXTERN <span class="keywordtype">double</span> Cf[3];</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>EXTERN <span class="keywordtype">double</span> Hf[3];</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>EXTERN <span class="keywordtype">double</span> sqrEps;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>EXTERN <span class="keywordtype">double</span> lnCf_;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>EXTERN <span class="keywordtype">double</span> lnHf_;</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>EXTERN <span class="keywordtype">double</span> tempj;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>EXTERN <span class="keywordtype">double</span> Cf_;</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>EXTERN <span class="keywordtype">double</span> Hf_;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>EXTERN <span class="keywordtype">double</span> *dCf;</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>EXTERN <span class="keywordtype">double</span> *dHf;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>EXTERN <span class="keywordtype">double</span> *p1;</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>EXTERN <span class="keywordtype">double</span> *p2;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>EXTERN <span class="keywordtype">double</span> CXsX;</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>EXTERN <span class="keywordtype">double</span> HXsX;</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>EXTERN <span class="keywordtype">double</span> cumHaz;</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>EXTERN <span class="keywordtype">double</span> Z;</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>EXTERN <span class="keywordtype">double</span> Zl;</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>EXTERN <span class="keywordtype">double</span> Zu;</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>EXTERN <span class="keywordtype">double</span> seZ;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>EXTERN <span class="keywordtype">double</span> DlnG[8];</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>EXTERN <span class="keywordtype">double</span> DlnSG[8];</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>EXTERN <span class="keywordtype">double</span> step[8];</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structearly.html">early</a> SaveE;</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>EXTERN <span class="keyword">struct </span><a class="code hl_struct" href="structlate.html">late</a> SaveL;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="preprocessor">#define Chgd_Time 1</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="preprocessor">#define Chgd_Obs  2</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="preprocessor">#define Chgd_Both 3</span></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="preprocessor">#undef EXTERN</span></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><span class="preprocessor">#endif </span><span class="comment">/* HAZPRED_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="astructearly_html"><div class="ttname"><a href="structearly.html">early</a></div><div class="ttdoc">Early-phase hazard model parameters.</div><div class="ttdef"><b>Definition</b> structures.h:81</div></div>
+<div class="ttc" id="astructhzpstr_html"><div class="ttname"><a href="structhzpstr.html">hzpstr</a></div><div class="ttdoc">Per-observation prediction outputs from HAZPRED.</div><div class="ttdef"><b>Definition</b> hazpred.h:21</div></div>
+<div class="ttc" id="astructhzpstr_html_a07e8742e228488c793f559939f502b24"><div class="ttname"><a href="structhzpstr.html#a07e8742e228488c793f559939f502b24">hzpstr::lateH</a></div><div class="ttdeci">double lateH</div><div class="ttdef"><b>Definition</b> hazpred.h:29</div></div>
+<div class="ttc" id="astructhzpstr_html_a10cbd07231380be45bacd767fdf8708a"><div class="ttname"><a href="structhzpstr.html#a10cbd07231380be45bacd767fdf8708a">hzpstr::Pvalue</a></div><div class="ttdeci">double Pvalue</div><div class="ttdef"><b>Definition</b> hazpred.h:35</div></div>
+<div class="ttc" id="astructhzpstr_html_a128bf9e5ff13dd3dde50dd6961137dd4"><div class="ttname"><a href="structhzpstr.html#a128bf9e5ff13dd3dde50dd6961137dd4">hzpstr::noCL</a></div><div class="ttdeci">short int noCL</div><div class="ttdef"><b>Definition</b> hazpred.h:37</div></div>
+<div class="ttc" id="astructhzpstr_html_a1bf666609c3a049f48b1b30c5da85184"><div class="ttname"><a href="structhzpstr.html#a1bf666609c3a049f48b1b30c5da85184">hzpstr::Sflag</a></div><div class="ttdeci">short int Sflag</div><div class="ttdef"><b>Definition</b> hazpred.h:39</div></div>
+<div class="ttc" id="astructhzpstr_html_a341f96fa2179ed084ee2ca90fac0c98b"><div class="ttname"><a href="structhzpstr.html#a341f96fa2179ed084ee2ca90fac0c98b">hzpstr::earlyS</a></div><div class="ttdeci">double earlyS</div><div class="ttdef"><b>Definition</b> hazpred.h:23</div></div>
+<div class="ttc" id="astructhzpstr_html_a5913ac965ddc1f1e75fa55f51e3b005d"><div class="ttname"><a href="structhzpstr.html#a5913ac965ddc1f1e75fa55f51e3b005d">hzpstr::earlyH</a></div><div class="ttdeci">double earlyH</div><div class="ttdef"><b>Definition</b> hazpred.h:27</div></div>
+<div class="ttc" id="astructhzpstr_html_a59934848a4385ff65521dc86baa69f13"><div class="ttname"><a href="structhzpstr.html#a59934848a4385ff65521dc86baa69f13">hzpstr::Surviv</a></div><div class="ttdeci">double Surviv</div><div class="ttdef"><b>Definition</b> hazpred.h:22</div></div>
+<div class="ttc" id="astructhzpstr_html_a67f0df9e6c7c7dec94904280078b6fe0"><div class="ttname"><a href="structhzpstr.html#a67f0df9e6c7c7dec94904280078b6fe0">hzpstr::Hflag</a></div><div class="ttdeci">short int Hflag</div><div class="ttdef"><b>Definition</b> hazpred.h:38</div></div>
+<div class="ttc" id="astructhzpstr_html_a7108f814ec0a9abfd5e5d05c498fd02c"><div class="ttname"><a href="structhzpstr.html#a7108f814ec0a9abfd5e5d05c498fd02c">hzpstr::Hazard</a></div><div class="ttdeci">double Hazard</div><div class="ttdef"><b>Definition</b> hazpred.h:26</div></div>
+<div class="ttc" id="astructhzpstr_html_a79732081a6b662be2ef6c44934fc89cf"><div class="ttname"><a href="structhzpstr.html#a79732081a6b662be2ef6c44934fc89cf">hzpstr::Znormal</a></div><div class="ttdeci">double Znormal</div><div class="ttdef"><b>Definition</b> hazpred.h:36</div></div>
+<div class="ttc" id="astructhzpstr_html_a7d71b266e93d7bd2b36414878c3b40ca"><div class="ttname"><a href="structhzpstr.html#a7d71b266e93d7bd2b36414878c3b40ca">hzpstr::CL_L_H</a></div><div class="ttdeci">double CL_L_H</div><div class="ttdef"><b>Definition</b> hazpred.h:32</div></div>
+<div class="ttc" id="astructhzpstr_html_a7ec5815e35869d226585e4c3e1c9c991"><div class="ttname"><a href="structhzpstr.html#a7ec5815e35869d226585e4c3e1c9c991">hzpstr::CL_L_S</a></div><div class="ttdeci">double CL_L_S</div><div class="ttdef"><b>Definition</b> hazpred.h:30</div></div>
+<div class="ttc" id="astructhzpstr_html_a8bb2a11f1d849ad20205e8ca8a3f0b52"><div class="ttname"><a href="structhzpstr.html#a8bb2a11f1d849ad20205e8ca8a3f0b52">hzpstr::CLimit</a></div><div class="ttdeci">double CLimit</div><div class="ttdef"><b>Definition</b> hazpred.h:34</div></div>
+<div class="ttc" id="astructhzpstr_html_ab5b5211e40533ed51f481cd0575bf23b"><div class="ttname"><a href="structhzpstr.html#ab5b5211e40533ed51f481cd0575bf23b">hzpstr::CL_U_H</a></div><div class="ttdeci">double CL_U_H</div><div class="ttdef"><b>Definition</b> hazpred.h:33</div></div>
+<div class="ttc" id="astructhzpstr_html_ac83310f4dc8e0bee32b456122f528554"><div class="ttname"><a href="structhzpstr.html#ac83310f4dc8e0bee32b456122f528554">hzpstr::constS</a></div><div class="ttdeci">double constS</div><div class="ttdef"><b>Definition</b> hazpred.h:24</div></div>
+<div class="ttc" id="astructhzpstr_html_aca8b61899b7f71bcdcc7a4f626844281"><div class="ttname"><a href="structhzpstr.html#aca8b61899b7f71bcdcc7a4f626844281">hzpstr::lateS</a></div><div class="ttdeci">double lateS</div><div class="ttdef"><b>Definition</b> hazpred.h:25</div></div>
+<div class="ttc" id="astructhzpstr_html_ad72d7ccfdd1a7182d4c60cbc5d2518b9"><div class="ttname"><a href="structhzpstr.html#ad72d7ccfdd1a7182d4c60cbc5d2518b9">hzpstr::constH</a></div><div class="ttdeci">double constH</div><div class="ttdef"><b>Definition</b> hazpred.h:28</div></div>
+<div class="ttc" id="astructhzpstr_html_aeb472b3c521b86cc630a5eefb5e2ca46"><div class="ttname"><a href="structhzpstr.html#aeb472b3c521b86cc630a5eefb5e2ca46">hzpstr::CL_U_S</a></div><div class="ttdeci">double CL_U_S</div><div class="ttdef"><b>Definition</b> hazpred.h:31</div></div>
+<div class="ttc" id="astructlate_html"><div class="ttname"><a href="structlate.html">late</a></div><div class="ttdoc">Late-phase hazard model parameters.</div><div class="ttdef"><b>Definition</b> structures.h:113</div></div>
+<div class="ttc" id="astructnamestr_html"><div class="ttname"><a href="structnamestr.html">namestr</a></div><div class="ttdef"><b>Definition</b> structures.h:209</div></div>
+<div class="ttc" id="astructures_8h_html"><div class="ttname"><a href="structures_8h.html">structures.h</a></div><div class="ttdoc">Global struct definitions and the STRUCT/HAZARD macro pattern.</div></div>
+<div class="ttc" id="astructxvgetstr_html"><div class="ttname"><a href="structxvgetstr.html">xvgetstr</a></div><div class="ttdef"><b>Definition</b> structures.h:241</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_c9d7c92abd79138c65a607ee0a75c949.html">hazpred</a></li><li class="navelem"><b>hazpred.h</b></li>
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_c9d7c92abd79138c65a607ee0a75c949.html">hazpred</a></li><li class="navelem"><a class="el" href="hazpred_2hazpred_8h.html">hazpred.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

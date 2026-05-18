@@ -122,8 +122,8 @@ Key References</h2>
 Navigation</h2>
 <ul>
 <li><a class="el" href="architecture.html">Developer Architecture</a> — global state, error handling, STRUCT/HAZARD macro pattern, OBS array layout</li>
-<li>Mathematical Core — see module list for G1/G3 shaping functions, transforms, log-likelihood</li>
-<li>I/O Boundary — XPORT protocol, TMPDIR contract, exit codes</li>
+<li><b>Mathematical Core</b> — G1/G3 shaping functions (<a class="el" href="hzd__ln__G1__and__SG1_8h.html" title="Early-phase shaping function G1 and its time derivative SG1.">hzd_ln_G1_and_SG1.h</a>, <a class="el" href="hzd__ln__G3__and__SG3_8h.html" title="Late-phase shaping function G3 and its time derivative SG3.">hzd_ln_G3_and_SG3.h</a>), transforms (<a class="el" href="hzd__early__p2t_8h.html" title="Early-phase parameter-to-theta transform.">hzd_early_p2t.h</a>, <a class="el" href="hzd__late__p2t_8h.html" title="Late-phase parameter-to-theta transform.">hzd_late_p2t.h</a>), log-likelihood (<a class="el" href="setlik_8h.html" title="Log-likelihood function interface.">setlik.h</a>, <a class="el" href="setcoe_8h.html" title="Conservation-of-events coefficient setup.">setcoe.h</a>)</li>
+<li><b>I/O Boundary</b> — XPORT reader (<a class="el" href="xportHandler_8h.html" title="SAS XPORT transport file reader — public interface.">xportHandler.h</a>), version detection (<a class="el" href="xport__version_8h.html" title="SAS XPORT format version detection (V5 vs V8).">xport_version.h</a>), exit codes (<a class="el" href="hzd__exit__codes_8h.html" title="Canonical exit codes for the hazard and hazpred binaries.">hzd_exit_codes.h</a>)</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md16"></a>
 Relationship to TemporalHazard (R port)</h2>
@@ -132,13 +132,13 @@ Relationship to TemporalHazard (R port)</h2>
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">C function   </th><th class="markdownTableHeadNone">R equivalent    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>hzd_ln_G1_and_SG1()</code>   </td><td class="markdownTableBodyNone"><code>hzd_G1()</code>    </td></tr>
+<td class="markdownTableBodyNone"><code><a class="el" href="hzd__ln__G1__and__SG1_8c.html#a891e76e57d03701b6c57b31e3710ef0f" title="Compute  and  (early-phase shaping functions).">hzd_ln_G1_and_SG1()</a></code>   </td><td class="markdownTableBodyNone"><code>hzd_G1()</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>hzd_ln_G3_and_SG3()</code>   </td><td class="markdownTableBodyNone"><code>hzd_G3()</code>    </td></tr>
+<td class="markdownTableBodyNone"><code><a class="el" href="hzd__ln__G3__and__SG3_8c.html#a71bc3b2a07e20034b819fef32a68b501" title="Compute  and  (late-phase shaping functions).">hzd_ln_G3_and_SG3()</a></code>   </td><td class="markdownTableBodyNone"><code>hzd_G3()</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>hzd_early_p2t()</code> / <code>hzd_early_t2p()</code>   </td><td class="markdownTableBodyNone"><code>early_p2t()</code> / <code>early_t2p()</code>    </td></tr>
+<td class="markdownTableBodyNone"><code><a class="el" href="hzd__early__p2t_8c.html#aa5380417a8478b03e81bbb2c9de33c9d" title="Map early-phase model parameters to unconstrained optimizer theta[].">hzd_early_p2t()</a></code> / <code><a class="el" href="hzd__early__t2p_8c.html#ac258f2f4e0ef73cf434b7876f05e1888" title="Map unconstrained optimizer theta[] back to early-phase model parameters.">hzd_early_t2p()</a></code>   </td><td class="markdownTableBodyNone"><code>early_p2t()</code> / <code>early_t2p()</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>hzd_late_p2t()</code> / <code>hzd_late_t2p()</code>   </td><td class="markdownTableBodyNone"><code>late_p2t()</code> / <code>late_t2p()</code>    </td></tr>
+<td class="markdownTableBodyNone"><code><a class="el" href="hzd__late__p2t_8c.html#a5753e5d45597e781a8df6bba11224bef" title="Map late-phase model parameters to unconstrained optimizer theta[].">hzd_late_p2t()</a></code> / <code><a class="el" href="hzd__late__t2p_8c.html#a246ffc6253e5f2c3f9e551c85fd5622b" title="Map unconstrained optimizer theta[] back to late-phase model parameters.">hzd_late_t2p()</a></code>   </td><td class="markdownTableBodyNone"><code>late_p2t()</code> / <code>late_t2p()</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>setlik()</code>   </td><td class="markdownTableBodyNone"><code>loglik()</code>   </td></tr>
 </table>
