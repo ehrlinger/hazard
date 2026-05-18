@@ -1,3 +1,18 @@
+/**
+ * @file dlgaob.c
+ * @brief Numerically stable computation of \f$\ln(A/B)\f$ via Mercator series.
+ *
+ * When the ratio A/B is near 1.0 and the log is near 0, direct evaluation
+ * of ln(A/B) loses significant digits. The Mercator series with
+ * \f$y = (A-B)/(A+B)\f$ provides full precision in this region.
+ *
+ * **FORTRAN origin:** `math91/dlgaob` (DLGAOB) — E.H. Blackstone, September 1985;
+ * FORTRAN 77 translation from C.R. Katholi, Ph.D.
+ * Verified September 30, 1985 against Katholi's original.
+ *
+ * @see dlgaob.h
+ * @see hzd_ln_A_div_B.c for the simpler wrapper.
+ */
 #include <string.h>
 #include "structures.h"
 

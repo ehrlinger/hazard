@@ -1,3 +1,12 @@
+/**
+ * @file hzd_ln_eX_plus1.c
+ * @brief Numerically stable computation of \f$\ln(e^x + 1)\f$.
+ *
+ * **FORTRAN origin:** `math91/dlexp1`, `math91/dlexp191`.
+ * Used in the NORMAL() function (stat91) and G1/G3 shaping paths.
+ *
+ * @see hzd_ln_eX_plus1.h
+ */
 #include <string.h>
 #include <float.h>
 #include "structures.h"

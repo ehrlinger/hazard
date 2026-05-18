@@ -1,3 +1,14 @@
+/**
+ * @file hzd_set_rho.c
+ * @brief Compute the \f$\rho\f$ scaling coefficient for the early-phase G1 model.
+ *
+ * **FORTRAN origin:** `model91/dg1rho` (DG1RHO).
+ * Calls hzd_ln_eBXmin1divB() and hzd_ln_1min_enegX() to evaluate
+ * the log-domain expressions needed to derive \f$\rho\f$.
+ *
+ * @see hzd_set_rho.h
+ * @see hzd_ln_eBXmin1divB.c
+ */
 #include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"

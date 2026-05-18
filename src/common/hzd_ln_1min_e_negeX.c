@@ -1,3 +1,12 @@
+/**
+ * @file hzd_ln_1min_e_negeX.c
+ * @brief Numerically stable computation of \f$\ln(1 - e^{-x})\f$, \f$x > 0\f$.
+ *
+ * **FORTRAN origin:** `math91/dl1mex`, `math91/dl1mex91` (DL1MEX).
+ * Verified December 4, 1989 against the FORTRAN reference.
+ *
+ * @see hzd_ln_1min_e_negeX.h
+ */
 #include <string.h>
 #include "structures.h"
 
