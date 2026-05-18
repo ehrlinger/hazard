@@ -1,3 +1,17 @@
+/**
+ * @file hzd_early_t2p.c
+ * @brief Unconstrained optimizer theta[] → early-phase model parameters.
+ *
+ * Inverts the p2t transform: recovers (DELTA, THALF, NU, M) from
+ * the BFGS optimizer's unconstrained theta[0..3]. Results are written
+ * to `TempE` (not `Early`) so the caller can validate before committing.
+ *
+ * **FORTRAN origin:** `model91/dtrsfm` IOP=2 (E.H. Blackstone / C.R. Katholi,
+ * November 1985; delta inverse revised October 1986).
+ *
+ * @see hzd_early_t2p.h
+ * @see hzd_early_p2t.c for the forward transform.
+ */
 #include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"

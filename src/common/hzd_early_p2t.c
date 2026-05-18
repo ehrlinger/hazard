@@ -1,3 +1,18 @@
+/**
+ * @file hzd_early_p2t.c
+ * @brief Early-phase model parameters → unconstrained optimizer theta[].
+ *
+ * Maps (DELTA, THALF, NU, M) → theta[0..3] for the BFGS optimizer.
+ * The delta transform is \f$\theta_0 = \ln(-\ln|\delta|)\f$, chosen in
+ * October 1986 for better likelihood contour behavior over the
+ * earlier \f$\ln(\delta)\f$ form.
+ *
+ * **FORTRAN origin:** `model91/dtrsfm` IOP=1 (E.H. Blackstone / C.R. Katholi,
+ * November 1985; revised October 1986).
+ *
+ * @see hzd_early_p2t.h
+ * @see hzd_early_t2p.c for the inverse.
+ */
 #include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"

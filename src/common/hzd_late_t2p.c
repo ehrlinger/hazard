@@ -1,3 +1,17 @@
+/**
+ * @file hzd_late_t2p.c
+ * @brief Unconstrained optimizer theta[] → late-phase model parameters.
+ *
+ * Inverts the late-phase p2t transform: recovers (TAU, GAMMA, ALPHA, ETA)
+ * from theta[4..7]. The conditional inverse mirrors the conditional forward
+ * transform, matching g3flag cases and GETWO/GAETWO constraint flags.
+ *
+ * **FORTRAN origin:** `model91/dtrsfm` IOP=2 late-phase block
+ * (E.H. Blackstone / C.R. Katholi, November 1985).
+ *
+ * @see hzd_late_t2p.h
+ * @see hzd_late_p2t.c for the forward transform.
+ */
 #include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"

@@ -1,3 +1,17 @@
+/**
+ * @file hzd_late_p2t.c
+ * @brief Late-phase model parameters → unconstrained optimizer theta[].
+ *
+ * Maps (TAU, GAMMA, ALPHA, ETA) → theta[4..7]. The GAMMA, ALPHA, ETA
+ * transforms are conditional on g3flag and the GETWO/GAETWO logical flags
+ * that encode whether γ·η = 2 or γ·η/α = 2 is imposed as a constraint.
+ *
+ * **FORTRAN origin:** `model91/dtrsfm` IOP=1 late-phase block
+ * (E.H. Blackstone / C.R. Katholi, November 1985).
+ *
+ * @see hzd_late_p2t.h
+ * @see hzd_late_t2p.c for the inverse.
+ */
 #include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"
