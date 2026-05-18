@@ -1,3 +1,24 @@
+/**
+ * @file xportHandler.c
+ * @brief SAS XPORT V5 transport file reader implementation.
+ *
+ * Reads the SAS XPORT format (V5 only) and populates `Common.obs`
+ * with observation data. The format consists of:
+ * 1. Two 80-byte header records (REAL HEADER + LIBRARY HEADER).
+ * 2. One or more 80-byte namestr records (variable metadata).
+ * 3. Observation records (variable-length, padded to 80-byte blocks).
+ *
+ * Numeric values are stored in IBM System/360 floating-point format;
+ * ibmieee.c converts them to IEEE 754 doubles.
+ *
+ * **V8 rejection:** If xport_detect_version() returns XPORT_VERSION_V8,
+ * the function exits with HAZARD_EXIT_XPORT_V8_REJECTED and a structured
+ * `HAZARD_ERROR_XPORT_V8_REJECTED` marker on stderr.
+ *
+ * @see xportHandler.h
+ * @see xport_version.c for V5/V8 detection.
+ * @see ibmieee.c for IBM→IEEE float conversion.
+ */
 #include <hazpred.h>
 #include <errno.h>
 #include <stdio.h>

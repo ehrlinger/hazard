@@ -1,3 +1,22 @@
+/**
+ * @file hazard.h
+ * @brief HAZARD-specific definitions: HAZARD/EXTERN macro, hzrstr, version.
+ *
+ * The `#ifdef HAZARD` / `#define EXTERN` pair works like the STRUCT/EXTERN
+ * pattern in structures.h, but gates hazard.c-specific storage:
+ *
+ * ```c
+ * // In hazard.c only:
+ * #define HAZARD
+ * #include "hazard.h"    // allocates EXTERN variables declared below
+ *
+ * // In other .c files:
+ * #include "hazard.h"    // gets extern declarations
+ * ```
+ *
+ * @see structures.h for the main STRUCT/EXTERN pattern.
+ * @see hazard.c for the binary entry point.
+ */
 #ifndef HAZARD_H
 #define HAZARD_H
 

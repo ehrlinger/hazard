@@ -1,6 +1,32 @@
+/**
+ * @file hazpred.c
+ * @brief HAZPRED binary entry point — prediction from hazard model estimates.
+ *
+ * Reads a PROC HAZPRED statement (flex/bison), opens the INHAZ dataset
+ * written by a prior HAZARD run, reads design matrix observations, and
+ * generates predicted survivorship S(t) and hazard H(t) with confidence
+ * limits for each observation.
+ *
+ * **Program flow:**
+ * 1. Initialize global structs (hzd_init_Common, Machn, LnLim).
+ * 2. Establish the setjmp error trap.
+ * 3. Parse the PROC HAZPRED statement.
+ * 4. Read the INHAZ file (gethazr) — parameter estimates and covariance matrix
+ *    written by the HAZARD binary's OUTHAZ= option.
+ * 5. Read the design matrix from the DATA= XPORT dataset.
+ * 6. For each observation, call dpred() equivalents (hzp_calc_fn, hzp_calc_hazard,
+ *    hzp_calc_survival) to compute S(t), H(t), and confidence limits.
+ * 7. Write the output dataset.
+ * 8. Write telemetry event.
+ *
+ * **Global storage:** This file `#define STRUCT` to allocate all global structs.
+ *
+ * @see hazpred.h dpred() hzd_calc_norinv.h
+ * @see FORTRAN origin: `pred91/dpred` (DPRED subroutine).
+ */
 #include <string.h>
 /**
-   The hazpred program has about 2900 lines of code 
+   The hazpred program has about 2900 lines of code
 
    REVISIONS
 
