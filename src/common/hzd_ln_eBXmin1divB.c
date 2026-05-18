@@ -1,3 +1,13 @@
+/**
+ * @file hzd_ln_eBXmin1divB.c
+ * @brief Numerically stable computation of \f$\ln\!\left(\frac{e^{\beta x}-1}{\beta}\right)\f$.
+ *
+ * **FORTRAN origin:** `math91/dlem1d` (DLEM1D) — E.H. Blackstone.
+ * Verified December 3, 1989; November 1994 revisions by E.H. Blackstone.
+ *
+ * @see hzd_ln_eBXmin1divB.h
+ * @see hzd_ln_eX_min1.c (called as subroutine for \f$\beta x > 0.2\f$)
+ */
 #include <string.h>
 #include "structures.h"
 #include <float.h>

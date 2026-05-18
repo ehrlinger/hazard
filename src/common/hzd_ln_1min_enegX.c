@@ -1,3 +1,15 @@
+/**
+ * @file hzd_ln_1min_enegX.c
+ * @brief Numerically stable computation of \f$\ln(1 - e^{-e^x})\f$.
+ *
+ * **FORTRAN origin:** `math91/dl1mlx` (DL1MLX). Accepts the argument
+ * in log form — equivalent to DL1MEX(EXP(LNX)) but numerically safer
+ * when EXP(LNX) would overflow or underflow.
+ * Verified December 4, 1989.
+ *
+ * @see hzd_ln_1min_enegX.h
+ * @see hzd_ln_1min_e_negeX.c for the non-log-argument variant.
+ */
 #include <string.h>
 #include <float.h>
 #include "structures.h"
