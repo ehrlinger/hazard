@@ -23,10 +23,11 @@ writes a formatted listing to stdout.
 
 - @ref architecture "Developer Architecture" — global state, error handling,
   STRUCT/HAZARD macro pattern, OBS array layout
-- @ref mathematical_core "Mathematical Core" — see module list for G1/G3
-  shaping functions, transforms, log-likelihood
-- @ref io_boundary "I/O Boundary" — XPORT protocol, TMPDIR contract,
-  exit codes
+- **Mathematical Core** — G1/G3 shaping functions (hzd_ln_G1_and_SG1.h,
+  hzd_ln_G3_and_SG3.h), transforms (hzd_early_p2t.h, hzd_late_p2t.h),
+  log-likelihood (setlik.h, setcoe.h)
+- **I/O Boundary** — XPORT reader (xportHandler.h), version detection
+  (xport_version.h), exit codes (hzd_exit_codes.h)
 
 ## Relationship to TemporalHazard (R port)
 
