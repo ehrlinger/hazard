@@ -132,6 +132,13 @@ tests/corpus/hazard/inputs/*.haz
 /Release/
 
 # =============================================================================
+# CCF-local production test suite — SAS drivers + .lst outputs from
+# Blackstone's production library.  PHI-adjacent; never committed to the
+# public repo.  Lives at tests/production/ by convention.
+# =============================================================================
+/tests/production/
+
+# =============================================================================
 # Local install trees (e.g. `make install --prefix=$HOME/hazard` or
 # `--prefix=./dist` while testing the v4.4.x SAS-driven capture scripts) and
 # capture-script-produced archive artefacts.
@@ -141,3 +148,4 @@ tests/corpus/hazard/inputs/*.haz
 /hazard-capture-*.zip
 /hazard-capture-*.tar.gz
 /capture-windows-outputs.ps1.zip
+docs/doxygen/html/
