@@ -17,7 +17,7 @@ senior author guiding all phases of development.
 ## Maintainer
 
 **John Ehrlinger, Ph.D.**
-Heart, Vascular and Thoracic Institute, Cleveland Clinic Foundation.
+Department of Thoracic and Cardiovascular Surgery, Cleveland Clinic Foundation.
 Autotools build system (v4.1.0, 2000). Subsequent development: CI infrastructure
 (GitHub Actions), corpus test suite, Doxygen documentation, telemetry, XPORT V8
 detection, static build support, and all releases from v4.1.0 through v4.4.x.
