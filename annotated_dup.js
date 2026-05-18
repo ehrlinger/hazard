@@ -1,0 +1,28 @@
+var annotated_dup =
+[
+    [ "common", "structcommon.html", null ],
+    [ "constant", "structconstant.html", null ],
+    [ "early", "structearly.html", null ],
+    [ "entry", "structentry.html", null ],
+    [ "hazg1", "structhazg1.html", null ],
+    [ "hazg3", "structhazg3.html", null ],
+    [ "hzpstr", "structhzpstr.html", null ],
+    [ "hzropt", "structhzropt.html", null ],
+    [ "hzrstr", "structhzrstr.html", null ],
+    [ "intfc", "structintfc.html", null ],
+    [ "late", "structlate.html", null ],
+    [ "lnlim", "structlnlim.html", null ],
+    [ "machn", "structmachn.html", null ],
+    [ "namestr", "structnamestr.html", null ],
+    [ "params", "structparams.html", null ],
+    [ "rsttbl", "structrsttbl.html", null ],
+    [ "stmtstr", "structstmtstr.html", null ],
+    [ "stmtval", "unionstmtval.html", null ],
+    [ "Version", "structVersion.html", null ],
+    [ "xvgetstr", "structxvgetstr.html", null ],
+    [ "xvputstr", "structxvputstr.html", null ],
+    [ "yy_buffer_state", "structyy__buffer__state.html", "structyy__buffer__state" ],
+    [ "yy_trans_info", "structyy__trans__info.html", null ],
+    [ "yyalloc", "unionyyalloc.html", null ],
+    [ "YYSTYPE", "unionYYSTYPE.html", null ]
+];
