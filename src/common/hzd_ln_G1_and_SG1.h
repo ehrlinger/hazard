@@ -43,7 +43,7 @@
  *
  * @note On domain error, calls hzd_Error() which longjmps — never returns.
  *       Uses ErrorPassBack() for errors in called subroutines.
- * @see dlgaob() hzd_ln_eBXmin1divB() hzd_ln_eX_plus1() hzd_ln_1min_e_negeX()
+ * @see hzd_ln_A_div_B() hzd_ln_eBXmin1divB() hzd_ln_eX_plus1() hzd_ln_1min_e_negeX()
  *      hzd_ln_1min_enegX()
  */
 void hzd_ln_G1_and_SG1(void);

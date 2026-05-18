@@ -45,7 +45,7 @@
  * @post `HazG3.lnG3` and `HazG3.lnSG3` are set.
  *
  * @note Calls hzd_Error() via ErrorPassBack on domain errors.
- * @see dlgaob() hzd_ln_eX_plus1() hzd_ln_eX_min1()
+ * @see hzd_ln_A_div_B() hzd_ln_eX_plus1() hzd_ln_eX_min1() hzd_ln_eeX_min1()
  */
 void hzd_ln_G3_and_SG3(void);
 #endif /* HZD_LN_G3_AND_SG3_H */

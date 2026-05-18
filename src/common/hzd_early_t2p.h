@@ -17,10 +17,10 @@
  *
  * | theta index | Target | Inverse transform |
  * |---|---|---|
- * | 0 | `TempE.delta` | \f$-e^{-e^{\theta_0}}\f$ (with sign from `Early.deltaN`) |
+ * | 0 | `TempE.delta` | \f$e^{-e^{\theta_0}}\f$; negated when `Early.deltaN` is set |
  * | 1 | `TempE.tHalf` | \f$e^{\theta_1}\f$ |
  * | 2 | `TempE.nu` | \f$e^{\theta_2}\f$ (negated if g1flag ≥ 5) |
- * | 3 | `TempE.m` | \f$e^{\theta_3}\f$ (negated if g1flag ≥ 3) |
+ * | 3 | `TempE.m` | \f$e^{\theta_3}\f$ (negated if g1flag == 3 or 4) |
  *
  * Only indices where `Common.status[i] == 1` are updated.
  *

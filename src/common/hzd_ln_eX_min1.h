@@ -21,9 +21,9 @@
  * @param X Argument; must be \f$> 0\f$.
  * @return \f$\ln(e^x - 1)\f$, or 0 on underflow.
  *
- * @note Global side-effect: sets \c Common.errorno on domain errors.
- *       Error codes: 1 = overflow (\f$x \geq 3.69\times 10^{75}\f$),
- *       2 = \f$x\f$ not positive.
+ * @note Overflow (\f$x \geq\f$ LnLim.max): silently returns \f$x\f$.
+ *       Underflow (result rounds to zero): silently returns 0.
+ *       No error code is set; this function never calls hzd_Error().
  * @see hzd_ln_eBXmin1divB() which calls this function.
  */
 double hzd_ln_eX_min1(double X);
