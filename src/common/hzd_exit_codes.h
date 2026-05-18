@@ -1,4 +1,6 @@
-/* src/common/hzd_exit_codes.h
+/**
+ * @file hzd_exit_codes.h
+ * @brief Canonical exit codes for the hazard and hazpred binaries.
  *
  * Canonical exit codes for the hazard binary. The convention follows
  * the existing hzfxit() history: 0 = success, 1 = generic legacy
