@@ -1,3 +1,27 @@
+/**
+ * @file setcoe.c
+ * @brief Conservation-of-events coefficient setup — main entry point.
+ *
+ * Implements Turner's Conservation of Events Theorem (M.E. Turner Jr. PhD,
+ * notes of February 14, 1985). For a model CF(t) = G(θ)·D(t), at maximum
+ * likelihood the MLE satisfies:
+ * \f[
+ *   \sum_{i=1}^{N} CF(t_i;\hat{\theta}) = \sum_{i=1}^{N} E(i)
+ * \f]
+ * This identity allows one scaling parameter to be determined analytically
+ * as a ratio of event counts to cumulative hazard sums, reducing the
+ * optimizer's free parameter count by one.
+ *
+ * The implementation is split across:
+ * - setcoe_setup_indices.c — index determination
+ * - setcoe_obs_loop.c — per-observation accumulation
+ * - setcoe_calc_scaling.c — scaling parameter solution
+ *
+ * **FORTRAN origin:** `llike91/setcoe` (SETCOE subroutine, 1991/1994/1996 revisions).
+ *
+ * @see setcoe.h
+ * @see setlik.c
+ */
 #include <string.h>
 #include <math.h>
 

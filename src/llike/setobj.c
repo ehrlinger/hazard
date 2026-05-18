@@ -1,3 +1,19 @@
+/**
+ * @file setobj.c
+ * @brief Objective function for BFGS optimizer: FX = −LNLIKE.
+ *
+ * Provides the function evaluation entry points called by the
+ * BFGS optimizer (bfgsfa.c). Each evaluation:
+ * 1. Transforms theta[] to model parameters (hzd_theta_to_parms).
+ * 2. Runs conservation-of-events setup (setcoe).
+ * 3. Evaluates the log-likelihood (setlik / SETLIK_obs_loop).
+ * 4. Returns FX = −LNLIKE.
+ *
+ * **FORTRAN origin:** `llike91/setobj` (SETOBJ, DHAZRD, DCEOBJ entry points).
+ *
+ * @see setobj.h
+ * @see setlik.c setcoe.c bfgsfa.c
+ */
 #include <string.h>
 #include <math.h>
 
