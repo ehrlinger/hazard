@@ -148,13 +148,13 @@ Functions</h2></td></tr>
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">theta index   </th><th class="markdownTableHeadNone">Target   </th><th class="markdownTableHeadNone">Inverse transform    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">0   </td><td class="markdownTableBodyNone"><code>TempE.delta</code>   </td><td class="markdownTableBodyNone">\(-e^{-e^{\theta_0}}\) (with sign from <code>Early.deltaN</code>)    </td></tr>
+<td class="markdownTableBodyNone">0   </td><td class="markdownTableBodyNone"><code>TempE.delta</code>   </td><td class="markdownTableBodyNone">\(e^{-e^{\theta_0}}\); negated when <code>Early.deltaN</code> is set    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">1   </td><td class="markdownTableBodyNone"><code>TempE.tHalf</code>   </td><td class="markdownTableBodyNone">\(e^{\theta_1}\)    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">2   </td><td class="markdownTableBodyNone"><code>TempE.nu</code>   </td><td class="markdownTableBodyNone">\(e^{\theta_2}\) (negated if g1flag ≥ 5)    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone"><code>TempE.m</code>   </td><td class="markdownTableBodyNone">\(e^{\theta_3}\) (negated if g1flag ≥ 3)   </td></tr>
+<td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone"><code>TempE.m</code>   </td><td class="markdownTableBodyNone">\(e^{\theta_3}\) (negated if g1flag == 3 or 4)   </td></tr>
 </table>
 <p>Only indices where <code>Common.status[i] == 1</code> are updated.</p>
 <dl class="section note"><dt>Note</dt><dd>Calls hzd_Error() on overflow (fatal, error code 1). </dd></dl>

@@ -151,7 +151,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>\(\ln(e^x - 1)\), or 0 on underflow.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Global side-effect: sets <code>Common.errorno</code> on domain errors. Error codes: 1 = overflow ( \(x \geq 3.69\times 10^{75}\)), 2 = \(x\) not positive. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Overflow ( \(x \geq\) LnLim.max): silently returns \(x\). Underflow (result rounds to zero): silently returns 0. No error code is set; this function never calls hzd_Error(). </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="hzd__ln__eBXmin1divB_8c.html#a6be2831c613a502ef63016006fa87f5a" title="Compute , .">hzd_ln_eBXmin1divB()</a> which calls this function. </dd></dl>
 
 </div>
