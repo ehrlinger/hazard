@@ -2,7 +2,7 @@
 
 ---
 
-## First and Senior Author
+## Principal Investigator
 
 **Eugene H. Blackstone, M.D.**
 Department of Thoracic and Cardiovascular Surgery, Cleveland Clinic Foundation.
