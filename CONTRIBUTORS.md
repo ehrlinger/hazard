@@ -19,6 +19,7 @@ Co-developer of the decomposition of time-varying hazard into early, constant,
 and late phases. Co-author: Blackstone EH, Naftel DC, Turner ME Jr.,
 "The decomposition of time-varying hazard into phases, each incorporating a
 separate stream of concomitant information." *J Am Stat Assoc* 1986;81:615–624.
+Original C port of the FORTRAN implementation.
 
 ---
 
@@ -46,12 +47,10 @@ Additional stepwise variable selection support routines (`SWVARI`, `SWVARQ`, `SW
 
 ---
 
-## C Port and Modernization (2000–present)
+## Modernization (2000–present)
 
 **John Ehrlinger, Ph.D.**
-Department of Quantitative Health Sciences, Cleveland Clinic Foundation.
-C port and modularization (v4.1.0, 2000): split monolithic FORTRAN into
-subroutine-sized C files, recast global variables into structured groupings.
-Subsequent development: CI infrastructure (GitHub Actions), corpus test suite,
-Doxygen documentation, telemetry, XPORT V8 detection, static build support,
-and all releases from v4.1.0 through v4.4.x.
+Heart, Vascular and Thoracic Institute, Cleveland Clinic Foundation.
+Autotools build system (v4.1.0, 2000). Subsequent development: CI infrastructure
+(GitHub Actions), corpus test suite, Doxygen documentation, telemetry, XPORT V8
+detection, static build support, and all releases from v4.1.0 through v4.4.x.
