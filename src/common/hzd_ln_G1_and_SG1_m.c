@@ -1,3 +1,14 @@
+/**
+ * @file hzd_ln_G1_and_SG1_m.c
+ * @brief G1/SG1 variant: unconstrained M parameter (float, not integer flag).
+ *
+ * Mirrors hzd_ln_G1_and_SG1.c but accepts M as a continuous parameter
+ * rather than dispatching on g1flag integer cases. Used in code paths
+ * where M is being estimated rather than pre-classified.
+ *
+ * **FORTRAN origin:** `model91/dlg1` variant paths.
+ * @see hzd_ln_G1_and_SG1.c for the flag-dispatch version.
+ */
 #include <string.h>
 #include "structures.h"
 #include "hzd_ln_eBXmin1divB.h"

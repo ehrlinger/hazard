@@ -1,3 +1,41 @@
+/**
+ * @file hzd_ln_G1_and_SG1.c
+ * @brief Early-phase shaping function G1 and hazard shaping function SG1.
+ *
+ * Implements all six special cases of the early-phase cumulative hazard
+ * shaping function \f$G_1(t)\f$ and its time derivative \f$SG_1(t)\f$
+ * from the three-phase parametric hazard model of Blackstone, Naftel,
+ * and Turner (1986).
+ *
+ * The general 4-parameter form (in log domain) uses B(t) as an
+ * exponentially-transformed time:
+ * \f[
+ *   B(t) = \frac{e^{\delta t} - 1}{\delta}, \quad
+ *   \frac{dB}{dt} = e^{\delta t}
+ * \f]
+ * (or \f$B(t)=t\f$, \f$dB/dt=1\f$ when \f$\delta=0\f$).
+ *
+ * Case g1flag=1 (M>0, ν>0 — Negative Generic):
+ * \f[
+ *   G_1 = \left[1 + \left(\frac{B(t)}{\rho}\right)^{-1/\nu}\right]^{-1/M}
+ * \f]
+ *
+ * Case g1flag=2 (M=0, ν>0 — Limiting/Gompertz):
+ * \f[
+ *   G_1 = \exp\!\left[-\left(\frac{B(t)}{\rho}\right)^{-1/\nu}\right]
+ * \f]
+ *
+ * Cases 3–6 follow analogously (see FORTRAN source `model91/dlg1` for the
+ * full formulas for each flag).
+ *
+ * **FORTRAN origin:** `model91/dlg1` (DLG1 subroutine) — six-case switch
+ * matching the FORTRAN's IF-ladder. Verified in the C port.
+ * **TemporalHazard R equivalent:** `hzd_G1()` in the R package.
+ *
+ * @see hzd_ln_G1_and_SG1.h
+ * @see setg1() for g1flag assignment.
+ * @see hzd_ln_G1_and_SG1_m.c for the variant with M as a free parameter.
+ */
 #include <string.h>
 #include "structures.h"
 #include "hzd_Error.h"
