@@ -1,18 +1,42 @@
+/**
+ * @file hazpred.h
+ * @brief HAZPRED-specific definitions: hzpstr, HAZPRED/EXTERN macro.
+ *
+ * @see hazpred.c for the binary entry point.
+ * @see FORTRAN origin: `pred91/dpred` (DPRED subroutine).
+ */
 #ifndef HAZPRED_H
 #define HAZPRED_H
 
 #include "structures.h"
 #define HZPVER 400
 
+/**
+ * @brief Per-observation prediction outputs from HAZPRED.
+ *
+ * Filled by the dpred-equivalent computation for each design-matrix row.
+ * Contains overall and phase-specific survivorship and hazard values,
+ * plus confidence limits.
+ */
 struct hzpstr {
-  double Surviv,earlyS,constS,lateS;
-  double Hazard,earlyH,constH,lateH;
-  double CL_L_S,CL_U_S,CL_L_H,CL_U_H;
-  double CLimit;
-  double Pvalue;
-  double Znormal;
-  short int noCL;
-  short int Hflag,Sflag;
+  double Surviv;    /**< Overall survivorship S(t). */
+  double earlyS;    /**< Early-phase survivorship component. */
+  double constS;    /**< Constant-phase survivorship component. */
+  double lateS;     /**< Late-phase survivorship component. */
+  double Hazard;    /**< Overall hazard H(t). */
+  double earlyH;    /**< Early-phase hazard component. */
+  double constH;    /**< Constant-phase hazard component. */
+  double lateH;     /**< Late-phase hazard component. */
+  double CL_L_S;    /**< Lower confidence limit for survivorship. */
+  double CL_U_S;    /**< Upper confidence limit for survivorship. */
+  double CL_L_H;    /**< Lower confidence limit for hazard. */
+  double CL_U_H;    /**< Upper confidence limit for hazard. */
+  double CLimit;    /**< Confidence level (e.g., 0.95). */
+  double Pvalue;    /**< Two-sided p-value from Wald test. */
+  double Znormal;   /**< Z-score from normal approximation. */
+  short int noCL;   /**< Flag: 1 if confidence limits could not be computed. */
+  short int Hflag;  /**< Flag: hazard requested in output. */
+  short int Sflag;  /**< Flag: survivorship requested in output. */
 };
 
 #ifdef HAZPRED

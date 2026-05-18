@@ -1,3 +1,30 @@
+/**
+ * @file hazard.c
+ * @brief HAZARD binary entry point — three-phase parametric hazard analysis.
+ *
+ * Reads a PROC HAZARD statement from stdin (parsed via flex/bison),
+ * opens the XPORT dataset identified in the DATA= option, fits the
+ * three-phase hazard model by maximum likelihood (BFGS), and writes
+ * a formatted listing to stdout.
+ *
+ * **Program flow:**
+ * 1. Initialize global structs (hzd_init_Common, Machn, LnLim).
+ * 2. Establish the setjmp error trap (`Common.errtrap`).
+ * 3. Parse the PROC HAZARD statement (hazard_l.l / hazard_y.y).
+ * 4. Read the XPORT dataset (xportHandler / hzpxprt).
+ * 5. Set phase flags, validate parameters (setg1, setg3).
+ * 6. Run conservation-of-events setup (setcoe) + BFGS optimization (bfgsfa).
+ * 7. Compute variance-covariance (dcovar), stepwise selection (stepw/backw).
+ * 8. Write output listing and optional OUTHAZ dataset.
+ * 9. Write telemetry event (hzd_telemetry).
+ *
+ * **Global storage:** This file `#define STRUCT` before `#include "structures.h"`,
+ * which allocates all global struct storage (Early, Late, Common, etc.).
+ * All other translation units get `extern` declarations.
+ *
+ * @see hazard.h hzd_init_Common.h setcoe.h setlik.h bfgsfa.h
+ * @see xportHandler.h for the XPORT I/O boundary.
+ */
 #include <string.h>
 /**
    The hazard program has about 16000 lines of code.
