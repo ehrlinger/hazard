@@ -1,0 +1,71 @@
+name: Corpus Fixture Parity
+
+# Validates the C binary output against .lst captures in the private
+# hazard-fixtures repo.  Mirrors the validate_corpus.sh / validate_examples_sas.sh
+# harnesses that run locally, but driven from the private fixture set.
+#
+# PHI POLICY: the fixture repo contains ONLY .lst captures and .sas scripts —
+# no patient-level data.  Raw data files MUST NOT be committed.
+# Tests requiring raw data skip automatically when the env var is unset.
+#
+# Prerequisites (one-time setup):
+#   1. Generate a deploy key (can reuse the same key pair as temporal_hazard):
+#        ssh-keygen -t ed25519 -C "hazard-fixtures-ci" -f hazard_fixtures_key
+#   2. Add hazard_fixtures_key.pub as a read-only deploy key on
+#        github.com/ehrlinger/hazard-fixtures
+#   3. Add hazard_fixtures_key (private) as repository secret
+#        FIXTURE_REPO_DEPLOY_KEY on this repo.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'      # every Monday 06:00 UTC
+
+concurrency:
+  group: fixture-parity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  corpus-parity:
+    name: Corpus parity (C binary vs .lst captures)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Check out the private fixture repo ──────────────────────────────
+      - uses: actions/checkout@v4
+        with:
+          repository: ehrlinger/hazard-fixtures
+          path: hazard-fixtures
+          ssh-key: ${{ secrets.FIXTURE_REPO_DEPLOY_KEY }}
+
+      # ── Build the C binary ───────────────────────────────────────────────
+      - name: Install build deps
+        run: sudo apt-get update -q && sudo apt-get install -y gcc make autoconf automake libtool flex bison
+
+      - name: Build hazard binary
+        run: |
+          autoreconf -fi
+          ./configure
+          make
+
+      # ── Run corpus validation ────────────────────────────────────────────
+      # validate_corpus.sh compares binary output against reference .lst files.
+      # It exits non-zero on any mismatch; CI fails accordingly.
+      - name: Validate against fixture captures
+        env:
+          HAZARD_EXAMPLES_DIR: ${{ github.workspace }}/hazard-fixtures/examples
+        run: |
+          bash tests/validate_corpus.sh \
+            --fixture-dir "$HAZARD_EXAMPLES_DIR" \
+            --binary ./hazard
+
+      # ── SAS-wrapped validation (skip if SAS unavailable — always on CI) ──
+      # validate_examples_sas.sh requires a licensed SAS installation and the
+      # raw datasets; it is intentionally skipped in CI and run locally only.
+      # Included here as a no-op to document the intent.
+      - name: SAS-wrapped validation (local only — skip in CI)
+        run: |
+          echo "SAS-wrapped corpus validation requires a local SAS install."
+          echo "Run tests/validate_examples_sas.sh locally against CCF SAS."
