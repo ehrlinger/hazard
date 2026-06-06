@@ -72,6 +72,16 @@ Two fully independent engines, one shared file format:
 
 **Critical clarification:** TemporalHazard is **not** invoked by SAS, **not** a wrapper around `libhazard`, **not** a runtime dependency of hazard. It is a peer pure-R implementation. Cross-validation is a CI parity test, not a code coupling.
 
+> **Correctness strategy:** the V9 gate above is **Tier 2** of a tiered model
+> defined in `TemporalHazard/inst/dev/CORRECTNESS-STRATEGY.md` — R-only invariant
+> tests (Tier 1, shipped) carry most assurance; V9 is the cross-engine
+> differential gate over a *shared structured (Parquet) contract* with one
+> generic comparator at a *statistical* tolerance; a small **frozen** golden set
+> anchors against captured SAS output. Key principle: *correct = satisfies the
+> math, and agrees with the other engine where it is right* — not *matches SAS*.
+> This is what bounds V9's scope (it diffs structured outputs within tolerance;
+> it does not chase SAS print conventions).
+
 ### 1.2 Layer responsibilities (the `hazard` C/C++ side; TemporalHazard out of v5.0 scope as code dependency)
 
 | Layer | Language | Build | Purpose |
