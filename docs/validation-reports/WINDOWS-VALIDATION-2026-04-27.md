@@ -16,7 +16,7 @@ This report supersedes the prior interim diagnosis in `WINDOWS-VALIDATION-2026-0
 | Variable | Value |
 |---|---|
 | `HAZAPPS` | `C:\hazard\bin` |
-| `HZEXAMPLES` | `C:\Users\John_Ehrlinger\Documents\dist\examples\` (re-pointed from read-only `C:\hazard\examples` so drivers can write `EXAMPLES.<lib>` outputs) |
+| `HZEXAMPLES` | `<path-to>\dist\examples\` (re-pointed from read-only `C:\hazard\examples` so drivers can write `EXAMPLES.<lib>` outputs) |
 | `MACROS` | `C:\hazard\macros` |
 
 The first run used the read-only `C:\hazard\examples` directory and produced `exit=2` for three drivers due to SAS write-permission denials when the drivers tried to populate `EXAMPLES.BSAVCE.DATA` and similar back into the examples directory. Pointing `HZEXAMPLES` at a writable workspace resolved those failures and produced the canonical baseline.

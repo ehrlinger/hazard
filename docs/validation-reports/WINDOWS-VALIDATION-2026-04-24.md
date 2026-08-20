@@ -13,7 +13,7 @@ that numerical results match the v4.1.0 reference baseline.
 | Item | Value |
 |------|-------|
 | Host | `WKSOREG-ACSOHVS` |
-| Shell | MSYS2 UCRT64 (`/d/Users/John_Ehrlinger/Downloads/hazard-main`) |
+| Shell | MSYS2 UCRT64 (`<path-to>/hazard-main`) |
 | Toolchain | GCC via MSYS2 UCRT64 |
 | Binary | `src/hazard/hazard.exe` |
 | Reference | `tests/4.1.0/` |

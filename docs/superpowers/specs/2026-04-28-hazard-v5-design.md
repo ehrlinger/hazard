@@ -1124,7 +1124,7 @@ This is reusable infrastructure: ~230 LoC of write-side machinery in v4.4.6 + ~3
   "event": "invocation",
   "schema_version": 1,
   "ts": "2026-04-29T14:23:11Z",
-  "host": "lri-sas-p-02.lerner.ccf.org",
+  "host": "<redacted>",
   "user": "ehrlinj",
   "hazard_version": "4.4.6",
   "input_format": "XPORT_V5",
