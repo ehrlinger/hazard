@@ -124,9 +124,9 @@ done
 # Structural provenance checks. These name no value; they assert the shape a
 # redacted record must have, so an unredacted capture from any machine fails.
 # ---------------------------------------------------------------------------
-list_tracked() {  # $1 = find-style name glob, $2 = root dir
-    if [ "${ENGINE}" = "git" ]; then git ls-files -- "$2" | grep -E "$1\$" || true
-    else find "$2" -name "*${1##*\\.}" 2>/dev/null || true; fi
+list_tracked() {  # $1 = bare extension (no dot), $2 = root dir
+    if [ "${ENGINE}" = "git" ]; then git ls-files -- "$2" | grep -E "\.$1\$" || true
+    else find "$2" -name "*.$1" 2>/dev/null || true; fi
 }
 
 bad=0
@@ -138,6 +138,11 @@ bad=0
 while IFS= read -r f; do
     [ -f "${f}" ] || continue
     while IFS= read -r line || [ -n "${line}" ]; do
+        # Strip a trailing CR. MSYS2/Windows checks these out with CRLF, which
+        # made every `pwd=<redacted>` read as `pwd=<redacted>\r` and fail the
+        # exact-match comparisons — the guard reported the whole corpus
+        # unredacted on Windows only.
+        line="${line%$'\r'}"
         case "${line}" in
             host=*)
                 # shellcheck disable=SC2086
@@ -153,7 +158,7 @@ while IFS= read -r f; do
                 ;;
         esac
     done < "${f}"
-done < <(list_tracked '\.meta' 'tests/corpus')
+done < <(list_tracked 'meta' 'tests/corpus')
 
 # .lst — SAS listings. corpus_normalize.sh maps these two fields to <PATH> /
 # <OWNER> on both sides of a diff, so the committed reference must already
@@ -166,7 +171,7 @@ while IFS= read -r f; do
         echo "    ${f}: Filename/Owner Name is not <PATH>/<OWNER>"
         bad=1
     fi
-done < <(list_tracked '\.lst' 'tests/corpus')
+done < <(list_tracked 'lst' 'tests/corpus')
 
 if [ "${bad}" -ne 0 ]; then
     echo "FAIL: unredacted capture provenance above"
