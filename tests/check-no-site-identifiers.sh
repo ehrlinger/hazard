@@ -32,11 +32,15 @@ else
     echo "note: git unavailable — scanning the worktree directly" >&2
 fi
 
-scan() {  # $1 = extended regex; prints matches, returns 1 when none
+# Exit status is meaningful and must be preserved: grep returns 0 for
+# "matched", 1 for "no match", and >1 for a real error (invalid regex,
+# unreadable tree). Do NOT redirect stderr away here — the caller captures it,
+# and an error that cannot be seen is an error that reads as "clean".
+scan() {  # $1 = extended regex. 0 = matches, 1 = none, >1 = error
     if [ "${ENGINE}" = "git" ]; then
-        git grep -nIE "$1" -- ":!${SELF}" 2>/dev/null
+        git grep -nIE "$1" -- ":!${SELF}"
     else
-        grep -rnIE --exclude-dir=.git --exclude="$(basename "${SELF}")" "$1" . 2>/dev/null
+        grep -rnIE --exclude-dir=.git --exclude="$(basename "${SELF}")" "$1" .
     fi
 }
 
@@ -51,13 +55,28 @@ PATTERNS=(
 )
 
 status=0
+errfile="$(mktemp)"
+trap 'rm -f "${errfile}"' EXIT
+
 for pat in "${PATTERNS[@]}"; do
     # This file necessarily contains the patterns it guards — scan() excludes it.
-    if hits="$(scan "${pat}")" && [ -n "${hits}" ]; then
-        echo "FAIL: site identifier committed (/${pat}/):"
-        echo "${hits}" | sed 's/^/    /'
-        status=1
-    fi
+    hits="$(scan "${pat}" 2>"${errfile}")"
+    rc=$?
+    case "${rc}" in
+        0)
+            echo "FAIL: site identifier committed (/${pat}/):"
+            echo "${hits}" | sed 's/^/    /'
+            status=1
+            ;;
+        1)  ;;   # no matches — the good case
+        *)
+            # A scan that errored has NOT proved the tree clean. Treating this
+            # like "no match" is how a guard silently stops guarding.
+            echo "ERROR: scan failed for /${pat}/ (exit ${rc}) — tree NOT verified:"
+            sed 's/^/    /' "${errfile}"
+            status=1
+            ;;
+    esac
 done
 
 if [ "${status}" -eq 0 ]; then
