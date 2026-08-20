@@ -208,10 +208,10 @@ capture_kind() {
 
         # Write .meta — matching scripts/capture-legacy.sh schema where it
         # makes sense; real_exit is honest (the binary's actual rc).  Honour
-        # HAZARD_CAPTURE_REDACT=1 for shared-corpus commits so host /
+        # Redaction is the DEFAULT for shared-corpus commits so host /
         # tmpdir / pwd / real_bin don't leak developer-workstation paths.
         local meta_host meta_tmpdir meta_pwd meta_bin
-        if [[ "${HAZARD_CAPTURE_REDACT:-0}" = "1" ]]; then
+        if [[ "${HAZARD_CAPTURE_REDACT:-1}" = "1" ]]; then
             meta_host="$(uname -s) $(uname -r) $(uname -m)"
             meta_tmpdir='<redacted>'
             meta_pwd='<redacted>'

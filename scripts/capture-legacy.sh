@@ -253,11 +253,11 @@ real_exit=$real_exit
 argv=$*
 timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 host=$(
-    # Set HAZARD_CAPTURE_REDACT=1 to drop the site-specific hostname
-    # and user path from the .meta file before it lands in a shared
-    # corpus.  Default (unset) preserves full `uname -a` / `pwd` for
-    # a first-capture-site developer who wants the full provenance.
-    if [ "${HAZARD_CAPTURE_REDACT:-0}" = "1" ]; then
+    # Redaction is the DEFAULT: the site-specific hostname and user path
+    # are dropped before the .meta lands in a shared corpus.  Set
+    # HAZARD_CAPTURE_REDACT=0 only for a local capture you will NOT commit
+    # — this corpus is committed to a public repository.
+    if [ "${HAZARD_CAPTURE_REDACT:-1}" = "1" ]; then
         uname -s -m -r
     else
         uname -a
@@ -265,7 +265,7 @@ host=$(
 )
 tmpdir=${TMPDIR:-/tmp}
 pwd=$(
-    if [ "${HAZARD_CAPTURE_REDACT:-0}" = "1" ]; then
+    if [ "${HAZARD_CAPTURE_REDACT:-1}" = "1" ]; then
         echo "<redacted>"
     else
         pwd

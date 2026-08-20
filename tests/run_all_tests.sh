@@ -123,6 +123,14 @@ echo "Date:       $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================================"
 
 # ------------------------------------------------------------------ #
+# Hygiene: no site identifiers in tracked files                        #
+# ------------------------------------------------------------------ #
+# Runs unconditionally and first — it needs no built binary, and a
+# committed hostname is worth failing the run before anything else.
+
+run_suite "Site-identifier scan" "${SCRIPT_DIR}/check-no-site-identifiers.sh"
+
+# ------------------------------------------------------------------ #
 # Unit tests                                                           #
 # ------------------------------------------------------------------ #
 

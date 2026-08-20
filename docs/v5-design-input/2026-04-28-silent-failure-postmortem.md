@@ -1,6 +1,6 @@
 # 2026-04-28 — Silent-failure postmortem (v5 design input)
 
-**Context:** an afternoon of debugging the v4.4.5 Linux + SAS reference capture on the CCF Linux SAS host (`<redacted-host>`). Captures completed on Windows SAS host; the same workflow fails on Linux SAS in a way that is **silent at every layer** until the failure cascades into a downstream parser explosion.
+**Context:** an afternoon of debugging the v4.4.5 Linux + SAS reference capture on the CCF Linux SAS host. Captures completed on Windows SAS host; the same workflow fails on Linux SAS in a way that is **silent at every layer** until the failure cascades into a downstream parser explosion.
 
 This document is a forward-looking input to v5 planning. The conclusion: the v5 roadmap item **"detect / validate XPORT input format at hazard.exe startup"** is the structurally correct fix for the failure mode we observed today, and the design should be informed by exactly what failed silently and where.
 
