@@ -17,7 +17,9 @@ set -euo pipefail
 exec sed -E \
     -e 's/C-Version [0-9]+\.[0-9]+\.[0-9]+/C-Version X.Y.Z/' \
     -e 's/^[A-Z][a-z]{2} [A-Z][a-z]{2}[[:space:]]+[0-9]+ [0-9]{2}:[0-9]{2}:[0-9]{2} [0-9]{4}/<TIMESTAMP>/' \
-    -e 's/[[:space:]]+[0-9]{1,2}:[0-9]{2} (Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day,[[:space:]]+[A-Za-z]+[[:space:]]+[0-9]{1,2},[[:space:]]+[0-9]{4}([[:space:]]+[0-9]+[[:space:]]*)$/ <SAS_TS>\2/'
+    -e 's/[[:space:]]+[0-9]{1,2}:[0-9]{2} (Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day,[[:space:]]+[A-Za-z]+[[:space:]]+[0-9]{1,2},[[:space:]]+[0-9]{4}([[:space:]]+[0-9]+[[:space:]]*)$/ <SAS_TS>\2/' \
+    -e 's/^([[:space:]]*Filename[[:space:]]+).*$/\1<PATH>/' \
+    -e 's/^([[:space:]]*Owner Name[[:space:]]+).*$/\1<OWNER>/'
 
 # Rule intents (keep in sync with the sed above):
 #

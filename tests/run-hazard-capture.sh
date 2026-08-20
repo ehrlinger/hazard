@@ -219,11 +219,13 @@ write_meta() {
     local argv="$4"
     local pwd_path="$5"
 
-    # Honour HAZARD_CAPTURE_REDACT=1 (matches scripts/capture-legacy.sh) so
-    # host / tmpdir / pwd / real_bin don't leak developer-workstation paths
-    # when the .meta lands in a shared corpus.
+    # Redaction is the DEFAULT (matches scripts/capture-legacy.sh): host /
+    # tmpdir / pwd / real_bin must not leak site hostnames or developer paths,
+    # because every .meta written here lands in a corpus committed to a public
+    # repo. Set HAZARD_CAPTURE_REDACT=0 for a purely local capture you will not
+    # commit.
     local meta_host meta_tmpdir meta_pwd meta_bin
-    if [[ "${HAZARD_CAPTURE_REDACT:-0}" = "1" ]]; then
+    if [[ "${HAZARD_CAPTURE_REDACT:-1}" = "1" ]]; then
         meta_host="$(uname -s) $(uname -r) $(uname -m)"
         meta_tmpdir='<redacted>'
         meta_pwd='<redacted>'
