@@ -130,7 +130,7 @@ doxygen --version
 - [ ] **Step 2: Generate a baseline Doxyfile**
 
 ```bash
-cd <redacted-path>/Documents/GitHub/hazard
+cd <path-to>/hazard
 doxygen -g Doxyfile
 ```
 
@@ -305,7 +305,7 @@ Columns: TIME(1), EVENT(2), LCENSOR(3), RCENSOR(4), WEIGHT(5), ID(6), STRATA(7).
 - [ ] **Step 10: Run Doxygen locally — confirm it builds**
 
 ```bash
-cd <redacted-path>/Documents/GitHub/hazard
+cd <path-to>/hazard
 doxygen Doxyfile 2>&1 | grep -i "warning\|error" | head -20
 open docs/doxygen/html/index.html
 ```

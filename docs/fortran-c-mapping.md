@@ -6,7 +6,7 @@
 > or algorithm is opaque, the corresponding FORTRAN source has authoritative
 > comments.
 >
-> **FORTRAN source root:** `<redacted-path>/Documents/hazard_fortran/`
+> **FORTRAN source root:** `<path-to>/hazard_fortran/`
 > (local copy from CCF network drive; not in this repo)
 >
 > **C source root:** `src/`
