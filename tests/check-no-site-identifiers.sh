@@ -48,11 +48,29 @@ scan() {  # $1 = extended regex. 0 = matches, 1 = none, >1 = error
 PATTERNS=(
     'lri-[a-z0-9-]+\.lerner\.ccf\.org'   # internal CCF hosts (SAS, PPM, ...)
     '[a-z0-9-]+\.cchs\.net'              # internal CCF domain
-    '<redacted-db>|<redacted-db>'                 # warehouse SQL Server instances
-    '<redacted-path>|<redacted-path>'       # developer home paths
-    '<redacted-user>'                     # Windows account / domain user
-    '<redacted-host>'                        # developer workstation hostname
+    'ESQLPROD|ESQLPLDAG'                 # warehouse SQL Server instances
+    '/home/ehrlinj|/Users/ehrlinj'       # developer home paths
+    'John_Ehrlinger'                     # Windows account / domain user
+    'ehrlinj4F71'                        # developer workstation hostname
 )
+
+# Guard the guard. A `git filter-repo --replace-text` history rewrite treats
+# this file like any other and will happily rewrite the very literals above
+# into placeholders — which is exactly what happened on 2026-08-20: four of
+# the six patterns became '<redacted-*>' and the scan went on reporting PASS
+# while no longer looking for developer paths, the domain account, or the
+# warehouse instances. A disarmed guard is worse than no guard, so refuse to
+# run rather than pass quietly.
+for pat in "${PATTERNS[@]}"; do
+    case "${pat}" in
+        *'<redacted'*|*'<internal-'*|*'<path-to'*)
+            echo "FATAL: pattern '${pat}' has been replaced by a redaction placeholder." >&2
+            echo "       This scan cannot detect what it was written to detect." >&2
+            echo "       Restore the literal patterns (see git history) before relying on it." >&2
+            exit 2
+            ;;
+    esac
+done
 
 status=0
 errfile="$(mktemp)"
