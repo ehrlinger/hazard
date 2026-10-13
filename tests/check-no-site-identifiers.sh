@@ -68,17 +68,22 @@ scan() {  # $1 = extended regex. 0 = matches, 1 = none, >1 = error
 #   3. a BARE short hostname, by the naming convention's shape:
 #      <site>-<service>-<env>-<NN> and <site>-<service><NN>. Pattern 1 needs
 #      the domain suffix, and prose names a server without one: five docs
-#      named the production SAS host that way and passed this scan.
+#      named the production SAS host that way and passed this scan. Either
+#      case, any preceding character but a letter, digit or hyphen (`.` and
+#      `_` included, so `user.host` and `svc_host` match), an optional hyphen
+#      before the number, and two or three digits.
 PATTERNS=(
     '(^|[^@A-Za-z0-9._-])[a-z0-9-]+\.(lerner\.ccf\.org|cchs\.net)'
     'ESQL[A-Z0-9]{2,}'
-    '(^|[^A-Za-z0-9._-])[a-z]{2,4}-[a-z]{2,5}-[a-z]-[0-9]{2}([^A-Za-z0-9]|$)'
-    '(^|[^A-Za-z0-9._-])[a-z]{2,4}-[a-z]{2,5}[0-9]{2}([^A-Za-z0-9]|$)'
+    '(^|[^A-Za-z0-9-])[A-Za-z]{2,4}-[A-Za-z]{2,5}-[A-Za-z]-?[0-9]{2,3}([^A-Za-z0-9]|$)'
+    '(^|[^A-Za-z0-9-])[A-Za-z]{2,4}-[A-Za-z]{2,5}[0-9]{2,3}([^A-Za-z0-9]|$)'
 )
 
 # Public, citable URLs that legitimately appear in AUTHORS.md / README.md and
 # must not fail the scan. ERE has no negative lookahead, so allowlisting is a
-# second pass over the hits rather than part of the pattern.
+# second pass over the hits rather than part of the pattern. The pass deletes
+# the allowed text and re-tests what is left; dropping every line that merely
+# contained it would let an internal host share a line with the public one.
 ALLOW='www\.lerner\.ccf\.org'
 
 # Guard the guard. A `git filter-repo --replace-text` rewrite treats this file
@@ -108,7 +113,10 @@ for pat in "${PATTERNS[@]}"; do
     rc=$?
     case "${rc}" in
         0)
-            hits="$(printf '%s\n' "${raw}" | grep -vE "${ALLOW}")" || hits=""
+            hits="$(printf '%s\n' "${raw}" | while IFS= read -r l; do
+                printf '%s\n' "${l}" | sed -E "s/${ALLOW}//g" | grep -qE "${pat}" \
+                    && printf '%s\n' "${l}"
+            done)" || hits=""
             if [ -n "${hits}" ]; then
                 echo "FAIL: site identifier committed (/${pat}/):"
                 echo "${hits}" | sed 's/^/    /'
