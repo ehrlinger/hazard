@@ -68,7 +68,7 @@ On CCF, locate the FORTRAN source (typically `hazard.f` or a directory of `.f` f
 
 ```bash
 # Adjust path to match actual CCF location
-scp -r lri-sas-p-02:/programs/apps/sas/hazard/src/fortran ~/hazard-fortran/
+scp -r <internal-sas-host>:/programs/apps/sas/hazard/src/fortran ~/hazard-fortran/
 ```
 
 - [ ] **Step 2: Inventory the FORTRAN subroutines**

@@ -1,6 +1,6 @@
 # HAZARD v4.3.0 Capture Comparison — 2026-04-22
 
-**Source:** v4.3.0 production binary (`/opt/hazard/bin/hazard.exe`) on Linux UNIX (lri-sas-p-02)  
+**Source:** v4.3.0 production binary (`/opt/hazard/bin/hazard.exe`) on Linux UNIX (internal Linux SAS host)  
 **Timestamp:** 2026-04-22T19:58:23Z – 19:58:33Z (10 s span)  
 **Total Captures:** 8 runs (7 exit=0, 1 exit=1) → **6 unique output hashes**  
 **Host:** Linux 4.18.0-553.89.1.el8_10.x86_64  
@@ -129,7 +129,7 @@ Unique output hashes across the 7 successful captures: **6** (AVC.2 and AVC.deci
 
 ### What it proves
 1. **The v4.3.0 binary at CCF is deterministic.** Rerunning 7 examples ten days after the reference capture produces bit-identical output.
-2. **The repo reference corpus is an authentic copy** of what `/opt/hazard/bin/hazard.exe` produces on `lri-sas-p-02`. It has not been tampered with or regenerated on a different host.
+2. **The repo reference corpus is an authentic copy** of what `/opt/hazard/bin/hazard.exe` produces on the internal Linux SAS host. It has not been tampered with or regenerated on a different host.
 3. **Capture-order labels cannot be trusted.** 3 of 7 captures were labelled for an example whose hash belongs to a different example. Hash identity, not the job-ID label, is authoritative.
 
 ### What it does NOT prove

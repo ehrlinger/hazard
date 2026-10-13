@@ -1323,7 +1323,7 @@ Common case: a user with `~/.hazard/events.log` from their laptop wants to see t
 
 ```bash
 hazard-telemetry-summary \
-  --log /var/log/hazard/events.log@lri-sas-p-02 \
+  --log /var/log/hazard/events.log@<internal-sas-host> \
   --log /var/log/hazard/events.log@windows-sas-host \
   --log ~/.hazard/events.log
 ```
