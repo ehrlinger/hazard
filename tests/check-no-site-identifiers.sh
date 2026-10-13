@@ -65,9 +65,15 @@ scan() {  # $1 = extended regex. 0 = matches, 1 = none, >1 = error
 #      leading class also excludes an `@`, so mail addresses under the internal
 #      domains do not trip it either.
 #   2. warehouse SQL Server instances, by naming convention rather than name.
+#   3. a BARE short hostname, by the naming convention's shape:
+#      <site>-<service>-<env>-<NN> and <site>-<service><NN>. Pattern 1 needs
+#      the domain suffix, and prose names a server without one: five docs
+#      named the production SAS host that way and passed this scan.
 PATTERNS=(
     '(^|[^@A-Za-z0-9._-])[a-z0-9-]+\.(lerner\.ccf\.org|cchs\.net)'
     'ESQL[A-Z0-9]{2,}'
+    '(^|[^A-Za-z0-9._-])[a-z]{2,4}-[a-z]{2,5}-[a-z]-[0-9]{2}([^A-Za-z0-9]|$)'
+    '(^|[^A-Za-z0-9._-])[a-z]{2,4}-[a-z]{2,5}[0-9]{2}([^A-Za-z0-9]|$)'
 )
 
 # Public, citable URLs that legitimately appear in AUTHORS.md / README.md and

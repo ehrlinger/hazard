@@ -93,7 +93,7 @@ ls -la "$(grep '^HAZARD_REAL=' ~/hazard-shadow-bin/capture.env | cut -d= -f2)"
 ls -la "$(grep '^HAZPRED_REAL=' ~/hazard-shadow-bin/capture.env | cut -d= -f2)"
 ```
 
-At CCF (`lri-sas-p-02`) the paths are:
+At CCF (the internal Linux SAS host) the paths are:
 ```
 HAZARD_REAL=/programs/apps/sas/hazard/hazard.exe
 HAZPRED_REAL=/programs/apps/sas/hazard/hazpred.exe
